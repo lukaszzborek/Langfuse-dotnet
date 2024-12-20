@@ -77,7 +77,7 @@ public class LangfuseTrace
         return spanBody;
     }
     
-    public GenerationEventBody CreateGenerationEvent(string generationName, object? input = null, object? output = null, DateTime? eventDate = null)
+    public GenerationEventBody CreateGeneration(string generationName, object? input = null, object? output = null, DateTime? eventDate = null)
     {
         eventDate ??= _timeProvider.GetUtcNow().UtcDateTime;
         

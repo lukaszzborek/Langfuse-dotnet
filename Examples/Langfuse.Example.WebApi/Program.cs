@@ -25,7 +25,7 @@ app.MapPost("/chat", async ([FromServices] ILangfuseClient langfuseClient,
         var data = await GetDataFromDb(langfuseTrace, request.Message);
         var response = await openAiService.GetChatCompletionAsync(request.Model, $"{data}-{request.Message}");
 
-        var generation = langfuseTrace.CreateGenerationEvent("generation", input: request.Message);
+        var generation = langfuseTrace.CreateGeneration("generation", input: request.Message);
         generation.Model = request.Model;
         generation.SetOutput(response);
         generation.SetUsage(JsonSerializer.Deserialize<TokenInfo>("""
@@ -66,6 +66,7 @@ app.MapPost("/chat", async ([FromServices] ILangfuseClient langfuseClient,
                                                                }
                                                                """)!);
             span.SetOutput("Data from db");
+            span.CreateEvent("Data downloaded", input: requestMessage, output: "Data from db");
             
             return "Data from db";
         }
@@ -87,7 +88,7 @@ app.MapPost("/chatDi", async ([FromServices] ILangfuseClient langfuseClient, [Fr
         
         var response = await openAiService.GetChatCompletionAsync(request.Model, $"{data}-{request.Message}");
         
-        var generation = langfuseTrace.CreateGenerationEvent("generation", input: request.Message);
+        var generation = langfuseTrace.CreateGeneration("generation", input: request.Message);
         generation.Model = request.Model;
         generation.SetOutput(response);
         generation.SetUsage(JsonSerializer.Deserialize<TokenInfo>("""
@@ -128,6 +129,8 @@ app.MapPost("/chatDi", async ([FromServices] ILangfuseClient langfuseClient, [Fr
                                                                  }
                                                                  """)!);
             span.SetOutput("Data from db");
+            span.CreateEvent("Data downloaded", input: requestMessage, output: "Data from db");
+            
             
             return "Data from db";
         }
