@@ -5,6 +5,7 @@ using Langfuse.Models;
 using Langfuse.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Langfuse;
 
@@ -21,6 +22,7 @@ public static class Extensions
             throw new Exception("Langfuse configuration is missing");
         }
 
+        services.TryAddSingleton(TimeProvider.System);;
         services.AddScoped<LangfuseTrace>();
         services.AddScoped<AuthorizationDelegatingHandler>();
         services.AddSingleton(sp => Channel.CreateUnbounded<IIngestionEvent>());
