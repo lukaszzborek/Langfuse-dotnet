@@ -2,12 +2,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Channels;
-using Langfuse.Config;
-using Langfuse.Models;
-using Langfuse.Services;
 using Microsoft.Extensions.Options;
+using zborek.Langfuse.Config;
+using zborek.Langfuse.Models;
+using zborek.Langfuse.Services;
 
-namespace Langfuse.Client;
+namespace zborek.Langfuse.Client;
 
 internal class LangfuseClient : ILangfuseClient
 {

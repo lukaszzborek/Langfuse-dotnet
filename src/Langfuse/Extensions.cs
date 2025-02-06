@@ -1,13 +1,13 @@
 using System.Threading.Channels;
-using Langfuse.Client;
-using Langfuse.Config;
-using Langfuse.Models;
-using Langfuse.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using zborek.Langfuse.Client;
+using zborek.Langfuse.Config;
+using zborek.Langfuse.Models;
+using zborek.Langfuse.Services;
 
-namespace Langfuse;
+namespace zborek.Langfuse;
 
 public static class Extensions
 {

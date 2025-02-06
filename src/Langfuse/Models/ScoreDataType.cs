@@ -1,4 +1,4 @@
-namespace Langfuse.Models;
+namespace zborek.Langfuse.Models;
 
 public enum ScoreDataType
 {

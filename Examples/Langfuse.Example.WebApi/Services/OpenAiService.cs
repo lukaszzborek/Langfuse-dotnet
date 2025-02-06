@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Langfuse.Example.WebApi.Models;
 
 namespace Langfuse.Example.WebApi.Services;
 
@@ -15,7 +16,7 @@ public class OpenAiService
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
     }
 
-    public async Task<string> GetChatCompletionAsync(string model, string prompt)
+    public async Task<ChatCompletionResponse?> GetChatCompletionAsync(string model, string prompt)
     {
         var requestBody = new
         {
@@ -33,6 +34,6 @@ public class OpenAiService
 
         response.EnsureSuccessStatusCode();
         
-        return await response.Content.ReadAsStringAsync();
+        return await response.Content.ReadFromJsonAsync<ChatCompletionResponse>();
     }
 }

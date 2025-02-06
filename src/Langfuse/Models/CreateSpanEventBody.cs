@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using Langfuse.Services;
+using zborek.Langfuse.Services;
 
-namespace Langfuse.Models;
+namespace zborek.Langfuse.Models;
 
 public class CreateSpanEventBody
 {

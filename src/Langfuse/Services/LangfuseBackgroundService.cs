@@ -1,12 +1,12 @@
 using System.Threading.Channels;
-using Langfuse.Client;
-using Langfuse.Config;
-using Langfuse.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using zborek.Langfuse.Client;
+using zborek.Langfuse.Config;
+using zborek.Langfuse.Models;
 
-namespace Langfuse.Services;
+namespace zborek.Langfuse.Services;
 
 internal class LangfuseBackgroundService : BackgroundService
 {
@@ -23,7 +23,7 @@ internal class LangfuseBackgroundService : BackgroundService
         _client = client;
         _config = config;
         _logger = logger;
-        _timer = new PeriodicTimer(TimeSpan.FromSeconds(_config.Value.BatchWaitTimeSeconds));
+        _timer = new PeriodicTimer(_config.Value.BatchWaitTimeSeconds);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

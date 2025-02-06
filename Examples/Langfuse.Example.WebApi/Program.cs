@@ -1,10 +1,11 @@
 using System.Text.Json;
 using Langfuse;
-using Langfuse.Client;
 using Langfuse.Example.WebApi.Models;
 using Langfuse.Example.WebApi.Services;
-using Langfuse.Services;
 using Microsoft.AspNetCore.Mvc;
+using zborek.Langfuse;
+using zborek.Langfuse.Client;
+using zborek.Langfuse.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,23 +24,27 @@ app.MapPost("/chat", async ([FromServices] ILangfuseClient langfuseClient,
         langfuseTrace.Trace.Body.Input = request.Message;
         
         var data = await GetDataFromDb(langfuseTrace, request.Message);
-        var response = await openAiService.GetChatCompletionAsync(request.Model, $"{data}-{request.Message}");
+        var prompt = $"""
+                       <data>
+                       {data}
+                       </data>
 
-        var generation = langfuseTrace.CreateGeneration("generation", input: request.Message);
+                       <prompt>
+                       {request.Message}
+                       </prompt>
+                       """;
+        
+        var response = await openAiService.GetChatCompletionAsync(request.Model, prompt);
+
+        if(response == null)
+        {
+            return Results.BadRequest(new { error = "Failed to get response from OpenAI" });
+        }
+        
+        var generation = langfuseTrace.CreateGeneration("generation", input: prompt);
         generation.Model = request.Model;
-        generation.SetOutput(response);
-        generation.SetUsage(JsonSerializer.Deserialize<TokenInfo>("""
-                                                                  {
-                                                                     "prompt_tokens":9,
-                                                                     "completion_tokens":12,
-                                                                     "total_tokens":21,
-                                                                     "completion_tokens_details":{
-                                                                        "reasoning_tokens":0,
-                                                                        "accepted_prediction_tokens":0,
-                                                                        "rejected_prediction_tokens":0
-                                                                     }
-                                                                  }
-                                                                  """)!);
+        generation.SetOutput(response.Choices[0]);
+        generation.SetUsage(response.Usage);
 
         await langfuseClient.IngestAsync(langfuseTrace);
         langfuseTrace.Trace.Body.Output = response;
@@ -49,26 +54,33 @@ app.MapPost("/chat", async ([FromServices] ILangfuseClient langfuseClient,
         async Task<string> GetDataFromDb(LangfuseTrace langfuseTrace1, string requestMessage)
         {
             var span = langfuseTrace1.CreateSpan("GetDataFromDb");
-            var gen = span.CreateGenerationEvent("Embeding", requestMessage);
-            await Task.Delay(1000);
+            var prompt = $"""
+                          <task>
+                          Ask helper question about prompt
+                          </task>
 
-            gen.SetOutput("");
-            gen.SetUsage(JsonSerializer.Deserialize<TokenInfo>("""
-                                                               {
-                                                                  "prompt_tokens":9,
-                                                                  "completion_tokens":12,
-                                                                  "total_tokens":21,
-                                                                  "completion_tokens_details":{
-                                                                     "reasoning_tokens":0,
-                                                                     "accepted_prediction_tokens":0,
-                                                                     "rejected_prediction_tokens":0
-                                                                  }
-                                                               }
-                                                               """)!);
+                          <prompt>
+                          {requestMessage}
+                          </prompt>
+                          """;
+            var additionalQuestions = await openAiService.GetChatCompletionAsync("gpt-4o-mini", prompt);
+            
+            var gen = span.CreateGenerationEvent("Embeding", prompt);
+            await Task.Delay(1000);
+            
             span.SetOutput("Data from db");
             span.CreateEvent("Data downloaded", input: requestMessage, output: "Data from db");
             
-            return "Data from db";
+            if (additionalQuestions == null)
+            {
+                return "Data from db";
+            }
+            
+            gen.Model = "gpt-4o-mini";
+            gen.SetOutput(additionalQuestions.Choices[0]);
+            gen.SetUsage(additionalQuestions.Usage);
+            
+            return additionalQuestions.Choices[0].Message.Content;
         }
     }
     catch (Exception ex)
@@ -85,54 +97,65 @@ app.MapPost("/chatDi", async ([FromServices] ILangfuseClient langfuseClient, [Fr
         langfuseTrace.SetTraceName(request.Name);
         langfuseTrace.Trace.Body.Input = request.Message;
         var data = await GetDataFromDb(langfuseTrace, request.Message);
+
+        var prompt = $"""
+                       <data>
+                       {data}
+                       </data>
+
+                       <prompt>
+                       {request.Message}
+                       </prompt>
+                       """;
         
-        var response = await openAiService.GetChatCompletionAsync(request.Model, $"{data}-{request.Message}");
+        var response = await openAiService.GetChatCompletionAsync(request.Model, prompt);
+        if (response == null)
+        {
+            return Results.BadRequest(new { error = "Failed to get response from OpenAI" });
+        }
         
-        var generation = langfuseTrace.CreateGeneration("generation", input: request.Message);
+        var generation = langfuseTrace.CreateGeneration("generation", input: prompt);
         generation.Model = request.Model;
-        generation.SetOutput(response);
-        generation.SetUsage(JsonSerializer.Deserialize<TokenInfo>("""
-                                                                  {
-                                                                     "prompt_tokens":9,
-                                                                     "completion_tokens":12,
-                                                                     "total_tokens":21,
-                                                                     "completion_tokens_details":{
-                                                                        "reasoning_tokens":0,
-                                                                        "accepted_prediction_tokens":0,
-                                                                        "rejected_prediction_tokens":0
-                                                                     }
-                                                                  }
-                                                                  """)!);
+        generation.SetOutput(response.Choices[0]);
+        generation.SetUsage(response.Usage);
 
         await langfuseClient.IngestAsync(langfuseTrace);
 
-        langfuseTrace.Trace.Body.Output = response;
+        langfuseTrace.Trace.Body.Output = response.Choices[0];
         return Results.Ok(new { response });
         
         async Task<string> GetDataFromDb(LangfuseTrace langfuseTrace1, string requestMessage)
         {
             var span = langfuseTrace1.CreateSpan("GetDataFromDb");
-            var gen = span.CreateGenerationEvent("Embeding", requestMessage);
-            await Task.Delay(1000);
+            var prompt = $"""
+                          <task>
+                          Ask helper question about prompt
+                          </task>
 
-            gen.SetOutput("");
-            gen.SetUsage(JsonSerializer.Deserialize<TokenInfo>("""
-                                                                 {
-                                                                    "prompt_tokens":9,
-                                                                    "completion_tokens":12,
-                                                                    "total_tokens":21,
-                                                                    "completion_tokens_details":{
-                                                                       "reasoning_tokens":0,
-                                                                       "accepted_prediction_tokens":0,
-                                                                       "rejected_prediction_tokens":0
-                                                                    }
-                                                                 }
-                                                                 """)!);
+                          <prompt>
+                          {requestMessage}
+                          </prompt>
+                          """;
+            var additionalQuestions = await openAiService.GetChatCompletionAsync("gpt-4o-mini", prompt);
+            
+            var gen = span.CreateGenerationEvent("Embeding", prompt);
+            await Task.Delay(1000);
+            
             span.SetOutput("Data from db");
             span.CreateEvent("Data downloaded", input: requestMessage, output: "Data from db");
             
+            if (additionalQuestions == null)
+            {
+                return "Data from db";
+            }
             
-            return "Data from db";
+            // write to langfuse
+            
+            gen.Model = "gpt-4o-mini";
+            gen.SetOutput(additionalQuestions.Choices[0]);
+            gen.SetUsage(additionalQuestions.Usage);
+            
+            return additionalQuestions.Choices[0].Message.Content;
         }
     }
     catch (Exception ex)

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Langfuse.Models;
+namespace zborek.Langfuse.Models;
 
 public class CreateSpanEvent : IIngestionEvent
 {

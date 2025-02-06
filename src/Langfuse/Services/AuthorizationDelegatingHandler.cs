@@ -1,9 +1,9 @@
 using System.Net.Http.Headers;
 using System.Text;
-using Langfuse.Config;
 using Microsoft.Extensions.Options;
+using zborek.Langfuse.Config;
 
-namespace Langfuse.Services;
+namespace zborek.Langfuse.Services;
 
 internal class AuthorizationDelegatingHandler : DelegatingHandler
 {
