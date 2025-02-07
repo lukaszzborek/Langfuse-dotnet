@@ -45,6 +45,7 @@ app.MapPost("/chat", async ([FromServices] ILangfuseClient langfuseClient,
         generation.Model = request.Model;
         generation.SetOutput(response.Choices[0]);
         generation.SetUsage(response.Usage);
+        generation.Metadata = new { request.Name, request.Message, Date = DateTime.UtcNow };
 
         await langfuseClient.IngestAsync(langfuseTrace);
         langfuseTrace.Trace.Body.Output = response;
@@ -118,7 +119,8 @@ app.MapPost("/chatDi", async ([FromServices] ILangfuseClient langfuseClient, [Fr
         generation.Model = request.Model;
         generation.SetOutput(response.Choices[0]);
         generation.SetUsage(response.Usage);
-
+        generation.Metadata = new { request.Name, request.Message, Date = DateTime.UtcNow };
+        
         await langfuseClient.IngestAsync(langfuseTrace);
 
         langfuseTrace.Trace.Body.Output = response.Choices[0];
