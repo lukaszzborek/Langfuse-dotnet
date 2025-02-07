@@ -1,5 +1,9 @@
 # WORK IN PROGRESS
 
+<a href="https://www.nuget.org/packages/zborek.LangfuseDotnet/">
+ <img src="https://img.shields.io/nuget/v/zborek.LangfuseDotnet" alt="NuGet">
+</a>
+
 # Langfuse Example Web API
 
 This repository contains library for Langfuse in .net
