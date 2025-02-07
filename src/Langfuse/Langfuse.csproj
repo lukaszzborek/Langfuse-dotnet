@@ -4,20 +4,23 @@
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AssemblyName>zborek.Langfuse</AssemblyName>
+        <RootNamespace>zborek.Langfuse</RootNamespace>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Version>0.0.1</Version>
         <PackageId>zborek.LangfuseDotnet</PackageId>
         <RepositoryUrl>https://github.com/lukaszzborek/Langfuse-dotnet</RepositoryUrl>
         <Authors>lukaszzborek</Authors>
         <Description>Langfuse client for .net</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <EnablePackageValidation>true</EnablePackageValidation>
         <Title>LangfuseDotnet</Title>
         <PackageProjectUrl>https://github.com/lukaszzborek/Langfuse-dotnet</PackageProjectUrl>
         <PackageTags>langfuse;llm;ai</PackageTags>
-        <AssemblyName>zborek.Langfuse</AssemblyName>
-        <RootNamespace>zborek.Langfuse</RootNamespace>
-<!--        <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>-->
     </PropertyGroup>
 
     <ItemGroup>
