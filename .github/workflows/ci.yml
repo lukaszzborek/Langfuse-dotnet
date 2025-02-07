@@ -75,6 +75,14 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
 
+      - name: Upload nuget artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Update artifacts
+          path: |
+            **/*.nupkg
+            **/*.snupkg
+            !.nuget
       # Publish all NuGet packages to NuGet.org
       # Use --skip-duplicate to prevent errors if a package with the same version already exists.
       # If you retry a failed workflow, already published packages will be skipped without error.
