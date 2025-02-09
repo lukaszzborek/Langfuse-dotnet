@@ -17,7 +17,7 @@ public class LangfuseTrace
     /// <summary>
     /// Trace event information
     /// </summary>
-    public TraceEvent Trace { get; private set; }
+    public CreateTraceEvent Trace { get; private set; }
     
     /// <summary>
     /// List of events. Basic building blocks. They are used to track discrete events in a trace
@@ -43,8 +43,8 @@ public class LangfuseTrace
         _timeProvider = timeProvider;
         TraceId = Guid.NewGuid();
         var date = timeProvider.GetUtcNow().UtcDateTime;
-        var traceBody = new TraceBody() { Id = TraceId.ToString(), Timestamp = date };
-        Trace = new TraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
+        var traceBody = new CreateTraceBody() { Id = TraceId.ToString(), Timestamp = date };
+        Trace = new CreateTraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
     }
     
     /// <summary>
@@ -57,8 +57,8 @@ public class LangfuseTrace
         _timeProvider = timeProvider;
         TraceId = Guid.NewGuid();
         var date = timeProvider.GetUtcNow().UtcDateTime;
-        var traceBody = new TraceBody() { Id = TraceId.ToString(), Timestamp = date, Name = name };
-        Trace = new TraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
+        var traceBody = new CreateTraceBody() { Id = TraceId.ToString(), Timestamp = date, Name = name };
+        Trace = new CreateTraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
     }
 
     
@@ -131,11 +131,11 @@ public class LangfuseTrace
         return spanBody;
     }
     
-    public GenerationEventBody CreateGeneration(string generationName, object? input = null, object? output = null, DateTime? eventDate = null)
+    public CreateGenerationEventBody CreateGeneration(string generationName, object? input = null, object? output = null, DateTime? eventDate = null)
     {
         eventDate ??= _timeProvider.GetUtcNow().UtcDateTime;
         
-        var generationBody = new GenerationEventBody()
+        var generationBody = new CreateGenerationEventBody()
         {
             TimeProvider = _timeProvider,
             Id = Guid.NewGuid().ToString(),

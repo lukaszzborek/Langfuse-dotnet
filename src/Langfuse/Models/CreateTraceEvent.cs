@@ -2,13 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace zborek.Langfuse.Models;
 
-public class CreateSpanEvent : IIngestionEvent
+public class CreateTraceEvent : IIngestionEvent
 {
     /// <summary>
     /// Event type
     /// </summary>
     [JsonPropertyName("type")]
-    public string Type { get; init; } = "span-create";
+    public string Type { get; init; } = "trace-create";
     
     /// <summary>
     /// Event ID
@@ -23,12 +23,12 @@ public class CreateSpanEvent : IIngestionEvent
     public string Timestamp { get; set; }
     
     /// <summary>
-    /// Create span event body
+    /// Create trace event body
     /// </summary>
     [JsonPropertyName("body")]
-    public CreateSpanEventBody Body { get; set; }
+    public CreateTraceBody Body { get; set; }
 
-    public CreateSpanEvent(CreateSpanEventBody body, string id, string timestamp)
+    public CreateTraceEvent(CreateTraceBody body, string id, string timestamp)
     {
         Body = body;
         Id = id;

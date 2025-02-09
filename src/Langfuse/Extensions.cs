@@ -9,8 +9,17 @@ using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse;
 
+/// <summary>
+/// Extension methods for setting up Langfuse services in an <see cref="IServiceCollection"/>.
+/// </summary>
 public static class Extensions
 {
+    /// <summary>
+    /// Registers Langfuse services in an <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
     public static IServiceCollection AddLangfuse(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<LangfuseConfig>(configuration.GetSection("Langfuse"));
