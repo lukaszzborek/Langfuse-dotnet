@@ -127,11 +127,19 @@ public class CreateGenerationEventBody
     [JsonPropertyName("promptVersion")]
     public int? PromptVersion { get; set; }
     
+    /// <summary>
+    /// Set generation token usage 
+    /// </summary>
+    /// <param name="usage">Usage object</param>
     public void SetUsage(object usage)
     {
         Usage = usage;
     }
     
+    /// <summary>
+    /// Set generation output and end time
+    /// </summary>
+    /// <param name="output">Output from llm</param>
     public void SetOutput(object output)
     {
         Output = output;

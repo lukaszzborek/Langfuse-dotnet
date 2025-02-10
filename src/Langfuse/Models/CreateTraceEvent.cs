@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace zborek.Langfuse.Models;
 
+/// <summary>
+/// Create trace event
+/// </summary>
 public class CreateTraceEvent : IIngestionEvent
 {
     /// <summary>
@@ -28,10 +31,27 @@ public class CreateTraceEvent : IIngestionEvent
     [JsonPropertyName("body")]
     public CreateTraceBody Body { get; set; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body">Trace event body</param>
+    /// <param name="id">Trace event id</param>
+    /// <param name="timestamp">Trace event date</param>
     public CreateTraceEvent(CreateTraceBody body, string id, string timestamp)
     {
         Body = body;
         Id = id;
         Timestamp = timestamp;
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body">Trace event body</param>
+    /// <param name="timestamp">Trace event date</param>
+    public CreateTraceEvent(CreateTraceBody body, DateTime timestamp) 
+        : this(body, Guid.NewGuid().ToString(), timestamp.ToString("o"))
+    {
+        
     }
 }

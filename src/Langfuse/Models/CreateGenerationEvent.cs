@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace zborek.Langfuse.Models;
 
+/// <summary>
+/// Create generation event
+/// </summary>
 public class CreateGenerationEvent : IIngestionEvent
 {
     /// <summary>
@@ -28,10 +31,27 @@ public class CreateGenerationEvent : IIngestionEvent
     [JsonPropertyName("body")]
     public CreateGenerationEventBody Body { get; set; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body">Generation event body</param>
+    /// <param name="id">Generation event id</param>
+    /// <param name="timestamp">Generation date</param>
     public CreateGenerationEvent(CreateGenerationEventBody body, string id, string timestamp)
     {
         Body = body;
         Id = id;
         Timestamp = timestamp;
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body">Generation event body</param>
+    /// <param name="timestamp">Generation date</param>
+    public CreateGenerationEvent(CreateGenerationEventBody body, string timestamp) 
+        : this(body, Guid.NewGuid().ToString(), timestamp)
+    {
+        
     }
 }

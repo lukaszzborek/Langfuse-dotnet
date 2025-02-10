@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace zborek.Langfuse.Models;
 
+/// <summary>
+/// Create span event
+/// </summary>
 public class CreateSpanEvent : IIngestionEvent
 {
     /// <summary>
@@ -28,10 +31,27 @@ public class CreateSpanEvent : IIngestionEvent
     [JsonPropertyName("body")]
     public CreateSpanEventBody Body { get; set; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body">Span event body</param>
+    /// <param name="id">Span event id</param>
+    /// <param name="timestamp">Span event date</param>
     public CreateSpanEvent(CreateSpanEventBody body, string id, string timestamp)
     {
         Body = body;
         Id = id;
         Timestamp = timestamp;
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="body">Span event body</param>
+    /// <param name="timestamp">Span event date</param>
+    public CreateSpanEvent(CreateSpanEventBody body, DateTime timestamp) 
+        : this(body, Guid.NewGuid().ToString(), timestamp.ToString("o"))
+    {
+        
     }
 }

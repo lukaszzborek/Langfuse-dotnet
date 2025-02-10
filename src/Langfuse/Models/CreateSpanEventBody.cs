@@ -92,6 +92,10 @@ public class CreateSpanEventBody
     [JsonPropertyName("id")]
     public string? Id { get; set; }
     
+    /// <summary>
+    /// Set output and end time
+    /// </summary>
+    /// <param name="output">Output of span</param>
     public void SetOutput(object output)
     {
         Output = output;
