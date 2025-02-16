@@ -3,15 +3,15 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-/// Create event
+/// Span update event
 /// </summary>
-public class CreateEvent : IIngestionEvent
+public class UpdateSpanEvent : IIngestionEvent
 {
     /// <summary>
     /// Event type
     /// </summary>
     [JsonPropertyName("type")]
-    public string Type { get; init; } = "event-create";
+    public string Type { get; init; } = "span-update";
     
     /// <summary>
     /// Event ID
@@ -26,18 +26,18 @@ public class CreateEvent : IIngestionEvent
     public string Timestamp { get; set; }
     
     /// <summary>
-    /// Create event body
+    /// Update span event body
     /// </summary>
     [JsonPropertyName("body")]
-    public CreateEventBody Body { get; set; }
+    public UpdateSpanEventBody Body { get; set; }
 
     /// <summary>
-    /// Constructor
+    /// 
     /// </summary>
-    /// <param name="body">Create event body</param>
-    /// <param name="id">Event id</param>
-    /// <param name="timestamp">Event date</param>
-    public CreateEvent(CreateEventBody body, string id, string timestamp)
+    /// <param name="body">Span event body</param>
+    /// <param name="id">Span event id</param>
+    /// <param name="timestamp">Span event date</param>
+    public UpdateSpanEvent(UpdateSpanEventBody body, string id, string timestamp)
     {
         Body = body;
         Id = id;
@@ -45,11 +45,12 @@ public class CreateEvent : IIngestionEvent
     }
     
     /// <summary>
-    /// Constructor
+    /// 
     /// </summary>
-    /// <param name="body">Create event body</param>
-    /// <param name="timestamp">Event date</param>
-    public CreateEvent(CreateEventBody body, DateTime timestamp) : this(body, Guid.NewGuid().ToString(), timestamp.ToString("o"))
+    /// <param name="body">Span event body</param>
+    /// <param name="timestamp">Span event date</param>
+    public UpdateSpanEvent(UpdateSpanEventBody body, string timestamp) 
+        : this(body, Guid.NewGuid().ToString(), timestamp)
     {
         
     }

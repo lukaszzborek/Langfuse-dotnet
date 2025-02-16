@@ -3,15 +3,15 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-/// Create event
+/// Create trace event
 /// </summary>
-public class CreateEvent : IIngestionEvent
+public class CreateTraceEvent : IIngestionEvent
 {
     /// <summary>
     /// Event type
     /// </summary>
     [JsonPropertyName("type")]
-    public string Type { get; init; } = "event-create";
+    public string Type { get; init; } = "trace-create";
     
     /// <summary>
     /// Event ID
@@ -26,18 +26,18 @@ public class CreateEvent : IIngestionEvent
     public string Timestamp { get; set; }
     
     /// <summary>
-    /// Create event body
+    /// Create trace event body
     /// </summary>
     [JsonPropertyName("body")]
-    public CreateEventBody Body { get; set; }
+    public CreateTraceBody Body { get; set; }
 
     /// <summary>
-    /// Constructor
+    /// 
     /// </summary>
-    /// <param name="body">Create event body</param>
-    /// <param name="id">Event id</param>
-    /// <param name="timestamp">Event date</param>
-    public CreateEvent(CreateEventBody body, string id, string timestamp)
+    /// <param name="body">Trace event body</param>
+    /// <param name="id">Trace event id</param>
+    /// <param name="timestamp">Trace event date</param>
+    public CreateTraceEvent(CreateTraceBody body, string id, string timestamp)
     {
         Body = body;
         Id = id;
@@ -45,11 +45,12 @@ public class CreateEvent : IIngestionEvent
     }
     
     /// <summary>
-    /// Constructor
+    /// 
     /// </summary>
-    /// <param name="body">Create event body</param>
-    /// <param name="timestamp">Event date</param>
-    public CreateEvent(CreateEventBody body, DateTime timestamp) : this(body, Guid.NewGuid().ToString(), timestamp.ToString("o"))
+    /// <param name="body">Trace event body</param>
+    /// <param name="timestamp">Trace event date</param>
+    public CreateTraceEvent(CreateTraceBody body, DateTime timestamp) 
+        : this(body, Guid.NewGuid().ToString(), timestamp.ToString("o"))
     {
         
     }

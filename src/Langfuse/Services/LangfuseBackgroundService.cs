@@ -16,7 +16,7 @@ internal class LangfuseBackgroundService : BackgroundService
     private readonly ILogger<LangfuseBackgroundService> _logger;
     private readonly PeriodicTimer _timer;
 
-    public LangfuseBackgroundService(Channel<IIngestionEvent> channel, ILangfuseClient client, 
+    public LangfuseBackgroundService(Channel<IIngestionEvent> channel, ILangfuseClient client,
         IOptions<LangfuseConfig> config, ILogger<LangfuseBackgroundService> logger)
     {
         _channel = channel;
@@ -35,32 +35,46 @@ internal class LangfuseBackgroundService : BackgroundService
 
         while (await _timer.WaitForNextTickAsync(stoppingToken))
         {
-            var list = new List<IIngestionEvent>();
-            while (_channel.Reader.TryRead(out var item))
+            try
             {
-                list.Add(item);
-            }
+                var list = new List<IIngestionEvent>();
+                while (_channel.Reader.TryRead(out var item))
+                {
+                    list.Add(item);
+                }
 
-            if (list.Count == 0)
-            {
-                continue;
-            }
-            
-            var ingestionRequest = new IngestionRequest()
-            {
-                Batch = list.ToArray()
-            };
-        
-            var response = await ((LangfuseClient)_client).IngestInternalAsync(ingestionRequest);
+                if (list.Count == 0)
+                {
+                    continue;
+                }
 
-            if (response.Errors is { Length: 0 }) continue;
-            
-            foreach (var error in response.Errors)
+                var ingestionRequest = new IngestionRequest
+                {
+                    Batch = list.ToArray()
+                };
+
+                var response = await ((LangfuseClient)_client).IngestInternalAsync(ingestionRequest);
+
+                if (response.Errors is { Length: 0 })
+                {
+                    continue;
+                }
+
+                if (response.Errors is not { Length: > 0 })
+                {
+                    continue;
+                }
+
+                foreach (var error in response.Errors)
+                {
+                    _logger.LogWarning("Failed to send event: Id={Id} Status={Status} Message={Message}",
+                        error.Id, error.Status, error.Message);
+                }
+            }
+            catch (Exception e)
             {
-                _logger.LogWarning("Failed to send event: Id={Id} Status={Status} Message={Message}", 
-                    error.Id, error.Status, error.Message);
+                _logger.LogError(e, "Failed to send events");
             }
         }
-        
     }
 }
