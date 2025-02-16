@@ -60,6 +60,11 @@ internal class LangfuseBackgroundService : BackgroundService
                     continue;
                 }
 
+                if (response.Errors is not { Length: > 0 })
+                {
+                    continue;
+                }
+
                 foreach (var error in response.Errors)
                 {
                     _logger.LogWarning("Failed to send event: Id={Id} Status={Status} Message={Message}",

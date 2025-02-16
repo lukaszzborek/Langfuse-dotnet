@@ -29,7 +29,7 @@ public class IngestionSuccessResponse
     /// Observation ID. This is the same as the ID of the event that was ingested.
     /// </summary>
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     
     /// <summary>
     /// Status code
@@ -47,7 +47,7 @@ public class IngestionErrorResponse
     /// Observation ID. This is the same as the ID of the event that was ingested.
     /// </summary>
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     
     /// <summary>
     /// Status code
@@ -59,11 +59,11 @@ public class IngestionErrorResponse
     /// Message
     /// </summary>
     [JsonPropertyName("message")]
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
     
     /// <summary>
     /// Error message
     /// </summary>
     [JsonPropertyName("error")]
-    public string Error { get; set; }
+    public string Error { get; set; } = string.Empty;
 }

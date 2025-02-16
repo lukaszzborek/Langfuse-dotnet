@@ -130,11 +130,20 @@ public class LangfuseTrace
         Spans.Add(createSpan);
         return spanBody;
     }
-    
-    public CreateGenerationEventBody CreateGeneration(string generationName, object? input = null, object? output = null, DateTime? eventDate = null)
+
+    /// <summary>
+    /// Creates a new generation event and associates it with the current trace.
+    /// </summary>
+    /// <param name="generationName">The name of the generation event.</param>
+    /// <param name="input">The input data for the generation event. Optional.</param>
+    /// <param name="output">The output data for the generation event. Optional.</param>
+    /// <param name="eventDate">The timestamp for when the generation event occurred. If not provided, the current UTC time will be used.</param>
+    /// <returns>A newly created <see cref="CreateGenerationEventBody"/> object representing the generation event.</returns>
+    public CreateGenerationEventBody CreateGeneration(string generationName, object? input = null,
+        object? output = null, DateTime? eventDate = null)
     {
         eventDate ??= _timeProvider.GetUtcNow().UtcDateTime;
-        
+
         var generationBody = new CreateGenerationEventBody()
         {
             TimeProvider = _timeProvider,
@@ -151,7 +160,12 @@ public class LangfuseTrace
         Generations.Add(createGeneration);
         return generationBody;
     }
-    
+
+    /// <summary>
+    /// Retrieves a list of all ingestion events associated with the trace, including trace, events,
+    /// spans, and generations.
+    /// </summary>
+    /// <returns>A list of ingestion events implementing the <c>IIngestionEvent</c> interface.</returns>
     public List<IIngestionEvent> GetEvents()
     {
         var ingestionEvents = new List<IIngestionEvent>();

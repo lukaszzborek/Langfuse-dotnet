@@ -11,7 +11,7 @@ public class CreateGenerationEventBody
     /// Time provider
     /// </summary>
     [JsonIgnore]
-    public TimeProvider TimeProvider { get; init; }
+    public TimeProvider TimeProvider { get; init; } = TimeProvider.System;
     
     /// <summary>
     /// Trace id
@@ -95,7 +95,7 @@ public class CreateGenerationEventBody
     /// The name of the model used for the generation
     /// </summary>
     [JsonPropertyName("model")]
-    public string Model { get; set; }
+    public string? Model { get; set; }
 
     /// <summary>
     /// The parameters of the model used for the generation; can be any key-value pairs
