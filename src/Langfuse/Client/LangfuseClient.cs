@@ -59,28 +59,86 @@ internal class LangfuseClient : ILangfuseClient
         }
     }
 
+    // TODO: For optimalization
     internal async Task<IngestionResponse> IngestInternalAsync(IngestionRequest request)
     {
-        // TODO: Batch request by max 3.5MB (limit by api)
+        const int maxBatchSizeBytes = 3_500_000; // 3.5MB in bytes
 
+        // First check if the entire request is under the limit
         var json = JsonSerializer.Serialize(request, SerializerOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync("/api/public/ingestion", content);
-
-        if (!response.IsSuccessStatusCode)
+        if (Encoding.UTF8.GetByteCount(json) <= maxBatchSizeBytes)
         {
-            throw new Exception("Failed to ingest event");
+            // If under limit, process normally
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("/api/public/ingestion", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("Failed to ingest event");
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var ingestionResponse = JsonSerializer.Deserialize<IngestionResponse>(responseJson);
+
+            if (ingestionResponse == null)
+            {
+                throw new Exception("Failed to parse ingestion response");
+            }
+
+            return ingestionResponse;
         }
 
-        var responseJson = await response.Content.ReadAsStringAsync();
-        var ingestionResponse = JsonSerializer.Deserialize<IngestionResponse>(responseJson);
+        // If over limit, split into smaller batches
+        var allEvents = request.Batch.ToList();
+        var currentBatch = new List<object>();
 
-        if (ingestionResponse == null)
+        // save all results
+        var successResponses = new List<IngestionSuccessResponse>();
+        var errorResponses = new List<IngestionErrorResponse>();
+
+        foreach (var eventItem in allEvents)
         {
-            throw new Exception("Failed to parse ingestion response");
+            currentBatch.Add(eventItem);
+
+            // Check if adding this event would exceed the size limit
+            var batchRequest = new IngestionRequest { Batch = currentBatch.ToArray() };
+            var batchJson = JsonSerializer.Serialize(batchRequest, SerializerOptions);
+
+            if (Encoding.UTF8.GetByteCount(batchJson) <= maxBatchSizeBytes)
+            {
+                continue;
+            }
+
+            // Remove the last added event as it caused overflow
+            currentBatch.RemoveAt(currentBatch.Count - 1);
+
+            // Process current batch
+            if (currentBatch.Count > 0)
+            {
+                var batchIngestionRequest = new IngestionRequest { Batch = currentBatch.ToArray() };
+                var lastResponse = await IngestInternalAsync(batchIngestionRequest);
+                successResponses.AddRange(lastResponse?.Successes ?? []);
+                errorResponses.AddRange(lastResponse?.Errors ?? []);
+            }
+
+            // Start new batch with the overflow event
+            currentBatch.Clear();
+            currentBatch.Add(eventItem);
         }
 
-        return ingestionResponse;
+        // Process any remaining events in the last batch
+        if (currentBatch.Count > 0)
+        {
+            var finalBatchRequest = new IngestionRequest { Batch = currentBatch.ToArray() };
+            var lastResponse = await IngestInternalAsync(finalBatchRequest);
+            successResponses.AddRange(lastResponse?.Successes ?? []);
+            errorResponses.AddRange(lastResponse?.Errors ?? []);
+        }
+
+        return new IngestionResponse
+        {
+            Successes = successResponses.ToArray(),
+            Errors = errorResponses.ToArray()
+        } ?? throw new Exception("No events were processed");
     }
 }
