@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Models;
 
@@ -7,6 +8,12 @@ namespace zborek.Langfuse.Models;
 /// </summary>
 public class CreateScoreEventBody
 {
+    /// <summary>
+    ///     Langfuse trace object
+    /// </summary>
+    [JsonIgnore]
+    public LangfuseTrace? LangfuseTrace { get; init; }
+
     /// <summary>
     ///     Unique identifier of the score
     /// </summary>

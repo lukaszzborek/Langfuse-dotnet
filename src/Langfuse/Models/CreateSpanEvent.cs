@@ -3,36 +3,35 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-/// Create span event
+///     Create span event
 /// </summary>
 public class CreateSpanEvent : IIngestionEvent
 {
     /// <summary>
-    /// Event type
+    ///     Event type
     /// </summary>
     [JsonPropertyName("type")]
     public string Type { get; init; } = "span-create";
-    
+
     /// <summary>
-    /// Event ID
+    ///     Event ID
     /// </summary>
     [JsonPropertyName("id")]
     public string Id { get; set; }
-    
+
     /// <summary>
-    /// Date of the event
+    ///     Date of the event
     /// </summary>
     [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; }
-    
+
     /// <summary>
-    /// Create span event body
+    ///     Create span event body
     /// </summary>
     [JsonPropertyName("body")]
     public CreateSpanEventBody Body { get; set; }
 
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="body">Span event body</param>
     /// <param name="id">Span event id</param>
@@ -43,15 +42,13 @@ public class CreateSpanEvent : IIngestionEvent
         Id = id;
         Timestamp = timestamp;
     }
-    
+
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="body">Span event body</param>
     /// <param name="timestamp">Span event date</param>
-    public CreateSpanEvent(CreateSpanEventBody body, DateTime timestamp) 
+    public CreateSpanEvent(CreateSpanEventBody body, DateTime timestamp)
         : this(body, Guid.NewGuid().ToString(), timestamp.ToString("o"))
     {
-        
     }
 }

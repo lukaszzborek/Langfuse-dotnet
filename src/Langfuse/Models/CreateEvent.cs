@@ -3,36 +3,36 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-/// Create event
+///     Create event
 /// </summary>
 public class CreateEvent : IIngestionEvent
 {
     /// <summary>
-    /// Event type
+    ///     Event type
     /// </summary>
     [JsonPropertyName("type")]
     public string Type { get; init; } = "event-create";
-    
+
     /// <summary>
-    /// Event ID
+    ///     Event ID
     /// </summary>
     [JsonPropertyName("id")]
     public string Id { get; set; }
-    
+
     /// <summary>
-    /// Date of the event
+    ///     Date of the event
     /// </summary>
     [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; }
-    
+
     /// <summary>
-    /// Create event body
+    ///     Create event body
     /// </summary>
     [JsonPropertyName("body")]
     public CreateEventBody Body { get; set; }
 
     /// <summary>
-    /// Constructor
+    ///     Constructor
     /// </summary>
     /// <param name="body">Create event body</param>
     /// <param name="id">Event id</param>
@@ -43,14 +43,14 @@ public class CreateEvent : IIngestionEvent
         Id = id;
         Timestamp = timestamp;
     }
-    
+
     /// <summary>
-    /// Constructor
+    ///     Constructor
     /// </summary>
     /// <param name="body">Create event body</param>
     /// <param name="timestamp">Event date</param>
-    public CreateEvent(CreateEventBody body, DateTime timestamp) : this(body, Guid.NewGuid().ToString(), timestamp.ToString("o"))
+    public CreateEvent(CreateEventBody body, DateTime timestamp) : this(body, Guid.NewGuid().ToString(),
+        timestamp.ToString("o"))
     {
-        
     }
 }

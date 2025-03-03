@@ -1,27 +1,27 @@
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-/// Langfuse log level
+///     Langfuse log level
 /// </summary>
 public enum LangfuseLogLevel
 {
     /// <summary>
-    /// Debug
+    ///     Debug
     /// </summary>
     Debug = -1,
-    
+
     /// <summary>
-    /// Default
+    ///     Default
     /// </summary>
     Default = 0,
-    
+
     /// <summary>
-    /// Warning
+    ///     Warning
     /// </summary>
     Warning = 1,
-    
+
     /// <summary>
-    /// Error
+    ///     Error
     /// </summary>
     Error = 2
 }

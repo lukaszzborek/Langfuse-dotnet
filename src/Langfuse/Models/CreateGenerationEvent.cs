@@ -3,36 +3,35 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-/// Create generation event
+///     Create generation event
 /// </summary>
 public class CreateGenerationEvent : IIngestionEvent
 {
     /// <summary>
-    /// Event type
+    ///     Event type
     /// </summary>
     [JsonPropertyName("type")]
     public string Type { get; init; } = "generation-create";
-    
+
     /// <summary>
-    /// Event ID
+    ///     Event ID
     /// </summary>
     [JsonPropertyName("id")]
     public string Id { get; set; }
-    
+
     /// <summary>
-    /// Date of the event
+    ///     Date of the event
     /// </summary>
     [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; }
-    
+
     /// <summary>
-    /// Create generation event body
+    ///     Create generation event body
     /// </summary>
     [JsonPropertyName("body")]
     public CreateGenerationEventBody Body { get; set; }
 
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="body">Generation event body</param>
     /// <param name="id">Generation event id</param>
@@ -43,15 +42,13 @@ public class CreateGenerationEvent : IIngestionEvent
         Id = id;
         Timestamp = timestamp;
     }
-    
+
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="body">Generation event body</param>
     /// <param name="timestamp">Generation date</param>
-    public CreateGenerationEvent(CreateGenerationEventBody body, string timestamp) 
+    public CreateGenerationEvent(CreateGenerationEventBody body, string timestamp)
         : this(body, Guid.NewGuid().ToString(), timestamp)
     {
-        
     }
 }

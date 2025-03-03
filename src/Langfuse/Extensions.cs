@@ -10,12 +10,12 @@ using zborek.Langfuse.Services;
 namespace zborek.Langfuse;
 
 /// <summary>
-/// Extension methods for setting up Langfuse services in an <see cref="IServiceCollection"/>.
+///     Extension methods for setting up Langfuse services in an <see cref="IServiceCollection" />.
 /// </summary>
 public static class Extensions
 {
     /// <summary>
-    /// Registers Langfuse services in an <see cref="IServiceCollection"/>.
+    ///     Registers Langfuse services in an <see cref="IServiceCollection" />.
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configuration"></param>
@@ -25,20 +25,19 @@ public static class Extensions
         services.Configure<LangfuseConfig>(configuration.GetSection("Langfuse"));
 
         var config = configuration.GetSection("Langfuse").Get<LangfuseConfig>();
-        
-        if(config == null)
+
+        if (config == null)
         {
             throw new Exception("Langfuse configuration is missing");
         }
 
-        services.TryAddSingleton(TimeProvider.System);;
+        services.TryAddSingleton(TimeProvider.System);
+        ;
         services.AddScoped<LangfuseTrace>();
         services.AddScoped<AuthorizationDelegatingHandler>();
         services.AddSingleton(sp => Channel.CreateUnbounded<IIngestionEvent>());
-        services.AddHttpClient<ILangfuseClient, LangfuseClient>(x =>
-        {
-            x.BaseAddress = new Uri(config.Url);
-        }).AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)
         {

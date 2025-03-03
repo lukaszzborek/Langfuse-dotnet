@@ -1,22 +1,22 @@
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-/// Score data type
+///     Score data type
 /// </summary>
 public enum ScoreDataType
 {
     /// <summary>
-    /// Numeric
+    ///     Numeric
     /// </summary>
     Numeric,
-    
+
     /// <summary>
-    /// Boolean
+    ///     Boolean
     /// </summary>
     Boolean,
-    
+
     /// <summary>
-    /// Categorical
+    ///     Categorical
     /// </summary>
     Categorical
 }
