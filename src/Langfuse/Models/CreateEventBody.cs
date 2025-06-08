@@ -35,7 +35,7 @@ public class CreateEventBody : IDisposable
     /// <summary>
     ///     Additional metadata of the event. Can be any JSON object. Metadata is merged when being updated via the API.
     /// </summary>
-    [JsonPropertyName("endTime")]
+    [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
 
     /// <summary>
