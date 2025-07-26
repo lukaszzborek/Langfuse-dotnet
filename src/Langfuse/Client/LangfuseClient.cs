@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Channels;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models;
@@ -21,13 +22,16 @@ internal class LangfuseClient : ILangfuseClient
     private readonly Channel<IIngestionEvent> _channel;
     private readonly IOptions<LangfuseConfig> _config;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<LangfuseClient> _logger;
 
-    public LangfuseClient(HttpClient httpClient, Channel<IIngestionEvent> channel, IOptions<LangfuseConfig> config)
-    {
-        _httpClient = httpClient;
-        _channel = channel;
-        _config = config;
-    }
+    /// <inheritdoc />
+    public IObservationService Observations { get; }
+
+    /// <inheritdoc />
+    public ITraceService Traces { get; }
+
+    /// <inheritdoc />
+    public ISessionService Sessions { get; }
 
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
     {
@@ -36,11 +40,29 @@ internal class LangfuseClient : ILangfuseClient
 
     public async Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default)
     {
-        var events = langfuseTrace.GetEvents();
+        List<IIngestionEvent> events = langfuseTrace.GetEvents();
         foreach (var @event in events)
         {
             await IngestAsync(@event, cancellationToken);
         }
+    }
+
+    public LangfuseClient(
+        HttpClient httpClient,
+        Channel<IIngestionEvent> channel,
+        IOptions<LangfuseConfig> config,
+        ILogger<LangfuseClient> logger,
+        IObservationService observationService,
+        ITraceService traceService,
+        ISessionService sessionService)
+    {
+        _httpClient = httpClient;
+        _channel = channel;
+        _config = config;
+        _logger = logger;
+        Observations = observationService;
+        Traces = traceService;
+        Sessions = sessionService;
     }
 
     private async Task IngestInternalAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken)
@@ -89,7 +111,7 @@ internal class LangfuseClient : ILangfuseClient
         }
 
         // If over limit, split into smaller batches
-        var allEvents = request.Batch.ToList();
+        List<object> allEvents = request.Batch.ToList();
         var currentBatch = new List<object>();
 
         // save all results

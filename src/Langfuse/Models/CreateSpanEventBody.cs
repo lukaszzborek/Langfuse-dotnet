@@ -94,6 +94,14 @@ public class CreateSpanEventBody : IDisposable
     public string? Id { get; set; }
 
     /// <summary>
+    ///     Remove the last parent id from the trace
+    /// </summary>
+    public void Dispose()
+    {
+        LangfuseTrace?.RemoveLastParentId();
+    }
+
+    /// <summary>
     ///     Set output and end time
     /// </summary>
     /// <param name="output">Output of span</param>
@@ -157,7 +165,7 @@ public class CreateSpanEventBody : IDisposable
     /// <param name="output">The output data for the generation event.</param>
     /// <param name="eventDate">The date and time of the generation event. If not provided, the current time is used.</param>
     /// <returns>A <see cref="CreateGenerationEventBody" /> object representing the details of the created generation event.</returns>
-    public CreateGenerationEventBody CreateGenerationEvent(string generationName, object? input = null,
+    public CreateGenerationEventBody CreateGeneration(string generationName, object? input = null,
         object? output = null, DateTime? eventDate = null)
     {
         eventDate ??= TimeProvider.GetUtcNow().UtcDateTime;
@@ -168,13 +176,5 @@ public class CreateSpanEventBody : IDisposable
         }
 
         return LangfuseTrace.CreateGeneration(generationName, input, output, eventDate);
-    }
-
-    /// <summary>
-    ///     Remove the last parent id from the trace
-    /// </summary>
-    public void Dispose()
-    {
-        LangfuseTrace?.RemoveLastParentId();
     }
 }

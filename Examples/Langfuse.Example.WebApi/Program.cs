@@ -68,7 +68,7 @@ app.MapPost("/chat", async ([FromServices] ILangfuseClient langfuseClient,
                           """;
             var additionalQuestions = await openAiService.GetChatCompletionAsync("gpt-4o-mini", prompt);
             
-            var gen = span.CreateGenerationEvent("Embeding", prompt);
+            var gen = span.CreateGeneration("Embeding", prompt);
             await Task.Delay(1000);
             
             span.SetOutput("Data from db");
@@ -103,6 +103,76 @@ app.MapPost("/chatDi", async ([FromServices] ChatService chatService, [FromBody]
     catch (Exception ex)
     {
         return Results.BadRequest(new { error = ex.Message });
+    }
+});
+
+// Test endpoint for new read operations
+app.MapGet("/traces", async ([FromServices] ILangfuseClient langfuseClient) =>
+{
+    try 
+    {
+        var request = new zborek.Langfuse.Models.TraceListRequest
+        {
+            Limit = 5 // Get only first 5 traces
+        };
+        
+        var traces = await langfuseClient.Traces.ListAsync(request);
+        
+        return Results.Ok(new { 
+            traces = traces.Data, 
+            pagination = traces.Meta,
+            message = "Successfully retrieved traces using new read API"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message, message = "Error testing new read API" });
+    }
+});
+
+app.MapGet("/observations", async ([FromServices] ILangfuseClient langfuseClient) =>
+{
+    try 
+    {
+        var request = new zborek.Langfuse.Models.ObservationListRequest
+        {
+            Limit = 5 // Get only first 5 observations
+        };
+        
+        var observations = await langfuseClient.Observations.ListAsync(request);
+        
+        return Results.Ok(new { 
+            observations = observations.Data, 
+            pagination = observations.Meta,
+            message = "Successfully retrieved observations using new read API"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message, message = "Error testing new read API" });
+    }
+});
+
+app.MapGet("/sessions", async ([FromServices] ILangfuseClient langfuseClient) =>
+{
+    try 
+    {
+        var request = new zborek.Langfuse.Models.SessionListRequest
+        {
+            Limit = 5 // Get only first 5 sessions
+        };
+        
+        var sessions = await langfuseClient.Sessions.ListAsync(request);
+        
+        return Results.Ok(new { 
+            sessions = sessions.Data, 
+            pagination = sessions.Meta,
+            message = "Successfully retrieved sessions using new read API"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message, message = "Error testing new read API" });
     }
 });
 

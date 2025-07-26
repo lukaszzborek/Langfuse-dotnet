@@ -32,11 +32,24 @@ public static class Extensions
         }
 
         services.TryAddSingleton(TimeProvider.System);
-        ;
         services.AddScoped<LangfuseTrace>();
         services.AddScoped<AuthorizationDelegatingHandler>();
         services.AddSingleton(sp => Channel.CreateUnbounded<IIngestionEvent>());
+
+        // Register new service interfaces and implementations
+        services.AddScoped<IObservationService, ObservationService>();
+        services.AddScoped<ITraceService, TraceService>();
+        services.AddScoped<ISessionService, SessionService>();
+
         services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+
+        // Register HTTP clients for individual services
+        services.AddHttpClient<ObservationService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<TraceService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<SessionService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)

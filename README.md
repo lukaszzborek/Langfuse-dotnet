@@ -1,11 +1,13 @@
 # WORK IN PROGRESS
+
 # LangfuseDotnet
 
 <a href="https://www.nuget.org/packages/zborek.LangfuseDotnet/">
  <img src="https://img.shields.io/nuget/v/zborek.LangfuseDotnet" alt="NuGet">
 </a>
 
-A .NET client library for [Langfuse](https://langfuse.com) - an open-source observability and analytics platform for LLM applications. This library enables you to track, monitor, and analyze your AI application performance and behavior.
+A .NET client library for [Langfuse](https://langfuse.com) - an open-source observability and analytics platform for LLM
+applications. This library enables you to track, monitor, and analyze your AI application performance and behavior.
 
 ## Features
 
@@ -24,7 +26,9 @@ dotnet add package zborek.LangfuseDotnet
 ```
 
 ## Getting Started
+
 ### Configuration
+
 Add Langfuse configuration to your appsettings.json:
 
 ```json
@@ -38,13 +42,16 @@ Add Langfuse configuration to your appsettings.json:
 ```
 
 ### Registration with DI
+
 ```csharp
 // In Program.cs or Startup.cs
 builder.Services.AddLangfuse(builder.Configuration);
 ```
 
 ### Usage in Your Application
+
 Inject LangfuseTrace into your service:
+
 ```csharp
 public class MyService
 {
@@ -85,31 +92,37 @@ public class MyService
 }
 ```
 
-## Core Concepts 
+## Core Concepts
+
 - Trace: A complete workflow or user session
 - Span: A logical operation or step within a trace
 - Generation: A specific LLM call or generation
 - Event: A discrete occurrence within your application
 
 ## Complete Example
+
 See the Examples/Langfuse.Example.WebApi directory for a complete working example showing integration with OpenAI.
 
 ## API Endpoints in Example Project
+
 - POST /chat: Processes a chat request using direct service implementation
 - POST /chatDi: Processes a chat request using dependency injection
 
 ## Troubleshooting
+
 - Missing ingestion data: Ensure SendLogs is set to true in your configuration
 - Authentication errors: Verify your Langfuse API keys
 - Data not appearing: Check if IngestAsync() is called after operations
 
 ## Contributing
+
 Contributions are welcome! Please open an issue or submit a pull request.
 
-
 ## License
+
 This project is licensed under the MIT License.
 
 ## Additional Resources
+
 - [Langfuse Documentation](https://langfuse.com/docs)
 - [GitHub Repository](https://github.com/lukaszzborek/Langfuse-dotnet)

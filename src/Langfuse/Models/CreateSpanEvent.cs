@@ -8,6 +8,12 @@ namespace zborek.Langfuse.Models;
 public class CreateSpanEvent : IIngestionEvent
 {
     /// <summary>
+    ///     Create span event body
+    /// </summary>
+    [JsonPropertyName("body")]
+    public CreateSpanEventBody Body { get; set; }
+
+    /// <summary>
     ///     Event type
     /// </summary>
     [JsonPropertyName("type")]
@@ -24,12 +30,6 @@ public class CreateSpanEvent : IIngestionEvent
     /// </summary>
     [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; }
-
-    /// <summary>
-    ///     Create span event body
-    /// </summary>
-    [JsonPropertyName("body")]
-    public CreateSpanEventBody Body { get; set; }
 
     /// <summary>
     /// </summary>

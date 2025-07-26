@@ -8,6 +8,12 @@ namespace zborek.Langfuse.Models;
 public class CreateScoreEvent : IIngestionEvent
 {
     /// <summary>
+    ///     Create score event body
+    /// </summary>
+    [JsonPropertyName("body")]
+    public CreateScoreEventBody Body { get; set; }
+
+    /// <summary>
     ///     Event type
     /// </summary>
     [JsonPropertyName("type")]
@@ -24,12 +30,6 @@ public class CreateScoreEvent : IIngestionEvent
     /// </summary>
     [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; }
-
-    /// <summary>
-    ///     Create score event body
-    /// </summary>
-    [JsonPropertyName("body")]
-    public CreateScoreEventBody Body { get; set; }
 
     /// <summary>
     /// </summary>

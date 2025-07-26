@@ -13,18 +13,19 @@ internal class AuthorizationDelegatingHandler : DelegatingHandler
     {
         _config = config;
     }
-    
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", 
+        request.Headers.Authorization = new AuthenticationHeaderValue("Basic",
             GenerateBasicAuthHeaderValue(_config.Value.PublicKey, _config.Value.SecretKey));
-        
+
         return base.SendAsync(request, cancellationToken);
     }
 
     protected override HttpResponseMessage Send(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", 
+        request.Headers.Authorization = new AuthenticationHeaderValue("Basic",
             GenerateBasicAuthHeaderValue(_config.Value.PublicKey, _config.Value.SecretKey));
         return base.Send(request, cancellationToken);
     }

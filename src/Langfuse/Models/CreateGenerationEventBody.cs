@@ -141,6 +141,14 @@ public class CreateGenerationEventBody : IDisposable
     public int? PromptVersion { get; set; }
 
     /// <summary>
+    ///     Remove the last parent id from the trace
+    /// </summary>
+    public void Dispose()
+    {
+        LangfuseTrace?.RemoveLastParentId();
+    }
+
+    /// <summary>
     ///     Set generation token usage
     /// </summary>
     /// <param name="usage">Usage object</param>
@@ -157,14 +165,6 @@ public class CreateGenerationEventBody : IDisposable
     {
         Output = output;
         EndTime = TimeProvider.GetUtcNow().UtcDateTime;
-    }
-
-    /// <summary>
-    ///     Remove the last parent id from the trace
-    /// </summary>
-    public void Dispose()
-    {
-        LangfuseTrace?.RemoveLastParentId();
     }
 }
 

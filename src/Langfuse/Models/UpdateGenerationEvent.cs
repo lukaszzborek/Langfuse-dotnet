@@ -8,6 +8,12 @@ namespace zborek.Langfuse.Models;
 public class UpdateGenerationEvent : IIngestionEvent
 {
     /// <summary>
+    ///     Update generation event body
+    /// </summary>
+    [JsonPropertyName("body")]
+    public CreateGenerationEventBody Body { get; set; }
+
+    /// <summary>
     ///     Event type
     /// </summary>
     [JsonPropertyName("type")]
@@ -24,12 +30,6 @@ public class UpdateGenerationEvent : IIngestionEvent
     /// </summary>
     [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; }
-
-    /// <summary>
-    ///     Update generation event body
-    /// </summary>
-    [JsonPropertyName("body")]
-    public CreateGenerationEventBody Body { get; set; }
 
     /// <summary>
     /// </summary>

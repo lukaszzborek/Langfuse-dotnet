@@ -9,6 +9,21 @@ namespace zborek.Langfuse.Client;
 public interface ILangfuseClient
 {
     /// <summary>
+    ///     Service for interacting with Langfuse observation endpoints
+    /// </summary>
+    IObservationService Observations { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse trace endpoints
+    /// </summary>
+    ITraceService Traces { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse session endpoints
+    /// </summary>
+    ISessionService Sessions { get; }
+
+    /// <summary>
     ///     Ingests the specified ingestion event
     /// </summary>
     /// <param name="ingestionEvent">Langfuse event</param>
