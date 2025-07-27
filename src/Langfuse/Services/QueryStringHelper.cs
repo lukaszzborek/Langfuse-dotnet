@@ -1,6 +1,9 @@
 using System.Globalization;
 using System.Web;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Requests;
+using ObservationListRequest = zborek.Langfuse.Models.ObservationListRequest;
+using SessionListRequest = zborek.Langfuse.Models.SessionListRequest;
+using TraceListRequest = zborek.Langfuse.Models.TraceListRequest;
 
 namespace zborek.Langfuse.Services;
 
@@ -96,6 +99,47 @@ internal static class QueryStringHelper
         AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
         AddParameter(parameters, "environment", request.Environment);
         AddParameter(parameters, "userId", request.UserId);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a score list request
+    /// </summary>
+    /// <param name="request">The score list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(ScoreListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "userId", request.UserId);
+        AddParameter(parameters, "name", request.Name);
+        AddParameter(parameters, "fromTimestamp", request.FromTimestamp?.ToString("O"));
+        AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
+        AddParameter(parameters, "environment", request.Environment);
+        AddParameter(parameters, "source", request.Source?.ToString().ToUpperInvariant());
+        AddParameter(parameters, "operator", request.Operator);
+        AddParameter(parameters, "value", request.Value);
+        AddParameter(parameters, "scoreIds", request.ScoreIds);
+        AddParameter(parameters, "configId", request.ConfigId);
+        AddParameter(parameters, "queueId", request.QueueId);
+        AddParameter(parameters, "dataType", request.DataType?.ToString().ToUpperInvariant());
+
+        // Handle traceTags array parameter
+        if (request.TraceTags != null && request.TraceTags.Length > 0)
+        {
+            foreach (var tag in request.TraceTags)
+            {
+                AddParameter(parameters, "traceTags", tag);
+            }
+        }
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }

@@ -40,6 +40,7 @@ public static class Extensions
         services.AddScoped<IObservationService, ObservationService>();
         services.AddScoped<ITraceService, TraceService>();
         services.AddScoped<ISessionService, SessionService>();
+        services.AddScoped<IScoreService, ScoreService>();
 
         services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
@@ -50,6 +51,8 @@ public static class Extensions
         services.AddHttpClient<TraceService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
         services.AddHttpClient<SessionService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<ScoreService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)

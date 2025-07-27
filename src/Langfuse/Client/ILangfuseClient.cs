@@ -24,6 +24,11 @@ public interface ILangfuseClient
     ISessionService Sessions { get; }
 
     /// <summary>
+    ///     Service for interacting with Langfuse score endpoints
+    /// </summary>
+    IScoreService Scores { get; }
+
+    /// <summary>
     ///     Ingests the specified ingestion event
     /// </summary>
     /// <param name="ingestionEvent">Langfuse event</param>

@@ -33,6 +33,9 @@ internal class LangfuseClient : ILangfuseClient
     /// <inheritdoc />
     public ISessionService Sessions { get; }
 
+    /// <inheritdoc />
+    public IScoreService Scores { get; }
+
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
     {
         await IngestInternalAsync(ingestionEvent, cancellationToken);
@@ -54,7 +57,8 @@ internal class LangfuseClient : ILangfuseClient
         ILogger<LangfuseClient> logger,
         IObservationService observationService,
         ITraceService traceService,
-        ISessionService sessionService)
+        ISessionService sessionService,
+        IScoreService scoreService)
     {
         _httpClient = httpClient;
         _channel = channel;
@@ -63,6 +67,7 @@ internal class LangfuseClient : ILangfuseClient
         Observations = observationService;
         Traces = traceService;
         Sessions = sessionService;
+        Scores = scoreService;
     }
 
     private async Task IngestInternalAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken)

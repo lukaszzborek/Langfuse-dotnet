@@ -28,7 +28,10 @@ internal class SessionService : ISessionService
         var queryString = QueryStringHelper.BuildQueryString(request);
         var endpoint = $"/api/public/sessions{queryString}";
 
-        _logger.LogDebug("Fetching sessions from endpoint: {Endpoint}", endpoint);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Fetching sessions from endpoint: {Endpoint}", endpoint);
+        }
 
         try
         {
@@ -44,7 +47,11 @@ internal class SessionService : ISessionService
                     "Failed to deserialize session list response");
             }
 
-            _logger.LogDebug("Successfully fetched {Count} sessions", result.Data.Length);
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug("Successfully fetched {Count} sessions", result.Data.Length);
+            }
+
             return result;
         }
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -73,8 +80,10 @@ internal class SessionService : ISessionService
         }
 
         var endpoint = $"/api/public/sessions/{Uri.EscapeDataString(sessionId)}";
-
-        _logger.LogDebug("Fetching session {SessionId} from endpoint: {Endpoint}", sessionId, endpoint);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Fetching session {SessionId} from endpoint: {Endpoint}", sessionId, endpoint);
+        }
 
         try
         {
@@ -90,8 +99,12 @@ internal class SessionService : ISessionService
                     $"Failed to deserialize session response for ID: {sessionId}");
             }
 
-            _logger.LogDebug("Successfully fetched session {SessionId} with {TraceCount} traces",
-                sessionId, result.Traces?.Length ?? 0);
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug("Successfully fetched session {SessionId} with {TraceCount} traces",
+                    sessionId, result.Traces?.Length ?? 0);
+            }
+
             return result;
         }
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
