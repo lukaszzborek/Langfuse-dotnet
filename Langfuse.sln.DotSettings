@@ -3,6 +3,7 @@
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_FOREACH/@EntryValue">Required</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_IFELSE/@EntryValue">Required</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_WHILE/@EntryValue">Required</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/PLACE_ACCESSORHOLDER_ATTRIBUTE_ON_SAME_LINE_EX/@EntryValue">NEVER</s:String>
 	<s:String x:Key="/Default/CodeStyle/CSharpFileLayoutPatterns/Pattern/@EntryValue">&lt;Patterns xmlns="urn:schemas-jetbrains-com:member-reordering-patterns"&gt;
   &lt;TypePattern DisplayName="Non-reorderable types" Priority="99999999"&gt;
     &lt;TypePattern.Match&gt;
@@ -212,20 +213,21 @@
         &lt;/Or&gt;
       &lt;/Entry.Match&gt;
     &lt;/Entry&gt;
+      
+      &lt;Entry DisplayName="Interface Method Implementations" Priority="100"&gt;
+          &lt;Entry.Match&gt;
+              &lt;And&gt;
+                  &lt;Kind Is="Member" /&gt;
+                  &lt;ImplementsInterface /&gt;
+                  &lt;Kind Is="Field" /&gt;
+              &lt;/And&gt;
+          &lt;/Entry.Match&gt;
 
-    &lt;Entry DisplayName="Interface Implementations" Priority="100"&gt;
-      &lt;Entry.Match&gt;
-        &lt;And&gt;
-          &lt;Kind Is="Member" /&gt;
-          &lt;ImplementsInterface /&gt;
-        &lt;/And&gt;
-      &lt;/Entry.Match&gt;
-
-      &lt;Entry.SortBy&gt;
-        &lt;ImplementsInterface Immediate="true" /&gt;
-      &lt;/Entry.SortBy&gt;
-    &lt;/Entry&gt;
-
+          &lt;Entry.SortBy&gt;
+              &lt;ImplementsInterface Immediate="true" /&gt;
+          &lt;/Entry.SortBy&gt;
+      &lt;/Entry&gt;
+      
     &lt;Entry DisplayName="Constructors"&gt;
       &lt;Entry.Match&gt;
           &lt;Kind Is="Constructor" /&gt;
@@ -233,6 +235,20 @@
     
       &lt;Entry.SortBy&gt;
           &lt;Static/&gt;
+      &lt;/Entry.SortBy&gt;
+    &lt;/Entry&gt;
+      
+    &lt;Entry DisplayName="Interface Method Implementations" Priority="100"&gt;
+      &lt;Entry.Match&gt;
+        &lt;And&gt;
+            &lt;Kind Is="Member" /&gt;
+            &lt;ImplementsInterface /&gt;
+            &lt;Kind Is="Method" /&gt;
+        &lt;/And&gt;
+      &lt;/Entry.Match&gt;
+
+      &lt;Entry.SortBy&gt;
+        &lt;ImplementsInterface Immediate="true" /&gt;
       &lt;/Entry.SortBy&gt;
     &lt;/Entry&gt;
 
@@ -247,4 +263,5 @@
 &lt;/Patterns&gt;
 </s:String>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002EMemberReordering_002EMigrations_002ECSharpFileLayoutPatternRemoveIsAttributeUpgrade/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=langfuse/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=zborek/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
