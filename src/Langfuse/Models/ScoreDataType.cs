@@ -1,22 +1,25 @@
+using System.Text.Json.Serialization;
+
 namespace zborek.Langfuse.Models;
 
 /// <summary>
 ///     Score data type
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ScoreDataType
 {
     /// <summary>
     ///     Numeric
     /// </summary>
-    Numeric,
+    [JsonPropertyName("NUMERIC")] Numeric,
 
     /// <summary>
     ///     Boolean
     /// </summary>
-    Boolean,
+    [JsonPropertyName("BOOLEAN")] Boolean,
 
     /// <summary>
     ///     Categorical
     /// </summary>
-    Categorical
+    [JsonPropertyName("CATEGORICAL")] Categorical
 }

@@ -10,7 +10,7 @@ public class CreateGenerationEventBody : IDisposable
 {
     [JsonIgnore]
     internal bool Scoped { get; set; }
-    
+
     /// <summary>
     ///     Langfuse trace object
     /// </summary>

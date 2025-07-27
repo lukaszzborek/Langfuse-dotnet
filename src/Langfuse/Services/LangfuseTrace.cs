@@ -107,7 +107,7 @@ public class LangfuseTrace
         Events.Add(createEvent);
         return eventBody;
     }
-    
+
     public CreateEventBody CreateEventScoped(string eventName, object? input = null, object? output = null,
         DateTime? eventDate = null)
     {
@@ -147,7 +147,7 @@ public class LangfuseTrace
         Spans.Add(createSpan);
         return spanBody;
     }
-    
+
     public CreateSpanEventBody CreateSpanScoped(string spanName, object? metadata = null, object? input = null,
         DateTime? startDate = null)
     {
@@ -189,10 +189,10 @@ public class LangfuseTrace
         var createGeneration =
             new CreateGenerationEvent(generationBody, generationBody.Id, eventDate.Value.ToString("o"));
         Generations.Add(createGeneration);
-        
+
         return generationBody;
     }
-    
+
     public CreateGenerationEventBody CreateGenerationScoped(string generationName, object? input = null,
         object? output = null, DateTime? eventDate = null)
     {
@@ -201,7 +201,7 @@ public class LangfuseTrace
         _parentIds.Add(generationBody.Id!);
         return generationBody;
     }
-    
+
     /// <summary>
     ///     Retrieves a list of all ingestion events associated with the trace, including trace, events,
     ///     spans, and generations.

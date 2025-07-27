@@ -24,7 +24,7 @@ public class ScoreListRequest
     /// </summary>
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
-    
+
     /// <summary>
     ///     Filter by score name
     /// </summary>
@@ -42,13 +42,13 @@ public class ScoreListRequest
     /// </summary>
     [JsonPropertyName("toTimestamp")]
     public DateTime? ToTimestamp { get; set; }
-    
+
     /// <summary>
     ///     Filter by environment
     /// </summary>
     [JsonPropertyName("environment")]
     public string[]? Environment { get; set; }
-    
+
     /// <summary>
     ///     Filter by source
     /// </summary>
@@ -62,10 +62,10 @@ public class ScoreListRequest
     public string? Operator { get; set; }
 
     /// <summary>
-    ///     Order by value
+    ///     Filter by value (for numeric comparison with operator)
     /// </summary>
     [JsonPropertyName("value")]
-    public int? Value { get; set; }
+    public double? Value { get; set; }
 
     /// <summary>
     ///     Comma-separated list of score IDs to limit the results to
@@ -78,19 +78,19 @@ public class ScoreListRequest
     /// </summary>
     [JsonPropertyName("configId")]
     public string? ConfigId { get; set; }
-    
+
     /// <summary>
     ///     Retrieve only scores with a specific configId
     /// </summary>
     [JsonPropertyName("queueId")]
     public string? QueueId { get; set; }
-    
+
     /// <summary>
     ///     Filter by data type
     /// </summary>
     [JsonPropertyName("dataType")]
     public ScoreDataType? DataType { get; set; }
-    
+
     /// <summary>
     ///     Only scores linked to traces that include all of these tags will be returned
     /// </summary>

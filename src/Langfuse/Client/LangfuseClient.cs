@@ -36,20 +36,6 @@ internal class LangfuseClient : ILangfuseClient
     /// <inheritdoc />
     public IScoreService Scores { get; }
 
-    public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
-    {
-        await IngestInternalAsync(ingestionEvent, cancellationToken);
-    }
-
-    public async Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default)
-    {
-        List<IIngestionEvent> events = langfuseTrace.GetEvents();
-        foreach (var @event in events)
-        {
-            await IngestAsync(@event, cancellationToken);
-        }
-    }
-
     public LangfuseClient(
         HttpClient httpClient,
         Channel<IIngestionEvent> channel,
@@ -68,6 +54,20 @@ internal class LangfuseClient : ILangfuseClient
         Traces = traceService;
         Sessions = sessionService;
         Scores = scoreService;
+    }
+
+    public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
+    {
+        await IngestInternalAsync(ingestionEvent, cancellationToken);
+    }
+
+    public async Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default)
+    {
+        List<IIngestionEvent> events = langfuseTrace.GetEvents();
+        foreach (var @event in events)
+        {
+            await IngestAsync(@event, cancellationToken);
+        }
     }
 
     private async Task IngestInternalAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken)

@@ -20,6 +20,12 @@ public class Score
     public string? TraceId { get; set; }
 
     /// <summary>
+    ///     ID of the session this score belongs to
+    /// </summary>
+    [JsonPropertyName("sessionId")]
+    public string? SessionId { get; set; }
+
+    /// <summary>
     ///     ID of the observation this score belongs to
     /// </summary>
     [JsonPropertyName("observationId")]
@@ -53,7 +59,7 @@ public class Score
     ///     Source of the score (manual, API, etc.)
     /// </summary>
     [JsonPropertyName("source")]
-    public string? Source { get; set; }
+    public ScoreSource? Source { get; set; }
 
     /// <summary>
     ///     Comment associated with the score
@@ -90,4 +96,10 @@ public class Score
     /// </summary>
     [JsonPropertyName("updatedAt")]
     public DateTime UpdatedAt { get; set; }
+
+    /// <summary>
+    ///     Metadata associated with the score
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
 }

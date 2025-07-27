@@ -21,6 +21,17 @@ internal class ObservationService : IObservationService
     private readonly HttpClient _httpClient;
     private readonly ILogger<ObservationService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the ObservationService class
+    /// </summary>
+    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
+    /// <param name="logger">Logger instance</param>
+    public ObservationService(HttpClient httpClient, ILogger<ObservationService> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
+
     /// <inheritdoc />
     public async Task<ObservationListResponse> ListAsync(ObservationListRequest? request = null,
         CancellationToken cancellationToken = default)
@@ -121,17 +132,6 @@ internal class ObservationService : IObservationService
             throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                 $"An unexpected error occurred while fetching observation {observationId}", ex);
         }
-    }
-
-    /// <summary>
-    ///     Initializes a new instance of the ObservationService class
-    /// </summary>
-    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
-    /// <param name="logger">Logger instance</param>
-    public ObservationService(HttpClient httpClient, ILogger<ObservationService> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
     }
 
     private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)

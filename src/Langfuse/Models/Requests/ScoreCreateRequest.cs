@@ -26,11 +26,17 @@ public class ScoreCreateRequest
     public string? ObservationId { get; set; }
 
     /// <summary>
-    ///    ID of the dataset run this score belongs to
+    ///     ID of the session this score belongs to (optional)
+    /// </summary>
+    [JsonPropertyName("sessionId")]
+    public string? SessionId { get; set; }
+
+    /// <summary>
+    ///     ID of the dataset run this score belongs to
     /// </summary>
     [JsonPropertyName("datasetRunId")]
     public string? DatasetRunId { get; set; }
-    
+
     /// <summary>
     ///     Name of the score (required)
     /// </summary>
@@ -42,24 +48,25 @@ public class ScoreCreateRequest
     /// </summary>
     [JsonPropertyName("value")]
     public required object Value { get; set; } = null!;
-    
+
     /// <summary>
     ///     Comment associated with the score (optional)
     /// </summary>
     [JsonPropertyName("comment")]
     public string? Comment { get; set; }
-    
+
     /// <summary>
-    ///   Metadata associated with the score (optional)
+    ///     Metadata associated with the score (optional)
     /// </summary>
+    [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
-    
+
     /// <summary>
     ///     Comment associated with the score (optional)
     /// </summary>
     [JsonPropertyName("environment")]
     public string? Environment { get; set; }
-    
+
     /// <summary>
     ///     Data type of the score (optional, will be inferred if not provided)
     /// </summary>

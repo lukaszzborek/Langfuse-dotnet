@@ -21,6 +21,17 @@ internal class SessionService : ISessionService
     private readonly HttpClient _httpClient;
     private readonly ILogger<SessionService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the SessionService class
+    /// </summary>
+    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
+    /// <param name="logger">Logger instance</param>
+    public SessionService(HttpClient httpClient, ILogger<SessionService> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
+
     /// <inheritdoc />
     public async Task<SessionListResponse> ListAsync(SessionListRequest? request = null,
         CancellationToken cancellationToken = default)
@@ -122,17 +133,6 @@ internal class SessionService : ISessionService
             throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                 $"An unexpected error occurred while fetching session {sessionId}", ex);
         }
-    }
-
-    /// <summary>
-    ///     Initializes a new instance of the SessionService class
-    /// </summary>
-    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
-    /// <param name="logger">Logger instance</param>
-    public SessionService(HttpClient httpClient, ILogger<SessionService> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
     }
 
     private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)

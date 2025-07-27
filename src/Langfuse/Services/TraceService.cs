@@ -21,6 +21,17 @@ internal class TraceService : ITraceService
     private readonly HttpClient _httpClient;
     private readonly ILogger<TraceService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the TraceService class
+    /// </summary>
+    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
+    /// <param name="logger">Logger instance</param>
+    public TraceService(HttpClient httpClient, ILogger<TraceService> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
+
     /// <inheritdoc />
     public async Task<TraceListResponse> ListAsync(TraceListRequest? request = null,
         CancellationToken cancellationToken = default)
@@ -121,17 +132,6 @@ internal class TraceService : ITraceService
             throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                 $"An unexpected error occurred while fetching trace {traceId}", ex);
         }
-    }
-
-    /// <summary>
-    ///     Initializes a new instance of the TraceService class
-    /// </summary>
-    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
-    /// <param name="logger">Logger instance</param>
-    public TraceService(HttpClient httpClient, ILogger<TraceService> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
     }
 
     private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)

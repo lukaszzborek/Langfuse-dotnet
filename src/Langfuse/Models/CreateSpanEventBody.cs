@@ -10,7 +10,7 @@ public class CreateSpanEventBody : IDisposable
 {
     [JsonIgnore]
     internal bool Scoped { get; set; }
-    
+
     /// <summary>
     ///     Time provider
     /// </summary>
@@ -101,7 +101,7 @@ public class CreateSpanEventBody : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if(Scoped)
+        if (Scoped)
         {
             LangfuseTrace?.RemoveLastParentId();
         }
@@ -137,7 +137,7 @@ public class CreateSpanEventBody : IDisposable
 
         return LangfuseTrace.CreateEvent(eventName, input, output, eventDate);
     }
-    
+
     public CreateEventBody CreateEventScoped(string eventName, object? input = null, object? output = null,
         DateTime? eventDate = null)
     {
@@ -173,7 +173,7 @@ public class CreateSpanEventBody : IDisposable
 
         return LangfuseTrace.CreateSpan(spanName, metadata, input, startDate);
     }
-    
+
     public CreateSpanEventBody CreateSpanScoped(string spanName, object? metadata = null, object? input = null,
         DateTime? startDate = null)
     {
@@ -207,7 +207,7 @@ public class CreateSpanEventBody : IDisposable
 
         return LangfuseTrace.CreateGeneration(generationName, input, output, eventDate);
     }
-    
+
     public CreateGenerationEventBody CreateGenerationScoped(string generationName, object? input = null,
         object? output = null, DateTime? eventDate = null)
     {

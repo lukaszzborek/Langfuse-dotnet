@@ -24,6 +24,17 @@ internal class ScoreService : IScoreService
     private readonly HttpClient _httpClient;
     private readonly ILogger<ScoreService> _logger;
 
+    /// <summary>
+    ///     Initializes a new instance of the ScoreService class
+    /// </summary>
+    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
+    /// <param name="logger">Logger instance</param>
+    public ScoreService(HttpClient httpClient, ILogger<ScoreService> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
+
     /// <inheritdoc />
     public async Task<ScoreListResponse> ListAsync(ScoreListRequest? request = null,
         CancellationToken cancellationToken = default)
@@ -144,9 +155,12 @@ internal class ScoreService : IScoreService
             throw new ArgumentException("Score value cannot be null", nameof(request));
         }
 
-        if (string.IsNullOrWhiteSpace(request.TraceId) && string.IsNullOrWhiteSpace(request.ObservationId))
+        if (string.IsNullOrWhiteSpace(request.TraceId) &&
+            string.IsNullOrWhiteSpace(request.ObservationId) &&
+            string.IsNullOrWhiteSpace(request.SessionId))
         {
-            throw new ArgumentException("Either TraceId or ObservationId must be provided", nameof(request));
+            throw new ArgumentException("At least one of TraceId, ObservationId, or SessionId must be provided",
+                nameof(request));
         }
 
         const string endpoint = "/api/public/scores";
@@ -235,17 +249,6 @@ internal class ScoreService : IScoreService
             throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                 $"An unexpected error occurred while deleting score {scoreId}", ex);
         }
-    }
-
-    /// <summary>
-    ///     Initializes a new instance of the ScoreService class
-    /// </summary>
-    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
-    /// <param name="logger">Logger instance</param>
-    public ScoreService(HttpClient httpClient, ILogger<ScoreService> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
     }
 
     private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)
