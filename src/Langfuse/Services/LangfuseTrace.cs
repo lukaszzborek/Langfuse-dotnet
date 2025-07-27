@@ -104,8 +104,16 @@ public class LangfuseTrace
         };
 
         var createEvent = new CreateEvent(eventBody, eventBody.Id, eventDate.Value.ToString("o"));
-        _parentIds.Add(createEvent.Id);
         Events.Add(createEvent);
+        return eventBody;
+    }
+    
+    public CreateEventBody CreateEventScoped(string eventName, object? input = null, object? output = null,
+        DateTime? eventDate = null)
+    {
+        var eventBody = CreateEvent(eventName, input, output, eventDate);
+        eventBody.Scoped = true;
+        _parentIds.Add(eventBody.Id!);
         return eventBody;
     }
 
@@ -136,8 +144,16 @@ public class LangfuseTrace
         };
 
         var createSpan = new CreateSpanEvent(spanBody, spanBody.Id, startDate.Value.ToString("o"));
-        _parentIds.Add(createSpan.Id);
         Spans.Add(createSpan);
+        return spanBody;
+    }
+    
+    public CreateSpanEventBody CreateSpanScoped(string spanName, object? metadata = null, object? input = null,
+        DateTime? startDate = null)
+    {
+        var spanBody = CreateSpan(spanName, metadata, input, startDate);
+        spanBody.Scoped = true;
+        _parentIds.Add(spanBody.Id!);
         return spanBody;
     }
 
@@ -173,10 +189,19 @@ public class LangfuseTrace
         var createGeneration =
             new CreateGenerationEvent(generationBody, generationBody.Id, eventDate.Value.ToString("o"));
         Generations.Add(createGeneration);
-        _parentIds.Add(createGeneration.Id);
+        
         return generationBody;
     }
-
+    
+    public CreateGenerationEventBody CreateGenerationScoped(string generationName, object? input = null,
+        object? output = null, DateTime? eventDate = null)
+    {
+        var generationBody = CreateGeneration(generationName, input, output, eventDate);
+        generationBody.Scoped = true;
+        _parentIds.Add(generationBody.Id!);
+        return generationBody;
+    }
+    
     /// <summary>
     ///     Retrieves a list of all ingestion events associated with the trace, including trace, events,
     ///     spans, and generations.
@@ -195,7 +220,7 @@ public class LangfuseTrace
     /// <summary>
     ///     Removes the last parent ID from the list of parent IDs.
     /// </summary>
-    public void RemoveLastParentId()
+    internal void RemoveLastParentId()
     {
         _parentIds.RemoveAt(_parentIds.Count - 1);
     }

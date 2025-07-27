@@ -209,27 +209,6 @@ namespace zborek.Langfuse.Tests
         }
 
         [Fact]
-        public void RemoveLastParentId_RemovesLastParentId()
-        {
-            // Arrange
-            var trace = new LangfuseTrace(_timeProvider, _langfuseClient);
-            var eventBody = trace.CreateEvent("TestEvent");
-            
-            // Create a second event with the first event as parent
-            var secondEventBody = trace.CreateEvent("SecondEvent");
-            
-            // Act
-            trace.RemoveLastParentId();
-            
-            // Create a third event which should now have the trace ID as parent
-            var thirdEventBody = trace.CreateEvent("ThirdEvent");
-
-            // Assert
-            Assert.Equal(eventBody.Id, secondEventBody.ParentObservationId);
-            Assert.Equal(eventBody.Id, thirdEventBody.ParentObservationId);
-        }
-
-        [Fact]
         public async Task IngestAsync_CallsClientWithCorrectParameters()
         {
             // Arrange
@@ -244,7 +223,7 @@ namespace zborek.Langfuse.Tests
         }
 
         [Fact]
-        public void NestedObservations_HaveCorrectParentIds()
+        public void Observations_HaveCorrectParentIds()
         {
             // Arrange
             var trace = new LangfuseTrace(_timeProvider, _langfuseClient);
@@ -253,17 +232,11 @@ namespace zborek.Langfuse.Tests
             var spanBody = trace.CreateSpan("ParentSpan");
             var eventBody = trace.CreateEvent("ChildEvent");
             var generationBody = trace.CreateGeneration("GrandchildGeneration");
-            
-            // Go back to the parent span level
-            trace.RemoveLastParentId();
-            
-            var siblingEventBody = trace.CreateEvent("SiblingEvent");
 
             // Assert
             Assert.Equal(trace.TraceId.ToString(), spanBody.ParentObservationId);
-            Assert.Equal(spanBody.Id, eventBody.ParentObservationId);
-            Assert.Equal(eventBody.Id, generationBody.ParentObservationId);
-            Assert.Equal(eventBody.Id, siblingEventBody.ParentObservationId);
+            Assert.Equal(trace.TraceId.ToString(), eventBody.ParentObservationId);
+            Assert.Equal(trace.TraceId.ToString(), generationBody.ParentObservationId);
         }
 
         [Fact]
@@ -274,7 +247,7 @@ namespace zborek.Langfuse.Tests
             var initialParentId = trace.TraceId.ToString();
             
             // Act & Assert
-            using (var span = trace.CreateSpan("TestSpan"))
+            using (var span = trace.CreateSpanScoped("TestSpan"))
             {
                 // Inside the using block, the span should be the parent
                 var childEvent = trace.CreateEvent("ChildEvent");
@@ -294,7 +267,7 @@ namespace zborek.Langfuse.Tests
             var initialParentId = trace.TraceId.ToString();
             
             // Act & Assert
-            using (var eventBody = trace.CreateEvent("TestEvent"))
+            using (var eventBody = trace.CreateEventScoped("TestEvent"))
             {
                 // Inside the using block, the event should be the parent
                 var childEvent = trace.CreateEvent("ChildEvent");
@@ -314,7 +287,7 @@ namespace zborek.Langfuse.Tests
             var initialParentId = trace.TraceId.ToString();
             
             // Act & Assert
-            using (var generation = trace.CreateGeneration("TestGeneration"))
+            using (var generation = trace.CreateGenerationScoped("TestGeneration"))
             {
                 // Inside the using block, the generation should be the parent
                 var childEvent = trace.CreateEvent("ChildEvent");
@@ -336,6 +309,7 @@ namespace zborek.Langfuse.Tests
             // Collect all the IDs and events for assertions later
             string spanId = null;
             string nestedGenerationId = null;
+            string deeplyNestedEveentParentId = null;
             string deeplyNestedEventId = null;
             
             CreateEventBody eventInSpan = null;
@@ -346,19 +320,20 @@ namespace zborek.Langfuse.Tests
             CreateEventBody afterSpanEvent = null;
             
             // Act - create nested hierarchy with using statements
-            using (var span = trace.CreateSpan("OuterSpan"))
+            using (var span = trace.CreateSpanScoped("OuterSpan"))
             {
                 spanId = span.Id;
                 eventInSpan = trace.CreateEvent("EventInSpan");
                 
-                using (var nestedGeneration = trace.CreateGeneration("NestedGeneration"))
+                using (var nestedGeneration = trace.CreateGenerationScoped("NestedGeneration"))
                 {
                     nestedGenerationId = nestedGeneration.Id;
                     eventInGeneration = trace.CreateEvent("EventInGeneration");
                     
-                    using (var deeplyNestedEvent = trace.CreateEvent("DeeplyNestedEvent"))
+                    using (var deeplyNestedEvent = trace.CreateEventScoped("DeeplyNestedEvent"))
                     {
                         deeplyNestedEventId = deeplyNestedEvent.Id;
+                        deeplyNestedEveentParentId = deeplyNestedEvent.ParentObservationId;
                         deepEvent = trace.CreateEvent("DeepEvent");
                     }
                     
@@ -376,6 +351,7 @@ namespace zborek.Langfuse.Tests
             // Assert - verify all parent-child relationships at the end
             Assert.Equal(spanId, eventInSpan.ParentObservationId);
             Assert.Equal(nestedGenerationId, eventInGeneration.ParentObservationId);
+            Assert.Equal(nestedGenerationId, deeplyNestedEveentParentId);
             Assert.Equal(deeplyNestedEventId, deepEvent.ParentObservationId);
             Assert.Equal(nestedGenerationId, afterDeepEvent.ParentObservationId);
             Assert.Equal(spanId, afterGenerationEvent.ParentObservationId);

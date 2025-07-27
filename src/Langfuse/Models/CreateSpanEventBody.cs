@@ -8,6 +8,9 @@ namespace zborek.Langfuse.Models;
 /// </summary>
 public class CreateSpanEventBody : IDisposable
 {
+    [JsonIgnore]
+    internal bool Scoped { get; set; }
+    
     /// <summary>
     ///     Time provider
     /// </summary>
@@ -98,7 +101,10 @@ public class CreateSpanEventBody : IDisposable
     /// </summary>
     public void Dispose()
     {
-        LangfuseTrace?.RemoveLastParentId();
+        if(Scoped)
+        {
+            LangfuseTrace?.RemoveLastParentId();
+        }
     }
 
     /// <summary>
@@ -131,6 +137,18 @@ public class CreateSpanEventBody : IDisposable
 
         return LangfuseTrace.CreateEvent(eventName, input, output, eventDate);
     }
+    
+    public CreateEventBody CreateEventScoped(string eventName, object? input = null, object? output = null,
+        DateTime? eventDate = null)
+    {
+        eventDate ??= TimeProvider.GetUtcNow().UtcDateTime;
+        if (LangfuseTrace == null)
+        {
+            throw new InvalidOperationException("LangfuseTrace is not set");
+        }
+
+        return LangfuseTrace.CreateEventScoped(eventName, input, output, eventDate);
+    }
 
     /// <summary>
     ///     Creates a child span event to span event. If <see cref="LangfuseTrace" /> is set, also add this event to
@@ -155,6 +173,18 @@ public class CreateSpanEventBody : IDisposable
 
         return LangfuseTrace.CreateSpan(spanName, metadata, input, startDate);
     }
+    
+    public CreateSpanEventBody CreateSpanScoped(string spanName, object? metadata = null, object? input = null,
+        DateTime? startDate = null)
+    {
+        startDate ??= TimeProvider.GetUtcNow().UtcDateTime;
+        if (LangfuseTrace == null)
+        {
+            throw new InvalidOperationException("LangfuseTrace is not set");
+        }
+
+        return LangfuseTrace.CreateSpanScoped(spanName, metadata, input, startDate);
+    }
 
     /// <summary>
     ///     Creates a child generation event to span event. If <see cref="LangfuseTrace" /> is set, also add this event to
@@ -176,5 +206,18 @@ public class CreateSpanEventBody : IDisposable
         }
 
         return LangfuseTrace.CreateGeneration(generationName, input, output, eventDate);
+    }
+    
+    public CreateGenerationEventBody CreateGenerationScoped(string generationName, object? input = null,
+        object? output = null, DateTime? eventDate = null)
+    {
+        eventDate ??= TimeProvider.GetUtcNow().UtcDateTime;
+
+        if (LangfuseTrace == null)
+        {
+            throw new InvalidOperationException("LangfuseTrace is not set");
+        }
+
+        return LangfuseTrace.CreateGenerationScoped(generationName, input, output, eventDate);
     }
 }

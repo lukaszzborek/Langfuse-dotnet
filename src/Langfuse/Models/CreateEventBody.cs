@@ -8,6 +8,9 @@ namespace zborek.Langfuse.Models;
 /// </summary>
 public class CreateEventBody : IDisposable
 {
+    [JsonIgnore]
+    internal bool Scoped { get; set; }
+    
     /// <summary>
     ///     Langfuse trace object
     /// </summary>
@@ -88,6 +91,9 @@ public class CreateEventBody : IDisposable
     /// </summary>
     public void Dispose()
     {
-        LangfuseTrace?.RemoveLastParentId();
+        if (Scoped)
+        {
+            LangfuseTrace?.RemoveLastParentId();
+        }
     }
 }
