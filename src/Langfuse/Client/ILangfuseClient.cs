@@ -29,6 +29,21 @@ public interface ILangfuseClient
     IScoreService Scores { get; }
 
     /// <summary>
+    ///     Service for interacting with Langfuse prompt endpoints
+    /// </summary>
+    IPromptService Prompts { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse dataset endpoints
+    /// </summary>
+    IDatasetService Datasets { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse model endpoints
+    /// </summary>
+    IModelService Models { get; }
+
+    /// <summary>
     ///     Ingests the specified ingestion event
     /// </summary>
     /// <param name="ingestionEvent">Langfuse event</param>

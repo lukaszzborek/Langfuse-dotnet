@@ -36,23 +36,23 @@ public static class Extensions
         services.AddScoped<AuthorizationDelegatingHandler>();
         services.AddSingleton(sp => Channel.CreateUnbounded<IIngestionEvent>());
 
-        // Register new service interfaces and implementations
-        services.AddScoped<IObservationService, ObservationService>();
-        services.AddScoped<ITraceService, TraceService>();
-        services.AddScoped<ISessionService, SessionService>();
-        services.AddScoped<IScoreService, ScoreService>();
-
         services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         // Register HTTP clients for individual services
-        services.AddHttpClient<ObservationService>(x => { x.BaseAddress = new Uri(config.Url); })
+        services.AddHttpClient<IObservationService, ObservationService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<TraceService>(x => { x.BaseAddress = new Uri(config.Url); })
+        services.AddHttpClient<ITraceService, TraceService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<SessionService>(x => { x.BaseAddress = new Uri(config.Url); })
+        services.AddHttpClient<ISessionService, SessionService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<ScoreService>(x => { x.BaseAddress = new Uri(config.Url); })
+        services.AddHttpClient<IScoreService, ScoreService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IPromptService, PromptService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IDatasetService, DatasetService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IModelService, ModelService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)

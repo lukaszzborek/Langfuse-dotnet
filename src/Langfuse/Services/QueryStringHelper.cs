@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Web;
+using zborek.Langfuse.Models;
 using zborek.Langfuse.Models.Requests;
 using ObservationListRequest = zborek.Langfuse.Models.ObservationListRequest;
 using SessionListRequest = zborek.Langfuse.Models.SessionListRequest;
@@ -140,6 +141,91 @@ internal static class QueryStringHelper
                 AddParameter(parameters, "traceTags", tag);
             }
         }
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a prompt list request
+    /// </summary>
+    /// <param name="request">The prompt list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(PromptListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "name", request.Name);
+        AddParameter(parameters, "label", request.Label);
+        AddParameter(parameters, "tag", request.Tag);
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "fromUpdatedAt", request.FromUpdatedAt?.ToString("O"));
+        AddParameter(parameters, "toUpdatedAt", request.ToUpdatedAt?.ToString("O"));
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a dataset list request
+    /// </summary>
+    /// <param name="request">The dataset list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(DatasetListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a dataset run list request
+    /// </summary>
+    /// <param name="request">The dataset run list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(DatasetRunListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a model list request
+    /// </summary>
+    /// <param name="request">The model list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(ModelListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
