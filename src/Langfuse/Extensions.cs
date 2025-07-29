@@ -54,6 +54,12 @@ public static class Extensions
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
         services.AddHttpClient<IModelService, ModelService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<ICommentService, CommentService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IMetricsService, MetricsService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IHealthService, HealthService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)
         {

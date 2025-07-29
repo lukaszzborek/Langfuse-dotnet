@@ -44,6 +44,21 @@ public interface ILangfuseClient
     IModelService Models { get; }
 
     /// <summary>
+    ///     Service for interacting with Langfuse comment endpoints
+    /// </summary>
+    ICommentService Comments { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse metrics endpoints
+    /// </summary>
+    IMetricsService Metrics { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse health endpoints
+    /// </summary>
+    IHealthService Health { get; }
+
+    /// <summary>
     ///     Ingests the specified ingestion event
     /// </summary>
     /// <param name="ingestionEvent">Langfuse event</param>

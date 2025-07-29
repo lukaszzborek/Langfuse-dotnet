@@ -45,6 +45,15 @@ internal class LangfuseClient : ILangfuseClient
     /// <inheritdoc />
     public IModelService Models { get; }
 
+    /// <inheritdoc />
+    public ICommentService Comments { get; }
+
+    /// <inheritdoc />
+    public IMetricsService Metrics { get; }
+
+    /// <inheritdoc />
+    public IHealthService Health { get; }
+
     public LangfuseClient(
         HttpClient httpClient,
         Channel<IIngestionEvent> channel,
@@ -56,7 +65,10 @@ internal class LangfuseClient : ILangfuseClient
         IScoreService scoreService,
         IPromptService promptService,
         IDatasetService datasetService,
-        IModelService modelService)
+        IModelService modelService,
+        ICommentService commentService,
+        IMetricsService metricsService,
+        IHealthService healthService)
     {
         _httpClient = httpClient;
         _channel = channel;
@@ -69,6 +81,9 @@ internal class LangfuseClient : ILangfuseClient
         Prompts = promptService;
         Datasets = datasetService;
         Models = modelService;
+        Comments = commentService;
+        Metrics = metricsService;
+        Health = healthService;
     }
 
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)

@@ -230,6 +230,48 @@ internal static class QueryStringHelper
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
 
+    /// <summary>
+    ///     Builds a query string from a comment list request
+    /// </summary>
+    /// <param name="request">The comment list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(CommentListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "objectType", request.ObjectType);
+        AddParameter(parameters, "objectId", request.ObjectId);
+        AddParameter(parameters, "authorUserId", request.AuthorUserId);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a metrics request
+    /// </summary>
+    /// <param name="request">The metrics request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(MetricsRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "query", request.Query);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
     private static void AddParameter(List<string> parameters, string name, object? value)
     {
         if (value != null)

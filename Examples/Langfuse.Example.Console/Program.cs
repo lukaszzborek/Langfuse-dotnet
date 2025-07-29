@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Requests;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
@@ -16,5 +17,6 @@ var app = builder.Build();
 
 var client =  app.Services.GetRequiredService<ILangfuseClient>();
 
+var t = await client.Health.GetHealthAsync();
 
 Console.WriteLine();
