@@ -14,28 +14,16 @@ public class Trace
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Name of the trace
-    /// </summary>
-    [JsonPropertyName("name")]
-    public string? Name { get; set; }
-
-    /// <summary>
-    ///     User ID associated with the trace
-    /// </summary>
-    [JsonPropertyName("userId")]
-    public string? UserId { get; set; }
-
-    /// <summary>
-    ///     Session ID associated with the trace
-    /// </summary>
-    [JsonPropertyName("sessionId")]
-    public string? SessionId { get; set; }
-
-    /// <summary>
     ///     Timestamp when the trace was created
     /// </summary>
     [JsonPropertyName("timestamp")]
     public DateTime Timestamp { get; set; }
+    
+    /// <summary>
+    ///     Name of the trace
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Input data for the trace
@@ -48,52 +36,52 @@ public class Trace
     /// </summary>
     [JsonPropertyName("output")]
     public object? Output { get; set; }
+    
+    /// <summary>
+    ///     Session ID associated with the trace
+    /// </summary>
+    [JsonPropertyName("sessionId")]
+    public string? SessionId { get; set; }
+    
+    /// <summary>
+    ///     Release version
+    /// </summary>
+    [JsonPropertyName("release")]
+    public string? Release { get; set; }
+    
+    /// <summary>
+    ///     Version of the trace
+    /// </summary>
+    [JsonPropertyName("version")]
+    public string? Version { get; set; }
+    
+    /// <summary>
+    ///     User ID associated with the trace
+    /// </summary>
+    [JsonPropertyName("userId")]
+    public string? UserId { get; set; }
 
     /// <summary>
     ///     Metadata associated with the trace
     /// </summary>
     [JsonPropertyName("metadata")]
-    public Dictionary<string, object>? Metadata { get; set; }
+    public object? Metadata { get; set; }
 
     /// <summary>
     ///     Tags associated with the trace
     /// </summary>
     [JsonPropertyName("tags")]
     public string[]? Tags { get; set; }
-
-    /// <summary>
-    ///     Environment in which the trace was created
-    /// </summary>
-    [JsonPropertyName("environment")]
-    public string? Environment { get; set; }
-
-    /// <summary>
-    ///     Status of the trace
-    /// </summary>
-    [JsonPropertyName("status")]
-    public string? Status { get; set; }
-
-    /// <summary>
-    ///     Version of the trace
-    /// </summary>
-    [JsonPropertyName("version")]
-    public string? Version { get; set; }
-
-    /// <summary>
-    ///     Release version
-    /// </summary>
-    [JsonPropertyName("release")]
-    public string? Release { get; set; }
-
+    
     /// <summary>
     ///     Public flag indicating if trace is visible publicly
     /// </summary>
     [JsonPropertyName("public")]
     public bool? Public { get; set; }
-
+    
     /// <summary>
-    ///     Bookmarked flag
+    ///     Environment in which the trace was created
     /// </summary>
-    [JsonPropertyName("bookmarked")]
-    public bool? Bookmarked { get; set; }
+    [JsonPropertyName("environment")]
+    public string? Environment { get; set; }
 }

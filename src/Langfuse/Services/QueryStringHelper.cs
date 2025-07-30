@@ -272,6 +272,51 @@ internal static class QueryStringHelper
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
 
+    /// <summary>
+    ///     Builds a query string from a dataset item list request
+    /// </summary>
+    /// <param name="request">The dataset item list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(DatasetItemListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "datasetName", request.DatasetName);
+        AddParameter(parameters, "sourceTraceId", request.SourceTraceId);
+        AddParameter(parameters, "sourceObservationId", request.SourceObservationId);
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a dataset run item list request
+    /// </summary>
+    /// <param name="request">The dataset run item list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(DatasetRunItemListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "datasetId", request.DatasetId);
+        AddParameter(parameters, "runName", request.RunName);
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
     private static void AddParameter(List<string> parameters, string name, object? value)
     {
         if (value != null)

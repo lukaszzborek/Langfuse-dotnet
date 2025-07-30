@@ -59,6 +59,16 @@ public interface ILangfuseClient
     IHealthService Health { get; }
 
     /// <summary>
+    ///     Service for interacting with Langfuse dataset item endpoints
+    /// </summary>
+    IDatasetItemService DatasetItems { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse dataset run item endpoints
+    /// </summary>
+    IDatasetRunItemService DatasetRunItems { get; }
+
+    /// <summary>
     ///     Ingests the specified ingestion event
     /// </summary>
     /// <param name="ingestionEvent">Langfuse event</param>

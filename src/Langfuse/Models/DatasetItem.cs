@@ -8,7 +8,7 @@ public class DatasetItem
     public string Id { get; set; } = string.Empty;
 
     [JsonPropertyName("status")]
-    public string Status { get; set; } = string.Empty;
+    public DatasetStatus Status { get; set; }
 
     [JsonPropertyName("input")]
     public object? Input { get; set; }
@@ -36,4 +36,10 @@ public class DatasetItem
 
     [JsonPropertyName("updatedAt")]
     public DateTime UpdatedAt { get; set; }
+}
+
+public enum DatasetStatus
+{
+    Active,
+    Archived
 }

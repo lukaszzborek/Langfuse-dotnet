@@ -60,6 +60,10 @@ public static class Extensions
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
         services.AddHttpClient<IHealthService, HealthService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IDatasetItemService, DatasetItemService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IDatasetRunItemService, DatasetRunItemService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)
         {

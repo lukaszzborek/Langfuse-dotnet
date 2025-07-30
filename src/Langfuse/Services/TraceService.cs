@@ -134,6 +134,106 @@ internal class TraceService : ITraceService
         }
     }
 
+    /// <inheritdoc />
+    public async Task<DeleteTraceResponse> DeleteAsync(string traceId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(traceId))
+        {
+            throw new ArgumentException("Trace ID cannot be null or empty", nameof(traceId));
+        }
+
+        var endpoint = $"/api/public/traces/{Uri.EscapeDataString(traceId)}";
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Deleting trace {TraceId} at endpoint: {Endpoint}", traceId, endpoint);
+        }
+
+        try
+        {
+            var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
+            await EnsureSuccessStatusCodeAsync(response);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, SerializerOptions);
+
+            if (result == null)
+            {
+                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
+                    $"Failed to deserialize delete trace response for ID: {traceId}");
+            }
+
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug("Successfully deleted trace {TraceId}", traceId);
+            }
+
+            return result;
+        }
+        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogWarning("Request to delete trace {TraceId} was cancelled", traceId);
+            throw;
+        }
+        catch (LangfuseApiException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while deleting trace {TraceId}", traceId);
+            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
+                $"An unexpected error occurred while deleting trace {traceId}", ex);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<DeleteTraceResponse> DeleteManyAsync(TraceListRequest? request = null, CancellationToken cancellationToken = default)
+    {
+        var queryString = QueryStringHelper.BuildQueryString(request);
+        var endpoint = $"/api/public/traces{queryString}";
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Deleting multiple traces from endpoint: {Endpoint}", endpoint);
+        }
+
+        try
+        {
+            var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
+            await EnsureSuccessStatusCodeAsync(response);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, SerializerOptions);
+
+            if (result == null)
+            {
+                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
+                    "Failed to deserialize delete traces response");
+            }
+
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug("Successfully deleted multiple traces");
+            }
+
+            return result;
+        }
+        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogWarning("Request to delete multiple traces was cancelled");
+            throw;
+        }
+        catch (LangfuseApiException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while deleting multiple traces");
+            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
+                "An unexpected error occurred while deleting multiple traces", ex);
+        }
+    }
+
     private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)
     {
         if (response.IsSuccessStatusCode)
