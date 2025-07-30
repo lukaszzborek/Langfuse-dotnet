@@ -62,7 +62,19 @@ public static class Extensions
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
         services.AddHttpClient<IDatasetItemService, DatasetItemService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IDatasetRunItemService, DatasetRunItemService>(x => { x.BaseAddress = new Uri(config.Url); })
+        services.AddHttpClient<IDatasetRunItemService, DatasetRunItemService>(x =>
+            {
+                x.BaseAddress = new Uri(config.Url);
+            })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IScoreConfigService, ScoreConfigService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IMediaService, MediaService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IAnnotationQueueService, AnnotationQueueService>(x =>
+            {
+                x.BaseAddress = new Uri(config.Url);
+            })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)

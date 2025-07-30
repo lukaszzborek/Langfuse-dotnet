@@ -69,6 +69,21 @@ public interface ILangfuseClient
     IDatasetRunItemService DatasetRunItems { get; }
 
     /// <summary>
+    ///     Service for interacting with Langfuse score configuration endpoints
+    /// </summary>
+    IScoreConfigService ScoreConfigs { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse media endpoints
+    /// </summary>
+    IMediaService Media { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse annotation queue endpoints
+    /// </summary>
+    IAnnotationQueueService AnnotationQueues { get; }
+
+    /// <summary>
     ///     Ingests the specified ingestion event
     /// </summary>
     /// <param name="ingestionEvent">Langfuse event</param>

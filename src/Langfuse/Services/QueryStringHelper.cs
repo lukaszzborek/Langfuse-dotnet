@@ -65,15 +65,23 @@ internal static class QueryStringHelper
         AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
         AddParameter(parameters, "sessionId", request.SessionId);
         AddParameter(parameters, "environment", request.Environment);
-        AddParameter(parameters, "status", request.Status);
         AddParameter(parameters, "version", request.Version);
         AddParameter(parameters, "release", request.Release);
+        AddParameter(parameters, "orderBy", request.OrderBy);
 
-        if (request.Tags != null && request.Tags.Length > 0)
+        if (request.Tags is { Length: > 0 })
         {
             foreach (var tag in request.Tags)
             {
                 AddParameter(parameters, "tags", tag);
+            }
+        }
+
+        if (request.Fields is { Length: > 0 })
+        {
+            foreach (var tag in request.Fields)
+            {
+                AddParameter(parameters, "fields", tag);
             }
         }
 
@@ -311,6 +319,67 @@ internal static class QueryStringHelper
 
         AddParameter(parameters, "datasetId", request.DatasetId);
         AddParameter(parameters, "runName", request.RunName);
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a score configuration list request
+    /// </summary>
+    /// <param name="request">The score configuration list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(ScoreConfigListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "offset", request.Offset);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from an annotation queue list request
+    /// </summary>
+    /// <param name="request">The annotation queue list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(AnnotationQueueListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "page", request.Page);
+        AddParameter(parameters, "limit", request.Limit);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from an annotation queue item list request
+    /// </summary>
+    /// <param name="request">The annotation queue item list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(AnnotationQueueItemListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "status", request.Status?.ToString().ToUpperInvariant());
         AddParameter(parameters, "page", request.Page);
         AddParameter(parameters, "limit", request.Limit);
 
