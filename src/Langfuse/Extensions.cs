@@ -6,7 +6,6 @@ using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models;
 using zborek.Langfuse.Services;
-using zborek.Langfuse.Services.Interfaces;
 
 namespace zborek.Langfuse;
 
@@ -40,48 +39,7 @@ public static class Extensions
         services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
-        // Register HTTP clients for individual services
-        services.AddHttpClient<IObservationService, ObservationService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
         services.AddHttpClient<ITraceService, TraceService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<ISessionService, SessionService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IScoreService, ScoreService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IPromptService, PromptService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IDatasetService, DatasetService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IModelService, ModelService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<ICommentService, CommentService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IMetricsService, MetricsService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IHealthService, HealthService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IDatasetItemService, DatasetItemService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IDatasetRunItemService, DatasetRunItemService>(x =>
-            {
-                x.BaseAddress = new Uri(config.Url);
-            })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IScoreConfigService, ScoreConfigService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IMediaService, MediaService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IAnnotationQueueService, AnnotationQueueService>(x =>
-            {
-                x.BaseAddress = new Uri(config.Url);
-            })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IOrganizationService, OrganizationService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IProjectService, ProjectService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-        services.AddHttpClient<IScimService, ScimService>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)

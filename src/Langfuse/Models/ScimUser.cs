@@ -10,9 +10,6 @@ public class ScimUser
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
 
-    [JsonPropertyName("externalId")]
-    public string? ExternalId { get; set; }
-
     [JsonPropertyName("userName")]
     public string UserName { get; set; } = string.Empty;
 

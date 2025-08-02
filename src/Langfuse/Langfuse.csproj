@@ -40,4 +40,13 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.1" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
     </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Client\ILangfuseClient.AnnotationQueue.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.AnnotationQueue.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
 </Project>

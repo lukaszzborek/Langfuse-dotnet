@@ -7,13 +7,12 @@ using Microsoft.Extensions.Options;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models;
 using zborek.Langfuse.Services;
-using zborek.Langfuse.Services.Interfaces;
 
 namespace zborek.Langfuse.Client;
 
-internal class LangfuseClient : ILangfuseClient
+internal partial class LangfuseClient : ILangfuseClient
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -26,105 +25,20 @@ internal class LangfuseClient : ILangfuseClient
     private readonly ILogger<LangfuseClient> _logger;
 
     /// <inheritdoc />
-    public IObservationService Observations { get; }
-
-    /// <inheritdoc />
     public ITraceService Traces { get; }
-
-    /// <inheritdoc />
-    public ISessionService Sessions { get; }
-
-    /// <inheritdoc />
-    public IScoreService Scores { get; }
-
-    /// <inheritdoc />
-    public IPromptService Prompts { get; }
-
-    /// <inheritdoc />
-    public IDatasetService Datasets { get; }
-
-    /// <inheritdoc />
-    public IModelService Models { get; }
-
-    /// <inheritdoc />
-    public ICommentService Comments { get; }
-
-    /// <inheritdoc />
-    public IMetricsService Metrics { get; }
-
-    /// <inheritdoc />
-    public IHealthService Health { get; }
-
-    /// <inheritdoc />
-    public IDatasetItemService DatasetItems { get; }
-
-    /// <inheritdoc />
-    public IDatasetRunItemService DatasetRunItems { get; }
-
-    /// <inheritdoc />
-    public IScoreConfigService ScoreConfigs { get; }
-
-    /// <inheritdoc />
-    public IMediaService Media { get; }
-
-    /// <inheritdoc />
-    public IAnnotationQueueService AnnotationQueues { get; }
-
-    /// <inheritdoc />
-    public IOrganizationService Organizations { get; }
-
-    /// <inheritdoc />
-    public IProjectService Projects { get; }
-
-    /// <inheritdoc />
-    public IScimService Scim { get; }
 
     public LangfuseClient(
         HttpClient httpClient,
         Channel<IIngestionEvent> channel,
         IOptions<LangfuseConfig> config,
         ILogger<LangfuseClient> logger,
-        IObservationService observationService,
-        ITraceService traceService,
-        ISessionService sessionService,
-        IScoreService scoreService,
-        IPromptService promptService,
-        IDatasetService datasetService,
-        IModelService modelService,
-        ICommentService commentService,
-        IMetricsService metricsService,
-        IHealthService healthService,
-        IDatasetItemService datasetItemService,
-        IDatasetRunItemService datasetRunItemService,
-        IScoreConfigService scoreConfigService,
-        IMediaService mediaService,
-        IAnnotationQueueService annotationQueueService,
-        IOrganizationService organizationService,
-        IProjectService projectService,
-        IScimService scimService)
+        ITraceService traceService)
     {
         _httpClient = httpClient;
         _channel = channel;
         _config = config;
         _logger = logger;
-        Observations = observationService;
         Traces = traceService;
-        Sessions = sessionService;
-        Scores = scoreService;
-        Prompts = promptService;
-        Datasets = datasetService;
-        Models = modelService;
-        Comments = commentService;
-        Metrics = metricsService;
-        Health = healthService;
-        DatasetItems = datasetItemService;
-        DatasetRunItems = datasetRunItemService;
-        ScoreConfigs = scoreConfigService;
-        Media = mediaService;
-        AnnotationQueues = annotationQueueService;
-        Organizations = organizationService;
-        Projects = projectService;
-        Scim = scimService;
     }
 
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
@@ -163,7 +77,7 @@ internal class LangfuseClient : ILangfuseClient
         const int maxBatchSizeBytes = 3_500_000; // 3.5MB in bytes
 
         // First check if the entire request is under the limit
-        var json = JsonSerializer.Serialize(request, SerializerOptions);
+        var json = JsonSerializer.Serialize(request, _jsonOptions);
         if (Encoding.UTF8.GetByteCount(json) <= maxBatchSizeBytes)
         {
             // If under limit, process normally
@@ -200,7 +114,7 @@ internal class LangfuseClient : ILangfuseClient
 
             // Check if adding this event would exceed the size limit
             var batchRequest = new IngestionRequest { Batch = currentBatch.ToArray() };
-            var batchJson = JsonSerializer.Serialize(batchRequest, SerializerOptions);
+            var batchJson = JsonSerializer.Serialize(batchRequest, _jsonOptions);
 
             if (Encoding.UTF8.GetByteCount(batchJson) <= maxBatchSizeBytes)
             {
