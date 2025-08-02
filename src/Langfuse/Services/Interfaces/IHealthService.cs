@@ -1,6 +1,6 @@
 using zborek.Langfuse.Models;
 
-namespace zborek.Langfuse.Services;
+namespace zborek.Langfuse.Services.Interfaces;
 
 /// <summary>
 ///     Service for interacting with Langfuse health endpoints

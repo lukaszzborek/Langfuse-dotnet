@@ -1,6 +1,6 @@
 using zborek.Langfuse.Models;
 
-namespace zborek.Langfuse.Services;
+namespace zborek.Langfuse.Services.Interfaces;
 
 public interface IDatasetItemService
 {

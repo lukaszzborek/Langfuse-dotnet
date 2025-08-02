@@ -2,7 +2,7 @@ using zborek.Langfuse.Models;
 using zborek.Langfuse.Models.Requests;
 using zborek.Langfuse.Models.Responses;
 
-namespace zborek.Langfuse.Services;
+namespace zborek.Langfuse.Services.Interfaces;
 
 /// <summary>
 ///     Service for interacting with Langfuse score configuration endpoints

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using zborek.Langfuse.Models;
 using zborek.Langfuse.Models.Requests;
 using zborek.Langfuse.Models.Responses;
+using zborek.Langfuse.Services.Interfaces;
 
 namespace zborek.Langfuse.Services;
 

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using zborek.Langfuse.Models;
+using zborek.Langfuse.Services.Interfaces;
 
 namespace zborek.Langfuse.Services;
 

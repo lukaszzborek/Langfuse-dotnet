@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using zborek.Langfuse.Models;
+using zborek.Langfuse.Services.Interfaces;
 
 namespace zborek.Langfuse.Services;
 

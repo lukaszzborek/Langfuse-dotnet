@@ -1,7 +1,7 @@
 using zborek.Langfuse.Models;
 using zborek.Langfuse.Models.Requests;
 
-namespace zborek.Langfuse.Services;
+namespace zborek.Langfuse.Services.Interfaces;
 
 /// <summary>
 ///     Service for interacting with Langfuse metrics endpoints
