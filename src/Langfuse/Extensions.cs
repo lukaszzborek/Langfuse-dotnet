@@ -76,6 +76,12 @@ public static class Extensions
                 x.BaseAddress = new Uri(config.Url);
             })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IOrganizationService, OrganizationService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IProjectService, ProjectService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
+        services.AddHttpClient<IScimService, ScimService>(x => { x.BaseAddress = new Uri(config.Url); })
+            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
         if (config.BatchMode)
         {

@@ -8,7 +8,7 @@ namespace zborek.Langfuse.Services;
 /// </summary>
 public class LangfuseTrace
 {
-    private readonly ILangfuseClient _langfuseClient;
+    private readonly ILangfuseClient? _langfuseClient;
     private readonly List<string> _parentIds = [];
     private readonly TimeProvider _timeProvider;
 
@@ -40,7 +40,8 @@ public class LangfuseTrace
 
     /// <summary>
     /// </summary>
-    /// <param name="timeProvider"></param>
+    /// <param name="timeProvider">Time provider</param>
+    /// <param name="langfuseClient">Langfuse client</param>
     public LangfuseTrace(TimeProvider timeProvider, ILangfuseClient langfuseClient)
     {
         _timeProvider = timeProvider;
@@ -230,6 +231,11 @@ public class LangfuseTrace
     /// </summary>
     public async Task IngestAsync()
     {
+        if (_langfuseClient == null)
+        {
+            return;
+        }
+
         await _langfuseClient.IngestAsync(this);
     }
 }

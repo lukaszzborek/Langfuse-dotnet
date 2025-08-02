@@ -6,15 +6,18 @@ namespace zborek.Langfuse.Converters;
 
 internal class ChatMessageConverter : JsonConverter<ChatMessageWithPlaceholders>
 {
-    public override ChatMessageWithPlaceholders Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    private const string DefaultType = "chatmessage";
+
+    public override ChatMessageWithPlaceholders Read(ref Utf8JsonReader reader, Type typeToConvert,
+        JsonSerializerOptions options)
     {
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
-        
+
         // Check if type property exists
         if (root.TryGetProperty("type", out var typeElement))
         {
-            var typeValue = typeElement.GetString() ?? "chatmessage";
+            var typeValue = typeElement.GetString() ?? DefaultType;
 
             return typeValue switch
             {
@@ -23,7 +26,7 @@ internal class ChatMessageConverter : JsonConverter<ChatMessageWithPlaceholders>
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
-        
+
         // No type property - default to ChatMessage
         return JsonSerializer.Deserialize<ChatMessage>(root.GetRawText(), options);
     }

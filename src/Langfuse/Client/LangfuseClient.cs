@@ -69,6 +69,15 @@ internal class LangfuseClient : ILangfuseClient
     /// <inheritdoc />
     public IAnnotationQueueService AnnotationQueues { get; }
 
+    /// <inheritdoc />
+    public IOrganizationService Organizations { get; }
+
+    /// <inheritdoc />
+    public IProjectService Projects { get; }
+
+    /// <inheritdoc />
+    public IScimService Scim { get; }
+
     public LangfuseClient(
         HttpClient httpClient,
         Channel<IIngestionEvent> channel,
@@ -88,7 +97,10 @@ internal class LangfuseClient : ILangfuseClient
         IDatasetRunItemService datasetRunItemService,
         IScoreConfigService scoreConfigService,
         IMediaService mediaService,
-        IAnnotationQueueService annotationQueueService)
+        IAnnotationQueueService annotationQueueService,
+        IOrganizationService organizationService,
+        IProjectService projectService,
+        IScimService scimService)
     {
         _httpClient = httpClient;
         _channel = channel;
@@ -109,6 +121,9 @@ internal class LangfuseClient : ILangfuseClient
         ScoreConfigs = scoreConfigService;
         Media = mediaService;
         AnnotationQueues = annotationQueueService;
+        Organizations = organizationService;
+        Projects = projectService;
+        Scim = scimService;
     }
 
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)

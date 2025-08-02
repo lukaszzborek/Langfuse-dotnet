@@ -84,6 +84,21 @@ public interface ILangfuseClient
     IAnnotationQueueService AnnotationQueues { get; }
 
     /// <summary>
+    ///     Service for interacting with Langfuse organization endpoints
+    /// </summary>
+    IOrganizationService Organizations { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse project endpoints
+    /// </summary>
+    IProjectService Projects { get; }
+
+    /// <summary>
+    ///     Service for interacting with Langfuse SCIM endpoints
+    /// </summary>
+    IScimService Scim { get; }
+
+    /// <summary>
     ///     Ingests the specified ingestion event
     /// </summary>
     /// <param name="ingestionEvent">Langfuse event</param>
