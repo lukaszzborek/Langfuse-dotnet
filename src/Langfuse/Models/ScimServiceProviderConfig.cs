@@ -7,6 +7,9 @@ public class ScimServiceProviderConfig
     [JsonPropertyName("schemas")]
     public List<string> Schemas { get; set; } = new();
 
+    [JsonPropertyName("documentationUri")]
+    public string? DocumentationUri { get; set; }
+
     [JsonPropertyName("patch")]
     public ScimSupported Patch { get; set; } = new();
 
@@ -14,7 +17,7 @@ public class ScimServiceProviderConfig
     public ScimBulkSupported Bulk { get; set; } = new();
 
     [JsonPropertyName("filter")]
-    public ScimSupported Filter { get; set; } = new();
+    public ScimFilterSupported Filter { get; set; } = new();
 
     [JsonPropertyName("changePassword")]
     public ScimSupported ChangePassword { get; set; } = new();
@@ -27,6 +30,9 @@ public class ScimServiceProviderConfig
 
     [JsonPropertyName("authenticationSchemes")]
     public List<ScimAuthenticationScheme> AuthenticationSchemes { get; set; } = new();
+
+    [JsonPropertyName("meta")]
+    public ScimResourceMeta? Meta { get; set; }
 }
 
 public class ScimSupported
@@ -44,6 +50,21 @@ public class ScimBulkSupported : ScimSupported
     public int MaxPayloadSize { get; set; }
 }
 
+public class ScimFilterSupported : ScimSupported
+{
+    [JsonPropertyName("maxResults")]
+    public int? MaxResults { get; set; }
+}
+
+public class ScimResourceMeta
+{
+    [JsonPropertyName("resourceType")]
+    public string ResourceType { get; set; } = string.Empty;
+
+    [JsonPropertyName("location")]
+    public string? Location { get; set; }
+}
+
 public class ScimAuthenticationScheme
 {
     [JsonPropertyName("name")]
@@ -54,9 +75,6 @@ public class ScimAuthenticationScheme
 
     [JsonPropertyName("specUri")]
     public string? SpecUri { get; set; }
-
-    [JsonPropertyName("documentationUri")]
-    public string? DocumentationUri { get; set; }
 
     [JsonPropertyName("type")]
     public string Type { get; set; } = string.Empty;

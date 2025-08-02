@@ -5,7 +5,7 @@ namespace zborek.Langfuse.Models;
 public class ScimResourceType
 {
     [JsonPropertyName("schemas")]
-    public List<string> Schemas { get; set; } = new();
+    public List<string>? Schemas { get; set; }
 
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
@@ -24,6 +24,9 @@ public class ScimResourceType
 
     [JsonPropertyName("schemaExtensions")]
     public List<ScimSchemaExtension> SchemaExtensions { get; set; } = new();
+
+    [JsonPropertyName("meta")]
+    public ScimResourceMeta? Meta { get; set; }
 }
 
 public class ScimSchemaExtension

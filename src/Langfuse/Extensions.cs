@@ -39,9 +39,6 @@ public static class Extensions
         services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 
-        services.AddHttpClient<ITraceService, TraceService>(x => { x.BaseAddress = new Uri(config.Url); })
-            .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
-
         if (config.BatchMode)
         {
             services.AddHostedService<LangfuseBackgroundService>();

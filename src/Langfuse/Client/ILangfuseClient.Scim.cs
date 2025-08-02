@@ -9,7 +9,10 @@ public partial interface ILangfuseClient
     Task<ScimServiceProviderConfig> GetServiceProviderConfigAsync(CancellationToken cancellationToken = default);
     Task<List<ScimResourceType>> GetResourceTypesAsync(CancellationToken cancellationToken = default);
     Task<List<ScimSchema>> GetSchemasAsync(CancellationToken cancellationToken = default);
-    Task<PaginatedScimUsers> GetUsersAsync(CancellationToken cancellationToken = default);
+
+    Task<PaginatedScimUsers> GetUsersAsync(string? filter = null, int? startIndex = null, int? count = null,
+        CancellationToken cancellationToken = default);
+
     Task<ScimUser> CreateUserAsync(CreateScimUserRequest request, CancellationToken cancellationToken = default);
     Task<ScimUser> GetUserAsync(string userId, CancellationToken cancellationToken = default);
     Task DeleteUserAsync(string userId, CancellationToken cancellationToken = default);

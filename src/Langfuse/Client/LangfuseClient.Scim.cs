@@ -37,8 +37,10 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<List<ScimResourceType>>(content, _jsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var resourceTypesResponse = JsonSerializer.Deserialize<ScimResourceTypesResponse>(content, _jsonOptions)
+                                    ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+
+        return resourceTypesResponse.Resources;
     }
 
     public async Task<List<ScimSchema>> GetSchemasAsync(CancellationToken cancellationToken = default)
@@ -52,13 +54,42 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<List<ScimSchema>>(content, _jsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var schemasResponse = JsonSerializer.Deserialize<ScimSchemasResponse>(content, _jsonOptions)
+                              ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+
+        return schemasResponse.Resources.Select(resource => new ScimSchema
+        {
+            Id = resource.Id,
+            Name = resource.Name,
+            Description = resource.Description,
+            Attributes = new List<ScimAttribute>()
+        }).ToList();
     }
 
-    public async Task<PaginatedScimUsers> GetUsersAsync(CancellationToken cancellationToken = default)
+    public async Task<PaginatedScimUsers> GetUsersAsync(
+        string? filter = null,
+        int? startIndex = null,
+        int? count = null,
+        CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync("/api/public/scim/Users", cancellationToken);
+        var query = new List<string>();
+        if (!string.IsNullOrEmpty(filter))
+        {
+            query.Add($"filter={Uri.EscapeDataString(filter)}");
+        }
+
+        if (startIndex.HasValue)
+        {
+            query.Add($"startIndex={startIndex.Value}");
+        }
+
+        if (count.HasValue)
+        {
+            query.Add($"count={count.Value}");
+        }
+
+        var queryString = query.Count > 0 ? "?" + string.Join("&", query) : "";
+        var response = await _httpClient.GetAsync($"/api/public/scim/Users{queryString}", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
