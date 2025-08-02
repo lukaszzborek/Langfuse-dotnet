@@ -24,21 +24,16 @@ internal partial class LangfuseClient : ILangfuseClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<LangfuseClient> _logger;
 
-    /// <inheritdoc />
-    public ITraceService Traces { get; }
-
     public LangfuseClient(
         HttpClient httpClient,
         Channel<IIngestionEvent> channel,
         IOptions<LangfuseConfig> config,
-        ILogger<LangfuseClient> logger,
-        ITraceService traceService)
+        ILogger<LangfuseClient> logger)
     {
         _httpClient = httpClient;
         _channel = channel;
         _config = config;
         _logger = logger;
-        Traces = traceService;
     }
 
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)

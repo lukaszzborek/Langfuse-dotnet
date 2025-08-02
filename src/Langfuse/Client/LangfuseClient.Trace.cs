@@ -1,39 +1,15 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using zborek.Langfuse.Models;
+using zborek.Langfuse.Services;
 
-namespace zborek.Langfuse.Services;
+namespace zborek.Langfuse.Client;
 
-/// <summary>
-///     Implementation of trace service for Langfuse API
-/// </summary>
-internal class TraceService : ITraceService
+internal partial class LangfuseClient
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.KebabCaseUpper) }
-    };
-
-    private readonly HttpClient _httpClient;
-    private readonly ILogger<TraceService> _logger;
-
-    /// <summary>
-    ///     Initializes a new instance of the TraceService class
-    /// </summary>
-    /// <param name="httpClient">HTTP client configured for Langfuse API</param>
-    /// <param name="logger">Logger instance</param>
-    public TraceService(HttpClient httpClient, ILogger<TraceService> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
-
     /// <inheritdoc />
-    public async Task<TraceListResponse> ListAsync(TraceListRequest? request = null,
+    public async Task<TraceListResponse> GetTraceListAsync(TraceListRequest? request = null,
         CancellationToken cancellationToken = default)
     {
         var queryString = QueryStringHelper.BuildQueryString(request);
@@ -49,7 +25,7 @@ internal class TraceService : ITraceService
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<TraceListResponse>(responseContent, SerializerOptions);
+            var result = JsonSerializer.Deserialize<TraceListResponse>(responseContent, _jsonOptions);
 
             if (result == null)
             {
@@ -82,7 +58,7 @@ internal class TraceService : ITraceService
     }
 
     /// <inheritdoc />
-    public async Task<TraceWithDetails> GetAsync(string traceId, CancellationToken cancellationToken = default)
+    public async Task<TraceWithDetails> GetTraceAsync(string traceId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(traceId))
         {
@@ -101,7 +77,7 @@ internal class TraceService : ITraceService
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<TraceWithDetails>(responseContent, SerializerOptions);
+            var result = JsonSerializer.Deserialize<TraceWithDetails>(responseContent, _jsonOptions);
 
             if (result == null)
             {
@@ -135,7 +111,8 @@ internal class TraceService : ITraceService
     }
 
     /// <inheritdoc />
-    public async Task<DeleteTraceResponse> DeleteAsync(string traceId, CancellationToken cancellationToken = default)
+    public async Task<DeleteTraceResponse> DeleteTraceAsync(string traceId,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(traceId))
         {
@@ -154,7 +131,7 @@ internal class TraceService : ITraceService
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, SerializerOptions);
+            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, _jsonOptions);
 
             if (result == null)
             {
@@ -187,7 +164,8 @@ internal class TraceService : ITraceService
     }
 
     /// <inheritdoc />
-    public async Task<DeleteTraceResponse> DeleteManyAsync(TraceListRequest? request = null, CancellationToken cancellationToken = default)
+    public async Task<DeleteTraceResponse> DeleteTraceManyAsync(TraceListRequest? request = null,
+        CancellationToken cancellationToken = default)
     {
         var queryString = QueryStringHelper.BuildQueryString(request);
         var endpoint = $"/api/public/traces{queryString}";
@@ -202,7 +180,7 @@ internal class TraceService : ITraceService
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, SerializerOptions);
+            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, _jsonOptions);
 
             if (result == null)
             {
@@ -232,31 +210,5 @@ internal class TraceService : ITraceService
             throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                 "An unexpected error occurred while deleting multiple traces", ex);
         }
-    }
-
-    private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)
-    {
-        if (response.IsSuccessStatusCode)
-        {
-            return;
-        }
-
-        var errorContent = await response.Content.ReadAsStringAsync();
-        var statusCode = (int)response.StatusCode;
-
-        var errorMessage = response.StatusCode switch
-        {
-            HttpStatusCode.NotFound => "The requested trace was not found",
-            HttpStatusCode.Unauthorized => "Authentication failed. Please check your API credentials",
-            HttpStatusCode.Forbidden => "Access forbidden. You don't have permission to access this resource",
-            HttpStatusCode.TooManyRequests => "Rate limit exceeded. Please retry after some time",
-            _ => $"API request failed with status code {statusCode}"
-        };
-
-        throw new LangfuseApiException(statusCode, errorMessage, details: new Dictionary<string, object>
-        {
-            ["responseContent"] = errorContent,
-            ["statusCode"] = statusCode
-        });
     }
 }

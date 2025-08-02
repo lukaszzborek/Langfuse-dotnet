@@ -1,11 +1,8 @@
-using zborek.Langfuse.Models;
+﻿using zborek.Langfuse.Models;
 
-namespace zborek.Langfuse.Services;
+namespace zborek.Langfuse.Client;
 
-/// <summary>
-///     Service for interacting with Langfuse trace endpoints
-/// </summary>
-public interface ITraceService
+public partial interface ILangfuseClient
 {
     /// <summary>
     ///     Retrieves a paginated list of traces with optional filtering
@@ -13,7 +10,8 @@ public interface ITraceService
     /// <param name="request">Filter and pagination parameters</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of traces</returns>
-    Task<TraceListResponse> ListAsync(TraceListRequest? request = null, CancellationToken cancellationToken = default);
+    Task<TraceListResponse> GetTraceListAsync(TraceListRequest? request = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Retrieves a single trace by its ID with detailed nested data
@@ -22,7 +20,7 @@ public interface ITraceService
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The trace with the specified ID including nested observations</returns>
     /// <exception cref="LangfuseApiException">Thrown when the trace is not found or an API error occurs</exception>
-    Task<TraceWithDetails> GetAsync(string traceId, CancellationToken cancellationToken = default);
+    Task<TraceWithDetails> GetTraceAsync(string traceId, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Deletes a single trace by its ID
@@ -31,7 +29,7 @@ public interface ITraceService
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Response containing the deletion status</returns>
     /// <exception cref="LangfuseApiException">Thrown when the trace is not found or an API error occurs</exception>
-    Task<DeleteTraceResponse> DeleteAsync(string traceId, CancellationToken cancellationToken = default);
+    Task<DeleteTraceResponse> DeleteTraceAsync(string traceId, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Deletes multiple traces based on filter criteria
@@ -40,5 +38,6 @@ public interface ITraceService
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Response containing the deletion status</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    Task<DeleteTraceResponse> DeleteManyAsync(TraceListRequest? request = null, CancellationToken cancellationToken = default);
+    Task<DeleteTraceResponse> DeleteTraceManyAsync(TraceListRequest? request = null,
+        CancellationToken cancellationToken = default);
 }

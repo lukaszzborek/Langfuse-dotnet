@@ -48,5 +48,107 @@
         <Compile Update="Client\LangfuseClient.AnnotationQueue.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
+        <Compile Update="Client\ILangfuseClient.Comment.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Dataset.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.DatasetItem.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.DatasetRunItem.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Health.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Media.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Metrics.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Model.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Observation.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Organization.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Project.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Prompt.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Scim.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Score.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.ScoreConfig.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Session.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Comment.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Dataset.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.DatasetItem.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.DatasetRunItem.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Health.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Media.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Metrics.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Model.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Observation.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Organization.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Project.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Prompt.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Scim.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Score.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.ScoreConfig.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Session.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\ILangfuseClient.Trace.cs">
+          <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Trace.cs">
+          <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 </Project>
