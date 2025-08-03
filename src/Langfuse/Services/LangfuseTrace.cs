@@ -67,17 +67,33 @@ public class LangfuseTrace
         var traceBody = new CreateTraceBody { Id = TraceId.ToString(), Timestamp = date, Name = name };
         Trace = new CreateTraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
     }
-
-
+    
     /// <summary>
     ///     Set name of trace visible in langfuse. Used when using dependency injection
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">Trace name</param>
     public void SetTraceName(string name)
     {
         Trace.Body.Name = name;
     }
 
+    /// <summary>
+    ///     Set input prompt of trace
+    /// </summary>
+    /// <param name="input">Input prompt</param>
+    public void SetInput(string input)
+    {
+        Trace.Body.Input = input;
+    }
+    
+    /// <summary>
+    ///     Set output of trace
+    /// </summary>
+    /// <param name="output">LLM output</param>
+    public void SetOutput(string output)
+    {
+        Trace.Body.Output = output;
+    }
 
     /// <summary>
     ///     Create event, basic building blocks. Used to track discrete events in a trace

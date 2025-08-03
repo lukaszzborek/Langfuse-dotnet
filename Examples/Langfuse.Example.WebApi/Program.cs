@@ -57,7 +57,7 @@ app.MapPost("/chat", async ([FromServices] ILangfuseClient langfuseClient,
 
         async Task<string> GetDataFromDb(LangfuseTrace langfuseTrace1, string requestMessage)
         {
-            var span = langfuseTrace1.CreateSpan("GetDataFromDb");
+            using var span = langfuseTrace1.CreateSpanScoped("GetDataFromDb");
             var prompt = $"""
                           <task>
                           Ask helper question about prompt
