@@ -18,3 +18,8 @@ Content-Type: application/json
     "name": "Story",
     "message": "Write me very short story about dragons"
 }
+
+
+### 
+GET http://localhost:5146/traces
+Content-Type: application/json

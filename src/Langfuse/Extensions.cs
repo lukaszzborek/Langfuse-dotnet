@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse;
@@ -32,10 +32,10 @@ public static class Extensions
         }
 
         services.TryAddSingleton(TimeProvider.System);
-        ;
         services.AddScoped<LangfuseTrace>();
         services.AddScoped<AuthorizationDelegatingHandler>();
         services.AddSingleton(sp => Channel.CreateUnbounded<IIngestionEvent>());
+
         services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();
 

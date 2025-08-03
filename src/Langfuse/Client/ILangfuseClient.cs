@@ -1,4 +1,4 @@
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -6,7 +6,7 @@ namespace zborek.Langfuse.Client;
 /// <summary>
 ///     Represents a client for interacting with Langfuse api
 /// </summary>
-public interface ILangfuseClient
+public partial interface ILangfuseClient
 {
     /// <summary>
     ///     Ingests the specified ingestion event

@@ -28,5 +28,30 @@ public class LangfuseConfig
     /// <summary>
     ///     Batch wait time. Default is 5 seconds.
     /// </summary>
-    public TimeSpan BatchWaitTimeSeconds { get; set; } = TimeSpan.FromSeconds(5);
+    public TimeSpan BatchWaitTime { get; set; } = TimeSpan.FromSeconds(5);
+
+    /// <summary>
+    ///     Default timeout for HTTP requests to Langfuse API. Default is 30 seconds.
+    /// </summary>
+    public TimeSpan DefaultTimeout { get; set; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    ///     Default page size for paginated requests. Default is 50.
+    /// </summary>
+    public int DefaultPageSize { get; set; } = 50;
+
+    /// <summary>
+    ///     Enable automatic retry for failed requests. Default is true.
+    /// </summary>
+    public bool EnableRetry { get; set; } = true;
+
+    /// <summary>
+    ///     Maximum number of retry attempts for failed requests. Default is 3.
+    /// </summary>
+    public int MaxRetryAttempts { get; set; } = 3;
+
+    /// <summary>
+    ///     Base delay between retry attempts. Default is 1 second.
+    /// </summary>
+    public TimeSpan RetryDelay { get; set; } = TimeSpan.FromSeconds(1);
 }

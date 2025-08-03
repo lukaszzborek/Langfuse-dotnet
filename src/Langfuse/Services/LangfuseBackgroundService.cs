@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
 
 namespace zborek.Langfuse.Services;
 
@@ -23,7 +23,7 @@ internal class LangfuseBackgroundService : BackgroundService
         _client = client;
         _config = config;
         _logger = logger;
-        _timer = new PeriodicTimer(_config.Value.BatchWaitTimeSeconds);
+        _timer = new PeriodicTimer(_config.Value.BatchWaitTime);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,6 +32,8 @@ internal class LangfuseBackgroundService : BackgroundService
         {
             return;
         }
+
+        _logger.LogInformation("Starting Langfuse background service");
 
         while (await _timer.WaitForNextTickAsync(stoppingToken))
         {
@@ -53,6 +55,7 @@ internal class LangfuseBackgroundService : BackgroundService
                     Batch = list.ToArray()
                 };
 
+                _logger.LogInformation("Sending {Count} events", ingestionRequest.Batch.Length);
                 var response = await ((LangfuseClient)_client).IngestInternalAsync(ingestionRequest);
 
                 if (response.Errors is { Length: 0 })

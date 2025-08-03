@@ -16,8 +16,11 @@ public class ChatService
     
     public async Task<string> ChatAsync(ChatRequestDto request, CancellationToken cancellationToken = default)
     {
-        _langfuseTrace.Trace.Body.Input = request.Message;
-        using var span = _langfuseTrace.CreateSpan(request.Message);
+        _langfuseTrace.SetInput(request.Message);
+        _langfuseTrace.SetTraceName(request.Name);
+        _langfuseTrace.Trace.Body.Metadata = new { request.Name, request.Message, Date = DateTime.UtcNow };
+        
+        using var span = _langfuseTrace.CreateSpanScoped(request.Message);
         
         var data = await GetDataFromDb(request.Message);
         var prompt = $"""
@@ -37,7 +40,7 @@ public class ChatService
             throw new BadHttpRequestException("Failed to get response from OpenAI");
         }
 
-        _langfuseTrace.Trace.Body.Output = response;
+        _langfuseTrace.SetOutput(response.Choices[0].Message.Content);
         await _langfuseTrace.IngestAsync();
         
         return response.Choices[0].Message.Content;
@@ -45,7 +48,7 @@ public class ChatService
 
     private async Task<string> GetDataFromDb(string requestMessage)
     {
-        using var span = _langfuseTrace.CreateSpan("GetDataFromDb");
+        using var span = _langfuseTrace.CreateSpanScoped("GetDataFromDb");
         var prompt = $"""
                       <task>
                       Ask helper question about prompt
@@ -61,7 +64,7 @@ public class ChatService
         await Task.Delay(1000);
         
         span.SetOutput("Data from db");
-        using var _ = span.CreateEvent("Data downloaded", input: requestMessage, output: "Data from db");
+        span.CreateEvent("Data downloaded", input: requestMessage, output: "Data from db");
             
         if (additionalQuestions == null)
         {

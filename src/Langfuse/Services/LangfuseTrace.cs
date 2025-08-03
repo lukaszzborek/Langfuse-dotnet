@@ -1,5 +1,5 @@
 using zborek.Langfuse.Client;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
 
 namespace zborek.Langfuse.Services;
 
@@ -8,7 +8,7 @@ namespace zborek.Langfuse.Services;
 /// </summary>
 public class LangfuseTrace
 {
-    private readonly ILangfuseClient _langfuseClient;
+    private readonly ILangfuseClient? _langfuseClient;
     private readonly List<string> _parentIds = [];
     private readonly TimeProvider _timeProvider;
 
@@ -40,7 +40,8 @@ public class LangfuseTrace
 
     /// <summary>
     /// </summary>
-    /// <param name="timeProvider"></param>
+    /// <param name="timeProvider">Time provider</param>
+    /// <param name="langfuseClient">Langfuse client</param>
     public LangfuseTrace(TimeProvider timeProvider, ILangfuseClient langfuseClient)
     {
         _timeProvider = timeProvider;
@@ -66,17 +67,33 @@ public class LangfuseTrace
         var traceBody = new CreateTraceBody { Id = TraceId.ToString(), Timestamp = date, Name = name };
         Trace = new CreateTraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
     }
-
-
+    
     /// <summary>
     ///     Set name of trace visible in langfuse. Used when using dependency injection
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">Trace name</param>
     public void SetTraceName(string name)
     {
         Trace.Body.Name = name;
     }
 
+    /// <summary>
+    ///     Set input prompt of trace
+    /// </summary>
+    /// <param name="input">Input prompt</param>
+    public void SetInput(string input)
+    {
+        Trace.Body.Input = input;
+    }
+    
+    /// <summary>
+    ///     Set output of trace
+    /// </summary>
+    /// <param name="output">LLM output</param>
+    public void SetOutput(string output)
+    {
+        Trace.Body.Output = output;
+    }
 
     /// <summary>
     ///     Create event, basic building blocks. Used to track discrete events in a trace
@@ -104,8 +121,16 @@ public class LangfuseTrace
         };
 
         var createEvent = new CreateEvent(eventBody, eventBody.Id, eventDate.Value.ToString("o"));
-        _parentIds.Add(createEvent.Id);
         Events.Add(createEvent);
+        return eventBody;
+    }
+
+    public CreateEventBody CreateEventScoped(string eventName, object? input = null, object? output = null,
+        DateTime? eventDate = null)
+    {
+        var eventBody = CreateEvent(eventName, input, output, eventDate);
+        eventBody.Scoped = true;
+        _parentIds.Add(eventBody.Id!);
         return eventBody;
     }
 
@@ -136,8 +161,16 @@ public class LangfuseTrace
         };
 
         var createSpan = new CreateSpanEvent(spanBody, spanBody.Id, startDate.Value.ToString("o"));
-        _parentIds.Add(createSpan.Id);
         Spans.Add(createSpan);
+        return spanBody;
+    }
+
+    public CreateSpanEventBody CreateSpanScoped(string spanName, object? metadata = null, object? input = null,
+        DateTime? startDate = null)
+    {
+        var spanBody = CreateSpan(spanName, metadata, input, startDate);
+        spanBody.Scoped = true;
+        _parentIds.Add(spanBody.Id!);
         return spanBody;
     }
 
@@ -173,7 +206,16 @@ public class LangfuseTrace
         var createGeneration =
             new CreateGenerationEvent(generationBody, generationBody.Id, eventDate.Value.ToString("o"));
         Generations.Add(createGeneration);
-        _parentIds.Add(createGeneration.Id);
+
+        return generationBody;
+    }
+
+    public CreateGenerationEventBody CreateGenerationScoped(string generationName, object? input = null,
+        object? output = null, DateTime? eventDate = null)
+    {
+        var generationBody = CreateGeneration(generationName, input, output, eventDate);
+        generationBody.Scoped = true;
+        _parentIds.Add(generationBody.Id!);
         return generationBody;
     }
 
@@ -195,7 +237,7 @@ public class LangfuseTrace
     /// <summary>
     ///     Removes the last parent ID from the list of parent IDs.
     /// </summary>
-    public void RemoveLastParentId()
+    internal void RemoveLastParentId()
     {
         _parentIds.RemoveAt(_parentIds.Count - 1);
     }
@@ -205,6 +247,11 @@ public class LangfuseTrace
     /// </summary>
     public async Task IngestAsync()
     {
+        if (_langfuseClient == null)
+        {
+            return;
+        }
+
         await _langfuseClient.IngestAsync(this);
     }
 }

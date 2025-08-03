@@ -21,7 +21,7 @@ public class OpenAiWithLangfuseService
 
     public async Task<ChatCompletionResponse?> GetChatCompletionAsync(string model, string prompt)
     {
-        using var generation = _langfuseTrace.CreateGeneration("openai-chat-completion", prompt);
+        var generation = _langfuseTrace.CreateGeneration("openai-chat-completion", prompt);
         generation.Model = model;
         
         var requestBody = new
@@ -46,7 +46,7 @@ public class OpenAiWithLangfuseService
         
         if (result?.Choices.Count > 0)
         {
-            generation.SetOutput(result.Choices[0]);
+            generation.SetOutput(result.Choices[0].Message.Content);
             generation.SetUsage(result.Usage);
         }
         
