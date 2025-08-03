@@ -67,12 +67,12 @@ public class MyService
         _langfuseTrace.Trace.Body.Input = input;
         
         // Create spans to track operations
-        using var dataSpan = _langfuseTrace.CreateSpan("GetData");
+        using var dataSpan = _langfuseTrace.CreateSpanScoped("GetData");
         var data = await GetDataAsync(input);
         dataSpan.SetOutput(data);
         
         // Track LLM generations
-        using var generationSpan = _langfuseTrace.CreateGeneration("LLMProcessing", 
+        using var generationSpan = _langfuseTrace.CreateGenerationScoped("LLMProcessing", 
             input: $"Process: {input} with {data}", 
             output: null);
         
@@ -80,7 +80,7 @@ public class MyService
         generationSpan.SetOutput(result);
         
         // Record events
-        using var _ = _langfuseTrace.CreateEvent("ProcessingComplete", 
+        using var _ = _langfuseTrace.CreateEventScoped("ProcessingComplete", 
             input: input, 
             output: result);
         
@@ -90,6 +90,28 @@ public class MyService
         return result;
     }
 }
+```
+
+There is two ways to create observations objects:
+- Scoped versions, which automatically handle parent-child relationships and are disposed of at the end of the scope.</br>
+  It's ending with Scoped suffix
+- Non-scoped versions, which don't override current parent observation
+
+```csharp
+// this will create a new span and set it as the current parent observation
+using (var dataSpan = _langfuseTrace.CreateSpanScoped("GetData"))
+{
+    // this will create a new generation with dataSpan paraent id, but not set it as the current parent observation
+    var event = _langfuseTrace.CreateEvent("ProcessingComplete", input: input, output: result);
+    
+    // this will also have dataSpan as parent
+    var generation = _langfuseTrace.CreateGeneration("LLMProcessing", 
+        input: $"Process: {input} with {data}");
+}
+
+// this will create a new span, but parent id will be main trace id, not dataSpan id
+var outScopeEvent = _langfuseTrace.CreateEvent("ProcessingComplete", input: input, output: result);
+
 ```
 
 ## Core Concepts
