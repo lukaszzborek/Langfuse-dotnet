@@ -1,7 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using zborek.Langfuse.Models.Comment;
-using zborek.Langfuse.Models.Core;
+﻿using zborek.Langfuse.Models.Comment;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -12,51 +9,30 @@ internal partial class LangfuseClient
         CancellationToken cancellationToken = default)
     {
         var query = QueryStringHelper.BuildQueryString(request);
-        var response = await _httpClient.GetAsync($"/api/public/comments{query}", cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to list comments: {errorContent}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<GetCommentsResponse>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var endpoint = $"/api/public/comments{query}";
+        return await GetAsync<GetCommentsResponse>(endpoint, "List Comments", cancellationToken);
     }
 
     public async Task<CommentModel> GetCommentAsync(string commentId, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"/api/public/comments/{Uri.EscapeDataString(commentId)}",
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (string.IsNullOrWhiteSpace(commentId))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get comment: {errorContent}");
+            throw new ArgumentException("Comment ID cannot be null or empty", nameof(commentId));
         }
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<CommentModel>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var endpoint = $"/api/public/comments/{Uri.EscapeDataString(commentId)}";
+        return await GetAsync<CommentModel>(endpoint, "Get Comment", cancellationToken);
     }
 
     public async Task<CreateCommentResponse> CreateCommentAsync(CreateCommentRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync("/api/public/comments", content, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (request == null)
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to create comment: {errorContent}");
+            throw new ArgumentNullException(nameof(request));
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<CreateCommentResponse>(responseContent, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        const string endpoint = "/api/public/comments";
+        return await PostAsync<CreateCommentResponse>(endpoint, request, "Create Comment", cancellationToken);
     }
 }

@@ -10,22 +10,13 @@ internal partial class LangfuseClient
     public async Task<ScimServiceProviderConfig> GetServiceProviderConfigAsync(
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync("/api/public/scim/ServiceProviderConfig", cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode,
-                $"Failed to get SCIM service provider config: {errorContent}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ScimServiceProviderConfig>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await GetAsync<ScimServiceProviderConfig>("/api/public/scim/ServiceProviderConfig",
+            "Get SCIM Service Provider Config", cancellationToken);
     }
 
     public async Task<List<ScimResourceType>> GetResourceTypesAsync(CancellationToken cancellationToken = default)
     {
+        // This method needs transformation of the response, so using manual pattern
         var response = await _httpClient.GetAsync("/api/public/scim/ResourceTypes", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
@@ -44,6 +35,7 @@ internal partial class LangfuseClient
 
     public async Task<List<ScimSchema>> GetSchemasAsync(CancellationToken cancellationToken = default)
     {
+        // This method needs transformation of the response, so using manual pattern
         var response = await _httpClient.GetAsync("/api/public/scim/Schemas", cancellationToken);
 
         if (!response.IsSuccessStatusCode)
@@ -71,6 +63,7 @@ internal partial class LangfuseClient
         int? count = null,
         CancellationToken cancellationToken = default)
     {
+        // This method needs custom query string building, so using manual pattern
         var query = new List<string>();
         if (!string.IsNullOrEmpty(filter))
         {
@@ -88,22 +81,14 @@ internal partial class LangfuseClient
         }
 
         var queryString = query.Count > 0 ? "?" + string.Join("&", query) : "";
-        var response = await _httpClient.GetAsync($"/api/public/scim/Users{queryString}", cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get SCIM users: {errorContent}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedScimUsers>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await GetAsync<PaginatedScimUsers>($"/api/public/scim/Users{queryString}", "Get SCIM Users",
+            cancellationToken);
     }
 
     public async Task<ScimUser> CreateUserAsync(CreateScimUserRequest request,
         CancellationToken cancellationToken = default)
     {
+        // This method uses different content type (application/scim+json), so using manual pattern
         var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/scim+json");
 
@@ -122,29 +107,13 @@ internal partial class LangfuseClient
 
     public async Task<ScimUser> GetUserAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var response =
-            await _httpClient.GetAsync($"/api/public/scim/Users/{Uri.EscapeDataString(userId)}", cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get SCIM user: {errorContent}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ScimUser>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await GetAsync<ScimUser>($"/api/public/scim/Users/{Uri.EscapeDataString(userId)}", "Get SCIM User",
+            cancellationToken);
     }
 
     public async Task DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.DeleteAsync($"/api/public/scim/Users/{Uri.EscapeDataString(userId)}",
+        await DeleteAsync($"/api/public/scim/Users/{Uri.EscapeDataString(userId)}", "Delete SCIM User",
             cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to delete SCIM user: {errorContent}");
-        }
     }
 }

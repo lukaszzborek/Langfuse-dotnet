@@ -1,8 +1,4 @@
-﻿using System.Net;
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Logging;
-using zborek.Langfuse.Models.AnnotationQueue;
+﻿using zborek.Langfuse.Models.AnnotationQueue;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Services;
 
@@ -15,48 +11,7 @@ internal partial class LangfuseClient
     {
         var queryString = QueryStringHelper.BuildQueryString(request);
         var endpoint = $"/api/public/annotation-queues{queryString}";
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Fetching annotation queues from endpoint: {Endpoint}", endpoint);
-        }
-
-        try
-        {
-            var response = await _httpClient.GetAsync(endpoint, cancellationToken);
-            await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueListResponse>(responseContent, JsonOptions);
-
-            if (result == null)
-            {
-                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                    "Failed to deserialize annotation queue list response");
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug("Successfully fetched {Count} annotation queues", result.Data.Length);
-            }
-
-            return result;
-        }
-        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogWarning("Request to fetch annotation queues was cancelled");
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while fetching annotation queues");
-            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                "An unexpected error occurred while fetching annotation queues", ex);
-        }
+        return await GetAsync<AnnotationQueueListResponse>(endpoint, "List Annotation Queues", cancellationToken);
     }
 
     /// <inheritdoc />
@@ -68,47 +23,7 @@ internal partial class LangfuseClient
         }
 
         var endpoint = $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}";
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Fetching annotation queue {QueueId} from endpoint: {Endpoint}", queueId, endpoint);
-        }
-
-        try
-        {
-            var response = await _httpClient.GetAsync(endpoint, cancellationToken);
-            await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueModel>(responseContent, JsonOptions);
-
-            if (result == null)
-            {
-                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                    $"Failed to deserialize annotation queue response for ID: {queueId}");
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug("Successfully fetched annotation queue {QueueId}", queueId);
-            }
-
-            return result;
-        }
-        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogWarning("Request to fetch annotation queue {QueueId} was cancelled", queueId);
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while fetching annotation queue {QueueId}", queueId);
-            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                $"An unexpected error occurred while fetching annotation queue {queueId}", ex);
-        }
+        return await GetAsync<AnnotationQueueModel>(endpoint, "Get Annotation Queue", cancellationToken);
     }
 
     /// <inheritdoc />
@@ -123,51 +38,8 @@ internal partial class LangfuseClient
 
         var queryString = QueryStringHelper.BuildQueryString(request);
         var endpoint = $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}/items{queryString}";
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Fetching annotation queue items for queue {QueueId} from endpoint: {Endpoint}", queueId,
-                endpoint);
-        }
-
-        try
-        {
-            var response = await _httpClient.GetAsync(endpoint, cancellationToken);
-            await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result =
-                JsonSerializer.Deserialize<AnnotationQueueItemListResponse>(responseContent, JsonOptions);
-
-            if (result == null)
-            {
-                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                    "Failed to deserialize annotation queue item list response");
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug("Successfully fetched {Count} annotation queue items for queue {QueueId}",
-                    result.Data.Length, queueId);
-            }
-
-            return result;
-        }
-        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogWarning("Request to fetch annotation queue items for queue {QueueId} was cancelled", queueId);
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while fetching annotation queue items for queue {QueueId}", queueId);
-            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                $"An unexpected error occurred while fetching annotation queue items for queue {queueId}", ex);
-        }
+        return await GetAsync<AnnotationQueueItemListResponse>(endpoint, "List Annotation Queue Items",
+            cancellationToken);
     }
 
     /// <inheritdoc />
@@ -190,57 +62,8 @@ internal partial class LangfuseClient
         }
 
         var endpoint = $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}/items";
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug(
-                "Creating annotation queue item for object {ObjectId} in queue {QueueId} at endpoint: {Endpoint}",
-                request.ObjectId, queueId, endpoint);
-        }
-
-        try
-        {
-            var json = JsonSerializer.Serialize(request, JsonOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
-            await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, JsonOptions);
-
-            if (result == null)
-            {
-                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                    "Failed to deserialize created annotation queue item response");
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug(
-                    "Successfully created annotation queue item {ItemId} for object {ObjectId} in queue {QueueId}",
-                    result.Id, request.ObjectId, queueId);
-            }
-
-            return result;
-        }
-        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogWarning("Request to create annotation queue item was cancelled");
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex,
-                "Unexpected error while creating annotation queue item for object {ObjectId} in queue {QueueId}",
-                request.ObjectId, queueId);
-            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                $"An unexpected error occurred while creating annotation queue item for object {request.ObjectId} in queue {queueId}",
-                ex);
-        }
+        return await PostAsync<AnnotationQueueItem>(endpoint, request, "Create Annotation Queue Item",
+            cancellationToken);
     }
 
     /// <inheritdoc />
@@ -259,51 +82,7 @@ internal partial class LangfuseClient
 
         var endpoint =
             $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}/items/{Uri.EscapeDataString(itemId)}";
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Fetching annotation queue item {ItemId} from queue {QueueId} at endpoint: {Endpoint}",
-                itemId, queueId, endpoint);
-        }
-
-        try
-        {
-            var response = await _httpClient.GetAsync(endpoint, cancellationToken);
-            await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, JsonOptions);
-
-            if (result == null)
-            {
-                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                    $"Failed to deserialize annotation queue item response for ID: {itemId}");
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug("Successfully fetched annotation queue item {ItemId} from queue {QueueId}", itemId,
-                    queueId);
-            }
-
-            return result;
-        }
-        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogWarning("Request to fetch annotation queue item {ItemId} from queue {QueueId} was cancelled",
-                itemId, queueId);
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while fetching annotation queue item {ItemId} from queue {QueueId}",
-                itemId, queueId);
-            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                $"An unexpected error occurred while fetching annotation queue item {itemId} from queue {queueId}", ex);
-        }
+        return await GetAsync<AnnotationQueueItem>(endpoint, "Get Annotation Queue Item", cancellationToken);
     }
 
     /// <inheritdoc />
@@ -328,54 +107,8 @@ internal partial class LangfuseClient
 
         var endpoint =
             $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}/items/{Uri.EscapeDataString(itemId)}";
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Updating annotation queue item {ItemId} in queue {QueueId} at endpoint: {Endpoint}",
-                itemId, queueId, endpoint);
-        }
-
-        try
-        {
-            var json = JsonSerializer.Serialize(request, JsonOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PatchAsync(endpoint, content, cancellationToken);
-            await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, JsonOptions);
-
-            if (result == null)
-            {
-                throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                    "Failed to deserialize updated annotation queue item response");
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug("Successfully updated annotation queue item {ItemId} in queue {QueueId}", itemId,
-                    queueId);
-            }
-
-            return result;
-        }
-        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogWarning("Request to update annotation queue item {ItemId} in queue {QueueId} was cancelled",
-                itemId, queueId);
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while updating annotation queue item {ItemId} in queue {QueueId}",
-                itemId, queueId);
-            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                $"An unexpected error occurred while updating annotation queue item {itemId} in queue {queueId}", ex);
-        }
+        return await PatchAsync<AnnotationQueueItem>(endpoint, request, "Update Annotation Queue Item",
+            cancellationToken);
     }
 
     /// <inheritdoc />
@@ -394,78 +127,19 @@ internal partial class LangfuseClient
 
         var endpoint =
             $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}/items/{Uri.EscapeDataString(itemId)}";
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug("Deleting annotation queue item {ItemId} from queue {QueueId} at endpoint: {Endpoint}",
-                itemId, queueId, endpoint);
-        }
 
         try
         {
-            var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
-            await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             var result =
-                JsonSerializer.Deserialize<DeleteAnnotationQueueItemResponse>(responseContent, JsonOptions);
-
-            if (result == null)
-            {
-                result = new DeleteAnnotationQueueItemResponse { Success = true };
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug("Successfully deleted annotation queue item {ItemId} from queue {QueueId}", itemId,
-                    queueId);
-            }
-
+                await DeleteAsync<DeleteAnnotationQueueItemResponse>(endpoint, "Delete Annotation Queue Item",
+                    cancellationToken);
             return result;
         }
-        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (LangfuseApiException ex) when (ex.StatusCode == 500 && ex.Message.Contains("Failed to deserialize"))
         {
-            _logger.LogWarning("Request to delete annotation queue item {ItemId} from queue {QueueId} was cancelled",
-                itemId, queueId);
-            throw;
+            // Special case: if deserialization fails, create a default success response
+            // This handles cases where the API returns empty or malformed response bodies
+            return new DeleteAnnotationQueueItemResponse { Success = true };
         }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while deleting annotation queue item {ItemId} from queue {QueueId}",
-                itemId, queueId);
-            throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
-                $"An unexpected error occurred while deleting annotation queue item {itemId} from queue {queueId}", ex);
-        }
-    }
-
-    private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)
-    {
-        if (response.IsSuccessStatusCode)
-        {
-            return;
-        }
-
-        var errorContent = await response.Content.ReadAsStringAsync();
-        var statusCode = (int)response.StatusCode;
-
-        var errorMessage = response.StatusCode switch
-        {
-            HttpStatusCode.NotFound => "The requested annotation queue or item was not found",
-            HttpStatusCode.Unauthorized => "Authentication failed. Please check your API credentials",
-            HttpStatusCode.Forbidden => "Access forbidden. You don't have permission to access this resource",
-            HttpStatusCode.TooManyRequests => "Rate limit exceeded. Please retry after some time",
-            HttpStatusCode.BadRequest => "Invalid request. Please check your request parameters",
-            HttpStatusCode.Conflict => "Annotation queue item already exists or conflict with existing data",
-            _ => $"API request failed with status code {statusCode}"
-        };
-
-        throw new LangfuseApiException(statusCode, errorMessage, details: new Dictionary<string, object>
-        {
-            ["responseContent"] = errorContent,
-            ["statusCode"] = statusCode
-        });
     }
 }

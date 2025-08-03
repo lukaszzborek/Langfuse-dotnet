@@ -1,7 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using zborek.Langfuse.Models.Core;
-using zborek.Langfuse.Models.Dataset;
+﻿using zborek.Langfuse.Models.Dataset;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -12,106 +9,77 @@ internal partial class LangfuseClient
         CancellationToken cancellationToken = default)
     {
         var query = QueryStringHelper.BuildQueryString(request);
-        var response = await _httpClient.GetAsync($"/api/public/v2/datasets{query}", cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to list datasets: {errorContent}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedDatasets>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var endpoint = $"/api/public/v2/datasets{query}";
+        return await GetAsync<PaginatedDatasets>(endpoint, "List Datasets", cancellationToken);
     }
 
     public async Task<DatasetModel> GetDatasetAsync(string datasetName, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"/api/public/v2/datasets/{Uri.EscapeDataString(datasetName)}",
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (string.IsNullOrWhiteSpace(datasetName))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get dataset: {errorContent}");
+            throw new ArgumentException("Dataset name cannot be null or empty", nameof(datasetName));
         }
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<DatasetModel>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var endpoint = $"/api/public/v2/datasets/{Uri.EscapeDataString(datasetName)}";
+        return await GetAsync<DatasetModel>(endpoint, "Get Dataset", cancellationToken);
     }
 
     public async Task<DatasetModel> CreateDatasetAsync(CreateDatasetRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync("/api/public/v2/datasets", content, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (request == null)
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to create dataset: {errorContent}");
+            throw new ArgumentNullException(nameof(request));
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<DatasetModel>(responseContent, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        const string endpoint = "/api/public/v2/datasets";
+        return await PostAsync<DatasetModel>(endpoint, request, "Create Dataset", cancellationToken);
     }
 
     public async Task<DatasetRunWithItems> GetDatasetRunAsync(string datasetName, string runName,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync(
-            $"/api/public/datasets/{Uri.EscapeDataString(datasetName)}/runs/{Uri.EscapeDataString(runName)}",
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (string.IsNullOrWhiteSpace(datasetName))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get dataset run: {errorContent}");
+            throw new ArgumentException("Dataset name cannot be null or empty", nameof(datasetName));
         }
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<DatasetRunWithItems>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        if (string.IsNullOrWhiteSpace(runName))
+        {
+            throw new ArgumentException("Run name cannot be null or empty", nameof(runName));
+        }
+
+        var endpoint = $"/api/public/datasets/{Uri.EscapeDataString(datasetName)}/runs/{Uri.EscapeDataString(runName)}";
+        return await GetAsync<DatasetRunWithItems>(endpoint, "Get Dataset Run", cancellationToken);
     }
 
     public async Task<DeleteDatasetRunResponse> DeleteDatasetRunAsync(string datasetName, string runName,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.DeleteAsync(
-            $"/api/public/datasets/{Uri.EscapeDataString(datasetName)}/runs/{Uri.EscapeDataString(runName)}",
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (string.IsNullOrWhiteSpace(datasetName))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to delete dataset run: {errorContent}");
+            throw new ArgumentException("Dataset name cannot be null or empty", nameof(datasetName));
         }
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<DeleteDatasetRunResponse>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        if (string.IsNullOrWhiteSpace(runName))
+        {
+            throw new ArgumentException("Run name cannot be null or empty", nameof(runName));
+        }
+
+        var endpoint = $"/api/public/datasets/{Uri.EscapeDataString(datasetName)}/runs/{Uri.EscapeDataString(runName)}";
+        return await DeleteAsync<DeleteDatasetRunResponse>(endpoint, "Delete Dataset Run", cancellationToken);
     }
 
     public async Task<PaginatedDatasetRuns> GetDatasetRunsAsync(string datasetName, DatasetRunListRequest request,
         CancellationToken cancellationToken = default)
     {
-        var query = QueryStringHelper.BuildQueryString(request);
-        var response =
-            await _httpClient.GetAsync($"/api/public/datasets/{Uri.EscapeDataString(datasetName)}/runs{query}",
-                cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (string.IsNullOrWhiteSpace(datasetName))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get dataset runs: {errorContent}");
+            throw new ArgumentException("Dataset name cannot be null or empty", nameof(datasetName));
         }
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedDatasetRuns>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var query = QueryStringHelper.BuildQueryString(request);
+        var endpoint = $"/api/public/datasets/{Uri.EscapeDataString(datasetName)}/runs{query}";
+        return await GetAsync<PaginatedDatasetRuns>(endpoint, "List Dataset Runs", cancellationToken);
     }
 }

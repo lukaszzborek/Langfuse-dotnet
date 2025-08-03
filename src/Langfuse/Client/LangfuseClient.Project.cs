@@ -1,7 +1,4 @@
 ﻿using System.Net;
-using System.Text;
-using System.Text.Json;
-using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Organization;
 using zborek.Langfuse.Models.Project;
 
@@ -11,126 +8,64 @@ internal partial class LangfuseClient
 {
     public async Task<PaginatedProjects> GetProjectsAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync("/api/public/projects", cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get projects: {errorContent}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedProjects>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await GetAsync<PaginatedProjects>("/api/public/projects", "Get Projects", cancellationToken);
     }
 
     public async Task<ProjectModel> CreateProjectAsync(CreateProjectRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync("/api/public/projects", content, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to create project: {errorContent}");
-        }
-
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ProjectModel>(responseContent, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await PostAsync<ProjectModel>("/api/public/projects", request, "Create Project", cancellationToken);
     }
 
     public async Task<ProjectModel> UpdateProjectAsync(string projectId, UpdateProjectRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PutAsync($"/api/public/projects/{Uri.EscapeDataString(projectId)}", content,
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to update project: {errorContent}");
-        }
-
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ProjectModel>(responseContent, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await PutAsync<ProjectModel>($"/api/public/projects/{Uri.EscapeDataString(projectId)}", request,
+            "Update Project", cancellationToken);
     }
 
     public async Task<ProjectDeletionResponse> DeleteProjectAsync(string projectId,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.DeleteAsync($"/api/public/projects/{Uri.EscapeDataString(projectId)}",
-            cancellationToken);
-
-        if (response.StatusCode != HttpStatusCode.Accepted)
+        if (string.IsNullOrWhiteSpace(projectId))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to delete project: {errorContent}");
+            throw new ArgumentException("Project ID cannot be null or empty", nameof(projectId));
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ProjectDeletionResponse>(responseContent, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        var endpoint = $"/api/public/projects/{Uri.EscapeDataString(projectId)}";
+        // Special case: DELETE project expects 202 Accepted instead of standard success codes
+        return await DeleteAsync<ProjectDeletionResponse>(endpoint, "Delete Project", HttpStatusCode.Accepted,
+            cancellationToken);
     }
 
     public async Task<ApiKeyList> GetApiKeysAsync(string projectId, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"/api/public/projects/{Uri.EscapeDataString(projectId)}/apiKeys",
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to get project API keys: {errorContent}");
-        }
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ApiKeyList>(content, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await GetAsync<ApiKeyList>($"/api/public/projects/{Uri.EscapeDataString(projectId)}/apiKeys",
+            "Get Project API Keys", cancellationToken);
     }
 
     public async Task<ApiKeyResponse> CreateApiKeyAsync(string projectId, CreateApiKeyRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync($"/api/public/projects/{Uri.EscapeDataString(projectId)}/apiKeys",
-            content, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to create API key: {errorContent}");
-        }
-
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ApiKeyResponse>(responseContent, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        return await PostAsync<ApiKeyResponse>($"/api/public/projects/{Uri.EscapeDataString(projectId)}/apiKeys",
+            request, "Create API Key", cancellationToken);
     }
 
     public async Task<ApiKeyDeletionResponse> DeleteApiKeyAsync(string projectId, string apiKeyId,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.DeleteAsync(
-            $"/api/public/projects/{Uri.EscapeDataString(projectId)}/apiKeys/{Uri.EscapeDataString(apiKeyId)}",
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (string.IsNullOrWhiteSpace(projectId))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new LangfuseApiException((int)response.StatusCode, $"Failed to delete API key: {errorContent}");
+            throw new ArgumentException("Project ID cannot be null or empty", nameof(projectId));
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ApiKeyDeletionResponse>(responseContent, JsonOptions)
-               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
+        if (string.IsNullOrWhiteSpace(apiKeyId))
+        {
+            throw new ArgumentException("API Key ID cannot be null or empty", nameof(apiKeyId));
+        }
+
+        var endpoint =
+            $"/api/public/projects/{Uri.EscapeDataString(projectId)}/apiKeys/{Uri.EscapeDataString(apiKeyId)}";
+        return await DeleteAsync<ApiKeyDeletionResponse>(endpoint, "Delete API Key", cancellationToken);
     }
 }
