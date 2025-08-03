@@ -45,9 +45,9 @@ public class CreateScoreEvent : IIngestionEvent
     }
 
     /// <summary>
+    ///     Represents an event for creating a score in the system.
+    ///     Implements the <c>IIngestionEvent</c> interface to allow ingestion of score-related data.
     /// </summary>
-    /// <param name="body">Score event body</param>
-    /// <param name="timestamp">Score event date</param>
     public CreateScoreEvent(CreateScoreEventBody body, string timestamp)
         : this(body, Guid.NewGuid().ToString(), timestamp)
     {

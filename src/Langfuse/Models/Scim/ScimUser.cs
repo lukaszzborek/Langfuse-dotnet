@@ -22,33 +22,3 @@ public class ScimUser
     [JsonPropertyName("meta")]
     public ScimMeta? Meta { get; set; }
 }
-
-public class ScimUserName
-{
-    [JsonPropertyName("formatted")]
-    public string? Formatted { get; set; }
-}
-
-public class ScimUserEmail
-{
-    [JsonPropertyName("value")]
-    public string Value { get; set; } = string.Empty;
-
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = string.Empty;
-
-    [JsonPropertyName("primary")]
-    public bool Primary { get; set; }
-}
-
-public class ScimMeta
-{
-    [JsonPropertyName("resourceType")]
-    public string ResourceType { get; set; } = string.Empty;
-
-    [JsonPropertyName("created")]
-    public string? Created { get; set; }
-
-    [JsonPropertyName("lastModified")]
-    public string? LastModified { get; set; }
-}

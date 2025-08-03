@@ -55,19 +55,3 @@ public class AnnotationQueueItem
     [JsonPropertyName("updatedAt")]
     public DateTimeOffset UpdatedAt { get; set; }
 }
-
-/// <summary>
-///     Annotation object type enumeration - matches OpenAPI spec
-/// </summary>
-public enum AnnotationObjectType
-{
-    /// <summary>
-    ///     Trace object
-    /// </summary>
-    Trace,
-
-    /// <summary>
-    ///     Observation object (span or generation)
-    /// </summary>
-    Observation
-}

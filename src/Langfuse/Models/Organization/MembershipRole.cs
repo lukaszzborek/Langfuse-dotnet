@@ -1,8 +1,12 @@
+using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
+
 namespace zborek.Langfuse.Models.Organization;
 
 /// <summary>
 ///     Defines the role levels for organization and project memberships, determining access permissions and capabilities.
 /// </summary>
+[JsonConverter(typeof(UppercaseEnumConverter<MembershipRole>))]
 public enum MembershipRole
 {
     /// <summary>

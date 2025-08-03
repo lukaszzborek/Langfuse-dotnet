@@ -1,8 +1,12 @@
+using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
+
 namespace zborek.Langfuse.Models.Core;
 
 /// <summary>
 ///     Langfuse log level
 /// </summary>
+[JsonConverter(typeof(UppercaseEnumConverter<LangfuseLogLevel>))]
 public enum LangfuseLogLevel
 {
     /// <summary>

@@ -76,24 +76,3 @@ public class MediaModel
     [JsonPropertyName("uploadedByUserId")]
     public string? UploadedByUserId { get; set; }
 }
-
-/// <summary>
-///     Media upload status enumeration
-/// </summary>
-public enum MediaUploadStatus
-{
-    /// <summary>
-    ///     Upload is pending
-    /// </summary>
-    Pending,
-
-    /// <summary>
-    ///     Upload completed successfully
-    /// </summary>
-    Completed,
-
-    /// <summary>
-    ///     Upload failed
-    /// </summary>
-    Failed
-}

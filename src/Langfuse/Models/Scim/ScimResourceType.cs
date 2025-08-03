@@ -28,12 +28,3 @@ public class ScimResourceType
     [JsonPropertyName("meta")]
     public ScimResourceMeta? Meta { get; set; }
 }
-
-public class ScimSchemaExtension
-{
-    [JsonPropertyName("schema")]
-    public string Schema { get; set; } = string.Empty;
-
-    [JsonPropertyName("required")]
-    public bool Required { get; set; }
-}

@@ -38,27 +38,3 @@ public class TraceWithDetails : TraceModel
     [JsonPropertyName("usage")]
     public TraceUsage? Usage { get; set; }
 }
-
-/// <summary>
-///     Token usage information for a trace
-/// </summary>
-public class TraceUsage
-{
-    /// <summary>
-    ///     Total number of prompt tokens used
-    /// </summary>
-    [JsonPropertyName("promptTokens")]
-    public int? PromptTokens { get; set; }
-
-    /// <summary>
-    ///     Total number of completion tokens used
-    /// </summary>
-    [JsonPropertyName("completionTokens")]
-    public int? CompletionTokens { get; set; }
-
-    /// <summary>
-    ///     Total number of tokens used
-    /// </summary>
-    [JsonPropertyName("totalTokens")]
-    public int? TotalTokens { get; set; }
-}

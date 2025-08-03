@@ -1,8 +1,12 @@
+using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
+
 namespace zborek.Langfuse.Models.Media;
 
 /// <summary>
 ///     Supported MIME types for media records matching OpenAPI MediaContentType schema
 /// </summary>
+[JsonConverter(typeof(UppercaseEnumConverter<MediaContentType>))]
 public enum MediaContentType
 {
     /// <summary>

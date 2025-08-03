@@ -1,8 +1,12 @@
-﻿namespace zborek.Langfuse.Models.Prompt;
+﻿using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
+
+namespace zborek.Langfuse.Models.Prompt;
 
 /// <summary>
 ///     Defines the type of prompt template, determining its structure and intended AI model interface.
 /// </summary>
+[JsonConverter(typeof(UppercaseEnumConverter<PromptType>))]
 public enum PromptType
 {
     /// <summary>

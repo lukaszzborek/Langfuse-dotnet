@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
 
 namespace zborek.Langfuse.Models.Dataset;
 
@@ -79,6 +80,7 @@ public class DatasetItem
 /// <summary>
 ///     Represents the status of a dataset item, indicating its lifecycle state.
 /// </summary>
+[JsonConverter(typeof(UppercaseEnumConverter<DatasetStatus>))]
 public enum DatasetStatus
 {
     /// <summary>

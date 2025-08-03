@@ -57,31 +57,3 @@ public class CommentModel
     [JsonPropertyName("authorUserId")]
     public string? AuthorUserId { get; set; }
 }
-
-/// <summary>
-///     Defines the types of Langfuse objects that comments can be attached to for annotation and collaboration.
-/// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum CommentObjectType
-{
-    /// <summary>
-    ///     Comment attached to a trace - used for annotating end-to-end execution flows and overall performance.
-    /// </summary>
-    [JsonStringEnumMemberName("TRACE")] Trace,
-
-    /// <summary>
-    ///     Comment attached to an observation - used for annotating specific spans, generations, or events within a trace.
-    /// </summary>
-    [JsonStringEnumMemberName("OBSERVATION")]
-    Observation,
-
-    /// <summary>
-    ///     Comment attached to a session - used for annotating user interaction flows and conversation contexts.
-    /// </summary>
-    [JsonStringEnumMemberName("SESSION")] Session,
-
-    /// <summary>
-    ///     Comment attached to a prompt - used for annotating prompt templates and their versioning or effectiveness.
-    /// </summary>
-    [JsonStringEnumMemberName("PROMPT")] Prompt
-}

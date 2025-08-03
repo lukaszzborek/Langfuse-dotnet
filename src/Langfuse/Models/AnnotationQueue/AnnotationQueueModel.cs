@@ -43,19 +43,3 @@ public class AnnotationQueueModel
     [JsonPropertyName("updatedAt")]
     public DateTimeOffset UpdatedAt { get; set; }
 }
-
-/// <summary>
-///     Annotation queue status enumeration - matches OpenAPI spec
-/// </summary>
-public enum AnnotationQueueStatus
-{
-    /// <summary>
-    ///     Queue item is pending
-    /// </summary>
-    Pending,
-
-    /// <summary>
-    ///     Queue item is completed
-    /// </summary>
-    Completed
-}

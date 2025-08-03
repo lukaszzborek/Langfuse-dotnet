@@ -151,8 +151,4 @@
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Models\Responses\" />
-    </ItemGroup>
 </Project>

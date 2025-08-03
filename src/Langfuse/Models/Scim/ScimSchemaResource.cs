@@ -1,8 +1,8 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace zborek.Langfuse.Models.Scim;
 
-public class ScimSchema
+public class ScimSchemaResource
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
@@ -14,5 +14,8 @@ public class ScimSchema
     public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("attributes")]
-    public List<ScimAttribute> Attributes { get; set; } = new();
+    public object[] Attributes { get; set; } = Array.Empty<object>();
+
+    [JsonPropertyName("meta")]
+    public ScimResourceMeta? Meta { get; set; }
 }

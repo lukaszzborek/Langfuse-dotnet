@@ -1,25 +1,26 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
 
 namespace zborek.Langfuse.Models.Score;
 
 /// <summary>
 ///     Source of the score
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(UppercaseEnumConverter<ScoreSource>))]
 public enum ScoreSource
 {
     /// <summary>
     ///     Manual annotation
     /// </summary>
-    [JsonPropertyName("ANNOTATION")] ANNOTATION,
+    Annotation,
 
     /// <summary>
     ///     API-created score
     /// </summary>
-    [JsonPropertyName("API")] API,
+    Api,
 
     /// <summary>
     ///     Evaluation-generated score
     /// </summary>
-    [JsonPropertyName("EVAL")] EVAL
+    Eval
 }
