@@ -13,6 +13,7 @@ applications. This library enables you to track, monitor, and analyze your AI ap
 
 - Create and manage traces, spans, events, and generations
 - Automatic background ingestion of observability data
+- All endpoints for Langfuse API
 - Integration with dependency injection
 - Support for both .NET 8.0 and 9.0
 - Customizable configuration options
@@ -135,6 +136,9 @@ See the Examples/Langfuse.Example.WebApi directory for a complete working exampl
 - Missing ingestion data: Ensure SendLogs is set to true in your configuration
 - Authentication errors: Verify your Langfuse API keys
 - Data not appearing: Check if IngestAsync() is called after operations
+
+## TODO
+- [ ] Integration tests with Langfuse server or mock server
 
 ## Contributing
 

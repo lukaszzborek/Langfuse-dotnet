@@ -6,7 +6,7 @@
         <IsPackable>false</IsPackable>
         <AssemblyName>zborek.Langfuse.Tests</AssemblyName>
         <RootNamespace>zborek.Langfuse.Tests</RootNamespace>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
