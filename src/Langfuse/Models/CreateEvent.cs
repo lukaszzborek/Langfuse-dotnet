@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-///     Create event
+///     Represents a discrete event creation request for the Langfuse ingestion API. Events capture point-in-time occurrences within a trace.
 /// </summary>
 public class CreateEvent : IIngestionEvent
 {
@@ -32,11 +32,11 @@ public class CreateEvent : IIngestionEvent
     public string Timestamp { get; set; }
 
     /// <summary>
-    ///     Constructor
+    ///     Creates a new event creation request with specified ID and timestamp.
     /// </summary>
-    /// <param name="body">Create event body</param>
-    /// <param name="id">Event id</param>
-    /// <param name="timestamp">Event date</param>
+    /// <param name="body">The event body containing event data, metadata, and hierarchy information</param>
+    /// <param name="id">Unique identifier for this event</param>
+    /// <param name="timestamp">ISO 8601 timestamp string when the event occurred</param>
     public CreateEvent(CreateEventBody body, string id, string timestamp)
     {
         Body = body;
@@ -45,10 +45,10 @@ public class CreateEvent : IIngestionEvent
     }
 
     /// <summary>
-    ///     Constructor
+    ///     Creates a new event creation request with auto-generated ID and specified timestamp.
     /// </summary>
-    /// <param name="body">Create event body</param>
-    /// <param name="timestamp">Event date</param>
+    /// <param name="body">The event body containing event data, metadata, and hierarchy information</param>
+    /// <param name="timestamp">DateTime when the event occurred, will be converted to ISO 8601 format</param>
     public CreateEvent(CreateEventBody body, DateTime timestamp) : this(body, Guid.NewGuid().ToString(),
         timestamp.ToString("o"))
     {

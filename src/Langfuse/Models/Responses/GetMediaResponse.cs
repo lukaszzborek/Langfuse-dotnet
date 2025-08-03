@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Responses;
 
 /// <summary>
-///     Response model for getting media record information matching OpenAPI GetMediaResponse schema
+///     Response containing detailed information about a media record in Langfuse. Media records are files attached to traces and observations for multimodal AI applications.
 /// </summary>
 public class GetMediaResponse
 {

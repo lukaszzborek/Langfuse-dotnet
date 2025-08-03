@@ -9,9 +9,11 @@ public partial interface ILangfuseClient
     /// <summary>
     ///     Retrieves a paginated list of score configurations with optional filtering
     /// </summary>
-    /// <param name="request">Filter and pagination parameters</param>
+    /// <param name="request">Filter and pagination parameters for score configuration retrieval</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated list of score configurations</returns>
+    /// <returns>Paginated list of score configurations defining evaluation criteria and data types</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    /// <remarks>Score configurations define templates for creating scores with specific data types and validation rules</remarks>
     Task<ScoreConfigListResponse> GetScoreConfigListAsync(ScoreConfigListRequest? request = null,
         CancellationToken cancellationToken = default);
 
@@ -25,12 +27,13 @@ public partial interface ILangfuseClient
     Task<ScoreConfig> GetScoreConfigAsync(string configId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Creates a new score configuration
+    ///     Creates a new score configuration defining evaluation criteria
     /// </summary>
-    /// <param name="request">Score configuration creation request</param>
+    /// <param name="request">Score configuration creation parameters including name, data type, description, and validation rules</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The created score configuration</returns>
+    /// <returns>The created score configuration with assigned ID and validation settings</returns>
     /// <exception cref="LangfuseApiException">Thrown when score configuration creation fails</exception>
+    /// <remarks>Score configurations act as templates that define the structure and validation rules for scores</remarks>
     Task<ScoreConfig> CreateScoreConfigAsync(CreateScoreConfigRequest request,
         CancellationToken cancellationToken = default);
 }

@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-///     Represents a media record in Langfuse
+///     Represents a media record in Langfuse - a file attachment associated with traces or observations for multimodal AI applications.
+///     Media records enable storing and referencing images, audio, documents, and other files within the observability system.
 /// </summary>
 public class Media
 {

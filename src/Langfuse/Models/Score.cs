@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-///     Represents a score in Langfuse
+///     Represents a score in Langfuse - a quantitative or qualitative evaluation measurement attached to traces, observations, or sessions.
+///     Scores can be numeric values, categorical labels, or boolean judgments used for quality assessment and analytics.
 /// </summary>
 public class Score
 {
@@ -14,55 +15,55 @@ public class Score
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    ///     ID of the trace this score belongs to
+    ///     ID of the trace this score belongs to. Used for trace-level evaluations and quality metrics.
     /// </summary>
     [JsonPropertyName("traceId")]
     public string? TraceId { get; set; }
 
     /// <summary>
-    ///     ID of the session this score belongs to
+    ///     ID of the session this score belongs to. Used for session-level evaluations across multiple traces.
     /// </summary>
     [JsonPropertyName("sessionId")]
     public string? SessionId { get; set; }
 
     /// <summary>
-    ///     ID of the observation this score belongs to
+    ///     ID of the observation this score belongs to. Used for evaluating specific spans, generations, or events.
     /// </summary>
     [JsonPropertyName("observationId")]
     public string? ObservationId { get; set; }
 
     /// <summary>
-    ///     Name of the score
+    ///     Name of the score that identifies the evaluation metric (e.g., "quality", "relevance", "toxicity").
     /// </summary>
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Value of the score
+    ///     The actual value of the score. For numeric scores this is a number, for categorical/boolean it may be the numeric mapping.
     /// </summary>
     [JsonPropertyName("value")]
     public object? Value { get; set; }
 
     /// <summary>
-    ///     String representation of the score value (for categorical and boolean scores)
+    ///     String representation of the score value. For categorical scores, this is the category label. For boolean scores, "True" or "False".
     /// </summary>
     [JsonPropertyName("stringValue")]
     public string? StringValue { get; set; }
 
     /// <summary>
-    ///     Data type of the score
+    ///     Data type of the score indicating how the value should be interpreted (NUMERIC, CATEGORICAL, BOOLEAN).
     /// </summary>
     [JsonPropertyName("dataType")]
     public ScoreDataType DataType { get; set; }
 
     /// <summary>
-    ///     Source of the score (manual, API, etc.)
+    ///     Source indicating how this score was created (API, manual annotation, automated evaluation, etc.).
     /// </summary>
     [JsonPropertyName("source")]
     public ScoreSource? Source { get; set; }
 
     /// <summary>
-    ///     Comment associated with the score
+    ///     Optional comment providing additional context or explanation for the score value.
     /// </summary>
     [JsonPropertyName("comment")]
     public string? Comment { get; set; }
@@ -74,31 +75,31 @@ public class Score
     public DateTime Timestamp { get; set; }
 
     /// <summary>
-    ///     Author ID who created the score
+    ///     ID of the user who created this score, useful for tracking manual annotations and audit trails.
     /// </summary>
     [JsonPropertyName("authorUserId")]
     public string? AuthorUserId { get; set; }
 
     /// <summary>
-    ///     Configuration ID used for this score
+    ///     ID of the score configuration that defines validation rules, categories, and ranges for this score type.
     /// </summary>
     [JsonPropertyName("configId")]
     public string? ConfigId { get; set; }
 
     /// <summary>
-    ///     Timestamp when the score was created in the system
+    ///     Timestamp when the score was first created in the Langfuse system.
     /// </summary>
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
-    ///     Timestamp when the score was last updated
+    ///     Timestamp when the score was last updated or modified.
     /// </summary>
     [JsonPropertyName("updatedAt")]
     public DateTime UpdatedAt { get; set; }
 
     /// <summary>
-    ///     Metadata associated with the score
+    ///     Additional metadata associated with the score as a JSON object, containing custom properties and context.
     /// </summary>
     [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }

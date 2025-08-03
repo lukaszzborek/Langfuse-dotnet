@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Requests;
 
 /// <summary>
-///     Request model for getting a presigned upload URL for media matching OpenAPI GetMediaUploadUrlRequest schema
+///     Request to get a presigned upload URL for media files. Enables secure file uploads to Langfuse for multimodal AI applications and trace attachments.
 /// </summary>
 public class MediaUploadRequest
 {

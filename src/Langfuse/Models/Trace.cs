@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-///     Represents a trace from the Langfuse API
+///     Represents a trace - the top-level execution unit that contains spans, generations, and events in a hierarchical structure.
+///     Traces track end-to-end operations and provide context for all nested observations.
 /// </summary>
 public class Trace
 {
@@ -26,61 +27,61 @@ public class Trace
     public string? Name { get; set; }
 
     /// <summary>
-    ///     Input data for the trace
+    ///     Input data for the trace. Can be any JSON object representing the initial request or parameters.
     /// </summary>
     [JsonPropertyName("input")]
     public object? Input { get; set; }
 
     /// <summary>
-    ///     Output data for the trace
+    ///     Output data for the trace. Can be any JSON object representing the final result or response.
     /// </summary>
     [JsonPropertyName("output")]
     public object? Output { get; set; }
     
     /// <summary>
-    ///     Session ID associated with the trace
+    ///     Session ID associated with the trace. Links multiple traces together in the same user session.
     /// </summary>
     [JsonPropertyName("sessionId")]
     public string? SessionId { get; set; }
     
     /// <summary>
-    ///     Release version
+    ///     Release version of the application when the trace was created. Useful for tracking performance across deployments.
     /// </summary>
     [JsonPropertyName("release")]
     public string? Release { get; set; }
     
     /// <summary>
-    ///     Version of the trace
+    ///     Version of the trace schema or implementation. Used to understand how changes affect metrics.
     /// </summary>
     [JsonPropertyName("version")]
     public string? Version { get; set; }
     
     /// <summary>
-    ///     User ID associated with the trace
+    ///     User ID associated with the trace. Identifies which user initiated this trace.
     /// </summary>
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
 
     /// <summary>
-    ///     Metadata associated with the trace
+    ///     Metadata associated with the trace. Can be any JSON object containing additional context and custom properties.
     /// </summary>
     [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
 
     /// <summary>
-    ///     Tags associated with the trace
+    ///     Tags associated with the trace. Array of strings used for categorization and filtering in the UI.
     /// </summary>
     [JsonPropertyName("tags")]
     public string[]? Tags { get; set; }
     
     /// <summary>
-    ///     Public flag indicating if trace is visible publicly
+    ///     Public flag indicating if trace is visible publicly. Public traces are accessible via URL without login.
     /// </summary>
     [JsonPropertyName("public")]
     public bool? Public { get; set; }
     
     /// <summary>
-    ///     Environment in which the trace was created
+    ///     Environment from which this trace originated. Must be lowercase alphanumeric with hyphens/underscores, not starting with 'langfuse'.
     /// </summary>
     [JsonPropertyName("environment")]
     public string? Environment { get; set; }

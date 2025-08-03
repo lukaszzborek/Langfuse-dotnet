@@ -7,9 +7,11 @@ public partial interface ILangfuseClient
     /// <summary>
     ///     Retrieves a paginated list of sessions with optional filtering
     /// </summary>
-    /// <param name="request">Filter and pagination parameters</param>
+    /// <param name="request">Filter and pagination parameters including user ID, date range, and session metadata filters</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated list of sessions</returns>
+    /// <returns>Paginated list of sessions with metadata, duration, and trace count information</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    /// <remarks>Sessions group related traces together, typically representing user interactions or conversation flows</remarks>
     Task<SessionListResponse> GetSessionListAsync(SessionListRequest? request = null,
         CancellationToken cancellationToken = default);
 

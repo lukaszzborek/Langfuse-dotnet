@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models;
 
 /// <summary>
-///     Represents a session from the Langfuse API
+///     Represents a session - a grouping mechanism for related traces, typically representing user interactions or conversation flows.
+///     Sessions help organize traces that belong to the same context or user journey.
 /// </summary>
 public class Session
 {
@@ -26,19 +27,19 @@ public class Session
     public DateTime? EndTime { get; set; }
 
     /// <summary>
-    ///     User ID associated with the session
+    ///     User ID associated with the session. Identifies which user this session belongs to.
     /// </summary>
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
 
     /// <summary>
-    ///     Metadata associated with the session
+    ///     Metadata associated with the session. Dictionary containing additional context and custom properties for the session.
     /// </summary>
     [JsonPropertyName("metadata")]
     public Dictionary<string, object>? Metadata { get; set; }
 
     /// <summary>
-    ///     Environment in which the session was created
+    ///     Environment from which this session originated. Helps categorize sessions by deployment environment.
     /// </summary>
     [JsonPropertyName("environment")]
     public string? Environment { get; set; }

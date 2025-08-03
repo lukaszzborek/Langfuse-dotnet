@@ -9,9 +9,11 @@ public partial interface ILangfuseClient
     /// <summary>
     ///     Retrieves a paginated list of scores with optional filtering
     /// </summary>
-    /// <param name="request">Filter and pagination parameters</param>
+    /// <param name="request">Filter and pagination parameters including name, user ID, trace ID, observation ID, data type, and value filters</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated list of scores</returns>
+    /// <returns>Paginated list of scores with numeric or categorical values and associated metadata</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    /// <remarks>Supports filtering by score configuration name, data type (NUMERIC, CATEGORICAL, BOOLEAN), and value ranges</remarks>
     Task<ScoreListResponse> GetScoreListAsync(ScoreListRequest? request = null,
         CancellationToken cancellationToken = default);
 
@@ -25,12 +27,13 @@ public partial interface ILangfuseClient
     Task<Score> GetScoreAsync(string scoreId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Creates a new score
+    ///     Creates a new score for a trace or observation
     /// </summary>
-    /// <param name="request">Score creation request</param>
+    /// <param name="request">Score creation parameters including name, value, trace/observation ID, and optional metadata</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The created score</returns>
+    /// <returns>The created score with assigned ID and timestamps</returns>
     /// <exception cref="LangfuseApiException">Thrown when score creation fails</exception>
+    /// <remarks>Scores can be numeric, categorical, or boolean values used for evaluation and analysis</remarks>
     Task<Score> CreateScoreAsync(ScoreCreateRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
