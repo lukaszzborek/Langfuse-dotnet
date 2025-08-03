@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Prompt;
 
 namespace zborek.Langfuse.Converters;
 

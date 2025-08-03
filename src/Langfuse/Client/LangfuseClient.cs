@@ -5,14 +5,14 @@ using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using zborek.Langfuse.Config;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
 
 internal partial class LangfuseClient : ILangfuseClient
 {
-    private static readonly JsonSerializerOptions _jsonOptions = new()
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -72,7 +72,7 @@ internal partial class LangfuseClient : ILangfuseClient
         const int maxBatchSizeBytes = 3_500_000; // 3.5MB in bytes
 
         // First check if the entire request is under the limit
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         if (Encoding.UTF8.GetByteCount(json) <= maxBatchSizeBytes)
         {
             // If under limit, process normally
@@ -109,7 +109,7 @@ internal partial class LangfuseClient : ILangfuseClient
 
             // Check if adding this event would exceed the size limit
             var batchRequest = new IngestionRequest { Batch = currentBatch.ToArray() };
-            var batchJson = JsonSerializer.Serialize(batchRequest, _jsonOptions);
+            var batchJson = JsonSerializer.Serialize(batchRequest, JsonOptions);
 
             if (Encoding.UTF8.GetByteCount(batchJson) <= maxBatchSizeBytes)
             {

@@ -1,6 +1,5 @@
-﻿using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+﻿using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Score;
 
 namespace zborek.Langfuse.Client;
 
@@ -9,7 +8,10 @@ public partial interface ILangfuseClient
     /// <summary>
     ///     Retrieves a paginated list of scores with optional filtering
     /// </summary>
-    /// <param name="request">Filter and pagination parameters including name, user ID, trace ID, observation ID, data type, and value filters</param>
+    /// <param name="request">
+    ///     Filter and pagination parameters including name, user ID, trace ID, observation ID, data type,
+    ///     and value filters
+    /// </param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of scores with numeric or categorical values and associated metadata</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
@@ -24,7 +26,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The score with the specified ID</returns>
     /// <exception cref="LangfuseApiException">Thrown when the score is not found or an API error occurs</exception>
-    Task<Score> GetScoreAsync(string scoreId, CancellationToken cancellationToken = default);
+    Task<ScoreModel> GetScoreAsync(string scoreId, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Creates a new score for a trace or observation
@@ -34,7 +36,7 @@ public partial interface ILangfuseClient
     /// <returns>The created score with assigned ID and timestamps</returns>
     /// <exception cref="LangfuseApiException">Thrown when score creation fails</exception>
     /// <remarks>Scores can be numeric, categorical, or boolean values used for evaluation and analysis</remarks>
-    Task<Score> CreateScoreAsync(ScoreCreateRequest request, CancellationToken cancellationToken = default);
+    Task<ScoreModel> CreateScoreAsync(ScoreCreateRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Deletes a score by its ID

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Model;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -20,7 +21,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedModels>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<PaginatedModels>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -36,13 +37,13 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Model>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<Model>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
     public async Task<Model> CreateModelAsync(CreateModelRequest request, CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PostAsync("/api/public/models", content, cancellationToken);
@@ -54,7 +55,7 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Model>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<Model>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 

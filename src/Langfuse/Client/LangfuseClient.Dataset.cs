@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Dataset;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -20,11 +21,11 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedDatasets>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<PaginatedDatasets>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
-    public async Task<Dataset> GetDatasetAsync(string datasetName, CancellationToken cancellationToken = default)
+    public async Task<DatasetModel> GetDatasetAsync(string datasetName, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"/api/public/v2/datasets/{Uri.EscapeDataString(datasetName)}",
             cancellationToken);
@@ -36,14 +37,14 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Dataset>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<DatasetModel>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
-    public async Task<Dataset> CreateDatasetAsync(CreateDatasetRequest request,
+    public async Task<DatasetModel> CreateDatasetAsync(CreateDatasetRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PostAsync("/api/public/v2/datasets", content, cancellationToken);
@@ -55,7 +56,7 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Dataset>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<DatasetModel>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -73,7 +74,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<DatasetRunWithItems>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<DatasetRunWithItems>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -91,7 +92,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<DeleteDatasetRunResponse>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<DeleteDatasetRunResponse>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -110,7 +111,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedDatasetRuns>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<PaginatedDatasetRuns>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 }

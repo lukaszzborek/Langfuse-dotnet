@@ -1,10 +1,15 @@
 using System.Globalization;
 using System.Web;
-using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using ObservationListRequest = zborek.Langfuse.Models.ObservationListRequest;
-using SessionListRequest = zborek.Langfuse.Models.SessionListRequest;
-using TraceListRequest = zborek.Langfuse.Models.TraceListRequest;
+using zborek.Langfuse.Models.AnnotationQueue;
+using zborek.Langfuse.Models.Comment;
+using zborek.Langfuse.Models.Dataset;
+using zborek.Langfuse.Models.Metrics;
+using zborek.Langfuse.Models.Model;
+using zborek.Langfuse.Models.Observation;
+using zborek.Langfuse.Models.Prompt;
+using zborek.Langfuse.Models.Score;
+using zborek.Langfuse.Models.Session;
+using zborek.Langfuse.Models.Trace;
 
 namespace zborek.Langfuse.Services;
 

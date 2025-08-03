@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Health;
 
 namespace zborek.Langfuse.Client;
 
@@ -17,7 +18,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<HealthResponse>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<HealthResponse>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 }

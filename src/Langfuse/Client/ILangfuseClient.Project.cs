@@ -1,6 +1,6 @@
-﻿using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+﻿using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Organization;
+using zborek.Langfuse.Models.Project;
 
 namespace zborek.Langfuse.Client;
 
@@ -21,7 +21,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created project with assigned ID and initial configuration</returns>
     /// <exception cref="LangfuseApiException">Thrown when project creation fails</exception>
-    Task<Project> CreateProjectAsync(CreateProjectRequest request, CancellationToken cancellationToken = default);
+    Task<ProjectModel> CreateProjectAsync(CreateProjectRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Updates an existing project's configuration and metadata
@@ -31,7 +31,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The updated project with modified configuration</returns>
     /// <exception cref="LangfuseApiException">Thrown when the project is not found or update fails</exception>
-    Task<Project> UpdateProjectAsync(string projectId, UpdateProjectRequest request,
+    Task<ProjectModel> UpdateProjectAsync(string projectId, UpdateProjectRequest request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -41,7 +41,10 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Deletion confirmation response</returns>
     /// <exception cref="LangfuseApiException">Thrown when the project is not found or deletion fails</exception>
-    /// <remarks>This action is irreversible and will permanently delete all project data including traces, scores, and configurations</remarks>
+    /// <remarks>
+    ///     This action is irreversible and will permanently delete all project data including traces, scores, and
+    ///     configurations
+    /// </remarks>
     Task<ProjectDeletionResponse> DeleteProjectAsync(string projectId, CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using zborek.Langfuse.Models;
+﻿using zborek.Langfuse.Models.Health;
 
 namespace zborek.Langfuse.Client;
 

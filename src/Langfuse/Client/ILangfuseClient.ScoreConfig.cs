@@ -1,6 +1,5 @@
-﻿using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+﻿using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Score;
 
 namespace zborek.Langfuse.Client;
 
@@ -29,7 +28,10 @@ public partial interface ILangfuseClient
     /// <summary>
     ///     Creates a new score configuration defining evaluation criteria
     /// </summary>
-    /// <param name="request">Score configuration creation parameters including name, data type, description, and validation rules</param>
+    /// <param name="request">
+    ///     Score configuration creation parameters including name, data type, description, and validation
+    ///     rules
+    /// </param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created score configuration with assigned ID and validation settings</returns>
     /// <exception cref="LangfuseApiException">Thrown when score configuration creation fails</exception>

@@ -1,6 +1,5 @@
-﻿using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+﻿using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Scim;
 
 namespace zborek.Langfuse.Client;
 

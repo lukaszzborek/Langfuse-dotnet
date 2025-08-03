@@ -1,8 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Scim;
 
 namespace zborek.Langfuse.Client;
 
@@ -21,7 +20,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ScimServiceProviderConfig>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<ScimServiceProviderConfig>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -37,7 +36,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var resourceTypesResponse = JsonSerializer.Deserialize<ScimResourceTypesResponse>(content, _jsonOptions)
+        var resourceTypesResponse = JsonSerializer.Deserialize<ScimResourceTypesResponse>(content, JsonOptions)
                                     ?? throw new LangfuseApiException(500, "Failed to deserialize response");
 
         return resourceTypesResponse.Resources;
@@ -54,7 +53,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var schemasResponse = JsonSerializer.Deserialize<ScimSchemasResponse>(content, _jsonOptions)
+        var schemasResponse = JsonSerializer.Deserialize<ScimSchemasResponse>(content, JsonOptions)
                               ?? throw new LangfuseApiException(500, "Failed to deserialize response");
 
         return schemasResponse.Resources.Select(resource => new ScimSchema
@@ -98,14 +97,14 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PaginatedScimUsers>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<PaginatedScimUsers>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
     public async Task<ScimUser> CreateUserAsync(CreateScimUserRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/scim+json");
 
         var response = await _httpClient.PostAsync("/api/public/scim/Users", content, cancellationToken);
@@ -117,7 +116,7 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ScimUser>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<ScimUser>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -133,7 +132,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<ScimUser>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<ScimUser>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 

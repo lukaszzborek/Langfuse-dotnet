@@ -1,6 +1,4 @@
-﻿using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+﻿using zborek.Langfuse.Models.Comment;
 
 namespace zborek.Langfuse.Client;
 
@@ -21,7 +19,7 @@ public partial interface ILangfuseClient
     /// <param name="commentId">The unique identifier of the comment</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The comment details</returns>
-    Task<Comment> GetCommentAsync(string commentId, CancellationToken cancellationToken = default);
+    Task<CommentModel> GetCommentAsync(string commentId, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Create a new comment

@@ -2,9 +2,8 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Media;
 
 namespace zborek.Langfuse.Client;
 
@@ -30,7 +29,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<GetMediaResponse>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<GetMediaResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -84,7 +83,7 @@ internal partial class LangfuseClient
 
         try
         {
-            var json = JsonSerializer.Serialize(request, _jsonOptions);
+            var json = JsonSerializer.Serialize(request, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PatchAsync(endpoint, content, cancellationToken);
@@ -155,14 +154,14 @@ internal partial class LangfuseClient
 
         try
         {
-            var json = JsonSerializer.Serialize(request, _jsonOptions);
+            var json = JsonSerializer.Serialize(request, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<MediaUploadResponse>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<MediaUploadResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {

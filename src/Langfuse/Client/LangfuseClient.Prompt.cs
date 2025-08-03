@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Prompt;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -20,11 +21,11 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PromptMetaListResponse>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<PromptMetaListResponse>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
-    public async Task<Prompt> GetPromptAsync(string promptName, int? version = null, string? label = null,
+    public async Task<PromptModel> GetPromptAsync(string promptName, int? version = null, string? label = null,
         CancellationToken cancellationToken = default)
     {
         var queryParams = new List<string>();
@@ -49,14 +50,14 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Prompt>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<PromptModel>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
-    public async Task<Prompt> CreatePromptAsync(CreatePromptRequest request,
+    public async Task<PromptModel> CreatePromptAsync(CreatePromptRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PostAsync("/api/public/v2/prompts", content, cancellationToken);
@@ -68,15 +69,15 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Prompt>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<PromptModel>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
-    public async Task<Prompt> UpdatePromptVersionAsync(string promptName, int version,
+    public async Task<PromptModel> UpdatePromptVersionAsync(string promptName, int version,
         UpdatePromptVersionRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PatchAsync(
@@ -91,7 +92,7 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Prompt>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<PromptModel>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 }

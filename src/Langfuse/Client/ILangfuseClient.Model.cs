@@ -1,4 +1,5 @@
-﻿using zborek.Langfuse.Models;
+﻿using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Model;
 
 namespace zborek.Langfuse.Client;
 

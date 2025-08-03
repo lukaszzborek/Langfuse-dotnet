@@ -1,6 +1,5 @@
-﻿using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+﻿using zborek.Langfuse.Models.AnnotationQueue;
+using zborek.Langfuse.Models.Core;
 
 namespace zborek.Langfuse.Client;
 
@@ -22,7 +21,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The annotation queue with the specified ID</returns>
     /// <exception cref="LangfuseApiException">Thrown when the annotation queue is not found or an API error occurs</exception>
-    Task<AnnotationQueue> GetQueueAsync(string queueId, CancellationToken cancellationToken = default);
+    Task<AnnotationQueueModel> GetQueueAsync(string queueId, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Retrieves a paginated list of annotation queue items with optional filtering

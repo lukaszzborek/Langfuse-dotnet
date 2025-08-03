@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
 
 namespace zborek.Langfuse.Services;
 

@@ -145,10 +145,14 @@
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
         <Compile Update="Client\ILangfuseClient.Trace.cs">
-          <DependentUpon>ILangfuseClient.cs</DependentUpon>
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
         <Compile Update="Client\LangfuseClient.Trace.cs">
-          <DependentUpon>LangfuseClient.cs</DependentUpon>
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Models\Responses\" />
     </ItemGroup>
 </Project>

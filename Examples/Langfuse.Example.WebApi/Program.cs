@@ -3,7 +3,9 @@ using Langfuse.Example.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Observation;
+using zborek.Langfuse.Models.Session;
+using zborek.Langfuse.Models.Trace;
 using zborek.Langfuse.Services;
 
 var builder = WebApplication.CreateBuilder(args);

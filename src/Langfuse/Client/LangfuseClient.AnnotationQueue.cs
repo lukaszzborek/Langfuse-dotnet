@@ -2,9 +2,8 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+using zborek.Langfuse.Models.AnnotationQueue;
+using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -28,7 +27,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueListResponse>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<AnnotationQueueListResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -61,7 +60,7 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
-    public async Task<AnnotationQueue> GetQueueAsync(string queueId, CancellationToken cancellationToken = default)
+    public async Task<AnnotationQueueModel> GetQueueAsync(string queueId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(queueId))
         {
@@ -80,7 +79,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueue>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<AnnotationQueueModel>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -138,7 +137,7 @@ internal partial class LangfuseClient
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             var result =
-                JsonSerializer.Deserialize<AnnotationQueueItemListResponse>(responseContent, _jsonOptions);
+                JsonSerializer.Deserialize<AnnotationQueueItemListResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -200,14 +199,14 @@ internal partial class LangfuseClient
 
         try
         {
-            var json = JsonSerializer.Serialize(request, _jsonOptions);
+            var json = JsonSerializer.Serialize(request, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -272,7 +271,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -337,14 +336,14 @@ internal partial class LangfuseClient
 
         try
         {
-            var json = JsonSerializer.Serialize(request, _jsonOptions);
+            var json = JsonSerializer.Serialize(request, JsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PatchAsync(endpoint, content, cancellationToken);
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<AnnotationQueueItem>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -408,7 +407,7 @@ internal partial class LangfuseClient
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             var result =
-                JsonSerializer.Deserialize<DeleteAnnotationQueueItemResponse>(responseContent, _jsonOptions);
+                JsonSerializer.Deserialize<DeleteAnnotationQueueItemResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {

@@ -1,7 +1,8 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Observation;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -26,7 +27,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<ObservationListResponse>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<ObservationListResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -59,7 +60,7 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
-    public async Task<Observation> GetObservationAsync(string observationId,
+    public async Task<ObservationModel> GetObservationAsync(string observationId,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(observationId))
@@ -79,7 +80,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<Observation>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<ObservationModel>(responseContent, JsonOptions);
 
             if (result == null)
             {

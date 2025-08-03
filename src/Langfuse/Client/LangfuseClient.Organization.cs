@@ -1,8 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Organization;
 
 namespace zborek.Langfuse.Client;
 
@@ -20,14 +19,14 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<MembershipsResponse>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<MembershipsResponse>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
     public async Task<MembershipResponse> CreateOrUpdateMembershipAsync(CreateMembershipRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PutAsync("/api/public/organizations/memberships", content, cancellationToken);
@@ -40,7 +39,7 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<MembershipResponse>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<MembershipResponse>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -58,14 +57,14 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<MembershipsResponse>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<MembershipsResponse>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
     public async Task<MembershipResponse> CreateOrUpdateOrganizationProjectMembershipAsync(string projectId,
         CreateMembershipRequest request, CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PutAsync($"/api/public/projects/{Uri.EscapeDataString(projectId)}/memberships",
@@ -79,7 +78,7 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<MembershipResponse>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<MembershipResponse>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
@@ -96,7 +95,7 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<OrganizationProjectsResponse>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<OrganizationProjectsResponse>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 }

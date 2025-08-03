@@ -1,4 +1,5 @@
-﻿using zborek.Langfuse.Models;
+﻿using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Dataset;
 
 namespace zborek.Langfuse.Client;
 
@@ -21,7 +22,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The dataset with the specified name</returns>
     /// <exception cref="LangfuseApiException">Thrown when the dataset is not found or an API error occurs</exception>
-    Task<Dataset> GetDatasetAsync(string datasetName, CancellationToken cancellationToken = default);
+    Task<DatasetModel> GetDatasetAsync(string datasetName, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Creates a new dataset
@@ -30,7 +31,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created dataset</returns>
     /// <exception cref="LangfuseApiException">Thrown when dataset creation fails</exception>
-    Task<Dataset> CreateDatasetAsync(CreateDatasetRequest request, CancellationToken cancellationToken = default);
+    Task<DatasetModel> CreateDatasetAsync(CreateDatasetRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Retrieves a specific dataset run and its associated items

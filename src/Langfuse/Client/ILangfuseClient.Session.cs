@@ -1,4 +1,5 @@
-﻿using zborek.Langfuse.Models;
+﻿using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Session;
 
 namespace zborek.Langfuse.Client;
 
@@ -22,5 +23,5 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The session with the specified ID including associated traces</returns>
     /// <exception cref="LangfuseApiException">Thrown when the session is not found or an API error occurs</exception>
-    Task<Session> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default);
+    Task<SessionModel> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default);
 }

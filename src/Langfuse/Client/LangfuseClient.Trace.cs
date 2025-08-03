@@ -1,7 +1,8 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using zborek.Langfuse.Models;
+using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Trace;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -25,7 +26,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<TraceListResponse>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<TraceListResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -77,7 +78,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<TraceWithDetails>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<TraceWithDetails>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -131,7 +132,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {
@@ -180,7 +181,7 @@ internal partial class LangfuseClient
             await EnsureSuccessStatusCodeAsync(response);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, _jsonOptions);
+            var result = JsonSerializer.Deserialize<DeleteTraceResponse>(responseContent, JsonOptions);
 
             if (result == null)
             {

@@ -1,8 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
-using zborek.Langfuse.Models;
-using zborek.Langfuse.Models.Requests;
-using zborek.Langfuse.Models.Responses;
+using zborek.Langfuse.Models.Comment;
+using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
@@ -22,11 +21,11 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<GetCommentsResponse>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<GetCommentsResponse>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
-    public async Task<Comment> GetCommentAsync(string commentId, CancellationToken cancellationToken = default)
+    public async Task<CommentModel> GetCommentAsync(string commentId, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"/api/public/comments/{Uri.EscapeDataString(commentId)}",
             cancellationToken);
@@ -38,14 +37,14 @@ internal partial class LangfuseClient
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<Comment>(content, _jsonOptions)
+        return JsonSerializer.Deserialize<CommentModel>(content, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 
     public async Task<CreateCommentResponse> CreateCommentAsync(CreateCommentRequest request,
         CancellationToken cancellationToken = default)
     {
-        var json = JsonSerializer.Serialize(request, _jsonOptions);
+        var json = JsonSerializer.Serialize(request, JsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PostAsync("/api/public/comments", content, cancellationToken);
@@ -57,7 +56,7 @@ internal partial class LangfuseClient
         }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<CreateCommentResponse>(responseContent, _jsonOptions)
+        return JsonSerializer.Deserialize<CreateCommentResponse>(responseContent, JsonOptions)
                ?? throw new LangfuseApiException(500, "Failed to deserialize response");
     }
 }
