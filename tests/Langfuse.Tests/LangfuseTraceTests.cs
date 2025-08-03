@@ -305,7 +305,7 @@ public class LangfuseTraceTests
         // Collect all the IDs and events for assertions later
         string? spanId = null;
         string? nestedGenerationId = null;
-        string? deeplyNestedEveentParentId = null;
+        string? deeplyNestedEventParentId = null;
         string? deeplyNestedEventId = null;
 
         CreateEventBody? eventInSpan = null;
@@ -329,7 +329,7 @@ public class LangfuseTraceTests
                 using (var deeplyNestedEvent = trace.CreateEventScoped("DeeplyNestedEvent"))
                 {
                     deeplyNestedEventId = deeplyNestedEvent.Id;
-                    deeplyNestedEveentParentId = deeplyNestedEvent.ParentObservationId;
+                    deeplyNestedEventParentId = deeplyNestedEvent.ParentObservationId;
                     deepEvent = trace.CreateEvent("DeepEvent");
                 }
 
@@ -347,7 +347,7 @@ public class LangfuseTraceTests
         // Assert - verify all parent-child relationships at the end
         Assert.Equal(spanId, eventInSpan.ParentObservationId);
         Assert.Equal(nestedGenerationId, eventInGeneration.ParentObservationId);
-        Assert.Equal(nestedGenerationId, deeplyNestedEveentParentId);
+        Assert.Equal(nestedGenerationId, deeplyNestedEventParentId);
         Assert.Equal(deeplyNestedEventId, deepEvent.ParentObservationId);
         Assert.Equal(nestedGenerationId, afterDeepEvent.ParentObservationId);
         Assert.Equal(spanId, afterGenerationEvent.ParentObservationId);
