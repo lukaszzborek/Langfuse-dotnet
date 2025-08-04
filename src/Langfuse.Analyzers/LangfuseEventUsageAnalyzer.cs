@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,49 +16,55 @@ using SyntaxNode = Microsoft.CodeAnalysis.SyntaxNode;
 namespace Langfuse.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class LangfuseEventUsageAnalyzer : DiagnosticAnalyzer
+public class AttributeOnlyLangfuseAnalyzer : DiagnosticAnalyzer
 {
-    public const string CreateEventInUsingDiagnosticId = "LANG001";
-    public const string CreateScopedEventWithoutUsingDiagnosticId = "LANG002";
+    public const string NonScopedInUsingDiagnosticId = "LANG001";
+    public const string ScopedWithoutUsingDiagnosticId = "LANG002";
 
-    private static readonly LocalizableString CreateEventInUsingTitle =
-        "CreateEvent should not be used in using statement";
+    // Attribute names (without "Attribute" suffix, as that's how Roslyn sees them)
+    private const string NonScopedMethodAttributeName = "NonScopedMethod";
+    private const string NonScopedMethodAttributeFullName = "NonScopedMethodAttribute";
+    private const string ScopedMethodAttributeName = "ScopedMethod";
+    private const string ScopedMethodAttributeFullName = "ScopedMethodAttribute";
 
-    private static readonly LocalizableString CreateEventInUsingMessageFormat =
-        "Use 'CreateScopedEvent' instead of 'CreateEvent' when creating events in a using statement";
+    private static readonly LocalizableString NonScopedInUsingTitle =
+        "Non-scoped method should not be used in using statement";
 
-    private static readonly LocalizableString CreateEventInUsingDescription =
-        "When creating events within a using statement, use CreateScopedEvent to properly establish parent-child relationships.";
+    private static readonly LocalizableString NonScopedInUsingMessageFormat =
+        "Use '{0}' instead of '{1}' when creating objects in a using statement";
 
-    private static readonly LocalizableString CreateScopedEventWithoutUsingTitle =
-        "CreateEventScoped must be used with using statement";
+    private static readonly LocalizableString NonScopedInUsingDescription =
+        "When creating objects within a using statement, use the scoped variant to properly establish parent-child relationships.";
 
-    private static readonly LocalizableString CreateScopedEventWithoutUsingMessageFormat =
-        "CreateEventScoped must be used within a using statement or assigned to a using variable";
+    private static readonly LocalizableString ScopedWithoutUsingTitle =
+        "Scoped method must be used with using statement";
 
-    private static readonly LocalizableString CreateScopedEventWithoutUsingDescription =
-        "CreateEventScoped returns a disposable that must be properly disposed to maintain the parent context stack.";
+    private static readonly LocalizableString ScopedWithoutUsingMessageFormat =
+        "'{0}' must be used within a using statement or assigned to a using variable";
 
-    private static readonly DiagnosticDescriptor CreateEventInUsingRule = new(
-        CreateEventInUsingDiagnosticId,
-        CreateEventInUsingTitle,
-        CreateEventInUsingMessageFormat,
+    private static readonly LocalizableString ScopedWithoutUsingDescription =
+        "Scoped methods return disposables that must be properly disposed to maintain the parent context stack.";
+
+    private static readonly DiagnosticDescriptor NonScopedInUsingRule = new(
+        NonScopedInUsingDiagnosticId,
+        NonScopedInUsingTitle,
+        NonScopedInUsingMessageFormat,
         "Usage",
         DiagnosticSeverity.Error,
         true,
-        CreateEventInUsingDescription);
+        NonScopedInUsingDescription);
 
-    private static readonly DiagnosticDescriptor CreateScopedEventWithoutUsingRule = new(
-        CreateScopedEventWithoutUsingDiagnosticId,
-        CreateScopedEventWithoutUsingTitle,
-        CreateScopedEventWithoutUsingMessageFormat,
+    private static readonly DiagnosticDescriptor ScopedWithoutUsingRule = new(
+        ScopedWithoutUsingDiagnosticId,
+        ScopedWithoutUsingTitle,
+        ScopedWithoutUsingMessageFormat,
         "Usage",
         DiagnosticSeverity.Error,
         true,
-        CreateScopedEventWithoutUsingDescription);
+        ScopedWithoutUsingDescription);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(CreateEventInUsingRule, CreateScopedEventWithoutUsingRule);
+        ImmutableArray.Create(NonScopedInUsingRule, ScopedWithoutUsingRule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -80,17 +87,21 @@ public class LangfuseEventUsageAnalyzer : DiagnosticAnalyzer
         }
 
         var methodName = memberAccess.Name.Identifier.Text;
-        if (methodName != "CreateEvent" && methodName != "CreateEventScoped")
+
+        // Get the method symbol
+        var symbolInfo = context.SemanticModel.GetSymbolInfo(invocation);
+        var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
+        if (methodSymbol == null)
         {
             return;
         }
 
-        // Get the symbol to verify it's from LangfuseTrace
-        var symbolInfo = context.SemanticModel.GetSymbolInfo(invocation);
-        var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
-        if (methodSymbol == null || methodSymbol.ContainingType.Name != "LangfuseTrace")
+        // Check if method has our attributes
+        (bool IsNonScoped, bool IsScoped, string ScopedVariant, string NonScopedVariant)? methodInfo =
+            GetMethodInfoFromAttributes(methodSymbol);
+        if (!methodInfo.HasValue)
         {
-            return;
+            return; // Method doesn't have our attributes, skip it
         }
 
         // Check if the invocation is within a using statement
@@ -100,22 +111,81 @@ public class LangfuseEventUsageAnalyzer : DiagnosticAnalyzer
 
         var isProperlyUsedWithUsing = isInUsing || isInUsingDeclaration || isAssignedToUsingVariable;
 
-        if (methodName == "CreateEvent" && isProperlyUsedWithUsing)
+        // Report diagnostics based on the attribute and usage
+        if (methodInfo.Value.IsNonScoped && isProperlyUsedWithUsing)
         {
-            // CreateEvent is used in a using context - this is wrong
+            // Non-scoped method is used in a using context - this is wrong
             var diagnostic = Diagnostic.Create(
-                CreateEventInUsingRule,
-                memberAccess.Name.GetLocation());
+                NonScopedInUsingRule,
+                memberAccess.Name.GetLocation(),
+                methodInfo.Value.ScopedVariant,
+                methodName);
             context.ReportDiagnostic(diagnostic);
         }
-        else if (methodName == "CreateEventScoped" && !isProperlyUsedWithUsing)
+        else if (methodInfo.Value.IsScoped && !isProperlyUsedWithUsing)
         {
-            // CreateScopedEvent is not used in a using context - this is wrong
+            // Scoped method is not used in a using context - this is wrong
             var diagnostic = Diagnostic.Create(
-                CreateScopedEventWithoutUsingRule,
-                memberAccess.Name.GetLocation());
+                ScopedWithoutUsingRule,
+                memberAccess.Name.GetLocation(),
+                methodName);
             context.ReportDiagnostic(diagnostic);
         }
+    }
+
+    private static (bool IsNonScoped, bool IsScoped, string ScopedVariant, string NonScopedVariant)?
+        GetMethodInfoFromAttributes(IMethodSymbol methodSymbol)
+    {
+        // Check for NonScopedMethod attribute
+        var nonScopedAttr = methodSymbol.GetAttributes()
+            .FirstOrDefault(attr =>
+                attr.AttributeClass?.Name == NonScopedMethodAttributeName ||
+                attr.AttributeClass?.Name == NonScopedMethodAttributeFullName);
+
+        if (nonScopedAttr != null)
+        {
+            // Get the scoped variant from constructor argument
+            var scopedVariant = string.Empty;
+            if (nonScopedAttr.ConstructorArguments.Length > 0)
+            {
+                scopedVariant = nonScopedAttr.ConstructorArguments[0].Value?.ToString() ?? string.Empty;
+            }
+
+            return (true, false, scopedVariant, methodSymbol.Name);
+        }
+
+        // Check for ScopedMethod attribute
+        var scopedAttr = methodSymbol.GetAttributes()
+            .FirstOrDefault(attr =>
+                attr.AttributeClass?.Name == ScopedMethodAttributeName ||
+                attr.AttributeClass?.Name == ScopedMethodAttributeFullName);
+
+        if (scopedAttr != null)
+        {
+            // Get the non-scoped variant from constructor argument or named argument
+            var nonScopedVariant = string.Empty;
+
+            // Check constructor arguments
+            if (scopedAttr.ConstructorArguments.Length > 0)
+            {
+                nonScopedVariant = scopedAttr.ConstructorArguments[0].Value?.ToString() ?? string.Empty;
+            }
+            // Check named arguments
+            else
+            {
+                KeyValuePair<string, TypedConstant> namedArg = scopedAttr.NamedArguments
+                    .FirstOrDefault(na => na.Key == "NonScopedVariant");
+                if (namedArg.Key != null)
+                {
+                    nonScopedVariant = namedArg.Value.Value?.ToString() ?? string.Empty;
+                }
+            }
+
+            return (false, true, methodSymbol.Name, nonScopedVariant);
+        }
+
+        // No relevant attributes found
+        return null;
     }
 
     private static bool IsInUsingStatement(SyntaxNode node)
@@ -134,8 +204,9 @@ public class LangfuseEventUsageAnalyzer : DiagnosticAnalyzer
             }
 
             // Stop searching if we hit a method declaration or lambda
-            
-            if (parent is MethodDeclarationSyntax || parent is LambdaExpressionSyntax)
+            if (parent is MethodDeclarationSyntax ||
+                parent is LambdaExpressionSyntax ||
+                parent is AnonymousMethodExpressionSyntax)
             {
                 break;
             }
@@ -162,7 +233,9 @@ public class LangfuseEventUsageAnalyzer : DiagnosticAnalyzer
             }
 
             // Stop searching if we hit a method declaration or lambda
-            if (parent is MethodDeclarationSyntax || parent is LambdaExpressionSyntax)
+            if (parent is MethodDeclarationSyntax ||
+                parent is LambdaExpressionSyntax ||
+                parent is AnonymousMethodExpressionSyntax)
             {
                 break;
             }

@@ -12,14 +12,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Langfuse.Analyzers;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LangfuseEventUsageCodeFixProvider))]
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AttributeOnlyLangfuseCodeFixProvider))]
 [Shared]
-public class LangfuseEventUsageCodeFixProvider : CodeFixProvider
+public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
 {
     public sealed override ImmutableArray<string> FixableDiagnosticIds =>
         ImmutableArray.Create(
-            LangfuseEventUsageAnalyzer.CreateEventInUsingDiagnosticId,
-            LangfuseEventUsageAnalyzer.CreateScopedEventWithoutUsingDiagnosticId);
+            AttributeOnlyLangfuseAnalyzer.NonScopedInUsingDiagnosticId,
+            AttributeOnlyLangfuseAnalyzer.ScopedWithoutUsingDiagnosticId);
 
     public sealed override FixAllProvider GetFixAllProvider()
     {
@@ -44,41 +44,101 @@ public class LangfuseEventUsageCodeFixProvider : CodeFixProvider
             return;
         }
 
-        if (diagnostic.Id == LangfuseEventUsageAnalyzer.CreateEventInUsingDiagnosticId)
+        var invocation = memberAccess.Parent as InvocationExpressionSyntax;
+        if (invocation == null)
         {
-            // Fix: Replace CreateEvent with CreateScopedEvent
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    "Change to CreateEventScoped",
-                    c => ReplaceMethodNameAsync(
-                        context.Document, memberAccess, "CreateEventScoped", c),
-                    "ChangeToCreateEventScoped"),
-                diagnostic);
+            return;
         }
-        else if (diagnostic.Id == LangfuseEventUsageAnalyzer.CreateScopedEventWithoutUsingDiagnosticId)
-        {
-            var invocation = memberAccess.Parent as InvocationExpressionSyntax;
-            if (invocation != null)
-            {
-                // Fix 1: Wrap in using statement
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        "Wrap in using statement",
-                        c => WrapInUsingStatementAsync(
-                            context.Document, invocation, c),
-                        "WrapInUsing"),
-                    diagnostic);
 
-                // Fix 2: Change to CreateEvent (if user doesn't want scoped behavior)
+        var semanticModel =
+            await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+        var methodSymbol = semanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+        if (methodSymbol == null)
+        {
+            return;
+        }
+
+        if (diagnostic.Id == AttributeOnlyLangfuseAnalyzer.NonScopedInUsingDiagnosticId)
+        {
+            // Get the scoped variant name from the attribute
+            var scopedMethodName = GetScopedVariantFromAttribute(methodSymbol);
+            if (!string.IsNullOrEmpty(scopedMethodName))
+            {
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        "Change to CreateEvent",
+                        $"Change to {scopedMethodName}",
                         c => ReplaceMethodNameAsync(
-                            context.Document, memberAccess, "CreateEvent", c),
-                        "ChangeToCreateEvent"),
+                            context.Document, memberAccess, scopedMethodName, c),
+                        $"ChangeToScoped_{scopedMethodName}"),
                     diagnostic);
             }
         }
+        else if (diagnostic.Id == AttributeOnlyLangfuseAnalyzer.ScopedWithoutUsingDiagnosticId)
+        {
+            // Fix 1: Wrap in using statement
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    "Wrap in using statement",
+                    c => WrapInUsingStatementAsync(
+                        context.Document, invocation, c),
+                    "WrapInUsing"),
+                diagnostic);
+
+            // Fix 2: Change to non-scoped variant (if specified in attribute)
+            var nonScopedMethodName = GetNonScopedVariantFromAttribute(methodSymbol);
+            if (!string.IsNullOrEmpty(nonScopedMethodName))
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        $"Change to {nonScopedMethodName}",
+                        c => ReplaceMethodNameAsync(
+                            context.Document, memberAccess, nonScopedMethodName, c),
+                        $"ChangeToNonScoped_{nonScopedMethodName}"),
+                    diagnostic);
+            }
+        }
+    }
+
+    private static string GetScopedVariantFromAttribute(IMethodSymbol methodSymbol)
+    {
+        var attr = methodSymbol.GetAttributes()
+            .FirstOrDefault(a =>
+                a.AttributeClass?.Name == "NonScopedMethod" ||
+                a.AttributeClass?.Name == "NonScopedMethodAttribute");
+
+        if (attr != null && attr.ConstructorArguments.Length > 0)
+        {
+            return attr.ConstructorArguments[0].Value?.ToString() ?? string.Empty;
+        }
+
+        return string.Empty;
+    }
+
+    private static string GetNonScopedVariantFromAttribute(IMethodSymbol methodSymbol)
+    {
+        var attr = methodSymbol.GetAttributes()
+            .FirstOrDefault(a =>
+                a.AttributeClass?.Name == "ScopedMethod" ||
+                a.AttributeClass?.Name == "ScopedMethodAttribute");
+
+        if (attr != null)
+        {
+            // Check constructor arguments
+            if (attr.ConstructorArguments.Length > 0)
+            {
+                return attr.ConstructorArguments[0].Value?.ToString() ?? string.Empty;
+            }
+
+            // Check named arguments
+            KeyValuePair<string, TypedConstant> namedArg =
+                attr.NamedArguments.FirstOrDefault(na => na.Key == "NonScopedVariant");
+            if (namedArg.Key != null)
+            {
+                return namedArg.Value.Value?.ToString() ?? string.Empty;
+            }
+        }
+
+        return string.Empty;
     }
 
     private async Task<Document> ReplaceMethodNameAsync(
@@ -127,8 +187,8 @@ public class LangfuseEventUsageCodeFixProvider : CodeFixProvider
                     .WithLeadingTrivia() // Remove leading trivia from the declaration
                     .WithUsingKeyword(usingKeyword); // Add using keyword with proper trivia
 
-                var newRoot = root.ReplaceNode(localDeclaration, newLocalDeclaration);
-                return document.WithSyntaxRoot(newRoot);
+                var newRootNode = root.ReplaceNode(localDeclaration, newLocalDeclaration);
+                return document.WithSyntaxRoot(newRootNode);
             }
         }
 
@@ -136,10 +196,13 @@ public class LangfuseEventUsageCodeFixProvider : CodeFixProvider
         if (statement is ExpressionStatementSyntax expressionStatement &&
             expressionStatement.Expression == invocation)
         {
-            // Find a suitable variable name
-            var variableName = GenerateUniqueVariableName(semanticModel, invocation.SpanStart, "disposable");
+            // Get variable name from method
+            var methodName = (invocation.Expression as MemberAccessExpressionSyntax)?.Name.Identifier.Text ??
+                             "disposable";
+            var baseVariableName = GetVariableNameFromMethod(methodName);
+            var variableName = GenerateUniqueVariableName(semanticModel, statement.SpanStart, baseVariableName);
 
-            // Create using declaration: using var disposable = invocation;
+            // Create using declaration: using var variableName = invocation;
             var variableDeclaration = SyntaxFactory.VariableDeclaration(
                     SyntaxFactory.IdentifierName("var"))
                 .WithVariables(SyntaxFactory.SingletonSeparatedList(
@@ -160,46 +223,66 @@ public class LangfuseEventUsageCodeFixProvider : CodeFixProvider
             return document.WithSyntaxRoot(newRoot);
         }
 
-        // Find the parent block to get subsequent statements
-        var parentBlock = statement.Parent as BlockSyntax;
-        if (parentBlock != null)
+        // For other cases, create a using statement with proper variable naming
+        var methodNameForVariable = (invocation.Expression as MemberAccessExpressionSyntax)?.Name.Identifier.Text ??
+                                    "disposable";
+        var baseVarName = GetVariableNameFromMethod(methodNameForVariable);
+        var varName = GenerateUniqueVariableName(semanticModel, statement.SpanStart, baseVarName);
+
+        var usingStatement = SyntaxFactory.UsingStatement(
+                SyntaxFactory.VariableDeclaration(
+                        SyntaxFactory.IdentifierName("var"))
+                    .WithVariables(
+                        SyntaxFactory.SingletonSeparatedList(
+                            SyntaxFactory.VariableDeclarator(
+                                    SyntaxFactory.Identifier(varName))
+                                .WithInitializer(
+                                    SyntaxFactory.EqualsValueClause(invocation)))),
+                null,
+                SyntaxFactory.Block())
+            .WithLeadingTrivia(statement.GetLeadingTrivia());
+
+        // Insert the using statement before the current statement and preserve trivia
+        var newRootInsert = root.InsertNodesBefore(statement, new[] { usingStatement });
+        return document.WithSyntaxRoot(newRootInsert);
+    }
+
+    private string GetVariableNameFromMethod(string methodName)
+    {
+        // Remove common prefixes and suffixes
+        var name = methodName;
+
+        if (name.StartsWith("Create"))
         {
-            var statementIndex = parentBlock.Statements.IndexOf(statement);
-            IEnumerable<StatementSyntax> subsequentStatements = parentBlock.Statements.Skip(statementIndex + 1);
-
-            // Create using statement with expression form and wrap subsequent statements
-            var usingStatement = SyntaxFactory.UsingStatement(
-                    null,
-                    invocation,
-                    SyntaxFactory.Block(subsequentStatements))
-                .WithLeadingTrivia(statement.GetLeadingTrivia());
-
-            // Remove the original statement and subsequent statements, replace with using statement
-            IEnumerable<StatementSyntax> newStatements = parentBlock.Statements.Take(statementIndex)
-                .Concat(new[] { usingStatement });
-
-            var newBlock = parentBlock.WithStatements(SyntaxFactory.List(newStatements));
-            var newRoot = root.ReplaceNode(parentBlock, newBlock);
-            return document.WithSyntaxRoot(newRoot);
+            name = name.Substring(6);
         }
-        else
+        else if (name.StartsWith("Begin"))
         {
-            // Fallback: just wrap the current statement
-            var usingStatement = SyntaxFactory.UsingStatement(
-                    null,
-                    invocation,
-                    SyntaxFactory.Block())
-                .WithLeadingTrivia(statement.GetLeadingTrivia());
-
-            var newRoot = root.ReplaceNode(statement, usingStatement);
-            return document.WithSyntaxRoot(newRoot);
+            name = name.Substring(5);
         }
+        else if (name.StartsWith("Start"))
+        {
+            name = name.Substring(5);
+        }
+
+        if (name.EndsWith("Scoped"))
+        {
+            name = name.Substring(0, name.Length - 6);
+        }
+
+        // Convert first letter to lowercase
+        if (name.Length > 0)
+        {
+            name = char.ToLower(name[0]) + name.Substring(1);
+        }
+
+        return string.IsNullOrEmpty(name) ? "disposable" : name;
     }
 
     private string GenerateUniqueVariableName(SemanticModel semanticModel, int position, string baseName)
     {
         ImmutableArray<ISymbol> symbols = semanticModel.LookupSymbols(position);
-        ImmutableHashSet<string> existingNames = symbols.Select(s => s.Name).ToImmutableHashSet();
+        HashSet<string> existingNames = symbols.Select(s => s.Name).ToHashSet();
 
         var name = baseName;
         var counter = 1;
