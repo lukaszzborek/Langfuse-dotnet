@@ -151,4 +151,8 @@
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Langfuse.Analyzers\Langfuse.Analyzers.csproj" />
+    </ItemGroup>
 </Project>

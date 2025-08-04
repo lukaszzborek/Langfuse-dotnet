@@ -64,8 +64,11 @@ public class ChatService
         await Task.Delay(1000);
         
         span.SetOutput("Data from db");
-        span.CreateEvent("Data downloaded", input: requestMessage, output: "Data from db");
+        using var spanEvent = _langfuseTrace.CreateEventScoped("Using Data downloaded", input: requestMessage, output: "Data from db");
             
+        using var ss = _langfuseTrace.CreateEventScoped("Not Data downloaded", input: requestMessage, output: "Data from db");
+        
+        
         if (additionalQuestions == null)
         {
             return "Data from db";
