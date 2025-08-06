@@ -60,20 +60,56 @@ namespace Langfuse.Analyzers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to When creating objects within a using statement, use the scoped variant to properly establish parent-child relationships.
+        /// </summary>
+        internal static string LANG001_Description {
+            get {
+                return ResourceManager.GetString("LANG001_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Use &apos;{0}&apos; instead of &apos;{1}&apos; when creating objects in a using statement.
         /// </summary>
-        internal static string LANG001 {
+        internal static string LANG001_Format {
             get {
-                return ResourceManager.GetString("LANG001", resourceCulture);
+                return ResourceManager.GetString("LANG001_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-scoped method should not be used in using statement.
+        /// </summary>
+        internal static string LANG001_Title {
+            get {
+                return ResourceManager.GetString("LANG001_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scoped methods return disposables that must be properly disposed to maintain the parent context stack.
+        /// </summary>
+        internal static string LANG002_Description {
+            get {
+                return ResourceManager.GetString("LANG002_Description", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; must be used within a using statement or assigned to a using variable.
         /// </summary>
-        internal static string LANG002 {
+        internal static string LANG002_Format {
             get {
-                return ResourceManager.GetString("LANG002", resourceCulture);
+                return ResourceManager.GetString("LANG002_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scoped method must be used with using statement.
+        /// </summary>
+        internal static string LANG002_Title {
+            get {
+                return ResourceManager.GetString("LANG002_Title", resourceCulture);
             }
         }
     }

@@ -27,41 +27,23 @@ public class AttributeOnlyLangfuseAnalyzer : DiagnosticAnalyzer
     private const string ScopedMethodAttributeName = "ScopedMethod";
     private const string ScopedMethodAttributeFullName = "ScopedMethodAttribute";
 
-    private static readonly LocalizableString NonScopedInUsingTitle =
-        "Non-scoped method should not be used in using statement";
-
-    private static readonly LocalizableString NonScopedInUsingMessageFormat =
-        "Use '{0}' instead of '{1}' when creating objects in a using statement";
-
-    private static readonly LocalizableString NonScopedInUsingDescription =
-        "When creating objects within a using statement, use the scoped variant to properly establish parent-child relationships.";
-
-    private static readonly LocalizableString ScopedWithoutUsingTitle =
-        "Scoped method must be used with using statement";
-
-    private static readonly LocalizableString ScopedWithoutUsingMessageFormat =
-        "'{0}' must be used within a using statement or assigned to a using variable";
-
-    private static readonly LocalizableString ScopedWithoutUsingDescription =
-        "Scoped methods return disposables that must be properly disposed to maintain the parent context stack.";
-
     private static readonly DiagnosticDescriptor NonScopedInUsingRule = new(
         NonScopedInUsingDiagnosticId,
-        NonScopedInUsingTitle,
-        NonScopedInUsingMessageFormat,
+        Resources.LANG001_Title,
+        Resources.LANG001_Format,
         "Usage",
         DiagnosticSeverity.Error,
         true,
-        NonScopedInUsingDescription);
+        Resources.LANG001_Description);
 
     private static readonly DiagnosticDescriptor ScopedWithoutUsingRule = new(
         ScopedWithoutUsingDiagnosticId,
-        ScopedWithoutUsingTitle,
-        ScopedWithoutUsingMessageFormat,
+        Resources.LANG002_Title,
+        Resources.LANG002_Format,
         "Usage",
         DiagnosticSeverity.Error,
         true,
-        ScopedWithoutUsingDescription);
+        Resources.LANG002_Description);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(NonScopedInUsingRule, ScopedWithoutUsingRule);
