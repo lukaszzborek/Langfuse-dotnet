@@ -1,3 +1,4 @@
+using zborek.Langfuse.Attributes;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
 
@@ -67,7 +68,7 @@ public class LangfuseTrace
         var traceBody = new CreateTraceBody { Id = TraceId.ToString(), Timestamp = date, Name = name };
         Trace = new CreateTraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
     }
-    
+
     /// <summary>
     ///     Set name of trace visible in langfuse. Used when using dependency injection
     /// </summary>
@@ -85,7 +86,7 @@ public class LangfuseTrace
     {
         Trace.Body.Input = input;
     }
-    
+
     /// <summary>
     ///     Set output of trace
     /// </summary>
@@ -103,6 +104,7 @@ public class LangfuseTrace
     /// <param name="output"></param>
     /// <param name="eventDate"></param>
     /// <returns></returns>
+    [NonScopedMethod(nameof(CreateEventScoped))]
     public CreateEventBody CreateEvent(string eventName, object? input = null, object? output = null,
         DateTime? eventDate = null)
     {
@@ -125,6 +127,15 @@ public class LangfuseTrace
         return eventBody;
     }
 
+    /// <summary>
+    ///     Create event, basic building blocks. Used to track discrete events in a trace
+    /// </summary>
+    /// <param name="eventName">Name of event</param>
+    /// <param name="input"></param>
+    /// <param name="output"></param>
+    /// <param name="eventDate"></param>
+    /// <returns></returns>
+    [ScopedMethod(nameof(CreateEvent))]
     public CreateEventBody CreateEventScoped(string eventName, object? input = null, object? output = null,
         DateTime? eventDate = null)
     {
@@ -142,6 +153,7 @@ public class LangfuseTrace
     /// <param name="input"></param>
     /// <param name="startDate"></param>
     /// <returns></returns>
+    [NonScopedMethod(nameof(CreateSpanScoped))]
     public CreateSpanEventBody CreateSpan(string spanName, object? metadata = null, object? input = null,
         DateTime? startDate = null)
     {
@@ -165,6 +177,15 @@ public class LangfuseTrace
         return spanBody;
     }
 
+    /// <summary>
+    ///     Create span, represent durations of units of work in a trace
+    /// </summary>
+    /// <param name="spanName"></param>
+    /// <param name="metadata"></param>
+    /// <param name="input"></param>
+    /// <param name="startDate"></param>
+    /// <returns></returns>
+    [ScopedMethod(nameof(CreateSpan))]
     public CreateSpanEventBody CreateSpanScoped(string spanName, object? metadata = null, object? input = null,
         DateTime? startDate = null)
     {
@@ -185,6 +206,7 @@ public class LangfuseTrace
     ///     will be used.
     /// </param>
     /// <returns>A newly created <see cref="CreateGenerationEventBody" /> object representing the generation event.</returns>
+    [NonScopedMethod(nameof(CreateGenerationScoped))]
     public CreateGenerationEventBody CreateGeneration(string generationName, object? input = null,
         object? output = null, DateTime? eventDate = null)
     {
@@ -210,6 +232,18 @@ public class LangfuseTrace
         return generationBody;
     }
 
+    /// <summary>
+    ///     Creates a new generation event and associates it with the current trace.
+    /// </summary>
+    /// <param name="generationName">The name of the generation event.</param>
+    /// <param name="input">The input data for the generation event. Optional.</param>
+    /// <param name="output">The output data for the generation event. Optional.</param>
+    /// <param name="eventDate">
+    ///     The timestamp for when the generation event occurred. If not provided, the current UTC time
+    ///     will be used.
+    /// </param>
+    /// <returns>A newly created <see cref="CreateGenerationEventBody" /> object representing the generation event.</returns>
+    [ScopedMethod(nameof(CreateGeneration))]
     public CreateGenerationEventBody CreateGenerationScoped(string generationName, object? input = null,
         object? output = null, DateTime? eventDate = null)
     {

@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.3.0</Version>
+        <Version>0.3.0-beta.1</Version>
         <PackageId>zborek.LangfuseDotnet</PackageId>
         <RepositoryUrl>https://github.com/lukaszzborek/Langfuse-dotnet</RepositoryUrl>
         <Authors>lukaszzborek</Authors>
@@ -150,5 +150,12 @@
         <Compile Update="Client\LangfuseClient.Trace.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\Langfuse.Analyzers\bin\$(Configuration)\netstandard2.1\*.dll"
+              Pack="true"
+              PackagePath="analyzers/dotnet/cs"
+              Visible="false" />
     </ItemGroup>
 </Project>

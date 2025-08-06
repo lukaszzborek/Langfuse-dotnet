@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"
+                id="root"
+                xmlns="">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="LANG001_Format" xml:space="preserve">
+        <value>Use '{0}' instead of '{1}' when creating objects in a using statement</value>
+    </data>
+    <data name="LANG002_Format" xml:space="preserve">
+        <value>'{0}' must be used within a using statement or assigned to a using variable</value>
+    </data>
+    <data name="LANG001_Title" xml:space="preserve">
+        <value>Non-scoped method should not be used in using statement</value>
+    </data>
+    <data name="LANG002_Title" xml:space="preserve">
+        <value>Scoped method must be used with using statement</value>
+    </data>
+    <data name="LANG001_Description" xml:space="preserve">
+        <value>When creating objects within a using statement, use the scoped variant to properly establish parent-child relationships</value>
+    </data>
+    <data name="LANG002_Description" xml:space="preserve">
+        <value>Scoped methods return disposables that must be properly disposed to maintain the parent context stack</value>
+    </data>
+</root>
