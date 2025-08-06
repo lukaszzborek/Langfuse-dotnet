@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -249,23 +250,18 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
 
     private string GetVariableNameFromMethod(string methodName)
     {
-        // Remove common prefixes and suffixes
         var name = methodName;
 
         if (name.StartsWith("Create"))
         {
             name = name.Substring(6);
         }
-        else if (name.StartsWith("Begin"))
-        {
-            name = name.Substring(5);
-        }
-        else if (name.StartsWith("Start"))
+        else if (name.StartsWith("Begin") || name.StartsWith("Start"))
         {
             name = name.Substring(5);
         }
 
-        if (name.EndsWith("Scoped"))
+        if (name.EndsWith("Scoped") && !name.StartsWith("event", StringComparison.OrdinalIgnoreCase))
         {
             name = name.Substring(0, name.Length - 6);
         }
