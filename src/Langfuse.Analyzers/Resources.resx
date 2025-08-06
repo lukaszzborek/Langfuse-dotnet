@@ -24,38 +24,10 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="AB0001Description" xml:space="preserve">
-        <value>Type names should not contain the company name.</value>
-        <comment>An optional longer localizable description of the diagnostic.</comment>
-    </data>
-    <data name="AB0001MessageFormat" xml:space="preserve">
-        <value>Type name '{0}' contains the company name</value>
-        <comment>The format-able message the diagnostic displays.</comment>
-    </data>
-    <data name="AB0001Title" xml:space="preserve">
-        <value>Type name contains the company name</value>
-        <comment>The title of the diagnostic.</comment>
-    </data>
-    <data name="AB0001CodeFixTitle" xml:space="preserve">
-        <value>Replace '{0}' with '{1}'</value>
-        <comment>The title of the code fix.</comment>
-    </data>
-    <data name="AB0002Description" xml:space="preserve">
-        <value>The speed must be lower than the Speed of Light.</value>
-        <comment>An optional longer localizable description of the diagnostic.</comment>
-    </data>
-    <data name="AB0002MessageFormat" xml:space="preserve">
-        <value>The specified speed '{0}' must be lower than the Speed of Light</value>
-        <comment>The format-able message the diagnostic displays.</comment>
-    </data>
-    <data name="AB0002Title" xml:space="preserve">
-        <value>The impossible speed</value>
-        <comment>The title of the diagnostic.</comment>
-    </data>
     <data name="LANG001" xml:space="preserve">
-        <value>CreateEvent should not be used in using statement</value>
+        <value>Use '{0}' instead of '{1}' when creating objects in a using statement</value>
     </data>
     <data name="LANG002" xml:space="preserve">
-        <value>CreateEventScoped must be used with using statement</value>
+        <value>'{0}' must be used within a using statement or assigned to a using variable</value>
     </data>
 </root>

@@ -68,7 +68,7 @@ public class LangfuseTrace
         var traceBody = new CreateTraceBody { Id = TraceId.ToString(), Timestamp = date, Name = name };
         Trace = new CreateTraceEvent(traceBody, Guid.NewGuid().ToString(), date.ToString("o"));
     }
-    
+
     /// <summary>
     ///     Set name of trace visible in langfuse. Used when using dependency injection
     /// </summary>
@@ -86,7 +86,7 @@ public class LangfuseTrace
     {
         Trace.Body.Input = input;
     }
-    
+
     /// <summary>
     ///     Set output of trace
     /// </summary>
@@ -231,7 +231,7 @@ public class LangfuseTrace
 
         return generationBody;
     }
-    
+
     /// <summary>
     ///     Creates a new generation event and associates it with the current trace.
     /// </summary>

@@ -94,7 +94,9 @@ public class MyService
 ```
 
 There is two ways to create observations objects:
-- Scoped versions, which automatically handle parent-child relationships and are disposed of at the end of the scope.</br>
+
+- Scoped versions, which automatically handle parent-child relationships and are disposed of at the end of the
+  scope.</br>
   It's ending with Scoped suffix
 - Non-scoped versions, which don't override current parent observation
 
@@ -138,6 +140,7 @@ See the Examples/Langfuse.Example.WebApi directory for a complete working exampl
 - Data not appearing: Check if IngestAsync() is called after operations
 
 ## TODO
+
 - [ ] Integration tests with Langfuse server or mock server
 
 ## Contributing

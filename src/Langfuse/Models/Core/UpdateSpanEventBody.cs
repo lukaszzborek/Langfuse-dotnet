@@ -1,19 +1,12 @@
 using System.Text.Json.Serialization;
-using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Models.Core;
 
 /// <summary>
 ///     Span update event body
 /// </summary>
-public class UpdateSpanEventBody : IDisposable
+public class UpdateSpanEventBody
 {
-    /// <summary>
-    ///     Langfuse trace object
-    /// </summary>
-    [JsonIgnore]
-    public LangfuseTrace? LangfuseTrace { get; init; }
-
     /// <summary>
     ///     Trace ID
     /// </summary>
@@ -86,12 +79,4 @@ public class UpdateSpanEventBody : IDisposable
     /// </summary>
     [JsonPropertyName("id")]
     public string? Id { get; set; }
-
-    /// <summary>
-    ///     Remove the last parent id from the trace
-    /// </summary>
-    public void Dispose()
-    {
-        LangfuseTrace?.RemoveLastParentId();
-    }
 }

@@ -153,6 +153,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Langfuse.Analyzers\Langfuse.Analyzers.csproj" />
+        <ProjectReference Include="..\Langfuse.Analyzers\Langfuse.Analyzers.csproj" />
     </ItemGroup>
 </Project>

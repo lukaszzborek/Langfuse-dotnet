@@ -222,7 +222,6 @@ public class AttributeOnlyLangfuseAnalyzer : DiagnosticAnalyzer
         var parent = node.Parent;
         while (parent != null)
         {
-            // C# 8.0+ using declarations
             if (parent is LocalDeclarationStatementSyntax localDecl &&
                 localDecl.UsingKeyword.IsKind(SyntaxKind.UsingKeyword))
             {
@@ -232,7 +231,6 @@ public class AttributeOnlyLangfuseAnalyzer : DiagnosticAnalyzer
                 }
             }
 
-            // Stop searching if we hit a method declaration or lambda
             if (parent is MethodDeclarationSyntax ||
                 parent is LambdaExpressionSyntax ||
                 parent is AnonymousMethodExpressionSyntax)

@@ -4,5 +4,5 @@
 
 | Rule ID | Category | Severity | Notes                                            |
 |---------|---------|----------|--------------------------------------------------|
-| LANG001 | Usage   | Error    | CreateEvent should not be used in using statement.  |
-| LANG002 | Usage   | Error    | CreateScopedEvent must be used with using statement. |
+| LANG001 | Usage   | Error    | Use '{0}' instead of '{1}' when creating objects in a using statement  |
+| LANG002 | Usage   | Error    | '{0}' must be used within a using statement or assigned to a using variable |

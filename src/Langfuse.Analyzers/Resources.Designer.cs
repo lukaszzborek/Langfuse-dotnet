@@ -60,70 +60,7 @@ namespace Langfuse.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replace &apos;{0}&apos; with &apos;{1}&apos;.
-        /// </summary>
-        internal static string AB0001CodeFixTitle {
-            get {
-                return ResourceManager.GetString("AB0001CodeFixTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type names should not contain the company name..
-        /// </summary>
-        internal static string AB0001Description {
-            get {
-                return ResourceManager.GetString("AB0001Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type name &apos;{0}&apos; contains the company name.
-        /// </summary>
-        internal static string AB0001MessageFormat {
-            get {
-                return ResourceManager.GetString("AB0001MessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type name contains the company name.
-        /// </summary>
-        internal static string AB0001Title {
-            get {
-                return ResourceManager.GetString("AB0001Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The speed must be lower than the Speed of Light..
-        /// </summary>
-        internal static string AB0002Description {
-            get {
-                return ResourceManager.GetString("AB0002Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified speed &apos;{0}&apos; must be lower than the Speed of Light.
-        /// </summary>
-        internal static string AB0002MessageFormat {
-            get {
-                return ResourceManager.GetString("AB0002MessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The impossible speed.
-        /// </summary>
-        internal static string AB0002Title {
-            get {
-                return ResourceManager.GetString("AB0002Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CreateEvent should not be used in using statement.
+        ///   Looks up a localized string similar to Use &apos;{0}&apos; instead of &apos;{1}&apos; when creating objects in a using statement.
         /// </summary>
         internal static string LANG001 {
             get {
@@ -132,7 +69,7 @@ namespace Langfuse.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CreateEventScoped must be used with using statement.
+        ///   Looks up a localized string similar to &apos;{0}&apos; must be used within a using statement or assigned to a using variable.
         /// </summary>
         internal static string LANG002 {
             get {
