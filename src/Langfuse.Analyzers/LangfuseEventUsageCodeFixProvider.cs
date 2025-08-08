@@ -181,12 +181,15 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
             {
                 // Create new using declaration with proper trivia handling
                 var leadingTrivia = localDeclaration.GetLeadingTrivia();
-                var usingKeyword = SyntaxFactory.Token(leadingTrivia, SyntaxKind.UsingKeyword,
-                    SyntaxFactory.TriviaList(SyntaxFactory.Space));
+                var trailingTrivia = localDeclaration.GetTrailingTrivia();
+                
+                // Create using keyword with space after it
+                var usingKeyword = SyntaxFactory.Token(SyntaxKind.UsingKeyword)
+                    .WithTrailingTrivia(SyntaxFactory.Space);
 
                 var newLocalDeclaration = localDeclaration
-                    .WithLeadingTrivia() // Remove leading trivia from the declaration
-                    .WithUsingKeyword(usingKeyword); // Add using keyword with proper trivia
+                    .WithUsingKeyword(usingKeyword)
+                    .WithSemicolonToken(localDeclaration.SemicolonToken.WithTrailingTrivia(trailingTrivia)); // Preserve trailing trivia on semicolon
 
                 var newRootNode = root.ReplaceNode(localDeclaration, newLocalDeclaration);
                 return document.WithSyntaxRoot(newRootNode);
@@ -204,21 +207,27 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
             var variableName = GenerateUniqueVariableName(semanticModel, statement.SpanStart, baseVariableName);
 
             // Create using declaration: using var variableName = invocation;
+            // We need to preserve trivia properly - the invocation might have trivia attached to it
+            var invocationWithTrivia = invocation.WithoutTrivia(); // Remove trivia from invocation temporarily
+            
             var variableDeclaration = SyntaxFactory.VariableDeclaration(
                     SyntaxFactory.IdentifierName("var"))
                 .WithVariables(SyntaxFactory.SingletonSeparatedList(
                     SyntaxFactory.VariableDeclarator(
                             SyntaxFactory.Identifier(variableName))
-                        .WithInitializer(SyntaxFactory.EqualsValueClause(invocation))));
+                        .WithInitializer(SyntaxFactory.EqualsValueClause(invocationWithTrivia))));
 
             var leadingTrivia = statement.GetLeadingTrivia();
-            var usingKeyword = SyntaxFactory.Token(leadingTrivia, SyntaxKind.UsingKeyword,
-                SyntaxFactory.TriviaList(SyntaxFactory.Space));
+            var trailingTrivia = statement.GetTrailingTrivia();
+            
+            // Create using keyword with space after it
+            var usingKeyword = SyntaxFactory.Token(SyntaxKind.UsingKeyword)
+                .WithTrailingTrivia(SyntaxFactory.Space);
 
             var usingDeclaration = SyntaxFactory.LocalDeclarationStatement(variableDeclaration)
-                .WithLeadingTrivia() // Remove leading trivia from the declaration
-                .WithUsingKeyword(usingKeyword) // Add using keyword with proper trivia
-                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+                .WithUsingKeyword(usingKeyword)
+                .WithLeadingTrivia(leadingTrivia) // Preserve original leading trivia (including comments)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken).WithTrailingTrivia(trailingTrivia)); // Preserve original trailing trivia
 
             var newRoot = root.ReplaceNode(statement, usingDeclaration);
             return document.WithSyntaxRoot(newRoot);
