@@ -5,13 +5,17 @@
 ///     The analyzer will suggest using the scoped variant instead.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public class NonScopedMethodAttribute : Attribute
+internal class NonScopedMethodAttribute : Attribute
 {
     /// <summary>
     ///     The name of the scoped variant of this method
     /// </summary>
     public string ScopedVariant { get; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="scopedVariant">The name of the scoped variant of this method</param>
     public NonScopedMethodAttribute(string scopedVariant)
     {
         ScopedVariant = scopedVariant;

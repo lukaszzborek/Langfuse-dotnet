@@ -5,17 +5,17 @@
 ///     The analyzer will enforce proper disposal.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public class ScopedMethodAttribute : Attribute
+internal class ScopedMethodAttribute : Attribute
 {
     /// <summary>
-    ///     The name of the non-scoped variant of this method (optional)
+    ///     The name of the non-scoped variant of this method
     /// </summary>
     public string NonScopedVariant { get; set; }
 
-    public ScopedMethodAttribute()
-    {
-    }
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="nonScopedVariant">The name of the non-scoped variant of this method</param>
     public ScopedMethodAttribute(string nonScopedVariant)
     {
         NonScopedVariant = nonScopedVariant;
