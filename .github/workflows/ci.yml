@@ -1,15 +1,15 @@
 name: publish
 on:
-  workflow_dispatch: # Allow running the workflow manually from the GitHub UI
+  workflow_dispatch:
   push:
     branches:
-      - 'main'       # Run the workflow when pushing to the main branch
+      - 'main'
   pull_request:
     branches:
-      - '*'          # Run the workflow for all pull requests
+      - '*' 
   release:
     types:
-      - published    # Run the workflow when a new GitHub release is published
+      - published
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -38,18 +38,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        fetch-depth: 0 # Get all history to allow automatic versioning using MinVer
+        fetch-depth: 0 
 
-    # Install the .NET SDK indicated in the global.json file
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
 
-    # Create the NuGet package in the folder from the environment variable NuGetDirectory
-    - run: dotnet pack --configuration Release --output ${{ env.NuGetDirectory }}
+    - run: dotnet build -c Release ./src/Langfuse.Analyzers 
+    - run: dotnet build -c Release ./src/Langfuse 
+    - run: dotnet pack --no-build --configuration Release --output ${{ env.NuGetDirectory }} ./src/Langfuse/Langfuse.csproj
 
-    # Publish the NuGet package as an artifact, so they can be used in the following jobs
     - uses: actions/upload-artifact@v4
       with:
         name: nuget
@@ -58,20 +57,15 @@ jobs:
         path: ${{ env.NuGetDirectory }}/*.nupkg
         
   deploy:
-    # Publish only when creating a GitHub Release
-    # https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
-    # You can update this logic if you want to manage releases differently
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     needs: [ create_nuget ]
     steps:
-      # Download the NuGet package created in the previous job
       - uses: actions/download-artifact@v4
         with:
           name: nuget
           path: ${{ env.NuGetDirectory }}
 
-      # Install the .NET SDK indicated in the global.json file
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
 
@@ -83,9 +77,7 @@ jobs:
             **/*.nupkg
             **/*.snupkg
             !.nuget
-      # Publish all NuGet packages to NuGet.org
-      # Use --skip-duplicate to prevent errors if a package with the same version already exists.
-      # If you retry a failed workflow, already published packages will be skipped without error.
+
       - name: Publish NuGet package
         run: |
           foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
