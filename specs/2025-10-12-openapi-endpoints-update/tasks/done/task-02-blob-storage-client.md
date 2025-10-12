@@ -185,17 +185,17 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
 ## Acceptance Criteria
 
-- [ ] `LangfuseClient.BlobStorageIntegrations.cs` partial class created
-- [ ] All three methods implemented (Get, Upsert, Delete)
-- [ ] Methods follow existing SDK patterns (check other LangfuseClient.*.cs files)
-- [ ] Proper URL construction with path parameters
-- [ ] ID parameter properly URL encoded in delete method
-- [ ] All parameters validated (null checks)
-- [ ] XML documentation comments on all public methods
-- [ ] Organization-scoped key requirement documented
-- [ ] Test file created with comprehensive coverage
-- [ ] All HTTP methods tested (GET, PUT, DELETE)
-- [ ] Error cases tested (401, 403, 404)
-- [ ] All tests pass
-- [ ] Code builds without warnings
-- [ ] Follows existing client method patterns
+- [x] `LangfuseClient.BlobStorageIntegrations.cs` partial class created
+- [x] All three methods implemented (Get, Upsert, Delete)
+- [x] Methods follow existing SDK patterns (check other LangfuseClient.*.cs files)
+- [x] Proper URL construction with path parameters
+- [x] ID parameter properly URL encoded in delete method
+- [x] All parameters validated (null checks)
+- [x] XML documentation comments on all public methods
+- [x] Organization-scoped key requirement documented
+- [x] Test file created with comprehensive coverage
+- [x] All HTTP methods tested (GET, PUT, DELETE)
+- [x] Error cases tested (401, 403, 404)
+- [x] All tests pass
+- [x] Code builds without warnings
+- [x] Follows existing client method patterns
