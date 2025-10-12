@@ -291,7 +291,7 @@ public class TraceFilterTests
             }
         ]";
 
-        var conditions = JsonSerializer.Deserialize<TraceFilterCondition[]>(json, JsonOptions);
+        TraceFilterCondition[]? conditions = JsonSerializer.Deserialize<TraceFilterCondition[]>(json, JsonOptions);
 
         Assert.NotNull(conditions);
         Assert.Equal(2, conditions.Length);
@@ -495,7 +495,7 @@ public class TraceFilterTests
     [Fact]
     public void Should_Preserve_Type_Information_In_Polymorphic_Serialization()
     {
-        TraceFilterCondition[] conditions = new TraceFilterCondition[]
+        var conditions = new TraceFilterCondition[]
         {
             new StringFilterCondition { Column = "a", Operator = "=", Value = "test" },
             new NumberFilterCondition { Column = "b", Operator = ">", Value = 1 },

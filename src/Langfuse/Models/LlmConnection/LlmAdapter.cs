@@ -4,38 +4,38 @@ using zborek.Langfuse.Converters;
 namespace zborek.Langfuse.Models.LlmConnection;
 
 /// <summary>
-/// The adapter used to interface with the LLM
+///     The adapter used to interface with the LLM
 /// </summary>
 [JsonConverter(typeof(LlmAdapterConverter))]
 public enum LlmAdapter
 {
     /// <summary>
-    /// Anthropic adapter
+    ///     Anthropic adapter
     /// </summary>
     Anthropic,
 
     /// <summary>
-    /// OpenAI adapter
+    ///     OpenAI adapter
     /// </summary>
     OpenAi,
 
     /// <summary>
-    /// Azure OpenAI adapter
+    ///     Azure OpenAI adapter
     /// </summary>
     Azure,
 
     /// <summary>
-    /// AWS Bedrock adapter
+    ///     AWS Bedrock adapter
     /// </summary>
     Bedrock,
 
     /// <summary>
-    /// Google Vertex AI adapter
+    ///     Google Vertex AI adapter
     /// </summary>
     GoogleVertexAi,
 
     /// <summary>
-    /// Google AI Studio adapter
+    ///     Google AI Studio adapter
     /// </summary>
     GoogleAiStudio
 }

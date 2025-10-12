@@ -7,7 +7,7 @@ namespace zborek.Langfuse.Models.Trace;
 ///     When provided, takes precedence over legacy filter parameters.
 /// </summary>
 /// <example>
-/// <code>
+///     <code>
 /// var filter = new TraceFilter
 /// {
 ///     Conditions = new TraceFilterCondition[]

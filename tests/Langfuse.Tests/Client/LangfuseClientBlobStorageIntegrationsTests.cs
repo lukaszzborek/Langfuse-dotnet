@@ -22,7 +22,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
         var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        var config = Options.Create(new LangfuseConfig());
+        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
         _client = new LangfuseClient(httpClient, channel, config, logger);
@@ -98,8 +98,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.GetBlobStorageIntegrationsAsync());
+        await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetBlobStorageIntegrationsAsync());
     }
 
     [Fact]
@@ -161,8 +160,8 @@ public class LangfuseClientBlobStorageIntegrationsTests
     public async Task UpsertBlobStorageIntegrationAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.UpsertBlobStorageIntegrationAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await _client.UpsertBlobStorageIntegrationAsync(null!));
     }
 
     [Fact]
@@ -185,8 +184,9 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Access forbidden. Organization-scoped API key required.");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpsertBlobStorageIntegrationAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+                await _client.UpsertBlobStorageIntegrationAsync(request));
 
         Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
     }
@@ -295,24 +295,22 @@ public class LangfuseClientBlobStorageIntegrationsTests
     public async Task DeleteBlobStorageIntegrationAsync_NullId_ThrowsArgumentException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.DeleteBlobStorageIntegrationAsync(null!));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.DeleteBlobStorageIntegrationAsync(null!));
     }
 
     [Fact]
     public async Task DeleteBlobStorageIntegrationAsync_EmptyId_ThrowsArgumentException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.DeleteBlobStorageIntegrationAsync(string.Empty));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.DeleteBlobStorageIntegrationAsync(string.Empty));
     }
 
     [Fact]
     public async Task DeleteBlobStorageIntegrationAsync_WhitespaceId_ThrowsArgumentException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.DeleteBlobStorageIntegrationAsync("   "));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.DeleteBlobStorageIntegrationAsync("   "));
     }
 
     [Fact]
@@ -322,8 +320,8 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.NotFound, "Integration not found");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.DeleteBlobStorageIntegrationAsync("non-existent-id"));
+        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await _client.DeleteBlobStorageIntegrationAsync("non-existent-id"));
 
         Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
     }
@@ -335,8 +333,8 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupException(new HttpRequestException("Network error"));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.GetBlobStorageIntegrationsAsync());
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetBlobStorageIntegrationsAsync());
 
         Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
     }
@@ -361,8 +359,9 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.UnprocessableEntity, "Validation failed");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpsertBlobStorageIntegrationAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+                await _client.UpsertBlobStorageIntegrationAsync(request));
 
         Assert.Equal((int)HttpStatusCode.UnprocessableEntity, exception.StatusCode);
     }
@@ -374,17 +373,18 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.InternalServerError, "Internal server error");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.DeleteBlobStorageIntegrationAsync("int-123"));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+                await _client.DeleteBlobStorageIntegrationAsync("int-123"));
 
         Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
-        private HttpResponseMessage? _response;
-        private Exception? _exception;
         private readonly List<HttpRequestMessage> _requests = new();
+        private Exception? _exception;
+        private HttpResponseMessage? _response;
 
         public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
 
@@ -416,7 +416,9 @@ public class LangfuseClientBlobStorageIntegrationsTests
         public async Task<string?> GetLastRequestBodyAsync()
         {
             if (LastRequest?.Content == null)
+            {
                 return null;
+            }
 
             return await LastRequest.Content.ReadAsStringAsync();
         }

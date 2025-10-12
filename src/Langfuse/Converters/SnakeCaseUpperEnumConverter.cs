@@ -67,10 +67,12 @@ internal class SnakeCaseUpperEnumConverter<T> : JsonConverter<T> where T : struc
         for (var i = 0; i < value.Length; i++)
         {
             var c = value[i];
-            if (i > 0 && char.IsUpper(c) && (i == value.Length - 1 || !char.IsUpper(value[i - 1]) || (i < value.Length - 1 && !char.IsUpper(value[i + 1]))))
+            if (i > 0 && char.IsUpper(c) && (i == value.Length - 1 || !char.IsUpper(value[i - 1]) ||
+                                             (i < value.Length - 1 && !char.IsUpper(value[i + 1]))))
             {
                 builder.Append('_');
             }
+
             builder.Append(char.ToUpperInvariant(c));
         }
 

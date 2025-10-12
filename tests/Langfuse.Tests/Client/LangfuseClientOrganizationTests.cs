@@ -22,7 +22,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
         var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        var config = Options.Create(new LangfuseConfig());
+        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
         _client = new LangfuseClient(httpClient, channel, config, logger);
@@ -143,8 +143,8 @@ public class LangfuseClientOrganizationTests
     public async Task DeleteOrganizationMembershipAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.DeleteOrganizationMembershipAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await _client.DeleteOrganizationMembershipAsync(null!));
     }
 
     [Fact]
@@ -159,8 +159,9 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Access forbidden");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.DeleteOrganizationMembershipAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+                await _client.DeleteOrganizationMembershipAsync(request));
 
         Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
     }
@@ -318,8 +319,8 @@ public class LangfuseClientOrganizationTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.DeleteProjectMembershipAsync(null!, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.DeleteProjectMembershipAsync(null!, request));
     }
 
     [Fact]
@@ -332,16 +333,16 @@ public class LangfuseClientOrganizationTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.DeleteProjectMembershipAsync(string.Empty, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.DeleteProjectMembershipAsync(string.Empty, request));
     }
 
     [Fact]
     public async Task DeleteProjectMembershipAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.DeleteProjectMembershipAsync("project-123", null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await _client.DeleteProjectMembershipAsync("project-123", null!));
     }
 
     [Fact]
@@ -356,8 +357,8 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Access forbidden");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.DeleteProjectMembershipAsync("project-123", request));
+        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await _client.DeleteProjectMembershipAsync("project-123", request));
 
         Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
     }
@@ -421,10 +422,10 @@ public class LangfuseClientOrganizationTests
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
-        private HttpResponseMessage? _response;
-        private Exception? _exception;
         private readonly List<HttpRequestMessage> _requests = new();
+        private Exception? _exception;
         private string? _lastResponseBody;
+        private HttpResponseMessage? _response;
 
         public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
 
@@ -458,7 +459,9 @@ public class LangfuseClientOrganizationTests
         public async Task<string?> GetLastRequestBodyAsync()
         {
             if (LastRequest?.Content == null)
+            {
                 return null;
+            }
 
             return await LastRequest.Content.ReadAsStringAsync();
         }
@@ -490,5 +493,4 @@ public class LangfuseClientOrganizationTests
             });
         }
     }
-
 }

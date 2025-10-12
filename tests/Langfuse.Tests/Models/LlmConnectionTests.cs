@@ -1,5 +1,4 @@
 using System.Text.Json;
-using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.LlmConnection;
 
 namespace zborek.Langfuse.Tests.Models;
@@ -354,12 +353,12 @@ public class LlmConnectionTests
     {
         var allAdapters = new
         {
-            Anthropic = LlmAdapter.Anthropic,
-            OpenAi = LlmAdapter.OpenAi,
-            Azure = LlmAdapter.Azure,
-            Bedrock = LlmAdapter.Bedrock,
-            GoogleVertexAi = LlmAdapter.GoogleVertexAi,
-            GoogleAiStudio = LlmAdapter.GoogleAiStudio
+            LlmAdapter.Anthropic,
+            LlmAdapter.OpenAi,
+            LlmAdapter.Azure,
+            LlmAdapter.Bedrock,
+            LlmAdapter.GoogleVertexAi,
+            LlmAdapter.GoogleAiStudio
         };
 
         var json = JsonSerializer.Serialize(allAdapters);

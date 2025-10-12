@@ -25,6 +25,7 @@ internal static class QueryStringHelper
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
     /// <summary>
     ///     Builds a query string from an observation list request
     /// </summary>

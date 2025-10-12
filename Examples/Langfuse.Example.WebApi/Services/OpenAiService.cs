@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Langfuse.Example.WebApi.Models;
 
@@ -5,9 +6,9 @@ namespace Langfuse.Example.WebApi.Services;
 
 public class OpenAiService
 {
-    private readonly HttpClient _httpClient;
-    private readonly string _apiKey;
     private const string BaseUrl = "https://api.openai.com/v1";
+    private readonly string _apiKey;
+    private readonly HttpClient _httpClient;
 
     public OpenAiService(HttpClient httpClient, IConfiguration configuration)
     {
@@ -20,7 +21,7 @@ public class OpenAiService
     {
         var requestBody = new
         {
-            model = model,
+            model,
             messages = new[]
             {
                 new { role = "user", content = prompt }
@@ -29,11 +30,11 @@ public class OpenAiService
 
         var response = await _httpClient.PostAsync(
             $"{BaseUrl}/chat/completions",
-            new StringContent(JsonSerializer.Serialize(requestBody), System.Text.Encoding.UTF8, "application/json")
+            new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json")
         );
 
         response.EnsureSuccessStatusCode();
-        
+
         return await response.Content.ReadFromJsonAsync<ChatCompletionResponse>();
     }
 }

@@ -2,8 +2,11 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Xunit;
-using AnalyzerVerifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Langfuse.Analyzers.AttributeOnlyLangfuseAnalyzer>;
-using CodeFixVerifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<Langfuse.Analyzers.AttributeOnlyLangfuseAnalyzer, Langfuse.Analyzers.AttributeOnlyLangfuseCodeFixProvider>;
+using AnalyzerVerifier =
+    Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Langfuse.Analyzers.AttributeOnlyLangfuseAnalyzer>;
+using CodeFixVerifier =
+    Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<Langfuse.Analyzers.AttributeOnlyLangfuseAnalyzer,
+        Langfuse.Analyzers.AttributeOnlyLangfuseCodeFixProvider>;
 
 namespace Langfuse.Analyzers.Tests;
 
@@ -330,9 +333,9 @@ public class AttributeOnlyLangfuseCodeFixProviderTests
         var expected = AnalyzerVerifier.Diagnostic("LANG002")
             .WithSpan(53, 25, 53, 42)
             .WithArguments("CreateEventScoped");
-        
+
         var test =
-            new CSharpCodeFixTest<AttributeOnlyLangfuseAnalyzer, AttributeOnlyLangfuseCodeFixProvider, XUnitVerifier>()
+            new CSharpCodeFixTest<AttributeOnlyLangfuseAnalyzer, AttributeOnlyLangfuseCodeFixProvider, XUnitVerifier>
             {
                 TestCode = source,
                 FixedCode = fixedSource,

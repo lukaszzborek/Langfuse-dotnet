@@ -22,7 +22,7 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
         var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        var config = Options.Create(new LangfuseConfig());
+        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
         _client = new LangfuseClient(httpClient, channel, config, logger);
@@ -151,8 +151,7 @@ public class LangfuseClientAnnotationQueueTests
     public async Task CreateAnnotationQueueAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.CreateAnnotationQueueAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _client.CreateAnnotationQueueAsync(null!));
     }
 
     [Fact]
@@ -168,8 +167,9 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.CreateAnnotationQueueAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+                await _client.CreateAnnotationQueueAsync(request));
 
         Assert.Equal((int)HttpStatusCode.Unauthorized, exception.StatusCode);
     }
@@ -219,8 +219,8 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.CreateQueueAssignmentAsync(null!, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.CreateQueueAssignmentAsync(null!, request));
     }
 
     [Fact]
@@ -233,16 +233,16 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.CreateQueueAssignmentAsync(string.Empty, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.CreateQueueAssignmentAsync(string.Empty, request));
     }
 
     [Fact]
     public async Task CreateQueueAssignmentAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.CreateQueueAssignmentAsync("queue-123", null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await _client.CreateQueueAssignmentAsync("queue-123", null!));
     }
 
     [Fact]
@@ -257,8 +257,8 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Forbidden");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.CreateQueueAssignmentAsync("queue-123", request));
+        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await _client.CreateQueueAssignmentAsync("queue-123", request));
 
         Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
     }
@@ -355,8 +355,8 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.DeleteQueueAssignmentAsync(null!, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.DeleteQueueAssignmentAsync(null!, request));
     }
 
     [Fact]
@@ -369,16 +369,16 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.DeleteQueueAssignmentAsync(string.Empty, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.DeleteQueueAssignmentAsync(string.Empty, request));
     }
 
     [Fact]
     public async Task DeleteQueueAssignmentAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.DeleteQueueAssignmentAsync("queue-123", null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await _client.DeleteQueueAssignmentAsync("queue-123", null!));
     }
 
     [Fact]
@@ -393,8 +393,8 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.NotFound, "Not Found");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.DeleteQueueAssignmentAsync("queue-123", request));
+        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await _client.DeleteQueueAssignmentAsync("queue-123", request));
 
         Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
     }
@@ -483,10 +483,10 @@ public class LangfuseClientAnnotationQueueTests
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
-        private HttpResponseMessage? _response;
-        private Exception? _exception;
         private readonly List<HttpRequestMessage> _requests = new();
+        private Exception? _exception;
         private string? _lastResponseBody;
+        private HttpResponseMessage? _response;
 
         public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
 
@@ -520,7 +520,9 @@ public class LangfuseClientAnnotationQueueTests
         public async Task<string?> GetLastRequestBodyAsync()
         {
             if (LastRequest?.Content == null)
+            {
                 return null;
+            }
 
             return await LastRequest.Content.ReadAsStringAsync();
         }

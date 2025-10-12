@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,10 +23,84 @@ public class LangfuseClientScoreTests
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
         var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        var config = Options.Create(new LangfuseConfig());
+        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
         _client = new LangfuseClient(httpClient, channel, config, logger);
+    }
+
+    private class TestHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly List<HttpRequestMessage> _requests = new();
+        private Exception? _exception;
+        private string? _lastResponseBody;
+        private HttpResponseMessage? _response;
+
+        public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
+
+        public void SetupResponse(HttpStatusCode statusCode, object responseBody)
+        {
+            var json = JsonSerializer.Serialize(responseBody, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            _lastResponseBody = json;
+            _response = new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+        }
+
+        public void SetupResponse(HttpStatusCode statusCode, string responseBody)
+        {
+            _lastResponseBody = responseBody;
+            _response = new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+            };
+        }
+
+        public void SetupException(Exception exception)
+        {
+            _exception = exception;
+        }
+
+        public async Task<string?> GetLastRequestBodyAsync()
+        {
+            if (LastRequest?.Content == null)
+            {
+                return null;
+            }
+
+            return await LastRequest.Content.ReadAsStringAsync();
+        }
+
+        public Task<string?> GetLastResponseBodyAsync()
+        {
+            return Task.FromResult(_lastResponseBody);
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            _requests.Add(request);
+
+            if (_exception != null)
+            {
+                throw _exception;
+            }
+
+            if (_response != null)
+            {
+                _response.RequestMessage = request;
+                return Task.FromResult(_response);
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{}", Encoding.UTF8, "application/json")
+            });
+        }
     }
 
     #region UpdateScoreConfigAsync Tests
@@ -255,8 +330,7 @@ public class LangfuseClientScoreTests
         var request = new UpdateScoreConfigRequest { Name = "Test" };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.UpdateScoreConfigAsync(null!, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.UpdateScoreConfigAsync(null!, request));
     }
 
     [Fact]
@@ -266,8 +340,8 @@ public class LangfuseClientScoreTests
         var request = new UpdateScoreConfigRequest { Name = "Test" };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.UpdateScoreConfigAsync(string.Empty, request));
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _client.UpdateScoreConfigAsync(string.Empty, request));
     }
 
     [Fact]
@@ -277,16 +351,15 @@ public class LangfuseClientScoreTests
         var request = new UpdateScoreConfigRequest { Name = "Test" };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            async () => await _client.UpdateScoreConfigAsync("   ", request));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.UpdateScoreConfigAsync("   ", request));
     }
 
     [Fact]
     public async Task UpdateScoreConfigAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.UpdateScoreConfigAsync("config-123", null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await _client.UpdateScoreConfigAsync("config-123", null!));
     }
 
     [Fact]
@@ -297,8 +370,8 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.NotFound, "Not Found");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpdateScoreConfigAsync("config-404", request));
+        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await _client.UpdateScoreConfigAsync("config-404", request));
 
         Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
     }
@@ -311,8 +384,8 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpdateScoreConfigAsync("config-123", request));
+        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await _client.UpdateScoreConfigAsync("config-123", request));
 
         Assert.Equal((int)HttpStatusCode.Unauthorized, exception.StatusCode);
     }
@@ -545,7 +618,7 @@ public class LangfuseClientScoreTests
         var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
 
         // Assert
@@ -581,76 +654,4 @@ public class LangfuseClientScoreTests
     }
 
     #endregion
-
-    private class TestHttpMessageHandler : HttpMessageHandler
-    {
-        private HttpResponseMessage? _response;
-        private Exception? _exception;
-        private readonly List<HttpRequestMessage> _requests = new();
-        private string? _lastResponseBody;
-
-        public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
-
-        public void SetupResponse(HttpStatusCode statusCode, object responseBody)
-        {
-            var json = JsonSerializer.Serialize(responseBody, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            _lastResponseBody = json;
-            _response = new HttpResponseMessage(statusCode)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
-        }
-
-        public void SetupResponse(HttpStatusCode statusCode, string responseBody)
-        {
-            _lastResponseBody = responseBody;
-            _response = new HttpResponseMessage(statusCode)
-            {
-                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
-            };
-        }
-
-        public void SetupException(Exception exception)
-        {
-            _exception = exception;
-        }
-
-        public async Task<string?> GetLastRequestBodyAsync()
-        {
-            if (LastRequest?.Content == null)
-                return null;
-
-            return await LastRequest.Content.ReadAsStringAsync();
-        }
-
-        public Task<string?> GetLastResponseBodyAsync()
-        {
-            return Task.FromResult(_lastResponseBody);
-        }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            _requests.Add(request);
-
-            if (_exception != null)
-            {
-                throw _exception;
-            }
-
-            if (_response != null)
-            {
-                _response.RequestMessage = request;
-                return Task.FromResult(_response);
-            }
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{}", Encoding.UTF8, "application/json")
-            });
-        }
-    }
 }

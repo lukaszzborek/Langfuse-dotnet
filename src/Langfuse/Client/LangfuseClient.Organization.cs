@@ -61,8 +61,8 @@ internal partial class LangfuseClient
     }
 
     /// <summary>
-    /// Delete a membership from the organization associated with the API key.
-    /// Requires organization-scoped API key.
+    ///     Delete a membership from the organization associated with the API key.
+    ///     Requires organization-scoped API key.
     /// </summary>
     /// <param name="request">Membership deletion details</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -82,9 +82,9 @@ internal partial class LangfuseClient
     }
 
     /// <summary>
-    /// Delete a membership from a specific project.
-    /// The user must be a member of the organization.
-    /// Requires organization-scoped API key.
+    ///     Delete a membership from a specific project.
+    ///     The user must be a member of the organization.
+    ///     Requires organization-scoped API key.
     /// </summary>
     /// <param name="projectId">The unique identifier of the project</param>
     /// <param name="request">Membership deletion details</param>

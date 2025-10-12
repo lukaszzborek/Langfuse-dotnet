@@ -22,7 +22,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
         var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        var config = Options.Create(new LangfuseConfig());
+        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
         _client = new LangfuseClient(httpClient, channel, config, logger);
@@ -92,7 +92,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.GetLlmConnectionsAsync(page: 2);
+        await _client.GetLlmConnectionsAsync(2);
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
@@ -136,7 +136,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.GetLlmConnectionsAsync(page: 3, limit: 100);
+        await _client.GetLlmConnectionsAsync(3, 100);
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
@@ -1037,7 +1037,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetLlmConnectionsAsync(page: 2, limit: 10);
+        var result = await _client.GetLlmConnectionsAsync(2, 10);
 
         // Assert
         Assert.NotNull(result.Meta);
@@ -1049,10 +1049,10 @@ public class LangfuseClientLlmConnectionsTests
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
-        private HttpResponseMessage? _response;
-        private Exception? _exception;
         private readonly List<HttpRequestMessage> _requests = new();
+        private Exception? _exception;
         private string? _lastResponseBody;
+        private HttpResponseMessage? _response;
 
         public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
 
@@ -1086,7 +1086,9 @@ public class LangfuseClientLlmConnectionsTests
         public async Task<string?> GetLastRequestBodyAsync()
         {
             if (LastRequest?.Content == null)
+            {
                 return null;
+            }
 
             return await LastRequest.Content.ReadAsStringAsync();
         }
