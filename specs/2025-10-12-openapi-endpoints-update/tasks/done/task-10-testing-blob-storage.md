@@ -242,17 +242,17 @@ public async Task BlobStorageOperations_404NotFound_ThrowsException()
 
 ## Acceptance Criteria
 
-- [ ] All enum serialization tests pass
-- [ ] All request serialization tests pass (with and without nulls)
-- [ ] All response deserialization tests pass
-- [ ] GetBlobStorageIntegrationsAsync fully tested
-- [ ] UpsertBlobStorageIntegrationAsync fully tested
-- [ ] DeleteBlobStorageIntegrationAsync fully tested
-- [ ] URL encoding tested for ID parameter
-- [ ] Error cases tested (401, 403, 404)
-- [ ] Edge cases tested (prefix, export mode, S3 compatible)
-- [ ] Secret handling tested (in request, not in response)
-- [ ] Test coverage > 80% for blob storage code
-- [ ] All tests pass
-- [ ] No flaky tests
-- [ ] Tests follow existing patterns in test suite
+- [x] All enum serialization tests pass
+- [x] All request serialization tests pass (with and without nulls)
+- [x] All response deserialization tests pass
+- [x] GetBlobStorageIntegrationsAsync fully tested
+- [x] UpsertBlobStorageIntegrationAsync fully tested
+- [x] DeleteBlobStorageIntegrationAsync fully tested
+- [x] URL encoding tested for ID parameter
+- [x] Error cases tested (401, 403, 404)
+- [x] Edge cases tested (prefix, export mode, S3 compatible)
+- [x] Secret handling tested (in request, not in response)
+- [x] Test coverage > 80% for blob storage code
+- [x] All tests pass
+- [x] No flaky tests
+- [x] Tests follow existing patterns in test suite
