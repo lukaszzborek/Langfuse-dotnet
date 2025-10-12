@@ -372,6 +372,278 @@ public class LlmConnectionTests
         Assert.Contains("\"google-ai-studio\"", json);
     }
 
+    [Theory]
+    [InlineData(LlmAdapter.Anthropic, "anthropic")]
+    [InlineData(LlmAdapter.OpenAi, "openai")]
+    [InlineData(LlmAdapter.Azure, "azure")]
+    [InlineData(LlmAdapter.Bedrock, "bedrock")]
+    [InlineData(LlmAdapter.GoogleVertexAi, "google-vertex-ai")]
+    [InlineData(LlmAdapter.GoogleAiStudio, "google-ai-studio")]
+    public void LlmAdapter_SerializesTo_LowercaseWithHyphens(LlmAdapter adapter, string expectedJson)
+    {
+        var wrapper = new TestAdapterWrapper { Adapter = adapter };
+        var json = JsonSerializer.Serialize(wrapper);
+
+        Assert.Contains($"\"{expectedJson}\"", json);
+    }
+
+    [Theory]
+    [InlineData("anthropic", LlmAdapter.Anthropic)]
+    [InlineData("openai", LlmAdapter.OpenAi)]
+    [InlineData("azure", LlmAdapter.Azure)]
+    [InlineData("bedrock", LlmAdapter.Bedrock)]
+    [InlineData("google-vertex-ai", LlmAdapter.GoogleVertexAi)]
+    [InlineData("google-ai-studio", LlmAdapter.GoogleAiStudio)]
+    public void LlmAdapter_DeserializesFrom_LowercaseWithHyphens(string jsonValue, LlmAdapter expectedAdapter)
+    {
+        var json = $"{{\"Adapter\":\"{jsonValue}\"}}";
+        var result = JsonSerializer.Deserialize<TestAdapterWrapper>(json);
+
+        Assert.NotNull(result);
+        Assert.Equal(expectedAdapter, result.Adapter);
+    }
+
+    [Fact]
+    public void Should_Serialize_CustomModels_As_EmptyArray()
+    {
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-test",
+            CustomModels = Array.Empty<string>()
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"customModels\":[]", json);
+    }
+
+    [Fact]
+    public void Should_Serialize_WithDefaultModels_True_With_CustomModels()
+    {
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Anthropic,
+            SecretKey = "sk-test",
+            CustomModels = new[] { "claude-custom" },
+            WithDefaultModels = true
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"customModels\"", json);
+        Assert.Contains("\"claude-custom\"", json);
+        Assert.Contains("\"withDefaultModels\":true", json);
+    }
+
+    [Fact]
+    public void Should_Serialize_ExtraHeaders_As_EmptyDictionary()
+    {
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Bedrock,
+            SecretKey = "sk-test",
+            ExtraHeaders = new Dictionary<string, string>()
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"extraHeaders\":{}", json);
+    }
+
+    [Fact]
+    public void Should_Deserialize_ExtraHeaderKeys_As_EmptyArray()
+    {
+        var json = @"{
+            ""id"": ""conn-test"",
+            ""provider"": ""test"",
+            ""adapter"": ""openai"",
+            ""displaySecretKey"": ""***"",
+            ""customModels"": [],
+            ""withDefaultModels"": true,
+            ""extraHeaderKeys"": [],
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<LlmConnection>(json);
+
+        Assert.NotNull(response);
+        Assert.Empty(response.ExtraHeaderKeys);
+    }
+
+    [Fact]
+    public void Should_Serialize_BaseURL_As_Null()
+    {
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-test",
+            BaseURL = null
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"baseURL\":null", json);
+    }
+
+    [Fact]
+    public void Should_Serialize_BaseURL_With_CustomUrl()
+    {
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Azure,
+            SecretKey = "sk-test",
+            BaseURL = "https://custom.openai.azure.com"
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"baseURL\":\"https://custom.openai.azure.com\"", json);
+    }
+
+    [Fact]
+    public void Should_Deserialize_LlmConnection_With_Null_BaseURL()
+    {
+        var json = @"{
+            ""id"": ""conn-test"",
+            ""provider"": ""test"",
+            ""adapter"": ""openai"",
+            ""displaySecretKey"": ""***"",
+            ""baseURL"": null,
+            ""customModels"": [],
+            ""withDefaultModels"": true,
+            ""extraHeaderKeys"": [],
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<LlmConnection>(json);
+
+        Assert.NotNull(response);
+        Assert.Null(response.BaseURL);
+    }
+
+    [Fact]
+    public void Should_Deserialize_DisplaySecretKey_With_MaskedFormat()
+    {
+        var json = @"{
+            ""id"": ""conn-test"",
+            ""provider"": ""test"",
+            ""adapter"": ""anthropic"",
+            ""displaySecretKey"": ""sk-ant-***def"",
+            ""customModels"": [],
+            ""withDefaultModels"": true,
+            ""extraHeaderKeys"": [],
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<LlmConnection>(json);
+
+        Assert.NotNull(response);
+        Assert.Equal("sk-ant-***def", response.DisplaySecretKey);
+        Assert.Contains("***", response.DisplaySecretKey);
+    }
+
+    [Fact]
+    public void Should_Deserialize_PaginatedLlmConnections_With_EmptyData()
+    {
+        var json = @"{
+            ""data"": [],
+            ""meta"": {
+                ""page"": 1,
+                ""limit"": 50,
+                ""totalItems"": 0,
+                ""totalPages"": 0
+            }
+        }";
+
+        var response = JsonSerializer.Deserialize<PaginatedLlmConnections>(json);
+
+        Assert.NotNull(response);
+        Assert.NotNull(response.Data);
+        Assert.Empty(response.Data);
+        Assert.Equal(0, response.Meta.TotalItems);
+        Assert.Equal(0, response.Meta.TotalPages);
+    }
+
+    [Fact]
+    public void Should_Serialize_Request_With_Multiple_CustomModels()
+    {
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-test",
+            CustomModels = new[] { "gpt-4-turbo", "gpt-4-vision", "gpt-4-32k", "gpt-3.5-turbo-16k" }
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"customModels\"", json);
+        Assert.Contains("\"gpt-4-turbo\"", json);
+        Assert.Contains("\"gpt-4-vision\"", json);
+        Assert.Contains("\"gpt-4-32k\"", json);
+        Assert.Contains("\"gpt-3.5-turbo-16k\"", json);
+    }
+
+    [Fact]
+    public void Should_Serialize_Request_With_Multiple_ExtraHeaders()
+    {
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.GoogleVertexAi,
+            SecretKey = "sk-test",
+            ExtraHeaders = new Dictionary<string, string>
+            {
+                { "X-API-Version", "2024-01-01" },
+                { "X-Custom-Auth", "bearer-token" },
+                { "X-Request-ID", "req-123" },
+                { "X-Client-Name", "langfuse-csharp" }
+            }
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        Assert.Contains("\"extraHeaders\"", json);
+        Assert.Contains("\"X-API-Version\"", json);
+        Assert.Contains("\"X-Custom-Auth\"", json);
+        Assert.Contains("\"X-Request-ID\"", json);
+        Assert.Contains("\"X-Client-Name\"", json);
+    }
+
+    [Fact]
+    public void Should_Deserialize_Response_With_Multiple_ExtraHeaderKeys()
+    {
+        var json = @"{
+            ""id"": ""conn-test"",
+            ""provider"": ""test"",
+            ""adapter"": ""google-ai-studio"",
+            ""displaySecretKey"": ""***"",
+            ""customModels"": [],
+            ""withDefaultModels"": true,
+            ""extraHeaderKeys"": [""X-Header-1"", ""X-Header-2"", ""X-Header-3"", ""X-Header-4""],
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<LlmConnection>(json);
+
+        Assert.NotNull(response);
+        Assert.Equal(4, response.ExtraHeaderKeys.Length);
+        Assert.Contains("X-Header-1", response.ExtraHeaderKeys);
+        Assert.Contains("X-Header-2", response.ExtraHeaderKeys);
+        Assert.Contains("X-Header-3", response.ExtraHeaderKeys);
+        Assert.Contains("X-Header-4", response.ExtraHeaderKeys);
+    }
+
     private class TestAdapterWrapper
     {
         public LlmAdapter Adapter { get; set; }

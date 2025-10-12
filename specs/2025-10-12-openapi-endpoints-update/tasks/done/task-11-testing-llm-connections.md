@@ -305,17 +305,17 @@ public async Task UpsertLlmConnectionAsync_DuplicateProvider_HandlesCorrectly()
 
 ## Acceptance Criteria
 
-- [ ] All enum serialization tests pass (lowercase, hyphens)
-- [ ] All request serialization tests pass
-- [ ] All response deserialization tests pass
-- [ ] Secret handling tested (in request, not in response)
-- [ ] DisplaySecretKey vs SecretKey distinction verified
-- [ ] Pagination tests pass
-- [ ] GetLlmConnectionsAsync fully tested with all parameter combinations
-- [ ] UpsertLlmConnectionAsync fully tested (create and update)
-- [ ] Provider uniqueness tested
-- [ ] Error cases tested (401, 400)
-- [ ] Edge cases tested (customModels, extraHeaders, baseURL)
-- [ ] Test coverage > 80% for LLM connections code
-- [ ] All tests pass
-- [ ] Tests follow existing patterns
+- [x] All enum serialization tests pass (lowercase, hyphens)
+- [x] All request serialization tests pass
+- [x] All response deserialization tests pass
+- [x] Secret handling tested (in request, not in response)
+- [x] DisplaySecretKey vs SecretKey distinction verified
+- [x] Pagination tests pass
+- [x] GetLlmConnectionsAsync fully tested with all parameter combinations
+- [x] UpsertLlmConnectionAsync fully tested (create and update)
+- [x] Provider uniqueness tested
+- [x] Error cases tested (401, 400)
+- [x] Edge cases tested (customModels, extraHeaders, baseURL)
+- [x] Test coverage > 80% for LLM connections code
+- [x] All tests pass
+- [x] Tests follow existing patterns

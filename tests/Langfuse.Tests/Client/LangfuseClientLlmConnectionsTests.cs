@@ -592,6 +592,461 @@ public class LangfuseClientLlmConnectionsTests
         Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
     }
 
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_WithEmptyCustomModels_Success()
+    {
+        // Arrange
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-test",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "test-provider",
+            Adapter = LlmAdapter.OpenAi,
+            DisplaySecretKey = "sk-***st",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result.CustomModels);
+        Assert.True(result.WithDefaultModels);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_WithNullCustomModels_Success()
+    {
+        // Arrange
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Anthropic,
+            SecretKey = "sk-test",
+            CustomModels = null,
+            WithDefaultModels = null
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Anthropic,
+            DisplaySecretKey = "sk-***st",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result.CustomModels);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_WithEmptyExtraHeaders_Success()
+    {
+        // Arrange
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Bedrock,
+            SecretKey = "sk-test",
+            ExtraHeaders = new Dictionary<string, string>()
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Bedrock,
+            DisplaySecretKey = "sk-***st",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result.ExtraHeaderKeys);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_WithNullExtraHeaders_Success()
+    {
+        // Arrange
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Azure,
+            SecretKey = "sk-test",
+            ExtraHeaders = null
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Azure,
+            DisplaySecretKey = "sk-***st",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result.ExtraHeaderKeys);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_WithNullBaseURL_Success()
+    {
+        // Arrange
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-test",
+            BaseURL = null
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "test-provider",
+            Adapter = LlmAdapter.OpenAi,
+            DisplaySecretKey = "sk-***st",
+            BaseURL = null,
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Null(result.BaseURL);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_WithCustomBaseURL_Success()
+    {
+        // Arrange
+        var customBaseUrl = "https://my-custom-gateway.example.com/v1";
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "custom-gateway",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-test",
+            BaseURL = customBaseUrl
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "custom-gateway",
+            Adapter = LlmAdapter.OpenAi,
+            DisplaySecretKey = "sk-***st",
+            BaseURL = customBaseUrl,
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(customBaseUrl, result.BaseURL);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_ProviderUniqueness_UpdatesExisting()
+    {
+        // Arrange - First create
+        var initialRequest = new UpsertLlmConnectionRequest
+        {
+            Provider = "my-unique-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-initial"
+        };
+
+        var initialResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "my-unique-provider",
+            Adapter = LlmAdapter.OpenAi,
+            DisplaySecretKey = "sk-ini***al",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow.AddDays(-1),
+            UpdatedAt = DateTime.UtcNow.AddDays(-1)
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, initialResponse);
+
+        // Act - First upsert (create)
+        var firstResult = await _client.UpsertLlmConnectionAsync(initialRequest);
+
+        // Arrange - Second upsert with same provider (should update)
+        var updateRequest = new UpsertLlmConnectionRequest
+        {
+            Provider = "my-unique-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-updated",
+            CustomModels = new[] { "gpt-4-custom" },
+            WithDefaultModels = false
+        };
+
+        var updatedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "my-unique-provider",
+            Adapter = LlmAdapter.OpenAi,
+            DisplaySecretKey = "sk-upd***ed",
+            CustomModels = new[] { "gpt-4-custom" },
+            WithDefaultModels = false,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow.AddDays(-1),
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, updatedResponse);
+
+        // Act - Second upsert (update)
+        var secondResult = await _client.UpsertLlmConnectionAsync(updateRequest);
+
+        // Assert
+        Assert.Equal("conn-123", firstResult.Id);
+        Assert.Equal("conn-123", secondResult.Id);
+        Assert.Equal("my-unique-provider", secondResult.Provider);
+        Assert.Single(secondResult.CustomModels);
+        Assert.False(secondResult.WithDefaultModels);
+        Assert.True(secondResult.UpdatedAt > secondResult.CreatedAt);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_CustomModelsWithDefaultModels_Success()
+    {
+        // Arrange
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "hybrid-models",
+            Adapter = LlmAdapter.Anthropic,
+            SecretKey = "sk-test",
+            CustomModels = new[] { "claude-custom-1", "claude-custom-2" },
+            WithDefaultModels = true
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "hybrid-models",
+            Adapter = LlmAdapter.Anthropic,
+            DisplaySecretKey = "sk-***st",
+            CustomModels = new[] { "claude-custom-1", "claude-custom-2" },
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.CustomModels.Length);
+        Assert.True(result.WithDefaultModels);
+    }
+
+    [Fact]
+    public async Task GetLlmConnectionsAsync_WithAllGoogleAdapters_Success()
+    {
+        // Arrange
+        var expectedResponse = new PaginatedLlmConnections
+        {
+            Data = new[]
+            {
+                new LlmConnection
+                {
+                    Id = "conn-1",
+                    Provider = "google-vertex",
+                    Adapter = LlmAdapter.GoogleVertexAi,
+                    DisplaySecretKey = "***",
+                    CustomModels = Array.Empty<string>(),
+                    WithDefaultModels = true,
+                    ExtraHeaderKeys = Array.Empty<string>(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                },
+                new LlmConnection
+                {
+                    Id = "conn-2",
+                    Provider = "google-studio",
+                    Adapter = LlmAdapter.GoogleAiStudio,
+                    DisplaySecretKey = "***",
+                    CustomModels = Array.Empty<string>(),
+                    WithDefaultModels = true,
+                    ExtraHeaderKeys = Array.Empty<string>(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }
+            },
+            Meta = new ApiMetadata { Page = 1, Limit = 50, TotalItems = 2, TotalPages = 1 }
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.GetLlmConnectionsAsync();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Data.Length);
+        Assert.Equal(LlmAdapter.GoogleVertexAi, result.Data[0].Adapter);
+        Assert.Equal(LlmAdapter.GoogleAiStudio, result.Data[1].Adapter);
+    }
+
+    [Fact]
+    public async Task UpsertLlmConnectionAsync_ResponseContainsDisplaySecretKeyNotSecretKey()
+    {
+        // Arrange
+        var secretKey = "sk-ant-api03-very-long-secret-key-12345678";
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Anthropic,
+            SecretKey = secretKey
+        };
+
+        var expectedResponse = new LlmConnection
+        {
+            Id = "conn-123",
+            Provider = "test-provider",
+            Adapter = LlmAdapter.Anthropic,
+            DisplaySecretKey = "sk-ant-***678",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.UpsertLlmConnectionAsync(request);
+
+        // Assert
+        Assert.NotNull(result.DisplaySecretKey);
+        Assert.Contains("***", result.DisplaySecretKey);
+        Assert.DoesNotContain("very-long-secret-key", result.DisplaySecretKey);
+
+        // Verify request body contained full secret
+        var requestBody = await _httpHandler.GetLastRequestBodyAsync();
+        Assert.Contains(secretKey, requestBody!);
+
+        // Verify response body contains masked secret only
+        var responseBody = await _httpHandler.GetLastResponseBodyAsync();
+        Assert.DoesNotContain(secretKey, responseBody!);
+        Assert.Contains("***", responseBody!);
+    }
+
+    [Fact]
+    public async Task GetLlmConnectionsAsync_PaginationMeta_ReflectsCorrectValues()
+    {
+        // Arrange
+        var expectedResponse = new PaginatedLlmConnections
+        {
+            Data = new[]
+            {
+                new LlmConnection
+                {
+                    Id = "conn-1",
+                    Provider = "provider-1",
+                    Adapter = LlmAdapter.OpenAi,
+                    DisplaySecretKey = "***",
+                    CustomModels = Array.Empty<string>(),
+                    WithDefaultModels = true,
+                    ExtraHeaderKeys = Array.Empty<string>(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }
+            },
+            Meta = new ApiMetadata
+            {
+                Page = 2,
+                Limit = 10,
+                TotalItems = 25,
+                TotalPages = 3
+            }
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.GetLlmConnectionsAsync(page: 2, limit: 10);
+
+        // Assert
+        Assert.NotNull(result.Meta);
+        Assert.Equal(2, result.Meta.Page);
+        Assert.Equal(10, result.Meta.Limit);
+        Assert.Equal(25, result.Meta.TotalItems);
+        Assert.Equal(3, result.Meta.TotalPages);
+    }
+
     private class TestHttpMessageHandler : HttpMessageHandler
     {
         private HttpResponseMessage? _response;
