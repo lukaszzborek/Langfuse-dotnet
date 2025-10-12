@@ -9,8 +9,13 @@
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="zborek.Langfuse.Tests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="0024000004800000940000000602000000240000525341310004000001000100c547cac37abd99c8db225ef2f6c8a3602f3b3606cc9891605d02baa56104f4cfc0734aa39b93bf7852f7d9266654753cc297e7d2edfe0bac1cdcf9f717241550e0a7b191195b7667bb4f64bcb8e2121380fd1d9d46ad2d92d2d15605093924cceaf74c4861eff62abf69b9291ed0a340e113be11e6a7d3113e92484cf7045cc7" />
+    </ItemGroup>
+
     <PropertyGroup>
-        <Version>0.3.0</Version>
+        <Version>0.4.0</Version>
         <PackageId>zborek.LangfuseDotnet</PackageId>
         <RepositoryUrl>https://github.com/lukaszzborek/Langfuse-dotnet</RepositoryUrl>
         <Authors>lukaszzborek</Authors>
@@ -45,7 +50,13 @@
         <Compile Update="Client\ILangfuseClient.AnnotationQueue.cs">
             <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
+        <Compile Update="Client\ILangfuseClient.BlobStorageIntegrations.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
         <Compile Update="Client\LangfuseClient.AnnotationQueue.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.BlobStorageIntegrations.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
         <Compile Update="Client\ILangfuseClient.Comment.cs">
@@ -149,6 +160,9 @@
         </Compile>
         <Compile Update="Client\LangfuseClient.Trace.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.LlmConnections.cs">
+          <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
     </ItemGroup>
 

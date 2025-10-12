@@ -13,7 +13,6 @@ internal class ScopedMethodAttribute : Attribute
     public string NonScopedVariant { get; set; }
 
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="nonScopedVariant">The name of the non-scoped variant of this method</param>
     public ScopedMethodAttribute(string nonScopedVariant)

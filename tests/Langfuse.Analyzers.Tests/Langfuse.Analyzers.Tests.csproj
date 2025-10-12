@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Langfuse.Analyzers\Langfuse.Analyzers.csproj" />
+        <ProjectReference Include="..\..\src\Langfuse.Analyzers\Langfuse.Analyzers.csproj" />
     </ItemGroup>
 
 </Project>

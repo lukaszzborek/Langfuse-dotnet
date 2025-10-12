@@ -36,11 +36,13 @@ internal partial class LangfuseClient : ILangfuseClient
         _logger = logger;
     }
 
+    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
     {
         await IngestInternalAsync(ingestionEvent, cancellationToken);
     }
 
+    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default)
     {
         List<IIngestionEvent> events = langfuseTrace.GetEvents();
@@ -148,8 +150,6 @@ internal partial class LangfuseClient : ILangfuseClient
             Errors = errorResponses.ToArray()
         } ?? throw new Exception("No events were processed");
     }
-
-    #region Standardized HTTP Request Infrastructure
 
     /// <summary>
     ///     Base method for executing HTTP requests with standardized logging and error handling
@@ -486,6 +486,32 @@ internal partial class LangfuseClient : ILangfuseClient
     }
 
     /// <summary>
+    ///     Executes DELETE requests with a request body and standardized handling
+    /// </summary>
+    private async Task<TResponse> DeleteWithBodyAsync<TResponse>(
+        string endpoint,
+        object requestBody,
+        string operationName,
+        CancellationToken cancellationToken = default)
+        where TResponse : class
+    {
+        var json = JsonSerializer.Serialize(requestBody, JsonOptions);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
+        {
+            Content = content
+        };
+
+        return await ExecuteRequestAsync<TResponse>(
+            () => _httpClient.SendAsync(request, cancellationToken),
+            operationName,
+            endpoint,
+            requestBody,
+            cancellationToken);
+    }
+
+    /// <summary>
     ///     Enhanced status code validation with comprehensive HTTP status mapping
     /// </summary>
     private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)
@@ -522,6 +548,4 @@ internal partial class LangfuseClient : ILangfuseClient
             ["endpoint"] = response.RequestMessage?.RequestUri?.ToString() ?? "unknown"
         });
     }
-
-    #endregion
 }

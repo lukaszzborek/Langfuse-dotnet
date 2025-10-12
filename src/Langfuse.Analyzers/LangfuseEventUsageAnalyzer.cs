@@ -9,7 +9,6 @@ using DiagnosticDescriptor = Microsoft.CodeAnalysis.DiagnosticDescriptor;
 using DiagnosticSeverity = Microsoft.CodeAnalysis.DiagnosticSeverity;
 using IMethodSymbol = Microsoft.CodeAnalysis.IMethodSymbol;
 using LanguageNames = Microsoft.CodeAnalysis.LanguageNames;
-using LocalizableString = Microsoft.CodeAnalysis.LocalizableString;
 using SyntaxKind = Microsoft.CodeAnalysis.CSharp.SyntaxKind;
 using SyntaxNode = Microsoft.CodeAnalysis.SyntaxNode;
 

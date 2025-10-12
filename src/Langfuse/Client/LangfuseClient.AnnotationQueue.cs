@@ -142,4 +142,77 @@ internal partial class LangfuseClient
             return new DeleteAnnotationQueueItemResponse { Success = true };
         }
     }
+
+    /// <summary>
+    ///     Create an annotation queue
+    /// </summary>
+    /// <param name="request">Annotation queue details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created annotation queue</returns>
+    public async Task<AnnotationQueueModel> CreateAnnotationQueueAsync(
+        CreateAnnotationQueueRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        var endpoint = "/api/public/annotation-queues";
+        return await PostAsync<AnnotationQueueModel>(endpoint, request, "Create Annotation Queue", cancellationToken);
+    }
+
+    /// <summary>
+    ///     Create an assignment for a user to an annotation queue
+    /// </summary>
+    /// <param name="queueId">The unique identifier of the annotation queue</param>
+    /// <param name="request">Assignment details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created assignment</returns>
+    public async Task<CreateAnnotationQueueAssignmentResponse> CreateQueueAssignmentAsync(
+        string queueId,
+        AnnotationQueueAssignmentRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(queueId))
+        {
+            throw new ArgumentException("Queue ID cannot be null or empty", nameof(queueId));
+        }
+
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        var endpoint = $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}/assignments";
+        return await PostAsync<CreateAnnotationQueueAssignmentResponse>(endpoint, request,
+            "Create Annotation Queue Assignment", cancellationToken);
+    }
+
+    /// <summary>
+    ///     Delete an assignment for a user from an annotation queue
+    /// </summary>
+    /// <param name="queueId">The unique identifier of the annotation queue</param>
+    /// <param name="request">Assignment details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Deletion result</returns>
+    public async Task<DeleteAnnotationQueueAssignmentResponse> DeleteQueueAssignmentAsync(
+        string queueId,
+        AnnotationQueueAssignmentRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(queueId))
+        {
+            throw new ArgumentException("Queue ID cannot be null or empty", nameof(queueId));
+        }
+
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        var endpoint = $"/api/public/annotation-queues/{Uri.EscapeDataString(queueId)}/assignments";
+        return await DeleteWithBodyAsync<DeleteAnnotationQueueAssignmentResponse>(endpoint, request,
+            "Delete Annotation Queue Assignment", cancellationToken);
+    }
 }

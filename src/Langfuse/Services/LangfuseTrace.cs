@@ -279,6 +279,7 @@ public class LangfuseTrace
     /// <summary>
     ///     Ingest trace to langfuse
     /// </summary>
+    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync()
     {
         if (_langfuseClient == null)

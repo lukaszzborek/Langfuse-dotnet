@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Web;
 using zborek.Langfuse.Models.AnnotationQueue;
 using zborek.Langfuse.Models.Comment;
@@ -18,6 +20,12 @@ namespace zborek.Langfuse.Services;
 /// </summary>
 internal static class QueryStringHelper
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+
     /// <summary>
     ///     Builds a query string from an observation list request
     /// </summary>
@@ -90,6 +98,13 @@ internal static class QueryStringHelper
             }
         }
 
+        // Handle JSON-based filter
+        if (request.Filter is { Conditions.Length: > 0 })
+        {
+            var filterJson = JsonSerializer.Serialize(request.Filter.Conditions, JsonOptions);
+            parameters.Add($"filter={Uri.EscapeDataString(filterJson)}");
+        }
+
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
 
@@ -145,6 +160,7 @@ internal static class QueryStringHelper
         AddParameter(parameters, "configId", request.ConfigId);
         AddParameter(parameters, "queueId", request.QueueId);
         AddParameter(parameters, "dataType", request.DataType?.ToString().ToUpperInvariant());
+        AddParameter(parameters, "sessionId", request.SessionId);
 
         // Handle traceTags array parameter
         if (request.TraceTags != null && request.TraceTags.Length > 0)

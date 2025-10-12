@@ -3,9 +3,9 @@ POST http://localhost:5146/chat
 Content-Type: application/json
 
 {
-    "model": "gpt-4o-mini",
-    "name": "Hello",
-    "message": "Hello, World!"
+  "model": "gpt-4o-mini",
+  "name": "Hello",
+  "message": "Hello, World!"
 }
 
 
@@ -14,9 +14,9 @@ POST http://localhost:5146/chatDi
 Content-Type: application/json
 
 {
-    "model": "gpt-4o-mini",  
-    "name": "Story",
-    "message": "Write me very short story about dragons"
+  "model": "gpt-4o-mini",
+  "name": "Story",
+  "message": "Write me very short story about dragons"
 }
 
 

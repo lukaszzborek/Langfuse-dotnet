@@ -72,4 +72,10 @@ public class TraceListRequest
     ///     Example: 'core,scores,metrics'
     /// </summary>
     public string? Fields { get; set; }
+
+    /// <summary>
+    ///     JSON-based filter conditions for advanced filtering.
+    ///     When provided, takes precedence over legacy filter parameters (UserId, Name, etc.).
+    /// </summary>
+    public TraceFilter? Filter { get; set; }
 }
