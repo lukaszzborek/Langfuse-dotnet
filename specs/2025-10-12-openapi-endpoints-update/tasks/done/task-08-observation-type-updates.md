@@ -159,15 +159,15 @@ public void NewObservationTypes_DeserializeCorrectly(string json, ObservationTyp
 
 ## Acceptance Criteria
 
-- [ ] Seven new enum values added to ObservationType
-- [ ] All new values use uppercase serialization
-- [ ] All new values have `[JsonPropertyName]` attribute
-- [ ] All new values have XML documentation comments
-- [ ] Enum follows existing pattern (check existing values)
-- [ ] Tests added for all new types
-- [ ] Serialization tests pass (enum → JSON)
-- [ ] Deserialization tests pass (JSON → enum)
-- [ ] Backwards compatibility verified (existing types unchanged)
-- [ ] All tests pass
-- [ ] Code builds without warnings
-- [ ] No breaking changes introduced
+- [x] Seven new enum values added to ObservationType
+- [x] All new values use uppercase serialization
+- [x] All new values have `[JsonPropertyName]` attribute
+- [x] All new values have XML documentation comments
+- [x] Enum follows existing pattern (check existing values)
+- [x] Tests added for all new types
+- [x] Serialization tests pass (enum → JSON)
+- [x] Deserialization tests pass (JSON → enum)
+- [x] Backwards compatibility verified (existing types unchanged)
+- [x] All tests pass
+- [x] Code builds without warnings
+- [x] No breaking changes introduced
