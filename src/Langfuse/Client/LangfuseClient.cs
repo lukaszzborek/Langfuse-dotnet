@@ -36,11 +36,13 @@ internal partial class LangfuseClient : ILangfuseClient
         _logger = logger;
     }
 
+    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
     {
         await IngestInternalAsync(ingestionEvent, cancellationToken);
     }
 
+    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default)
     {
         List<IIngestionEvent> events = langfuseTrace.GetEvents();

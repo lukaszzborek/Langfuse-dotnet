@@ -161,6 +161,9 @@
         <Compile Update="Client\LangfuseClient.Trace.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
+        <Compile Update="Client\LangfuseClient.LlmConnections.cs">
+          <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>

@@ -14,6 +14,7 @@ public partial interface ILangfuseClient
     /// <param name="ingestionEvent">Langfuse event</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -22,5 +23,6 @@ public partial interface ILangfuseClient
     /// <param name="langfuseTrace">Langfuse trace with events, spans, generations</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default);
 }
