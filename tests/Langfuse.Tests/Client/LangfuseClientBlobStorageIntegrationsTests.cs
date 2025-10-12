@@ -28,8 +28,6 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _client = new LangfuseClient(httpClient, channel, config, logger);
     }
 
-    #region GetBlobStorageIntegrationsAsync Tests
-
     [Fact]
     public async Task GetBlobStorageIntegrationsAsync_Success_ReturnsIntegrations()
     {
@@ -103,10 +101,6 @@ public class LangfuseClientBlobStorageIntegrationsTests
         await Assert.ThrowsAsync<LangfuseApiException>(
             async () => await _client.GetBlobStorageIntegrationsAsync());
     }
-
-    #endregion
-
-    #region UpsertBlobStorageIntegrationAsync Tests
 
     [Fact]
     public async Task UpsertBlobStorageIntegrationAsync_Success_ReturnsCreatedIntegration()
@@ -251,10 +245,6 @@ public class LangfuseClientBlobStorageIntegrationsTests
         Assert.Contains("\"exportStartDate\"", requestBody);
     }
 
-    #endregion
-
-    #region DeleteBlobStorageIntegrationAsync Tests
-
     [Fact]
     public async Task DeleteBlobStorageIntegrationAsync_Success_ReturnsConfirmation()
     {
@@ -338,10 +328,6 @@ public class LangfuseClientBlobStorageIntegrationsTests
         Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
     }
 
-    #endregion
-
-    #region Error Handling Tests
-
     [Fact]
     public async Task GetBlobStorageIntegrationsAsync_NetworkError_ThrowsException()
     {
@@ -393,10 +379,6 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
         Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
     }
-
-    #endregion
-
-    #region Test Helper Class
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
@@ -461,6 +443,4 @@ public class LangfuseClientBlobStorageIntegrationsTests
             });
         }
     }
-
-    #endregion
 }

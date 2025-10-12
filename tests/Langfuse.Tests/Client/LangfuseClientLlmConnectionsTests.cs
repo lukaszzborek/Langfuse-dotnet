@@ -28,8 +28,6 @@ public class LangfuseClientLlmConnectionsTests
         _client = new LangfuseClient(httpClient, channel, config, logger);
     }
 
-    #region GetLlmConnectionsAsync Tests
-
     [Fact]
     public async Task GetLlmConnectionsAsync_WithoutPagination_Success()
     {
@@ -226,8 +224,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.GetLlmConnectionsAsync());
+        await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
     }
 
     [Fact]
@@ -237,15 +234,11 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Forbidden");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.GetLlmConnectionsAsync());
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
 
         Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
     }
-
-    #endregion
-
-    #region UpsertLlmConnectionAsync Tests
 
     [Fact]
     public async Task UpsertLlmConnectionAsync_Create_Success()
@@ -470,8 +463,7 @@ public class LangfuseClientLlmConnectionsTests
     public async Task UpsertLlmConnectionAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await _client.UpsertLlmConnectionAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _client.UpsertLlmConnectionAsync(null!));
     }
 
     [Fact]
@@ -488,8 +480,8 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.BadRequest, "Invalid adapter specified");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpsertLlmConnectionAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
         Assert.Equal((int)HttpStatusCode.BadRequest, exception.StatusCode);
     }
@@ -508,8 +500,8 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpsertLlmConnectionAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
         Assert.Equal((int)HttpStatusCode.Unauthorized, exception.StatusCode);
     }
@@ -528,8 +520,8 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Forbidden");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpsertLlmConnectionAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
         Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
     }
@@ -548,15 +540,11 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.Conflict, "Provider already exists");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpsertLlmConnectionAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
         Assert.Equal((int)HttpStatusCode.Conflict, exception.StatusCode);
     }
-
-    #endregion
-
-    #region Error Handling Tests
 
     [Fact]
     public async Task GetLlmConnectionsAsync_NetworkError_ThrowsException()
@@ -565,8 +553,8 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupException(new HttpRequestException("Network error"));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.GetLlmConnectionsAsync());
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
 
         Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
     }
@@ -585,8 +573,8 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupException(new HttpRequestException("Network error"));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.UpsertLlmConnectionAsync(request));
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
         Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
     }
@@ -598,15 +586,11 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.InternalServerError, "Internal server error");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(
-            async () => await _client.GetLlmConnectionsAsync());
+        var exception =
+            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
 
         Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
     }
-
-    #endregion
-
-    #region Test Helper Class
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
@@ -679,6 +663,4 @@ public class LangfuseClientLlmConnectionsTests
             });
         }
     }
-
-    #endregion
 }

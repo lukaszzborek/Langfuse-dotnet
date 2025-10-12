@@ -149,8 +149,6 @@ internal partial class LangfuseClient : ILangfuseClient
         } ?? throw new Exception("No events were processed");
     }
 
-    #region Standardized HTTP Request Infrastructure
-
     /// <summary>
     ///     Base method for executing HTTP requests with standardized logging and error handling
     /// </summary>
@@ -548,6 +546,4 @@ internal partial class LangfuseClient : ILangfuseClient
             ["endpoint"] = response.RequestMessage?.RequestUri?.ToString() ?? "unknown"
         });
     }
-
-    #endregion
 }

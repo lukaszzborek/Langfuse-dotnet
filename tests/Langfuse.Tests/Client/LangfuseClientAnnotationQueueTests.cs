@@ -28,8 +28,6 @@ public class LangfuseClientAnnotationQueueTests
         _client = new LangfuseClient(httpClient, channel, config, logger);
     }
 
-    #region CreateAnnotationQueueAsync Tests
-
     [Fact]
     public async Task CreateAnnotationQueueAsync_Success()
     {
@@ -176,10 +174,6 @@ public class LangfuseClientAnnotationQueueTests
         Assert.Equal((int)HttpStatusCode.Unauthorized, exception.StatusCode);
     }
 
-    #endregion
-
-    #region CreateQueueAssignmentAsync Tests
-
     [Fact]
     public async Task CreateQueueAssignmentAsync_Success()
     {
@@ -268,10 +262,6 @@ public class LangfuseClientAnnotationQueueTests
 
         Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
     }
-
-    #endregion
-
-    #region DeleteQueueAssignmentAsync Tests
 
     [Fact]
     public async Task DeleteQueueAssignmentAsync_Success()
@@ -409,10 +399,6 @@ public class LangfuseClientAnnotationQueueTests
         Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
     }
 
-    #endregion
-
-    #region Model Serialization Tests
-
     [Fact]
     public void CreateAnnotationQueueRequest_Serialization()
     {
@@ -495,10 +481,6 @@ public class LangfuseClientAnnotationQueueTests
         Assert.True(response.Success);
     }
 
-    #endregion
-
-    #region Test Helper Class
-
     private class TestHttpMessageHandler : HttpMessageHandler
     {
         private HttpResponseMessage? _response;
@@ -570,6 +552,4 @@ public class LangfuseClientAnnotationQueueTests
             });
         }
     }
-
-    #endregion
 }

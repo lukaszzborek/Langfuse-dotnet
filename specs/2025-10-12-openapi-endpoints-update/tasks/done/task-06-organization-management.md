@@ -167,18 +167,18 @@ Tests to write:
 
 ## Acceptance Criteria
 
-- [ ] Both model files created in `src/Langfuse/Models/Membership/`
-- [ ] Models use proper JSON serialization attributes
-- [ ] Models have XML documentation
-- [ ] Two new methods added to `LangfuseClient.Organization.cs`
-- [ ] Both methods use DELETE with request body correctly
-- [ ] Organization-scoped key requirement documented
-- [ ] Path parameters properly URL encoded
-- [ ] All parameters validated
-- [ ] XML documentation on all methods
-- [ ] Tests added for both methods
-- [ ] Tests added for models
-- [ ] Organization vs project scope tested
-- [ ] Error cases tested (403 with wrong key scope)
-- [ ] All tests pass
-- [ ] Code builds without warnings
+- [x] Both model files created in `src/Langfuse/Models/Organization/`
+- [x] Models use proper JSON serialization attributes
+- [x] Models have XML documentation
+- [x] Two new methods added to `LangfuseClient.Organization.cs`
+- [x] Both methods use DELETE with request body correctly
+- [x] Organization-scoped key requirement documented
+- [x] Path parameters properly URL encoded
+- [x] All parameters validated
+- [x] XML documentation on all methods
+- [x] Tests added for both methods
+- [x] Tests added for models
+- [x] Organization vs project scope tested
+- [x] Error cases tested (403 with wrong key scope)
+- [x] All tests pass
+- [x] Code builds without warnings
