@@ -250,18 +250,18 @@ Tests to write:
 
 ## Acceptance Criteria
 
-- [ ] All 4 model files created in `src/Langfuse/Models/LlmConnection/`
-- [ ] LlmAdapter enum uses lowercase serialization
-- [ ] Special enum values use hyphens (google-vertex-ai, google-ai-studio)
-- [ ] All record types use `[JsonPropertyName]` for camelCase
-- [ ] LlmConnection excludes secretKey (only displaySecretKey)
-- [ ] UpsertLlmConnectionRequest includes secretKey
-- [ ] PaginatedLlmConnections uses existing utilsMetaResponse type
-- [ ] All properties have correct nullability annotations
-- [ ] All public types have XML documentation comments
-- [ ] Security note added about secretKey handling
-- [ ] Test file created with comprehensive serialization tests
-- [ ] All tests pass
-- [ ] Code builds without warnings
-- [ ] No nullable reference type warnings
-- [ ] Follows existing SDK patterns
+- [x] All 4 model files created in `src/Langfuse/Models/LlmConnection/`
+- [x] LlmAdapter enum uses lowercase serialization
+- [x] Special enum values use hyphens (google-vertex-ai, google-ai-studio)
+- [x] All record types use `[JsonPropertyName]` for camelCase
+- [x] LlmConnection excludes secretKey (only displaySecretKey)
+- [x] UpsertLlmConnectionRequest includes secretKey
+- [x] PaginatedLlmConnections uses existing utilsMetaResponse type
+- [x] All properties have correct nullability annotations
+- [x] All public types have XML documentation comments
+- [x] Security note added about secretKey handling
+- [x] Test file created with comprehensive serialization tests
+- [x] All tests pass
+- [x] Code builds without warnings
+- [x] No nullable reference type warnings
+- [x] Follows existing SDK patterns
