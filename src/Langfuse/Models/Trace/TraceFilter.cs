@@ -21,7 +21,7 @@ namespace zborek.Langfuse.Models.Trace;
 ///         new DateTimeFilterCondition
 ///         {
 ///             Column = "timestamp",
-///             Operator = "&gt;",
+///             Operator = ">",
 ///             Value = DateTime.Now.AddDays(-7)
 ///         }
 ///     }

@@ -9,7 +9,7 @@ namespace zborek.Langfuse.Models.Trace;
 public enum TraceFilterType
 {
     /// <summary>
-    ///     DateTime filter with operators: &gt;, &lt;, &gt;=, &lt;=
+    ///     DateTime filter with operators: >, <, >=, <=
     /// </summary>
     [JsonPropertyName("datetime")] DateTime,
 
@@ -19,7 +19,7 @@ public enum TraceFilterType
     [JsonPropertyName("string")] String,
 
     /// <summary>
-    ///     Number filter with operators: =, &gt;, &lt;, &gt;=, &lt;=
+    ///     Number filter with operators: =, >, <, >=, <=
     /// </summary>
     [JsonPropertyName("number")] Number,
 
@@ -44,12 +44,12 @@ public enum TraceFilterType
     [JsonPropertyName("stringObject")] StringObject,
 
     /// <summary>
-    ///     Number object filter with operators: =, &gt;, &lt;, &gt;=, &lt;=
+    ///     Number object filter with operators: =, >, <, >=, <=
     /// </summary>
     [JsonPropertyName("numberObject")] NumberObject,
 
     /// <summary>
-    ///     Boolean filter with operators: =, &lt;&gt;
+    ///     Boolean filter with operators: =, <>
     /// </summary>
     [JsonPropertyName("boolean")] Boolean,
 
