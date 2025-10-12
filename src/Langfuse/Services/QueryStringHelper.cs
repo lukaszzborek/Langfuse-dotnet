@@ -145,6 +145,7 @@ internal static class QueryStringHelper
         AddParameter(parameters, "configId", request.ConfigId);
         AddParameter(parameters, "queueId", request.QueueId);
         AddParameter(parameters, "dataType", request.DataType?.ToString().ToUpperInvariant());
+        AddParameter(parameters, "sessionId", request.SessionId);
 
         // Handle traceTags array parameter
         if (request.TraceTags != null && request.TraceTags.Length > 0)

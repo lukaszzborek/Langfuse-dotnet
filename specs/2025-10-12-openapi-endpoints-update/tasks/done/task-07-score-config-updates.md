@@ -174,18 +174,18 @@ Tests to write:
 
 ## Acceptance Criteria
 
-- [ ] UpdateScoreConfigRequest.cs created in `src/Langfuse/Models/ScoreConfig/`
-- [ ] All properties nullable (partial update support)
-- [ ] Proper JSON serialization attributes
-- [ ] XML documentation on all properties
-- [ ] UpdateScoreConfigAsync method added to LangfuseClient.Score.cs
-- [ ] PATCH HTTP method used correctly
-- [ ] Path parameters properly URL encoded
-- [ ] SessionId property added to GetScoresRequest
-- [ ] GetScoresAsync updated to include sessionId in query string
-- [ ] SessionId properly URL encoded in query string
-- [ ] Tests added for UpdateScoreConfigAsync
-- [ ] Tests added for sessionId parameter
-- [ ] Tests verify partial update behavior
-- [ ] All tests pass
-- [ ] Code builds without warnings
+- [x] UpdateScoreConfigRequest.cs created in `src/Langfuse/Models/Score/` (Note: placed in Score folder not ScoreConfig folder following project conventions)
+- [x] All properties nullable (partial update support)
+- [x] Proper JSON serialization attributes
+- [x] XML documentation on all properties
+- [x] UpdateScoreConfigAsync method added to LangfuseClient.ScoreConfig.cs
+- [x] PATCH HTTP method used correctly
+- [x] Path parameters properly URL encoded
+- [x] SessionId property added to ScoreListRequest (GetScoresRequest doesn't exist, SessionId added to ScoreListRequest)
+- [x] GetScoreListAsync updated to include sessionId in query string via QueryStringHelper
+- [x] SessionId properly URL encoded in query string
+- [x] Tests added for UpdateScoreConfigAsync
+- [x] Tests added for sessionId parameter
+- [x] Tests verify partial update behavior
+- [x] All tests pass
+- [x] Code builds without warnings

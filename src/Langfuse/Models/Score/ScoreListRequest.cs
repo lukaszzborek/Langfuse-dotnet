@@ -96,4 +96,10 @@ public class ScoreListRequest
     /// </summary>
     [JsonPropertyName("traceTags")]
     public string[]? TraceTags { get; set; }
+
+    /// <summary>
+    ///     Retrieve only scores with a specific sessionId
+    /// </summary>
+    [JsonPropertyName("sessionId")]
+    public string? SessionId { get; set; }
 }

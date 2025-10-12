@@ -38,4 +38,19 @@ public partial interface ILangfuseClient
     /// <remarks>Score configurations act as templates that define the structure and validation rules for scores</remarks>
     Task<ScoreConfig> CreateScoreConfigAsync(CreateScoreConfigRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Updates an existing score configuration (partial update)
+    /// </summary>
+    /// <param name="configId">Unique identifier of the score configuration to update</param>
+    /// <param name="request">Score configuration update parameters. Only provided fields will be updated</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The updated score configuration with all current values</returns>
+    /// <exception cref="LangfuseApiException">Thrown when the score configuration is not found or update fails</exception>
+    /// <remarks>
+    ///     This is a partial update (PATCH) operation. Only fields provided in the request will be modified.
+    ///     All other fields will retain their existing values.
+    /// </remarks>
+    Task<ScoreConfig> UpdateScoreConfigAsync(string configId, UpdateScoreConfigRequest request,
+        CancellationToken cancellationToken = default);
 }

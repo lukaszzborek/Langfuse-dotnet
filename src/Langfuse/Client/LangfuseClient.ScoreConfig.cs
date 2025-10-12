@@ -43,4 +43,22 @@ internal partial class LangfuseClient
         return await PostAsync<ScoreConfig>("/api/public/score-configs", request, "Create Score Config",
             cancellationToken);
     }
+
+    /// <inheritdoc />
+    public async Task<ScoreConfig> UpdateScoreConfigAsync(string configId, UpdateScoreConfigRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(configId))
+        {
+            throw new ArgumentException("Score configuration ID cannot be null or empty", nameof(configId));
+        }
+
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        return await PatchAsync<ScoreConfig>($"/api/public/score-configs/{Uri.EscapeDataString(configId)}", request,
+            "Update Score Config", cancellationToken);
+    }
 }
