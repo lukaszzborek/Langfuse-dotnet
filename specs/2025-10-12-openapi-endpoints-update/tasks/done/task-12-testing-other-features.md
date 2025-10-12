@@ -324,16 +324,16 @@ public void ExistingObservationTypes_StillWork()
 
 ## Acceptance Criteria
 
-- [ ] All annotation queue enhancement tests pass
-- [ ] All organization membership tests pass
-- [ ] All score config update tests pass
-- [ ] All observation type tests pass
-- [ ] DELETE with body tested for relevant endpoints
-- [ ] PATCH method tested for score config
-- [ ] URL encoding tested for all path parameters
-- [ ] SessionId parameter tested in GetScoresAsync
-- [ ] Backwards compatibility tested for observation types
-- [ ] Edge cases tested
-- [ ] Test coverage > 80% for all affected code
-- [ ] All tests pass
-- [ ] Tests follow existing patterns
+- [x] All annotation queue enhancement tests pass
+- [x] All organization membership tests pass
+- [x] All score config update tests pass
+- [x] All observation type tests pass
+- [x] DELETE with body tested for relevant endpoints
+- [x] PATCH method tested for score config
+- [x] URL encoding tested for all path parameters
+- [x] SessionId parameter tested in GetScoresAsync
+- [x] Backwards compatibility tested for observation types
+- [x] Edge cases tested
+- [x] Test coverage > 80% for all affected code
+- [x] All tests pass
+- [x] Tests follow existing patterns
