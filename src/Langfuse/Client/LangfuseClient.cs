@@ -486,6 +486,32 @@ internal partial class LangfuseClient : ILangfuseClient
     }
 
     /// <summary>
+    ///     Executes DELETE requests with a request body and standardized handling
+    /// </summary>
+    private async Task<TResponse> DeleteWithBodyAsync<TResponse>(
+        string endpoint,
+        object requestBody,
+        string operationName,
+        CancellationToken cancellationToken = default)
+        where TResponse : class
+    {
+        var json = JsonSerializer.Serialize(requestBody, JsonOptions);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var request = new HttpRequestMessage(HttpMethod.Delete, endpoint)
+        {
+            Content = content
+        };
+
+        return await ExecuteRequestAsync<TResponse>(
+            () => _httpClient.SendAsync(request, cancellationToken),
+            operationName,
+            endpoint,
+            requestBody,
+            cancellationToken);
+    }
+
+    /// <summary>
     ///     Enhanced status code validation with comprehensive HTTP status mapping
     /// </summary>
     private static async Task EnsureSuccessStatusCodeAsync(HttpResponseMessage response)

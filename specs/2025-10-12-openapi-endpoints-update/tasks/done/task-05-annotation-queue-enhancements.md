@@ -233,16 +233,16 @@ Tests to write:
 
 ## Acceptance Criteria
 
-- [ ] All 4 model files created in `src/Langfuse/Models/AnnotationQueue/`
-- [ ] All models use proper JSON serialization attributes
-- [ ] All models have XML documentation
-- [ ] Three new methods added to `LangfuseClient.AnnotationQueue.cs`
-- [ ] Methods follow existing patterns in the file
-- [ ] DELETE with body implemented correctly using HttpRequestMessage
-- [ ] Path parameters properly URL encoded
-- [ ] All parameters validated
-- [ ] XML documentation on all methods
-- [ ] Tests added for new methods
-- [ ] Tests added for new models
-- [ ] All tests pass
-- [ ] Code builds without warnings
+- [x] All 4 model files created in `src/Langfuse/Models/AnnotationQueue/`
+- [x] All models use proper JSON serialization attributes
+- [x] All models have XML documentation
+- [x] Three new methods added to `LangfuseClient.AnnotationQueue.cs`
+- [x] Methods follow existing patterns in the file
+- [x] DELETE with body implemented correctly using HttpRequestMessage
+- [x] Path parameters properly URL encoded
+- [x] All parameters validated
+- [x] XML documentation on all methods
+- [x] Tests added for new methods
+- [x] Tests added for new models
+- [x] All tests pass
+- [x] Code builds without warnings
