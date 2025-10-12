@@ -276,19 +276,19 @@ var traces = await client.GetTracesAsync(request);
 
 ## Acceptance Criteria
 
-- [ ] TraceFilterCondition base class created with polymorphic support
-- [ ] Derived condition classes for all filter types (10 types)
-- [ ] TraceFilter container class created
-- [ ] TraceFilterType enum created with correct serialization
-- [ ] All condition types support correct operators
-- [ ] stringObject and numberObject support key property
-- [ ] Filter property added to GetTracesRequest
-- [ ] GetTracesAsync updated to serialize filter to JSON
-- [ ] Filter JSON properly URL encoded in query string
-- [ ] Comprehensive tests for all condition types
-- [ ] Polymorphic serialization tested
-- [ ] Complex multi-condition filters tested
-- [ ] Filter precedence documented (overrides legacy params)
-- [ ] Usage examples in XML documentation
-- [ ] All tests pass
-- [ ] Code builds without warnings
+- [x] TraceFilterCondition base class created with polymorphic support
+- [x] Derived condition classes for all filter types (10 types)
+- [x] TraceFilter container class created
+- [x] TraceFilterType enum created with correct serialization
+- [x] All condition types support correct operators
+- [x] stringObject and numberObject support key property
+- [x] Filter property added to GetTracesRequest
+- [x] GetTracesAsync updated to serialize filter to JSON
+- [x] Filter JSON properly URL encoded in query string
+- [x] Comprehensive tests for all condition types
+- [x] Polymorphic serialization tested
+- [x] Complex multi-condition filters tested
+- [x] Filter precedence documented (overrides legacy params)
+- [x] Usage examples in XML documentation
+- [x] All tests pass
+- [x] Code builds without warnings
