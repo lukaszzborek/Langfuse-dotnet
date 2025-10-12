@@ -141,15 +141,15 @@ Tests to write:
 
 ## Acceptance Criteria
 
-- [ ] All 8 model files created in `src/Langfuse/Models/BlobStorageIntegration/`
-- [ ] All enums use proper JSON serialization attributes
-- [ ] BlobStorageIntegrationType uses kebab-case-upper (S3_COMPATIBLE)
-- [ ] BlobStorageExportFrequency uses lowercase (hourly, daily, weekly)
-- [ ] All record types use `[JsonPropertyName]` for camelCase
-- [ ] All properties have correct nullability annotations
-- [ ] All public types have XML documentation comments
-- [ ] Test file created with comprehensive serialization tests
-- [ ] All tests pass
-- [ ] Code builds without warnings
-- [ ] No nullable reference type warnings
-- [ ] Follows existing SDK patterns (check similar models in Models/ directory)
+- [x] All 8 model files created in `src/Langfuse/Models/BlobStorageIntegration/`
+- [x] All enums use proper JSON serialization attributes
+- [x] BlobStorageIntegrationType uses kebab-case-upper (S3_COMPATIBLE)
+- [x] BlobStorageExportFrequency uses lowercase (hourly, daily, weekly)
+- [x] All record types use `[JsonPropertyName]` for camelCase
+- [x] All properties have correct nullability annotations
+- [x] All public types have XML documentation comments
+- [x] Test file created with comprehensive serialization tests
+- [x] All tests pass
+- [x] Code builds without warnings
+- [x] No nullable reference type warnings
+- [x] Follows existing SDK patterns (check similar models in Models/ directory)
