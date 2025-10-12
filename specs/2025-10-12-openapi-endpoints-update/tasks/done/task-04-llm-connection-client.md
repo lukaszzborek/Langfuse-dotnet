@@ -191,17 +191,17 @@ public class LangfuseClientLlmConnectionsTests
 
 ## Acceptance Criteria
 
-- [ ] `LangfuseClient.LlmConnections.cs` partial class created
-- [ ] Both methods implemented (Get with pagination, Upsert)
-- [ ] Pagination query string built correctly (only include non-null params)
-- [ ] Request validation implemented (null checks)
-- [ ] XML documentation comments on all public methods
-- [ ] Upsert behavior documented (updates based on provider)
-- [ ] Test file created with comprehensive coverage
-- [ ] Pagination scenarios tested (no params, one param, both params)
-- [ ] Upsert behavior tested (create and update)
-- [ ] Secret key handling tested (in request, not in response)
-- [ ] Error cases tested (400, 401, 403)
-- [ ] All tests pass
-- [ ] Code builds without warnings
-- [ ] Follows existing client method patterns
+- [x] `LangfuseClient.LlmConnections.cs` partial class created
+- [x] Both methods implemented (Get with pagination, Upsert)
+- [x] Pagination query string built correctly (only include non-null params)
+- [x] Request validation implemented (null checks)
+- [x] XML documentation comments on all public methods
+- [x] Upsert behavior documented (updates based on provider)
+- [x] Test file created with comprehensive coverage
+- [x] Pagination scenarios tested (no params, one param, both params)
+- [x] Upsert behavior tested (create and update)
+- [x] Secret key handling tested (in request, not in response)
+- [x] Error cases tested (400, 401, 403)
+- [x] All tests pass
+- [x] Code builds without warnings
+- [x] Follows existing client method patterns
