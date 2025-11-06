@@ -1,0 +1,70 @@
+@url = http://localhost:5177
+
+### Chat Completion
+POST {{url}}/chat-completion
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "temperature": 0.7,
+  "maxTokens": 1000,
+  "topP": 1.0,
+  "conversationId": "conv-123"
+}
+
+### Text Completion
+POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/text-completion
+Content-Type: application/json
+
+{
+  "model": "gpt-3.5-turbo-instruct",
+  "provider": "openai",
+  "temperature": 0.5,
+  "maxTokens": 256
+}
+
+### Embeddings
+POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/embeddings
+Content-Type: application/json
+
+{
+  "model": "text-embedding-ada-002",
+  "provider": "openai"
+}
+
+### Function Calling
+POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/function-calling
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "temperature": 0.3,
+  "conversationId": "conv-789"
+}
+
+### Multi-turn Conversation
+POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/conversation
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "turns": 3
+}
+
+### Run All Examples
+POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/run-all-examples
+Content-Type: application/json
+
+### Chat Completion with Claude
+POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/chat-completion
+Content-Type: application/json
+
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "provider": "anthropic",
+  "temperature": 1.0,
+  "maxTokens": 1024
+}
