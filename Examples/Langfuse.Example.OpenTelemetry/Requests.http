@@ -68,3 +68,37 @@ Content-Type: application/json
   "temperature": 1.0,
   "maxTokens": 1024
 }
+
+### OtelLangfuseTrace Example - Customer Support Conversation
+POST {{url}}/otel-trace-example
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "prompt": "I have a question about my bill",
+  "temperature": 0.7,
+  "maxTokens": 500
+}
+
+### OtelLangfuseTrace Nested Example - RAG Pipeline
+POST {{url}}/otel-nested-example
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "prompt": "What is the refund policy?",
+  "temperature": 0.5
+}
+
+### OtelLangfuseTrace Agent Example - Research Agent
+POST {{url}}/otel-agent-example
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "prompt": "Research the latest trends in AI development",
+  "temperature": 0.7
+}
