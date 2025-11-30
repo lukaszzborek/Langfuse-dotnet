@@ -237,6 +237,140 @@ public static class GenAiActivityHelper
                 { "exception.message", exception.Message }
             }));
     }
+
+    /// <summary>
+    ///     Creates and configures a root trace activity for distributed tracing.
+    /// </summary>
+    public static Activity? CreateTraceActivity(
+        ActivitySource activitySource,
+        string traceName,
+        TraceConfig config)
+    {
+        var activity = activitySource.StartActivity(traceName, ActivityKind.Internal);
+
+        if (activity == null)
+        {
+            return null;
+        }
+
+        // Set trace-level attributes that will propagate to all spans
+        if (!string.IsNullOrEmpty(config.UserId))
+        {
+            activity.SetTag("user.id", config.UserId);
+        }
+
+        if (!string.IsNullOrEmpty(config.SessionId))
+        {
+            activity.SetTag("session.id", config.SessionId);
+        }
+
+        if (!string.IsNullOrEmpty(config.TraceId))
+        {
+            activity.SetTag("langfuse.trace.id", config.TraceId);
+        }
+
+        if (!string.IsNullOrEmpty(config.Environment))
+        {
+            activity.SetTag("deployment.environment", config.Environment);
+        }
+
+        if (config.Metadata != null && config.Metadata.Count > 0)
+        {
+            foreach (var kvp in config.Metadata)
+            {
+                activity.SetTag($"langfuse.trace.metadata.{kvp.Key}", kvp.Value);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(config.ServiceName))
+        {
+            activity.SetTag("service.name", config.ServiceName);
+        }
+
+        if (!string.IsNullOrEmpty(config.ServiceVersion))
+        {
+            activity.SetTag("service.version", config.ServiceVersion);
+        }
+
+        return activity;
+    }
+
+    /// <summary>
+    ///     Creates and configures a general span activity within a trace for tracking operations.
+    /// </summary>
+    public static Activity? CreateSpanActivity(
+        ActivitySource activitySource,
+        string spanName,
+        SpanConfig config,
+        Activity? parentActivity = null)
+    {
+        var activity = parentActivity == null
+            ? activitySource.StartActivity(spanName, ActivityKind.Internal)
+            : activitySource.StartActivity(spanName, ActivityKind.Internal, parentActivity.Context);
+
+        if (activity == null)
+        {
+            return null;
+        }
+
+        // Set span-level attributes
+        if (!string.IsNullOrEmpty(config.SpanType))
+        {
+            activity.SetTag("span.type", config.SpanType);
+        }
+
+        if (!string.IsNullOrEmpty(config.Description))
+        {
+            activity.SetTag("span.description", config.Description);
+        }
+
+        if (config.Attributes != null && config.Attributes.Count > 0)
+        {
+            foreach (var kvp in config.Attributes)
+            {
+                activity.SetTag(kvp.Key, kvp.Value);
+            }
+        }
+
+        return activity;
+    }
+
+    /// <summary>
+    ///     Sets trace-level attributes on an existing trace activity for cross-span propagation.
+    /// </summary>
+    public static void SetTraceAttributes(Activity traceActivity, TraceAttributesConfig config)
+    {
+        if (!string.IsNullOrEmpty(config.UserId))
+        {
+            traceActivity.SetTag("user.id", config.UserId);
+        }
+
+        if (!string.IsNullOrEmpty(config.SessionId))
+        {
+            traceActivity.SetTag("session.id", config.SessionId);
+        }
+
+        if (!string.IsNullOrEmpty(config.Environment))
+        {
+            traceActivity.SetTag("deployment.environment", config.Environment);
+        }
+
+        if (config.Tags != null && config.Tags.Count > 0)
+        {
+            foreach (var tag in config.Tags)
+            {
+                traceActivity.SetTag($"langfuse.trace.tag.{tag}", tag);
+            }
+        }
+
+        if (config.Metadata != null && config.Metadata.Count > 0)
+        {
+            foreach (var kvp in config.Metadata)
+            {
+                traceActivity.SetTag($"langfuse.trace.metadata.{kvp.Key}", kvp.Value);
+            }
+        }
+    }
 }
 
 /// <summary>
@@ -278,4 +412,40 @@ public class GenAiResponse
     public int? InputTokens { get; init; }
     public int? OutputTokens { get; init; }
     public string[]? FinishReasons { get; init; }
+}
+
+/// <summary>
+///     Configuration for creating root trace activities with cross-span attributes.
+/// </summary>
+public class TraceConfig
+{
+    public string? UserId { get; init; }
+    public string? SessionId { get; init; }
+    public string? TraceId { get; init; }
+    public string? Environment { get; init; }
+    public string? ServiceName { get; init; }
+    public string? ServiceVersion { get; init; }
+    public Dictionary<string, object>? Metadata { get; init; }
+}
+
+/// <summary>
+///     Configuration for creating span activities within a trace.
+/// </summary>
+public class SpanConfig
+{
+    public string? SpanType { get; init; }
+    public string? Description { get; init; }
+    public Dictionary<string, object>? Attributes { get; init; }
+}
+
+/// <summary>
+///     Configuration for setting trace-level attributes that propagate across spans.
+/// </summary>
+public class TraceAttributesConfig
+{
+    public string? UserId { get; init; }
+    public string? SessionId { get; init; }
+    public string? Environment { get; init; }
+    public List<string>? Tags { get; init; }
+    public Dictionary<string, object>? Metadata { get; init; }
 }
