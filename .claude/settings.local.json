@@ -9,7 +9,11 @@
       "Bash(find:*)",
       "Bash(rm:*)",
       "Bash(grep:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "WebFetch(domain:langfuse.com)",
+      "Bash(dotnet restore:*)",
+      "WebFetch(domain:opentelemetry.io)",
+      "WebSearch"
     ],
     "deny": []
   }

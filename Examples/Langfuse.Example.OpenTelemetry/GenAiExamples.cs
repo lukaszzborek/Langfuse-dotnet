@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using zborek.Langfuse.OpenTelemetry;
+using zborek.Langfuse.OpenTelemetry.Models;
 
 namespace Langfuse.Example.OpenTelemetry;
 
