@@ -117,7 +117,7 @@ public class LangfuseOtlpExporterOptionsTests
         // Arrange
         var configurationData = new Dictionary<string, string>
         {
-            { "LangfuseOtlp:Endpoint", "https://test.langfuse.com" },
+            { "LangfuseOtlp:BaseAddress", "https://test.langfuse.com" },
             { "LangfuseOtlp:PublicKey", "pk-test-key" },
             { "LangfuseOtlp:SecretKey", "sk-test-key" },
             { "LangfuseOtlp:TimeoutMilliseconds", "15000" },

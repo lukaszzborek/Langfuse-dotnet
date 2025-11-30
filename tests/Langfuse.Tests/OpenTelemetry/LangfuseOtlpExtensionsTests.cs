@@ -145,7 +145,7 @@ public class LangfuseOtlpExtensionsTests
     }
 
     [Fact]
-    public void AddLangfuseExporter_WithEmptyConfiguration_UsesDefaults()
+    public void AddLangfuseExporter_WithEmptyConfiguration_ThrowsForMissingPublicKey()
     {
         // Arrange
         var configData = new Dictionary<string, string>();
@@ -155,11 +155,9 @@ public class LangfuseOtlpExtensionsTests
 
         var builder = Sdk.CreateTracerProviderBuilder();
 
-        // Act
-        var result = builder.AddLangfuseExporter(configuration);
-
-        // Assert
-        Assert.NotNull(result);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
+        Assert.Contains("Public Key", exception.Message);
     }
 
     [Fact]

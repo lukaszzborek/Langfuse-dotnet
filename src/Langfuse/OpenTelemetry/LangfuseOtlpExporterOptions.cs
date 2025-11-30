@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace zborek.Langfuse.OpenTelemetry;
 
 /// <summary>
@@ -34,4 +36,17 @@ public class LangfuseOtlpExporterOptions
     ///     Export timeout in milliseconds. Default is 10000 (10 seconds)
     /// </summary>
     public int TimeoutMilliseconds { get; set; } = 10000;
+
+    /// <summary>
+    ///     When true, only exports activities that have Gen AI or Langfuse attributes.
+    ///     This filters out infrastructure activities (ASP.NET Core, HTTP client, etc.).
+    ///     Default is true.
+    /// </summary>
+    public bool OnlyGenAiActivities { get; set; } = true;
+
+    /// <summary>
+    ///     Custom filter function. When provided, only activities for which this returns true will be exported.
+    ///     This is applied after OnlyGenAiActivities filtering (if enabled).
+    /// </summary>
+    public Func<Activity, bool>? ActivityFilter { get; set; }
 }
