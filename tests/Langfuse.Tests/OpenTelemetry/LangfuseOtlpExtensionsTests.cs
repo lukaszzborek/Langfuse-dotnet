@@ -159,6 +159,26 @@ public class LangfuseOtlpExtensionsTests
         var exception = Assert.Throws<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
         Assert.Contains("Public Key", exception.Message);
     }
+    
+    [Fact]
+    public void AddLangfuseExporter_WithoutSecretKey_ThrowsForMissingSecretKey()
+    {
+        // Arrange
+        var configData = new Dictionary<string, string>
+        {
+            { "Endpoint", "https://config.langfuse.com" },
+            { "PublicKey", "config-public-key" }
+        };
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configData!)
+            .Build();
+
+        var builder = Sdk.CreateTracerProviderBuilder();
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
+        Assert.Contains("Secret Key", exception.Message);
+    }
 
     [Fact]
     public void BasicAuthenticationEncoding_CreatesCorrectFormat()
