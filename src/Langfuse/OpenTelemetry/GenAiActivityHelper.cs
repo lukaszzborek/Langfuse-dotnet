@@ -11,7 +11,6 @@ namespace zborek.Langfuse.OpenTelemetry;
 /// </summary>
 public static class GenAiActivityHelper
 {
-    // JSON serializer options for message serialization
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -34,15 +33,12 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Langfuse observation type - explicitly mark as generation
         activity.SetTag(LangfuseObservationType, "generation");
 
-        // Operation metadata
         activity.SetTag(GenAiOperationName, "chat");
         activity.SetTag(GenAiProviderName, config.Provider);
         activity.SetTag(GenAiRequestModel, config.Model);
 
-        // Request parameters
         if (config.Temperature.HasValue)
         {
             activity.SetTag(GenAiRequestTemperature, config.Temperature.Value);
@@ -120,7 +116,6 @@ public static class GenAiActivityHelper
             activity.SetTag(ServerPort, config.ServerPort.Value);
         }
 
-        // Langfuse-specific attributes
         if (!string.IsNullOrEmpty(config.PromptName))
         {
             activity.SetTag(LangfuseObservationPromptName, config.PromptName);
@@ -162,7 +157,6 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Langfuse observation type - explicitly mark as generation
         activity.SetTag(LangfuseObservationType, "generation");
 
         activity.SetTag(GenAiOperationName, "text_completion");
@@ -261,7 +255,6 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Langfuse observation type - tool calls have their own type
         activity.SetTag(LangfuseObservationType, "tool");
 
         activity.SetTag(GenAiOperationName, "execute_tool");
@@ -518,6 +511,7 @@ public static class GenAiActivityHelper
 
     /// <summary>
     ///     Sets trace-level input on an activity (Langfuse).
+    ///     Also sets observation-level input so the root span has the data.
     /// </summary>
     public static void SetTraceInput(Activity? activity, object input)
     {
@@ -528,10 +522,12 @@ public static class GenAiActivityHelper
 
         var json = input is string s ? s : JsonSerializer.Serialize(input, JsonOptions);
         activity.SetTag(LangfuseTraceInput, json);
+        activity.SetTag(LangfuseObservationInput, json);
     }
 
     /// <summary>
     ///     Sets trace-level output on an activity (Langfuse).
+    ///     Also sets observation-level output so the root span has the data.
     /// </summary>
     public static void SetTraceOutput(Activity? activity, object output)
     {
@@ -542,6 +538,7 @@ public static class GenAiActivityHelper
 
         var json = output is string s ? s : JsonSerializer.Serialize(output, JsonOptions);
         activity.SetTag(LangfuseTraceOutput, json);
+        activity.SetTag(LangfuseObservationOutput, json);
     }
 
     /// <summary>
