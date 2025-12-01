@@ -58,7 +58,7 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetTraceName(string name)
     {
-        _rootActivity?.SetTag("langfuse.trace.name", name);
+        _rootActivity?.SetTag(LangfuseAttributes.TraceName, name);
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelEvent CreateEvent(string name, object? input = null, object? output = null)
     {
         var activity = _activitySource.StartActivity(name);
-        activity?.SetTag("langfuse.observation.type", "event");
+        activity?.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEvent);
 
         if (input != null)
         {

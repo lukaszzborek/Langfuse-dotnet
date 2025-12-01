@@ -33,109 +33,109 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        activity.SetTag(LangfuseObservationType, "generation");
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeGeneration);
 
-        activity.SetTag(GenAiOperationName, "chat");
-        activity.SetTag(GenAiProviderName, config.Provider);
-        activity.SetTag(GenAiRequestModel, config.Model);
+        activity.SetTag(GenAiAttributes.OperationName, "chat");
+        activity.SetTag(GenAiAttributes.ProviderName, config.Provider);
+        activity.SetTag(GenAiAttributes.RequestModel, config.Model);
 
         if (config.Temperature.HasValue)
         {
-            activity.SetTag(GenAiRequestTemperature, config.Temperature.Value);
+            activity.SetTag(GenAiAttributes.RequestTemperature, config.Temperature.Value);
         }
 
         if (config.TopP.HasValue)
         {
-            activity.SetTag(GenAiRequestTopP, config.TopP.Value);
+            activity.SetTag(GenAiAttributes.RequestTopP, config.TopP.Value);
         }
 
         if (config.TopK.HasValue)
         {
-            activity.SetTag(GenAiRequestTopK, config.TopK.Value);
+            activity.SetTag(GenAiAttributes.RequestTopK, config.TopK.Value);
         }
 
         if (config.MaxTokens.HasValue)
         {
-            activity.SetTag(GenAiRequestMaxTokens, config.MaxTokens.Value);
+            activity.SetTag(GenAiAttributes.RequestMaxTokens, config.MaxTokens.Value);
         }
 
         if (config.FrequencyPenalty.HasValue)
         {
-            activity.SetTag(GenAiRequestFrequencyPenalty, config.FrequencyPenalty.Value);
+            activity.SetTag(GenAiAttributes.RequestFrequencyPenalty, config.FrequencyPenalty.Value);
         }
 
         if (config.PresencePenalty.HasValue)
         {
-            activity.SetTag(GenAiRequestPresencePenalty, config.PresencePenalty.Value);
+            activity.SetTag(GenAiAttributes.RequestPresencePenalty, config.PresencePenalty.Value);
         }
 
         if (config.ChoiceCount.HasValue)
         {
-            activity.SetTag(GenAiRequestChoiceCount, config.ChoiceCount.Value);
+            activity.SetTag(GenAiAttributes.RequestChoiceCount, config.ChoiceCount.Value);
         }
 
         if (config.Seed.HasValue)
         {
-            activity.SetTag(GenAiRequestSeed, config.Seed.Value);
+            activity.SetTag(GenAiAttributes.RequestSeed, config.Seed.Value);
         }
 
         if (config.StopSequences != null && config.StopSequences.Length > 0)
         {
-            activity.SetTag(GenAiRequestStopSequences, JsonSerializer.Serialize(config.StopSequences, JsonOptions));
+            activity.SetTag(GenAiAttributes.RequestStopSequences, JsonSerializer.Serialize(config.StopSequences, JsonOptions));
         }
 
         if (!string.IsNullOrEmpty(config.OutputType))
         {
-            activity.SetTag(GenAiOutputType, config.OutputType);
+            activity.SetTag(GenAiAttributes.OutputType, config.OutputType);
         }
 
         if (!string.IsNullOrEmpty(config.ConversationId))
         {
-            activity.SetTag(GenAiConversationId, config.ConversationId);
+            activity.SetTag(GenAiAttributes.ConversationId, config.ConversationId);
         }
 
         if (!string.IsNullOrEmpty(config.SystemInstructions))
         {
-            activity.SetTag(GenAiSystemInstructions, config.SystemInstructions);
+            activity.SetTag(GenAiAttributes.SystemInstructions, config.SystemInstructions);
         }
 
         // Tool definitions
         if (config.Tools != null && config.Tools.Count > 0)
         {
-            activity.SetTag(GenAiToolDefinitions, JsonSerializer.Serialize(config.Tools, JsonOptions));
+            activity.SetTag(GenAiAttributes.ToolDefinitions, JsonSerializer.Serialize(config.Tools, JsonOptions));
         }
 
         // Server info
         if (!string.IsNullOrEmpty(config.ServerAddress))
         {
-            activity.SetTag(ServerAddress, config.ServerAddress);
+            activity.SetTag(GenAiAttributes.ServerAddress, config.ServerAddress);
         }
 
         if (config.ServerPort.HasValue)
         {
-            activity.SetTag(ServerPort, config.ServerPort.Value);
+            activity.SetTag(GenAiAttributes.ServerPort, config.ServerPort.Value);
         }
 
         if (!string.IsNullOrEmpty(config.PromptName))
         {
-            activity.SetTag(LangfuseObservationPromptName, config.PromptName);
+            activity.SetTag(LangfuseAttributes.ObservationPromptName, config.PromptName);
         }
 
         if (config.PromptVersion.HasValue)
         {
-            activity.SetTag(LangfuseObservationPromptVersion, config.PromptVersion.Value);
+            activity.SetTag(LangfuseAttributes.ObservationPromptVersion, config.PromptVersion.Value);
         }
 
         if (config.Level.HasValue)
         {
-            activity.SetTag(LangfuseObservationLevel, config.Level.Value.ToString().ToUpperInvariant());
+            activity.SetTag(LangfuseAttributes.ObservationLevel, config.Level.Value.ToString().ToUpperInvariant());
         }
 
         if (config.Metadata != null && config.Metadata.Count > 0)
         {
             foreach (KeyValuePair<string, object> kvp in config.Metadata)
             {
-                activity.SetTag($"{LangfuseObservationMetadataPrefix}{kvp.Key}", kvp.Value);
+                activity.SetTag($"{LangfuseAttributes.ObservationMetadataPrefix}{kvp.Key}", kvp.Value);
             }
         }
 
@@ -157,20 +157,20 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        activity.SetTag(LangfuseObservationType, "generation");
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeGeneration);
 
-        activity.SetTag(GenAiOperationName, "text_completion");
-        activity.SetTag(GenAiProviderName, config.Provider);
-        activity.SetTag(GenAiRequestModel, config.Model);
+        activity.SetTag(GenAiAttributes.OperationName, "text_completion");
+        activity.SetTag(GenAiAttributes.ProviderName, config.Provider);
+        activity.SetTag(GenAiAttributes.RequestModel, config.Model);
 
         if (config.Temperature.HasValue)
         {
-            activity.SetTag(GenAiRequestTemperature, config.Temperature.Value);
+            activity.SetTag(GenAiAttributes.RequestTemperature, config.Temperature.Value);
         }
 
         if (config.MaxTokens.HasValue)
         {
-            activity.SetTag(GenAiRequestMaxTokens, config.MaxTokens.Value);
+            activity.SetTag(GenAiAttributes.RequestMaxTokens, config.MaxTokens.Value);
         }
 
         return activity;
@@ -207,31 +207,30 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Langfuse observation type - embeddings have their own type
-        activity.SetTag(LangfuseObservationType, "embedding");
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEmbedding);
 
-        activity.SetTag(GenAiOperationName, "embeddings");
-        activity.SetTag(GenAiProviderName, config.Provider);
-        activity.SetTag(GenAiRequestModel, config.Model);
+        activity.SetTag(GenAiAttributes.OperationName, "embeddings");
+        activity.SetTag(GenAiAttributes.ProviderName, config.Provider);
+        activity.SetTag(GenAiAttributes.RequestModel, config.Model);
 
         if (config.Dimensions.HasValue)
         {
-            activity.SetTag(GenAiEmbeddingsDimensionCount, config.Dimensions.Value);
+            activity.SetTag(GenAiAttributes.EmbeddingsDimensionCount, config.Dimensions.Value);
         }
 
         if (config.EncodingFormats != null && config.EncodingFormats.Length > 0)
         {
-            activity.SetTag(GenAiRequestEncodingFormats, JsonSerializer.Serialize(config.EncodingFormats, JsonOptions));
+            activity.SetTag(GenAiAttributes.RequestEncodingFormats, JsonSerializer.Serialize(config.EncodingFormats, JsonOptions));
         }
 
         if (!string.IsNullOrEmpty(config.ServerAddress))
         {
-            activity.SetTag(ServerAddress, config.ServerAddress);
+            activity.SetTag(GenAiAttributes.ServerAddress, config.ServerAddress);
         }
 
         if (config.ServerPort.HasValue)
         {
-            activity.SetTag(ServerPort, config.ServerPort.Value);
+            activity.SetTag(GenAiAttributes.ServerPort, config.ServerPort.Value);
         }
 
         return activity;
@@ -255,20 +254,20 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        activity.SetTag(LangfuseObservationType, "tool");
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeTool);
 
-        activity.SetTag(GenAiOperationName, "execute_tool");
-        activity.SetTag(GenAiToolName, toolName);
-        activity.SetTag(GenAiToolType, toolType);
+        activity.SetTag(GenAiAttributes.OperationName, "execute_tool");
+        activity.SetTag(GenAiAttributes.ToolName, toolName);
+        activity.SetTag(GenAiAttributes.ToolType, toolType);
 
         if (!string.IsNullOrEmpty(toolDescription))
         {
-            activity.SetTag(GenAiToolDescription, toolDescription);
+            activity.SetTag(GenAiAttributes.ToolDescription, toolDescription);
         }
 
         if (!string.IsNullOrEmpty(toolCallId))
         {
-            activity.SetTag(GenAiToolCallId, toolCallId);
+            activity.SetTag(GenAiAttributes.ToolCallId, toolCallId);
         }
 
         return activity;
@@ -279,7 +278,7 @@ public static class GenAiActivityHelper
     /// </summary>
     public static void RecordToolCallArguments(Activity? activity, string arguments)
     {
-        activity?.SetTag(GenAiToolCallArguments, arguments);
+        activity?.SetTag(GenAiAttributes.ToolCallArguments, arguments);
     }
 
     /// <summary>
@@ -293,7 +292,7 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(arguments, JsonOptions);
-        activity.SetTag(GenAiToolCallArguments, json);
+        activity.SetTag(GenAiAttributes.ToolCallArguments, json);
     }
 
     /// <summary>
@@ -301,7 +300,7 @@ public static class GenAiActivityHelper
     /// </summary>
     public static void RecordToolCallResult(Activity? activity, string result)
     {
-        activity?.SetTag(GenAiToolCallResult, result);
+        activity?.SetTag(GenAiAttributes.ToolCallResult, result);
     }
 
     /// <summary>
@@ -315,7 +314,7 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(result, JsonOptions);
-        activity.SetTag(GenAiToolCallResult, json);
+        activity.SetTag(GenAiAttributes.ToolCallResult, json);
     }
 
     /// <summary>
@@ -333,16 +332,15 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Langfuse observation type - agents have their own type
-        activity.SetTag(LangfuseObservationType, "agent");
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeAgent);
 
-        activity.SetTag(GenAiOperationName, "create_agent");
-        activity.SetTag(GenAiAgentId, config.Id);
-        activity.SetTag(GenAiAgentName, config.Name);
+        activity.SetTag(GenAiAttributes.OperationName, "create_agent");
+        activity.SetTag(GenAiAttributes.AgentId, config.Id);
+        activity.SetTag(GenAiAttributes.AgentName, config.Name);
 
         if (!string.IsNullOrEmpty(config.Description))
         {
-            activity.SetTag(GenAiAgentDescription, config.Description);
+            activity.SetTag(GenAiAttributes.AgentDescription, config.Description);
         }
 
         return activity;
@@ -364,15 +362,14 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Langfuse observation type - agents have their own type
-        activity.SetTag(LangfuseObservationType, "agent");
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeAgent);
 
-        activity.SetTag(GenAiOperationName, "invoke_agent");
-        activity.SetTag(GenAiAgentId, agentId);
+        activity.SetTag(GenAiAttributes.OperationName, "invoke_agent");
+        activity.SetTag(GenAiAttributes.AgentId, agentId);
 
         if (!string.IsNullOrEmpty(agentName))
         {
-            activity.SetTag(GenAiAgentName, agentName);
+            activity.SetTag(GenAiAttributes.AgentName, agentName);
         }
 
         return activity;
@@ -383,7 +380,7 @@ public static class GenAiActivityHelper
     /// </summary>
     public static void SetDataSource(Activity? activity, string dataSourceId)
     {
-        activity?.SetTag(GenAiDataSourceId, dataSourceId);
+        activity?.SetTag(GenAiAttributes.DataSourceId, dataSourceId);
     }
 
     /// <summary>
@@ -396,21 +393,21 @@ public static class GenAiActivityHelper
             return;
         }
 
-        activity.SetTag(GenAiEvaluationName, evaluation.Name);
+        activity.SetTag(GenAiAttributes.EvaluationName, evaluation.Name);
 
         if (evaluation.ScoreValue.HasValue)
         {
-            activity.SetTag(GenAiEvaluationScoreValue, evaluation.ScoreValue.Value);
+            activity.SetTag(GenAiAttributes.EvaluationScoreValue, evaluation.ScoreValue.Value);
         }
 
         if (!string.IsNullOrEmpty(evaluation.ScoreLabel))
         {
-            activity.SetTag(GenAiEvaluationScoreLabel, evaluation.ScoreLabel);
+            activity.SetTag(GenAiAttributes.EvaluationScoreLabel, evaluation.ScoreLabel);
         }
 
         if (!string.IsNullOrEmpty(evaluation.Explanation))
         {
-            activity.SetTag(GenAiEvaluationExplanation, evaluation.Explanation);
+            activity.SetTag(GenAiAttributes.EvaluationExplanation, evaluation.Explanation);
         }
     }
 
@@ -444,7 +441,7 @@ public static class GenAiActivityHelper
         }
 
         var json = input is string s ? s : JsonSerializer.Serialize(input, JsonOptions);
-        activity.SetTag(LangfuseObservationInput, json);
+        activity.SetTag(LangfuseAttributes.ObservationInput, json);
     }
 
     /// <summary>
@@ -458,7 +455,7 @@ public static class GenAiActivityHelper
         }
 
         var json = output is string s ? s : JsonSerializer.Serialize(output, JsonOptions);
-        activity.SetTag(LangfuseObservationOutput, json);
+        activity.SetTag(LangfuseAttributes.ObservationOutput, json);
     }
 
     /// <summary>
@@ -466,7 +463,7 @@ public static class GenAiActivityHelper
     /// </summary>
     public static void SetObservationLevel(Activity? activity, LangfuseObservationLevel level)
     {
-        activity?.SetTag(LangfuseObservationLevel, level.ToString().ToUpperInvariant());
+        activity?.SetTag(LangfuseAttributes.ObservationLevel, level.ToString().ToUpperInvariant());
     }
 
     /// <summary>
@@ -474,7 +471,7 @@ public static class GenAiActivityHelper
     /// </summary>
     public static void SetObservationMetadata(Activity? activity, string key, object value)
     {
-        activity?.SetTag($"{LangfuseObservationMetadataPrefix}{key}", value);
+        activity?.SetTag($"{LangfuseAttributes.ObservationMetadataPrefix}{key}", value);
     }
 
     /// <summary>
@@ -487,11 +484,11 @@ public static class GenAiActivityHelper
             return;
         }
 
-        activity.SetTag(LangfuseObservationPromptName, promptName);
+        activity.SetTag(LangfuseAttributes.ObservationPromptName, promptName);
 
         if (version.HasValue)
         {
-            activity.SetTag(LangfuseObservationPromptVersion, version.Value);
+            activity.SetTag(LangfuseAttributes.ObservationPromptVersion, version.Value);
         }
     }
 
@@ -506,7 +503,7 @@ public static class GenAiActivityHelper
         }
 
         var time = startTime ?? DateTimeOffset.UtcNow;
-        activity.SetTag(LangfuseObservationCompletionStartTime, time.ToString("O"));
+        activity.SetTag(LangfuseAttributes.ObservationCompletionStartTime, time.ToString("O"));
     }
 
     /// <summary>
@@ -521,8 +518,8 @@ public static class GenAiActivityHelper
         }
 
         var json = input is string s ? s : JsonSerializer.Serialize(input, JsonOptions);
-        activity.SetTag(LangfuseTraceInput, json);
-        activity.SetTag(LangfuseObservationInput, json);
+        activity.SetTag(LangfuseAttributes.TraceInput, json);
+        activity.SetTag(LangfuseAttributes.ObservationInput, json);
     }
 
     /// <summary>
@@ -537,8 +534,8 @@ public static class GenAiActivityHelper
         }
 
         var json = output is string s ? s : JsonSerializer.Serialize(output, JsonOptions);
-        activity.SetTag(LangfuseTraceOutput, json);
-        activity.SetTag(LangfuseObservationOutput, json);
+        activity.SetTag(LangfuseAttributes.TraceOutput, json);
+        activity.SetTag(LangfuseAttributes.ObservationOutput, json);
     }
 
     /// <summary>
@@ -554,7 +551,7 @@ public static class GenAiActivityHelper
         List<string> tagList = tags.ToList();
         if (tagList.Count > 0)
         {
-            activity.SetTag(LangfuseTraceTags, JsonSerializer.Serialize(tagList, JsonOptions));
+            activity.SetTag(LangfuseAttributes.TraceTags, JsonSerializer.Serialize(tagList, JsonOptions));
         }
     }
 
@@ -572,32 +569,32 @@ public static class GenAiActivityHelper
 
         if (!string.IsNullOrEmpty(response.ResponseId))
         {
-            activity.SetTag(GenAiResponseId, response.ResponseId);
+            activity.SetTag(GenAiAttributes.ResponseId, response.ResponseId);
         }
 
         if (!string.IsNullOrEmpty(response.Model))
         {
-            activity.SetTag(GenAiResponseModel, response.Model);
+            activity.SetTag(GenAiAttributes.ResponseModel, response.Model);
         }
 
         if (response.FinishReasons != null && response.FinishReasons.Length > 0)
         {
-            activity.SetTag(GenAiResponseFinishReasons, JsonSerializer.Serialize(response.FinishReasons, JsonOptions));
+            activity.SetTag(GenAiAttributes.ResponseFinishReasons, JsonSerializer.Serialize(response.FinishReasons, JsonOptions));
         }
 
         if (response.InputTokens.HasValue)
         {
-            activity.SetTag(GenAiUsageInputTokens, response.InputTokens.Value);
+            activity.SetTag(GenAiAttributes.UsageInputTokens, response.InputTokens.Value);
         }
 
         if (response.OutputTokens.HasValue)
         {
-            activity.SetTag(GenAiUsageOutputTokens, response.OutputTokens.Value);
+            activity.SetTag(GenAiAttributes.UsageOutputTokens, response.OutputTokens.Value);
         }
 
         if (response.UsageDetails != null && response.UsageDetails.Count > 0)
         {
-            activity.SetTag(LangfuseObservationUsageDetails,
+            activity.SetTag(LangfuseAttributes.ObservationUsageDetails,
                 JsonSerializer.Serialize(response.UsageDetails, JsonOptions));
         }
 
@@ -620,12 +617,12 @@ public static class GenAiActivityHelper
                 costDetails["total"] = response.TotalCost.Value;
             }
 
-            activity.SetTag(LangfuseObservationCostDetails, JsonSerializer.Serialize(costDetails, JsonOptions));
+            activity.SetTag(LangfuseAttributes.ObservationCostDetails, JsonSerializer.Serialize(costDetails, JsonOptions));
         }
 
         if (response.CompletionStartTime.HasValue)
         {
-            activity.SetTag(LangfuseObservationCompletionStartTime, response.CompletionStartTime.Value.ToString("O"));
+            activity.SetTag(LangfuseAttributes.ObservationCompletionStartTime, response.CompletionStartTime.Value.ToString("O"));
         }
 
         if (response.OutputMessages != null && response.OutputMessages.Count > 0)
@@ -644,12 +641,12 @@ public static class GenAiActivityHelper
     public static void RecordError(Activity activity, Exception exception)
     {
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
-        activity.SetTag("error.type", exception.GetType().FullName);
-        activity.SetTag("error.message", exception.Message);
+        activity.SetTag(GenAiAttributes.ErrorType, exception.GetType().FullName);
+        activity.SetTag(GenAiAttributes.ErrorMessage, exception.Message);
 
         if (!string.IsNullOrEmpty(exception.StackTrace))
         {
-            activity.SetTag("error.stack", exception.StackTrace);
+            activity.SetTag(GenAiAttributes.ErrorStack, exception.StackTrace);
         }
 
         activity.AddEvent(new ActivityEvent("exception",
@@ -681,8 +678,8 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
-        activity.SetTag(GenAiContentPrompt, json);
-        activity.SetTag(LangfuseObservationInput, json);
+        activity.SetTag(GenAiAttributes.ContentPrompt, json);
+        activity.SetTag(LangfuseAttributes.ObservationInput, json);
     }
 
     /// <summary>
@@ -731,8 +728,8 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
-        activity.SetTag(GenAiContentCompletion, json);
-        activity.SetTag(LangfuseObservationOutput, json);
+        activity.SetTag(GenAiAttributes.ContentCompletion, json);
+        activity.SetTag(LangfuseAttributes.ObservationOutput, json);
     }
 
     /// <summary>
@@ -790,76 +787,75 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Always set trace name - use config.Name if provided, otherwise use traceName parameter
-        activity.SetTag(LangfuseTraceName, config.Name ?? traceName);
+        activity.SetTag(LangfuseAttributes.TraceName, config.Name ?? traceName);
 
         if (!string.IsNullOrEmpty(config.TraceId))
         {
-            activity.SetTag(LangfuseTraceId, config.TraceId);
+            activity.SetTag(LangfuseAttributes.TraceId, config.TraceId);
         }
 
         if (!string.IsNullOrEmpty(config.UserId))
         {
-            activity.SetTag(LangfuseUserId, config.UserId);
+            activity.SetTag(LangfuseAttributes.UserId, config.UserId);
         }
 
         if (!string.IsNullOrEmpty(config.SessionId))
         {
-            activity.SetTag(LangfuseSessionId, config.SessionId);
+            activity.SetTag(LangfuseAttributes.SessionId, config.SessionId);
         }
 
         if (!string.IsNullOrEmpty(config.Environment))
         {
-            activity.SetTag(LangfuseEnvironment, config.Environment);
+            activity.SetTag(LangfuseAttributes.Environment, config.Environment);
         }
 
         if (!string.IsNullOrEmpty(config.Release))
         {
-            activity.SetTag(LangfuseRelease, config.Release);
+            activity.SetTag(LangfuseAttributes.Release, config.Release);
         }
 
         if (!string.IsNullOrEmpty(config.Version))
         {
-            activity.SetTag(LangfuseVersion, config.Version);
+            activity.SetTag(LangfuseAttributes.Version, config.Version);
         }
 
         if (!string.IsNullOrEmpty(config.ServiceName))
         {
-            activity.SetTag("service.name", config.ServiceName);
+            activity.SetTag(GenAiAttributes.ServiceName, config.ServiceName);
         }
 
         if (!string.IsNullOrEmpty(config.ServiceVersion))
         {
-            activity.SetTag("service.version", config.ServiceVersion);
+            activity.SetTag(GenAiAttributes.ServiceVersion, config.ServiceVersion);
         }
 
         if (config.Public.HasValue)
         {
-            activity.SetTag(LangfuseTracePublic, config.Public.Value);
+            activity.SetTag(LangfuseAttributes.TracePublic, config.Public.Value);
         }
 
         if (config.Tags != null && config.Tags.Count > 0)
         {
-            activity.SetTag(LangfuseTraceTags, JsonSerializer.Serialize(config.Tags, JsonOptions));
+            activity.SetTag(LangfuseAttributes.TraceTags, JsonSerializer.Serialize(config.Tags, JsonOptions));
         }
 
         if (config.Input != null)
         {
             var inputJson = config.Input is string s ? s : JsonSerializer.Serialize(config.Input, JsonOptions);
-            activity.SetTag(LangfuseTraceInput, inputJson);
+            activity.SetTag(LangfuseAttributes.TraceInput, inputJson);
         }
 
         if (config.Output != null)
         {
             var outputJson = config.Output is string s ? s : JsonSerializer.Serialize(config.Output, JsonOptions);
-            activity.SetTag(LangfuseTraceOutput, outputJson);
+            activity.SetTag(LangfuseAttributes.TraceOutput, outputJson);
         }
 
         if (config.Metadata != null && config.Metadata.Count > 0)
         {
             foreach (KeyValuePair<string, object> kvp in config.Metadata)
             {
-                activity.SetTag($"{LangfuseTraceMetadataPrefix}{kvp.Key}", kvp.Value);
+                activity.SetTag($"{LangfuseAttributes.TraceMetadataPrefix}{kvp.Key}", kvp.Value);
             }
         }
 
@@ -912,125 +908,30 @@ public static class GenAiActivityHelper
     {
         if (!string.IsNullOrEmpty(config.UserId))
         {
-            traceActivity.SetTag("user.id", config.UserId);
+            traceActivity.SetTag(LangfuseAttributes.UserId, config.UserId);
         }
 
         if (!string.IsNullOrEmpty(config.SessionId))
         {
-            traceActivity.SetTag("session.id", config.SessionId);
+            traceActivity.SetTag(LangfuseAttributes.SessionId, config.SessionId);
         }
 
         if (!string.IsNullOrEmpty(config.Environment))
         {
-            traceActivity.SetTag("deployment.environment", config.Environment);
+            traceActivity.SetTag(LangfuseAttributes.Environment, config.Environment);
         }
 
         if (config.Tags != null && config.Tags.Count > 0)
         {
-            foreach (var tag in config.Tags)
-            {
-                traceActivity.SetTag($"langfuse.trace.tag.{tag}", tag);
-            }
+            traceActivity.SetTag(LangfuseAttributes.TraceTags, JsonSerializer.Serialize(config.Tags, JsonOptions));
         }
 
         if (config.Metadata != null && config.Metadata.Count > 0)
         {
             foreach (KeyValuePair<string, object> kvp in config.Metadata)
             {
-                traceActivity.SetTag($"langfuse.trace.metadata.{kvp.Key}", kvp.Value);
+                traceActivity.SetTag($"{LangfuseAttributes.TraceMetadataPrefix}{kvp.Key}", kvp.Value);
             }
         }
     }
-
-    // Operation & Provider
-    private const string GenAiOperationName = "gen_ai.operation.name";
-    private const string GenAiProviderName = "gen_ai.provider.name";
-
-    // Request attributes
-    private const string GenAiRequestModel = "gen_ai.request.model";
-    private const string GenAiRequestTemperature = "gen_ai.request.temperature";
-    private const string GenAiRequestTopP = "gen_ai.request.top_p";
-    private const string GenAiRequestTopK = "gen_ai.request.top_k";
-    private const string GenAiRequestMaxTokens = "gen_ai.request.max_tokens";
-    private const string GenAiRequestFrequencyPenalty = "gen_ai.request.frequency_penalty";
-    private const string GenAiRequestPresencePenalty = "gen_ai.request.presence_penalty";
-    private const string GenAiRequestChoiceCount = "gen_ai.request.choice_count";
-    private const string GenAiRequestSeed = "gen_ai.request.seed";
-    private const string GenAiRequestStopSequences = "gen_ai.request.stop_sequences";
-    private const string GenAiRequestEncodingFormats = "gen_ai.request.encoding_formats";
-
-    // Response attributes
-    private const string GenAiResponseModel = "gen_ai.response.model";
-    private const string GenAiResponseId = "gen_ai.response.id";
-    private const string GenAiResponseFinishReasons = "gen_ai.response.finish_reasons";
-
-    // Usage attributes
-    private const string GenAiUsageInputTokens = "gen_ai.usage.input_tokens";
-    private const string GenAiUsageOutputTokens = "gen_ai.usage.output_tokens";
-
-    // Content attributes
-    private const string GenAiContentPrompt = "gen_ai.content.prompt";
-    private const string GenAiContentCompletion = "gen_ai.content.completion";
-    private const string GenAiSystemInstructions = "gen_ai.system_instructions";
-    private const string GenAiOutputType = "gen_ai.output.type";
-
-    // Conversation
-    private const string GenAiConversationId = "gen_ai.conversation.id";
-
-    // Tool attributes
-    private const string GenAiToolName = "gen_ai.tool.name";
-    private const string GenAiToolType = "gen_ai.tool.type";
-    private const string GenAiToolDescription = "gen_ai.tool.description";
-    private const string GenAiToolDefinitions = "gen_ai.tool.definitions";
-    private const string GenAiToolCallId = "gen_ai.tool.call.id";
-    private const string GenAiToolCallArguments = "gen_ai.tool.call.arguments";
-    private const string GenAiToolCallResult = "gen_ai.tool.call.result";
-
-    // Embeddings attributes
-    private const string GenAiEmbeddingsDimensionCount = "gen_ai.embeddings.dimension.count";
-
-    // Agent attributes
-    private const string GenAiAgentId = "gen_ai.agent.id";
-    private const string GenAiAgentName = "gen_ai.agent.name";
-    private const string GenAiAgentDescription = "gen_ai.agent.description";
-    private const string GenAiDataSourceId = "gen_ai.data_source.id";
-
-    // Evaluation attributes
-    private const string GenAiEvaluationName = "gen_ai.evaluation.name";
-    private const string GenAiEvaluationScoreValue = "gen_ai.evaluation.score.value";
-    private const string GenAiEvaluationScoreLabel = "gen_ai.evaluation.score.label";
-    private const string GenAiEvaluationExplanation = "gen_ai.evaluation.explanation";
-
-    // Server attributes
-    private const string ServerAddress = "server.address";
-    private const string ServerPort = "server.port";
-
-    // Trace-level attributes
-    private const string LangfuseTraceName = "langfuse.trace.name";
-    private const string LangfuseTraceId = "langfuse.trace.id";
-    private const string LangfuseTraceTags = "langfuse.trace.tags";
-    private const string LangfuseTraceInput = "langfuse.trace.input";
-    private const string LangfuseTraceOutput = "langfuse.trace.output";
-    private const string LangfuseTracePublic = "langfuse.trace.public";
-    private const string LangfuseTraceMetadataPrefix = "langfuse.trace.metadata.";
-    private const string LangfuseUserId = "langfuse.user.id";
-    private const string LangfuseSessionId = "langfuse.session.id";
-    private const string LangfuseRelease = "langfuse.release";
-    private const string LangfuseVersion = "langfuse.version";
-    private const string LangfuseEnvironment = "langfuse.environment";
-
-    // Observation-level attributes
-    private const string LangfuseObservationType = "langfuse.observation.type";
-    private const string LangfuseObservationLevel = "langfuse.observation.level";
-    private const string LangfuseObservationStatusMessage = "langfuse.observation.status_message";
-    private const string LangfuseObservationInput = "langfuse.observation.input";
-    private const string LangfuseObservationOutput = "langfuse.observation.output";
-    private const string LangfuseObservationMetadataPrefix = "langfuse.observation.metadata.";
-    private const string LangfuseObservationModelName = "langfuse.observation.model.name";
-    private const string LangfuseObservationModelParameters = "langfuse.observation.model.parameters";
-    private const string LangfuseObservationUsageDetails = "langfuse.observation.usage_details";
-    private const string LangfuseObservationCostDetails = "langfuse.observation.cost_details";
-    private const string LangfuseObservationPromptName = "langfuse.observation.prompt.name";
-    private const string LangfuseObservationPromptVersion = "langfuse.observation.prompt.version";
-    private const string LangfuseObservationCompletionStartTime = "langfuse.observation.completion_start_time";
 }
