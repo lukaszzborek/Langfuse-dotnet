@@ -28,7 +28,7 @@ public abstract class OtelObservation : IDisposable
         }
 
         _disposed = true;
-        End();
+        EndObservation();
         GC.SuppressFinalize(this);
     }
 
@@ -69,7 +69,7 @@ public abstract class OtelObservation : IDisposable
     /// <summary>
     ///     Ends the observation.
     /// </summary>
-    public virtual void End()
+    public virtual void EndObservation()
     {
         if (Scoped)
         {

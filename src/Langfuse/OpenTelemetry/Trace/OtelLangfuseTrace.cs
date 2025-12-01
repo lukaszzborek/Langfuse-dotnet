@@ -261,7 +261,6 @@ public class OtelLangfuseTrace : IDisposable
 
         _disposed = true;
 
-        // Dispose all activities in the stack
         while (_activityStack.Count > 0)
         {
             var activity = _activityStack.Pop();

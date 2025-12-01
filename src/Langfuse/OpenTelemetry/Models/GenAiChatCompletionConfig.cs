@@ -5,11 +5,8 @@
 /// </summary>
 public class GenAiChatCompletionConfig
 {
-    // Provider & Model
     public required string Provider { get; init; }
     public required string Model { get; init; }
-
-    // Request Parameters
     public double? Temperature { get; init; }
     public double? TopP { get; init; }
     public double? TopK { get; init; }
@@ -20,19 +17,11 @@ public class GenAiChatCompletionConfig
     public int? Seed { get; init; }
     public string[]? StopSequences { get; init; }
     public string? OutputType { get; init; }
-
-    // Context
     public string? ConversationId { get; init; }
     public string? SystemInstructions { get; init; }
-
-    // Tools
     public List<GenAiToolDefinition>? Tools { get; init; }
-
-    // Server
     public string? ServerAddress { get; init; }
     public int? ServerPort { get; init; }
-
-    // Langfuse-specific
     public string? PromptName { get; init; }
     public int? PromptVersion { get; init; }
     public LangfuseObservationLevel? Level { get; init; }

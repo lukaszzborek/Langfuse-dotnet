@@ -884,7 +884,6 @@ public static class GenAiActivityHelper
             return null;
         }
 
-        // Set span-level attributes
         if (!string.IsNullOrEmpty(config.SpanType))
         {
             activity.SetTag("span.type", config.SpanType);
@@ -942,8 +941,6 @@ public static class GenAiActivityHelper
             }
         }
     }
-
-    #region OpenTelemetry Gen AI Semantic Convention Constants
 
     // Operation & Provider
     private const string GenAiOperationName = "gen_ai.operation.name";
@@ -1008,10 +1005,6 @@ public static class GenAiActivityHelper
     private const string ServerAddress = "server.address";
     private const string ServerPort = "server.port";
 
-    #endregion
-
-    #region Langfuse-Specific Constants
-
     // Trace-level attributes
     private const string LangfuseTraceName = "langfuse.trace.name";
     private const string LangfuseTraceId = "langfuse.trace.id";
@@ -1040,6 +1033,4 @@ public static class GenAiActivityHelper
     private const string LangfuseObservationPromptName = "langfuse.observation.prompt.name";
     private const string LangfuseObservationPromptVersion = "langfuse.observation.prompt.version";
     private const string LangfuseObservationCompletionStartTime = "langfuse.observation.completion_start_time";
-
-    #endregion
 }

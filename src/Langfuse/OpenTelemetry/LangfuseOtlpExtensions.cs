@@ -48,15 +48,12 @@ public static class LangfuseOtlpExtensions
         TracerProviderBuilder builder,
         LangfuseOtlpExporterOptions langfuseOptions)
     {
-        // Create the underlying OTLP exporter
         var otlpExporter = CreateOtlpExporter(langfuseOptions);
 
-        // Wrap with filtering exporter if filtering is enabled
         BaseExporter<Activity> exporter = langfuseOptions.OnlyGenAiActivities || langfuseOptions.ActivityFilter != null
             ? new LangfuseFilteringExporter(otlpExporter, langfuseOptions)
             : otlpExporter;
 
-        // Add as batch processor for better performance
         return builder.AddProcessor(new BatchActivityExportProcessor(exporter));
     }
 
@@ -102,7 +99,6 @@ public static class LangfuseOtlpExtensions
 /// </summary>
 internal class LangfuseFilteringExporter : BaseExporter<Activity>
 {
-    // Attribute prefixes that indicate a Gen AI or Langfuse activity
     private static readonly string[] GenAiAttributePrefixes =
     [
         "gen_ai.",
@@ -120,7 +116,6 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
 
     public override ExportResult Export(in Batch<Activity> batch)
     {
-        // Filter activities and collect ones that should be exported
         var filteredActivities = new List<Activity>();
 
         foreach (var activity in batch)
@@ -136,9 +131,6 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
             return ExportResult.Success;
         }
 
-        // Export filtered activities
-        // We need to create a new batch from filtered activities
-        // Since Batch<T> is a struct that wraps an array, we export one by one
         foreach (var activity in filteredActivities)
         {
             var singleBatch = new Batch<Activity>([activity], 1);
@@ -156,13 +148,11 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
     {
         var shouldExport = true;
 
-        // Check if activity has Gen AI or Langfuse attributes
         if (_options.OnlyGenAiActivities)
         {
             shouldExport = IsGenAiActivity(activity);
         }
 
-        // Apply custom filter if provided
         if (shouldExport && _options.ActivityFilter != null)
         {
             shouldExport = _options.ActivityFilter(activity);
@@ -173,7 +163,6 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
 
     private static bool IsGenAiActivity(Activity activity)
     {
-        // Check activity tags for Gen AI or Langfuse attributes
         foreach (var tag in activity.Tags)
         {
             foreach (var prefix in GenAiAttributePrefixes)
