@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Langfuse", "src\Langfuse\Langfuse.csproj", "{41EBB996-8352-45BC-A6E5-421EDE89A230}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2389C654-7A08-4A58-A24D-ED2411466AE2}"

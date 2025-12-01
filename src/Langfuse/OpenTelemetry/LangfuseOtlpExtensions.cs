@@ -59,7 +59,7 @@ public static class LangfuseOtlpExtensions
 
     private static OtlpTraceExporter CreateOtlpExporter(LangfuseOtlpExporterOptions langfuseOptions)
     {
-        if (string.IsNullOrEmpty(langfuseOptions.BaseAddress))
+        if (string.IsNullOrEmpty(langfuseOptions.Endpoint))
         {
             throw new ArgumentException("Langfuse Endpoint must be provided in LangfuseOtlpExporterOptions");
         }
@@ -68,10 +68,15 @@ public static class LangfuseOtlpExtensions
         {
             throw new ArgumentException("Langfuse Public Key must be provided in LangfuseOtlpExporterOptions");
         }
+        
+        if (string.IsNullOrEmpty(langfuseOptions.SecretKey))
+        {
+            throw new ArgumentException("Langfuse Secret Key must be provided in LangfuseOtlpExporterOptions");
+        }
 
         var otlpOptions = new OtlpExporterOptions();
 
-        var endpoint = langfuseOptions.BaseAddress.TrimEnd('/');
+        var endpoint = langfuseOptions.Endpoint.TrimEnd('/');
         otlpOptions.Endpoint = new Uri($"{endpoint}/{langfuseOptions.OpenTelemetryEndpoint}");
         otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
         otlpOptions.TimeoutMilliseconds = langfuseOptions.TimeoutMilliseconds;
@@ -131,17 +136,9 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
             return ExportResult.Success;
         }
 
-        foreach (var activity in filteredActivities)
-        {
-            var singleBatch = new Batch<Activity>([activity], 1);
-            var result = _innerExporter.Export(singleBatch);
-            if (result != ExportResult.Success)
-            {
-                return result;
-            }
-        }
-
-        return ExportResult.Success;
+        
+        var filteredBatch = new Batch<Activity>(filteredActivities.ToArray(), filteredActivities.Count);
+        return _innerExporter.Export(filteredBatch);
     }
 
     private bool ShouldExport(Activity activity)

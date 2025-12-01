@@ -17,7 +17,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com";
+            options.Endpoint = "https://test.langfuse.com";
             options.PublicKey = "test-public-key";
             options.SecretKey = "test-secret-key";
         });
@@ -77,7 +77,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com";
+            options.Endpoint = "https://test.langfuse.com";
             options.PublicKey = "test-key";
             options.SecretKey = "test-secret";
             options.Headers.Add("X-Custom-Header", "CustomValue");
@@ -97,7 +97,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com/";
+            options.Endpoint = "https://test.langfuse.com/";
             options.PublicKey = "test-key";
             options.SecretKey = "test-secret";
         });
@@ -115,7 +115,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com";
+            options.Endpoint = "https://test.langfuse.com";
             options.PublicKey = "test-key";
             options.SecretKey = "test-secret";
             options.TimeoutMilliseconds = 5000;

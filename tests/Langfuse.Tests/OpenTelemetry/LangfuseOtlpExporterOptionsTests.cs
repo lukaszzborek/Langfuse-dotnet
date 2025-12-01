@@ -12,7 +12,7 @@ public class LangfuseOtlpExporterOptionsTests
         var options = new LangfuseOtlpExporterOptions();
 
         // Assert
-        Assert.Equal("https://cloud.langfuse.com", options.BaseAddress);
+        Assert.Equal("https://cloud.langfuse.com", options.Endpoint);
         Assert.Equal(string.Empty, options.PublicKey);
         Assert.Equal(string.Empty, options.SecretKey);
         Assert.NotNull(options.Headers);
@@ -28,10 +28,10 @@ public class LangfuseOtlpExporterOptionsTests
         var customEndpoint = "https://custom.langfuse.com";
 
         // Act
-        options.BaseAddress = customEndpoint;
+        options.Endpoint = customEndpoint;
 
         // Assert
-        Assert.Equal(customEndpoint, options.BaseAddress);
+        Assert.Equal(customEndpoint, options.Endpoint);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class LangfuseOtlpExporterOptionsTests
         // Arrange
         var configurationData = new Dictionary<string, string>
         {
-            { "LangfuseOtlp:BaseAddress", "https://test.langfuse.com" },
+            { "LangfuseOtlp:Endpoint", "https://test.langfuse.com" },
             { "LangfuseOtlp:PublicKey", "pk-test-key" },
             { "LangfuseOtlp:SecretKey", "sk-test-key" },
             { "LangfuseOtlp:TimeoutMilliseconds", "15000" },
@@ -133,7 +133,7 @@ public class LangfuseOtlpExporterOptionsTests
         configuration.GetSection("LangfuseOtlp").Bind(options);
 
         // Assert
-        Assert.Equal("https://test.langfuse.com", options.BaseAddress);
+        Assert.Equal("https://test.langfuse.com", options.Endpoint);
         Assert.Equal("pk-test-key", options.PublicKey);
         Assert.Equal("sk-test-key", options.SecretKey);
         Assert.Equal(15000, options.TimeoutMilliseconds);
@@ -159,7 +159,7 @@ public class LangfuseOtlpExporterOptionsTests
         configuration.GetSection("LangfuseOtlp").Bind(options);
 
         // Assert
-        Assert.Equal("https://cloud.langfuse.com", options.BaseAddress);
+        Assert.Equal("https://cloud.langfuse.com", options.Endpoint);
         Assert.Equal("pk-test-key", options.PublicKey);
         Assert.Equal(string.Empty, options.SecretKey);
         Assert.Equal(10000, options.TimeoutMilliseconds);
@@ -172,7 +172,7 @@ public class LangfuseOtlpExporterOptionsTests
         // Arrange & Act
         var options = new LangfuseOtlpExporterOptions
         {
-            BaseAddress = "https://custom.langfuse.com",
+            Endpoint = "https://custom.langfuse.com",
             PublicKey = "pk-custom-key",
             SecretKey = "sk-custom-key",
             TimeoutMilliseconds = 20000,
@@ -184,7 +184,7 @@ public class LangfuseOtlpExporterOptionsTests
         };
 
         // Assert
-        Assert.Equal("https://custom.langfuse.com", options.BaseAddress);
+        Assert.Equal("https://custom.langfuse.com", options.Endpoint);
         Assert.Equal("pk-custom-key", options.PublicKey);
         Assert.Equal("sk-custom-key", options.SecretKey);
         Assert.Equal(20000, options.TimeoutMilliseconds);

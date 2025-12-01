@@ -10,7 +10,7 @@ public class LangfuseOtlpExporterOptions
     /// <summary>
     ///     Langfuse endpoint URL. Default is https://cloud.langfuse.com
     /// </summary>
-    public string BaseAddress { get; set; } = "https://cloud.langfuse.com";
+    public string Endpoint { get; set; } = "https://cloud.langfuse.com";
 
     /// <summary>
     ///     Endpoint for the OpenTelemetry traces. Default is api/public/otel/v1/traces.
