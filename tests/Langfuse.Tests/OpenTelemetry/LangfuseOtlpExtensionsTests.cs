@@ -17,7 +17,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com";
+            options.Endpoint = "https://test.langfuse.com";
             options.PublicKey = "test-public-key";
             options.SecretKey = "test-secret-key";
         });
@@ -77,7 +77,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com";
+            options.Endpoint = "https://test.langfuse.com";
             options.PublicKey = "test-key";
             options.SecretKey = "test-secret";
             options.Headers.Add("X-Custom-Header", "CustomValue");
@@ -97,7 +97,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com/";
+            options.Endpoint = "https://test.langfuse.com/";
             options.PublicKey = "test-key";
             options.SecretKey = "test-secret";
         });
@@ -115,7 +115,7 @@ public class LangfuseOtlpExtensionsTests
         // Act
         var result = builder.AddLangfuseExporter(options =>
         {
-            options.BaseAddress = "https://test.langfuse.com";
+            options.Endpoint = "https://test.langfuse.com";
             options.PublicKey = "test-key";
             options.SecretKey = "test-secret";
             options.TimeoutMilliseconds = 5000;
@@ -158,6 +158,26 @@ public class LangfuseOtlpExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
         Assert.Contains("Public Key", exception.Message);
+    }
+    
+    [Fact]
+    public void AddLangfuseExporter_WithoutSecretKey_ThrowsForMissingSecretKey()
+    {
+        // Arrange
+        var configData = new Dictionary<string, string>
+        {
+            { "Endpoint", "https://config.langfuse.com" },
+            { "PublicKey", "config-public-key" }
+        };
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configData!)
+            .Build();
+
+        var builder = Sdk.CreateTracerProviderBuilder();
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
+        Assert.Contains("Secret Key", exception.Message);
     }
 
     [Fact]

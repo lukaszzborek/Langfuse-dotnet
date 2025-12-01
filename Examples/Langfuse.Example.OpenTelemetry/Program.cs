@@ -8,7 +8,7 @@ using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
 
 Environment.SetEnvironmentVariable("OTEL_LOG_LEVEL", "debug");
-Environment.SetEnvironmentVariable("OTEL_DOTNET_AUTO_LOG_DIRECTORY", "E:\\logs");
+Environment.SetEnvironmentVariable("OTEL_DOTNET_AUTO_LOG_DIRECTORY", "./logs");
 
 var builder = WebApplication.CreateBuilder(args);
 
