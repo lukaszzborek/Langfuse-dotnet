@@ -9,20 +9,26 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 /// </summary>
 public class OtelLangfuseTrace : IDisposable
 {
+    /// <summary>
+    ///     The ActivitySource name used by Langfuse traces.
+    /// </summary>
+    public const string ActivitySourceName = "Langfuse";
+
+    private static readonly ActivitySource DefaultActivitySource = new(ActivitySourceName);
+
     private readonly ActivitySource _activitySource;
     private readonly Stack<Activity> _activityStack = new();
-    private readonly Activity? _rootActivity;
     private bool _disposed;
 
     /// <summary>
     ///     The root trace activity.
     /// </summary>
-    public Activity? TraceActivity => _rootActivity;
+    public Activity? TraceActivity { get; }
 
     /// <summary>
     ///     The current active activity (top of the stack).
     /// </summary>
-    public Activity? CurrentActivity => _activityStack.Count > 0 ? _activityStack.Peek() : _rootActivity;
+    public Activity? CurrentActivity => _activityStack.Count > 0 ? _activityStack.Peek() : TraceActivity;
 
     /// <summary>
     ///     Input collected from child observations (propagated to trace).
@@ -35,7 +41,17 @@ public class OtelLangfuseTrace : IDisposable
     public object? CollectedOutput { get; private set; }
 
     /// <summary>
-    ///     Creates a new OpenTelemetry-based Langfuse trace.
+    ///     Creates a new OpenTelemetry-based Langfuse trace using the default ActivitySource.
+    /// </summary>
+    /// <param name="traceName">The name of the trace.</param>
+    /// <param name="config">Optional trace configuration.</param>
+    public OtelLangfuseTrace(string traceName, TraceConfig? config = null)
+        : this(DefaultActivitySource, traceName, config)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new OpenTelemetry-based Langfuse trace with a custom ActivitySource.
     /// </summary>
     /// <param name="activitySource">The activity source to use for creating activities.</param>
     /// <param name="traceName">The name of the trace.</param>
@@ -45,12 +61,33 @@ public class OtelLangfuseTrace : IDisposable
         _activitySource = activitySource;
         config ??= new TraceConfig();
 
-        _rootActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, config);
+        TraceActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, config);
 
-        if (_rootActivity != null)
+        if (TraceActivity != null)
         {
-            _activityStack.Push(_rootActivity);
+            _activityStack.Push(TraceActivity);
         }
+    }
+
+    /// <summary>
+    ///     Disposes the trace and all activities.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+
+        while (_activityStack.Count > 0)
+        {
+            var activity = _activityStack.Pop();
+            activity.Dispose();
+        }
+
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -58,7 +95,7 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetTraceName(string name)
     {
-        _rootActivity?.SetTag(LangfuseAttributes.TraceName, name);
+        TraceActivity?.SetTag(LangfuseAttributes.TraceName, name);
     }
 
     /// <summary>
@@ -66,7 +103,7 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetInput(object input)
     {
-        GenAiActivityHelper.SetTraceInput(_rootActivity, input);
+        GenAiActivityHelper.SetTraceInput(TraceActivity, input);
         CollectedInput ??= input;
     }
 
@@ -75,7 +112,7 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetOutput(object output)
     {
-        GenAiActivityHelper.SetTraceOutput(_rootActivity, output);
+        GenAiActivityHelper.SetTraceOutput(TraceActivity, output);
         CollectedOutput = output;
     }
 
@@ -85,7 +122,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelGeneration CreateGeneration(string name, GenAiChatCompletionConfig config)
     {
         var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, name, config);
-        return new OtelGeneration(this, activity, scoped: false);
+        return new OtelGeneration(this, activity, false);
     }
 
     /// <summary>
@@ -94,7 +131,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelGeneration CreateGenerationScoped(string name, GenAiChatCompletionConfig config)
     {
         var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, name, config);
-        var generation = new OtelGeneration(this, activity, scoped: true);
+        var generation = new OtelGeneration(this, activity, true);
 
         if (activity != null)
         {
@@ -111,7 +148,7 @@ public class OtelLangfuseTrace : IDisposable
     {
         config ??= new SpanConfig();
         var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, name, config, CurrentActivity);
-        return new OtelSpan(this, activity, scoped: false);
+        return new OtelSpan(this, activity, false);
     }
 
     /// <summary>
@@ -121,7 +158,7 @@ public class OtelLangfuseTrace : IDisposable
     {
         config ??= new SpanConfig();
         var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, name, config, CurrentActivity);
-        var span = new OtelSpan(this, activity, scoped: true);
+        var span = new OtelSpan(this, activity, true);
 
         if (activity != null)
         {
@@ -140,7 +177,7 @@ public class OtelLangfuseTrace : IDisposable
         var activity =
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, name, toolName, toolDescription, toolType,
                 toolCallId);
-        return new OtelToolCall(this, activity, scoped: false);
+        return new OtelToolCall(this, activity, false);
     }
 
     /// <summary>
@@ -152,7 +189,7 @@ public class OtelLangfuseTrace : IDisposable
         var activity =
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, name, toolName, toolDescription, toolType,
                 toolCallId);
-        var toolCall = new OtelToolCall(this, activity, scoped: true);
+        var toolCall = new OtelToolCall(this, activity, true);
 
         if (activity != null)
         {
@@ -189,7 +226,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelEmbedding CreateEmbedding(string name, GenAiEmbeddingsConfig config)
     {
         var activity = GenAiActivityHelper.CreateEmbeddingsActivity(_activitySource, name, config);
-        return new OtelEmbedding(this, activity, scoped: false);
+        return new OtelEmbedding(this, activity, false);
     }
 
     /// <summary>
@@ -198,7 +235,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelAgent CreateAgent(string name, GenAiAgentConfig config)
     {
         var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, name, config);
-        return new OtelAgent(this, activity, scoped: false);
+        return new OtelAgent(this, activity, false);
     }
 
     /// <summary>
@@ -207,7 +244,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelAgent CreateAgentScoped(string name, GenAiAgentConfig config)
     {
         var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, name, config);
-        var agent = new OtelAgent(this, activity, scoped: true);
+        var agent = new OtelAgent(this, activity, true);
 
         if (activity != null)
         {
@@ -225,7 +262,7 @@ public class OtelLangfuseTrace : IDisposable
         if (CollectedInput == null)
         {
             CollectedInput = input;
-            GenAiActivityHelper.SetTraceInput(_rootActivity, input);
+            GenAiActivityHelper.SetTraceInput(TraceActivity, input);
         }
     }
 
@@ -235,7 +272,7 @@ public class OtelLangfuseTrace : IDisposable
     internal void PropagateOutput(object output)
     {
         CollectedOutput = output;
-        GenAiActivityHelper.SetTraceOutput(_rootActivity, output);
+        GenAiActivityHelper.SetTraceOutput(TraceActivity, output);
     }
 
     /// <summary>
@@ -247,26 +284,5 @@ public class OtelLangfuseTrace : IDisposable
         {
             _activityStack.Pop();
         }
-    }
-
-    /// <summary>
-    ///     Disposes the trace and all activities.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-
-        while (_activityStack.Count > 0)
-        {
-            var activity = _activityStack.Pop();
-            activity.Dispose();
-        }
-
-        GC.SuppressFinalize(this);
     }
 }

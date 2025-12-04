@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Langfuse.Example.OpenTelemetry;
 using Langfuse.Example.OpenTelemetry.Models;
+using Langfuse.Example.OpenTelemetry.Services;
 using Microsoft.AspNetCore.Mvc;
 using OpenTelemetry.Resources;
 using zborek.Langfuse.OpenTelemetry;
@@ -18,23 +19,32 @@ builder.Services.AddOpenTelemetry()
         .AddService("langfuse-otel-webapi-example", serviceVersion: "1.0.0"))
     .WithTracing(tracing =>
     {
-        // Add Langfuse exporter using configuration
+        // Add Langfuse exporter using configuration (automatically registers Langfuse ActivitySource)
         tracing.AddLangfuseExporter(builder.Configuration.GetSection("Langfuse"));
-        //tracing.AddConsoleExporter();
+        // Add custom ActivitySource for low-level examples
         tracing.AddSource("Langfuse.Example.OpenTelemetry");
     });
 
-// Register ActivitySource as singleton
+// Register Langfuse tracing services for DI
+// - IOtelLangfuseTraceContext (scoped) - for sharing trace across services
+builder.Services.AddLangfuseTracing();
+
+// Register application services that use tracing
+builder.Services.AddHttpClient<OtelOpenAiService>();
+builder.Services.AddScoped<OtelDataService>();
+builder.Services.AddScoped<OtelChatService>();
+
+// Register custom ActivitySource for low-level examples
 builder.Services.AddSingleton(new ActivitySource("Langfuse.Example.OpenTelemetry"));
 
 var app = builder.Build();
 
-// Example using the new OtelLangfuseTrace abstraction (similar to LangfuseTrace)
+// Example using the new OtelLangfuseTrace abstraction
 app.MapPost("/otel-trace-example",
-    async ([FromServices] ActivitySource activitySource, [FromBody] ChatCompletionRequest request) =>
+    async ([FromBody] ChatCompletionRequest request) =>
     {
-        // Create a trace using the high-level abstraction
-        using var trace = new OtelLangfuseTrace(activitySource, "customer-support-conversation", new TraceConfig
+        // Create a trace directly
+        using var trace = new OtelLangfuseTrace("customer-support-conversation", new TraceConfig
         {
             UserId = "user-123",
             SessionId = "session-456",
@@ -129,9 +139,9 @@ app.MapPost("/otel-trace-example",
 
 // Example with nested spans and events
 app.MapPost("/otel-nested-example",
-    async ([FromServices] ActivitySource activitySource, [FromBody] ChatCompletionRequest request) =>
+    async ([FromBody] ChatCompletionRequest request) =>
     {
-        using var trace = new OtelLangfuseTrace(activitySource, "rag-pipeline", new TraceConfig
+        using var trace = new OtelLangfuseTrace("rag-pipeline", new TraceConfig
         {
             UserId = "user-456",
             Tags = ["rag", "knowledge-base"]
@@ -209,9 +219,9 @@ app.MapPost("/otel-nested-example",
 
 // Example with agent workflow
 app.MapPost("/otel-agent-example",
-    async ([FromServices] ActivitySource activitySource, [FromBody] ChatCompletionRequest request) =>
+    async ([FromBody] ChatCompletionRequest request) =>
     {
-        using var trace = new OtelLangfuseTrace(activitySource, "research-agent", new TraceConfig
+        using var trace = new OtelLangfuseTrace("research-agent", new TraceConfig
         {
             UserId = "user-789",
             Tags = ["agent", "research"]
@@ -618,6 +628,33 @@ app.MapPost("/conversation",
                 conversationId,
                 totalTurns = turns,
                 turns = results
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.BadRequest(new { error = ex.Message });
+        }
+    });
+
+// ============================================================================
+// DI-based endpoint using IOtelLangfuseTraceContext (similar to WebApi /chatDi)
+// This demonstrates how multiple services can contribute to the same trace
+// ============================================================================
+app.MapPost("/chatDi",
+    async ([FromServices] OtelChatService chatService, [FromBody] ChatCompletionRequest request) =>
+    {
+        try
+        {
+            var response = await chatService.ChatAsync(request);
+
+            return Results.Ok(new
+            {
+                success = true,
+                response.Content,
+                response.Model,
+                response.InputTokens,
+                response.OutputTokens,
+                response.ContextUsed
             });
         }
         catch (Exception ex)

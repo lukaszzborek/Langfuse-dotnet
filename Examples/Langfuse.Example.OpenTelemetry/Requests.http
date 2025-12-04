@@ -102,3 +102,14 @@ Content-Type: application/json
   "prompt": "Research the latest trends in AI development",
   "temperature": 0.7
 }
+
+### Chat with DI - Multi-service tracing example (similar to WebApi /chatDi)
+POST {{url}}/chatDi
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "prompt": "What is the refund policy for my subscription?",
+  "temperature": 0.7
+}
