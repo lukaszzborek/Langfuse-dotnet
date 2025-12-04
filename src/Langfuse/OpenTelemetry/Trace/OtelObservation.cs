@@ -38,7 +38,6 @@ public abstract class OtelObservation : IDisposable
     public void SetInput(object input)
     {
         GenAiActivityHelper.SetObservationInput(Activity, input);
-        Trace.PropagateInput(input);
     }
 
     /// <summary>
@@ -47,7 +46,6 @@ public abstract class OtelObservation : IDisposable
     public void SetOutput(object output)
     {
         GenAiActivityHelper.SetObservationOutput(Activity, output);
-        Trace.PropagateOutput(output);
     }
 
     /// <summary>

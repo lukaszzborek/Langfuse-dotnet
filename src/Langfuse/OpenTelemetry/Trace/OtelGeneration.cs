@@ -19,8 +19,6 @@ public class OtelGeneration : OtelObservation
     public void SetInputMessages(IEnumerable<GenAiMessage> messages)
     {
         GenAiActivityHelper.RecordInputMessages(Activity, messages);
-        // Also propagate to trace
-        Trace.PropagateInput(messages);
     }
 
     /// <summary>
@@ -29,7 +27,6 @@ public class OtelGeneration : OtelObservation
     public void SetPrompt(string prompt)
     {
         GenAiActivityHelper.RecordPrompt(Activity, prompt);
-        Trace.PropagateInput(prompt);
     }
 
     /// <summary>
@@ -38,15 +35,6 @@ public class OtelGeneration : OtelObservation
     public void SetResponse(GenAiResponse response)
     {
         GenAiActivityHelper.RecordResponse(Activity, response);
-
-        if (response.OutputMessages != null)
-        {
-            Trace.PropagateOutput(response.OutputMessages);
-        }
-        else if (response.Completion != null)
-        {
-            Trace.PropagateOutput(response.Completion);
-        }
     }
 
     /// <summary>
@@ -55,7 +43,6 @@ public class OtelGeneration : OtelObservation
     public void SetCompletion(string completion)
     {
         GenAiActivityHelper.RecordCompletion(Activity, completion);
-        Trace.PropagateOutput(completion);
     }
 
     /// <summary>

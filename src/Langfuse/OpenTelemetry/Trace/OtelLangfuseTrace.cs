@@ -18,6 +18,7 @@ public class OtelLangfuseTrace : IDisposable
 
     private readonly ActivitySource _activitySource;
     private readonly Stack<Activity> _activityStack = new();
+    private readonly TraceConfig _config;
     private bool _disposed;
 
     /// <summary>
@@ -59,9 +60,9 @@ public class OtelLangfuseTrace : IDisposable
     public OtelLangfuseTrace(ActivitySource activitySource, string traceName, TraceConfig? config = null)
     {
         _activitySource = activitySource;
-        config ??= new TraceConfig();
+        _config = config ?? new TraceConfig();
 
-        TraceActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, config);
+        TraceActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, _config);
 
         if (TraceActivity != null)
         {
@@ -122,6 +123,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelGeneration CreateGeneration(string name, GenAiChatCompletionConfig config)
     {
         var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, name, config);
+        ApplyTraceContext(activity);
         return new OtelGeneration(this, activity, false);
     }
 
@@ -131,6 +133,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelGeneration CreateGenerationScoped(string name, GenAiChatCompletionConfig config)
     {
         var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, name, config);
+        ApplyTraceContext(activity);
         var generation = new OtelGeneration(this, activity, true);
 
         if (activity != null)
@@ -148,6 +151,7 @@ public class OtelLangfuseTrace : IDisposable
     {
         config ??= new SpanConfig();
         var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, name, config, CurrentActivity);
+        ApplyTraceContext(activity);
         return new OtelSpan(this, activity, false);
     }
 
@@ -158,6 +162,7 @@ public class OtelLangfuseTrace : IDisposable
     {
         config ??= new SpanConfig();
         var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, name, config, CurrentActivity);
+        ApplyTraceContext(activity);
         var span = new OtelSpan(this, activity, true);
 
         if (activity != null)
@@ -177,6 +182,7 @@ public class OtelLangfuseTrace : IDisposable
         var activity =
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, name, toolName, toolDescription, toolType,
                 toolCallId);
+        ApplyTraceContext(activity);
         return new OtelToolCall(this, activity, false);
     }
 
@@ -189,6 +195,7 @@ public class OtelLangfuseTrace : IDisposable
         var activity =
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, name, toolName, toolDescription, toolType,
                 toolCallId);
+        ApplyTraceContext(activity);
         var toolCall = new OtelToolCall(this, activity, true);
 
         if (activity != null)
@@ -206,6 +213,7 @@ public class OtelLangfuseTrace : IDisposable
     {
         var activity = _activitySource.StartActivity(name);
         activity?.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEvent);
+        ApplyTraceContext(activity);
 
         if (input != null)
         {
@@ -226,6 +234,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelEmbedding CreateEmbedding(string name, GenAiEmbeddingsConfig config)
     {
         var activity = GenAiActivityHelper.CreateEmbeddingsActivity(_activitySource, name, config);
+        ApplyTraceContext(activity);
         return new OtelEmbedding(this, activity, false);
     }
 
@@ -235,6 +244,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelAgent CreateAgent(string name, GenAiAgentConfig config)
     {
         var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, name, config);
+        ApplyTraceContext(activity);
         return new OtelAgent(this, activity, false);
     }
 
@@ -244,6 +254,7 @@ public class OtelLangfuseTrace : IDisposable
     public OtelAgent CreateAgentScoped(string name, GenAiAgentConfig config)
     {
         var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, name, config);
+        ApplyTraceContext(activity);
         var agent = new OtelAgent(this, activity, true);
 
         if (activity != null)
@@ -283,6 +294,45 @@ public class OtelLangfuseTrace : IDisposable
         if (_activityStack.Count > 1) // Keep root activity
         {
             _activityStack.Pop();
+        }
+    }
+
+    /// <summary>
+    ///     Applies trace-level context (user_id, session_id, etc.) to child observations.
+    /// </summary>
+    private void ApplyTraceContext(Activity? activity)
+    {
+        if (activity == null)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(_config.UserId))
+        {
+            activity.SetTag(LangfuseAttributes.UserId, _config.UserId);
+        }
+
+        if (!string.IsNullOrEmpty(_config.SessionId))
+        {
+            activity.SetTag(LangfuseAttributes.SessionId, _config.SessionId);
+        }
+
+        if (!string.IsNullOrEmpty(_config.Version))
+        {
+            activity.SetTag(LangfuseAttributes.Version, _config.Version);
+        }
+
+        if (_config.Tags is { Count: > 0 })
+        {
+            activity.SetTag(LangfuseAttributes.TraceTags, _config.Tags);
+        }
+
+        if (_config.Metadata is { Count: > 0 })
+        {
+            foreach (var (key, value) in _config.Metadata)
+            {
+                activity.SetTag($"{LangfuseAttributes.ObservationMetadataPrefix}{key}", value);
+            }
         }
     }
 }

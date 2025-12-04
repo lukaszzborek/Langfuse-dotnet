@@ -18,7 +18,6 @@ public class OtelToolCall : OtelObservation
     public void SetArguments(object arguments)
     {
         GenAiActivityHelper.RecordToolCallArguments(Activity, arguments);
-        Trace.PropagateInput(arguments);
     }
 
     /// <summary>
@@ -27,6 +26,5 @@ public class OtelToolCall : OtelObservation
     public void SetResult(object result)
     {
         GenAiActivityHelper.RecordToolCallResult(Activity, result);
-        Trace.PropagateOutput(result);
     }
 }
