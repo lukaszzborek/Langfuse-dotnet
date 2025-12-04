@@ -1,9 +1,12 @@
 using System.Diagnostics;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Trace;
+using zborek.Langfuse.OpenTelemetry.Trace;
 
 namespace zborek.Langfuse.OpenTelemetry;
 
@@ -54,7 +57,23 @@ public static class LangfuseOtlpExtensions
             ? new LangfuseFilteringExporter(otlpExporter, langfuseOptions)
             : otlpExporter;
 
+        // Automatically add the Langfuse ActivitySource
+        builder.AddSource(OtelLangfuseTrace.ActivitySourceName);
+
         return builder.AddProcessor(new BatchActivityExportProcessor(exporter));
+    }
+
+    /// <summary>
+    ///     Registers Langfuse OpenTelemetry tracing services for dependency injection.
+    ///     This includes:
+    ///     - IOtelLangfuseTraceContext (scoped) - for sharing a trace across services within a request
+    /// </summary>
+    /// <param name="services">The service collection to add the services to.</param>
+    /// <returns>The service collection for method chaining.</returns>
+    public static IServiceCollection AddLangfuseTracing(this IServiceCollection services)
+    {
+        services.TryAddScoped<IOtelLangfuseTraceContext, OtelLangfuseTraceContext>();
+        return services;
     }
 
     private static OtlpTraceExporter CreateOtlpExporter(LangfuseOtlpExporterOptions langfuseOptions)
@@ -68,7 +87,7 @@ public static class LangfuseOtlpExtensions
         {
             throw new ArgumentException("Langfuse Public Key must be provided in LangfuseOtlpExporterOptions");
         }
-        
+
         if (string.IsNullOrEmpty(langfuseOptions.SecretKey))
         {
             throw new ArgumentException("Langfuse Secret Key must be provided in LangfuseOtlpExporterOptions");
@@ -88,7 +107,7 @@ public static class LangfuseOtlpExtensions
 
         if (langfuseOptions.Headers.Count > 0)
         {
-            var headerStrings = langfuseOptions.Headers
+            IEnumerable<string> headerStrings = langfuseOptions.Headers
                 .Select(kvp => $"{kvp.Key}={kvp.Value}");
 
             otlpOptions.Headers = $"{otlpOptions.Headers},{string.Join(",", headerStrings)}";
@@ -136,7 +155,7 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
             return ExportResult.Success;
         }
 
-        
+
         var filteredBatch = new Batch<Activity>(filteredActivities.ToArray(), filteredActivities.Count);
         return _innerExporter.Export(filteredBatch);
     }
@@ -160,7 +179,7 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
 
     private static bool IsGenAiActivity(Activity activity)
     {
-        foreach (var tag in activity.Tags)
+        foreach (KeyValuePair<string, string?> tag in activity.Tags)
         {
             foreach (var prefix in GenAiAttributePrefixes)
             {

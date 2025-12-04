@@ -42,7 +42,7 @@ public static class GenAiExamples
             Console.WriteLine($"  Starting chat completion with {config.Model}...");
 
             // Simulate API call
-            await Task.Delay(500);
+            await Task.Delay(Random.Shared.Next(1000, 4000));
 
             // Record successful response
             var response = new GenAiResponse
