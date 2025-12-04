@@ -89,7 +89,17 @@ public class OtelLangfuseTraceContext : IOtelLangfuseTraceContext
 
     /// <inheritdoc />
     public bool HasActiveTrace => _currentTrace != null;
+    
+    public OtelLangfuseTraceContext()
+    {
+        
+    }
 
+    public OtelLangfuseTraceContext(string traceName, TraceConfig? config = null)
+    {
+        StartTrace(traceName, config);
+    }
+    
     /// <inheritdoc />
     public OtelLangfuseTrace StartTrace(string traceName, TraceConfig? config = null)
     {
