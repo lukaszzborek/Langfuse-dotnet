@@ -678,7 +678,7 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
-        activity.SetTag(GenAiAttributes.ContentPrompt, json);
+        activity.SetTag(GenAiAttributes.Prompt, json);
         activity.SetTag(LangfuseAttributes.ObservationInput, json);
     }
 
@@ -728,7 +728,7 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
-        activity.SetTag(GenAiAttributes.ContentCompletion, json);
+        activity.SetTag(GenAiAttributes.Completion, json);
         activity.SetTag(LangfuseAttributes.ObservationOutput, json);
     }
 
