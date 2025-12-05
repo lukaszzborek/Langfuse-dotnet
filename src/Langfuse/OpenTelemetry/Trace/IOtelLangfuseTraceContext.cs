@@ -29,6 +29,16 @@ public interface IOtelLangfuseTraceContext : IDisposable
     OtelLangfuseTrace StartTrace(string traceName, TraceConfig? config = null);
 
     /// <summary>
+    ///     Creates a detached trace that is NOT managed by this context.
+    ///     Useful for parallel operations or background tasks where multiple traces need to exist simultaneously.
+    ///     The caller is responsible for disposing the returned trace.
+    /// </summary>
+    /// <param name="traceName">The name of the trace.</param>
+    /// <param name="config">Optional trace configuration.</param>
+    /// <returns>The created trace.</returns>
+    OtelLangfuseTrace CreateDetachedTrace(string traceName, TraceConfig? config = null);
+
+    /// <summary>
     ///     Creates a generation observation on the current trace.
     /// </summary>
     OtelGeneration CreateGeneration(string name, GenAiChatCompletionConfig config);
@@ -81,71 +91,75 @@ public interface IOtelLangfuseTraceContext : IDisposable
 /// </summary>
 public class OtelLangfuseTraceContext : IOtelLangfuseTraceContext
 {
-    private OtelLangfuseTrace? _currentTrace;
     private bool _disposed;
 
     /// <inheritdoc />
-    public OtelLangfuseTrace? CurrentTrace => _currentTrace;
+    public OtelLangfuseTrace? CurrentTrace { get; private set; }
 
     /// <inheritdoc />
-    public bool HasActiveTrace => _currentTrace != null;
-    
+    public bool HasActiveTrace => CurrentTrace != null;
+
     public OtelLangfuseTraceContext()
     {
-        
     }
 
     public OtelLangfuseTraceContext(string traceName, TraceConfig? config = null)
     {
         StartTrace(traceName, config);
     }
-    
+
     /// <inheritdoc />
     public OtelLangfuseTrace StartTrace(string traceName, TraceConfig? config = null)
     {
-        if (_currentTrace != null)
+        if (CurrentTrace != null)
         {
             throw new InvalidOperationException(
                 "A trace is already active in this context. Only one trace per scope is allowed.");
         }
 
-        _currentTrace = new OtelLangfuseTrace(traceName, config);
-        return _currentTrace;
+        CurrentTrace = new OtelLangfuseTrace(traceName, config);
+        return CurrentTrace;
+    }
+
+    /// <inheritdoc />
+    public OtelLangfuseTrace CreateDetachedTrace(string traceName, TraceConfig? config = null)
+    {
+        return new OtelLangfuseTrace(traceName, config, true);
     }
 
     /// <inheritdoc />
     public OtelGeneration CreateGeneration(string name, GenAiChatCompletionConfig config)
     {
         EnsureTraceActive();
-        return _currentTrace!.CreateGeneration(name, config);
+        return CurrentTrace!.CreateGeneration(name, config);
     }
 
     /// <inheritdoc />
     public OtelGeneration CreateGenerationScoped(string name, GenAiChatCompletionConfig config)
     {
         EnsureTraceActive();
-        return _currentTrace!.CreateGenerationScoped(name, config);
+        return CurrentTrace!.CreateGenerationScoped(name, config);
     }
 
     /// <inheritdoc />
     public OtelSpan CreateSpan(string name, SpanConfig? config = null)
     {
         EnsureTraceActive();
-        return _currentTrace!.CreateSpan(name, config);
+        return CurrentTrace!.CreateSpan(name, config);
     }
 
     /// <inheritdoc />
     public OtelSpan CreateSpanScoped(string name, SpanConfig? config = null)
     {
         EnsureTraceActive();
-        return _currentTrace!.CreateSpanScoped(name, config);
+        return CurrentTrace!.CreateSpanScoped(name, config);
     }
 
     /// <inheritdoc />
     public OtelEvent CreateEvent(string name, object? input = null, object? output = null)
     {
         EnsureTraceActive();
-        return _currentTrace!.CreateEvent(name, input, output);
+        return CurrentTrace!.CreateEvent(name, input, output);
     }
 
     /// <inheritdoc />
@@ -153,37 +167,28 @@ public class OtelLangfuseTraceContext : IOtelLangfuseTraceContext
         string toolType = "function", string? toolCallId = null)
     {
         EnsureTraceActive();
-        return _currentTrace!.CreateToolCall(name, toolName, toolDescription, toolType, toolCallId);
+        return CurrentTrace!.CreateToolCall(name, toolName, toolDescription, toolType, toolCallId);
     }
 
     /// <inheritdoc />
     public OtelEmbedding CreateEmbedding(string name, GenAiEmbeddingsConfig config)
     {
         EnsureTraceActive();
-        return _currentTrace!.CreateEmbedding(name, config);
+        return CurrentTrace!.CreateEmbedding(name, config);
     }
 
     /// <inheritdoc />
     public void SetInput(object input)
     {
         EnsureTraceActive();
-        _currentTrace!.SetInput(input);
+        CurrentTrace!.SetInput(input);
     }
 
     /// <inheritdoc />
     public void SetOutput(object output)
     {
         EnsureTraceActive();
-        _currentTrace!.SetOutput(output);
-    }
-
-    private void EnsureTraceActive()
-    {
-        if (_currentTrace == null)
-        {
-            throw new InvalidOperationException(
-                "No active trace in this context. Call StartTrace() first.");
-        }
+        CurrentTrace!.SetOutput(output);
     }
 
     /// <inheritdoc />
@@ -195,9 +200,18 @@ public class OtelLangfuseTraceContext : IOtelLangfuseTraceContext
         }
 
         _disposed = true;
-        _currentTrace?.Dispose();
-        _currentTrace = null;
+        CurrentTrace?.Dispose();
+        CurrentTrace = null;
 
         GC.SuppressFinalize(this);
+    }
+
+    private void EnsureTraceActive()
+    {
+        if (CurrentTrace == null)
+        {
+            throw new InvalidOperationException(
+                "No active trace in this context. Call StartTrace() first.");
+        }
     }
 }

@@ -81,7 +81,8 @@ public static class GenAiActivityHelper
 
         if (config.StopSequences != null && config.StopSequences.Length > 0)
         {
-            activity.SetTag(GenAiAttributes.RequestStopSequences, JsonSerializer.Serialize(config.StopSequences, JsonOptions));
+            activity.SetTag(GenAiAttributes.RequestStopSequences,
+                JsonSerializer.Serialize(config.StopSequences, JsonOptions));
         }
 
         if (!string.IsNullOrEmpty(config.OutputType))
@@ -220,7 +221,8 @@ public static class GenAiActivityHelper
 
         if (config.EncodingFormats != null && config.EncodingFormats.Length > 0)
         {
-            activity.SetTag(GenAiAttributes.RequestEncodingFormats, JsonSerializer.Serialize(config.EncodingFormats, JsonOptions));
+            activity.SetTag(GenAiAttributes.RequestEncodingFormats,
+                JsonSerializer.Serialize(config.EncodingFormats, JsonOptions));
         }
 
         if (!string.IsNullOrEmpty(config.ServerAddress))
@@ -579,7 +581,8 @@ public static class GenAiActivityHelper
 
         if (response.FinishReasons != null && response.FinishReasons.Length > 0)
         {
-            activity.SetTag(GenAiAttributes.ResponseFinishReasons, JsonSerializer.Serialize(response.FinishReasons, JsonOptions));
+            activity.SetTag(GenAiAttributes.ResponseFinishReasons,
+                JsonSerializer.Serialize(response.FinishReasons, JsonOptions));
         }
 
         if (response.InputTokens.HasValue)
@@ -617,12 +620,14 @@ public static class GenAiActivityHelper
                 costDetails["total"] = response.TotalCost.Value;
             }
 
-            activity.SetTag(LangfuseAttributes.ObservationCostDetails, JsonSerializer.Serialize(costDetails, JsonOptions));
+            activity.SetTag(LangfuseAttributes.ObservationCostDetails,
+                JsonSerializer.Serialize(costDetails, JsonOptions));
         }
 
         if (response.CompletionStartTime.HasValue)
         {
-            activity.SetTag(LangfuseAttributes.ObservationCompletionStartTime, response.CompletionStartTime.Value.ToString("O"));
+            activity.SetTag(LangfuseAttributes.ObservationCompletionStartTime,
+                response.CompletionStartTime.Value.ToString("O"));
         }
 
         if (response.OutputMessages != null && response.OutputMessages.Count > 0)
@@ -778,9 +783,22 @@ public static class GenAiActivityHelper
     public static Activity? CreateTraceActivity(
         ActivitySource activitySource,
         string traceName,
-        TraceConfig config)
+        TraceConfig config,
+        bool isRoot = false)
     {
-        var activity = activitySource.StartActivity(traceName);
+        Activity? activity;
+        if (isRoot)
+        {
+            var newContext = new ActivityContext(
+                ActivityTraceId.CreateRandom(),
+                default,
+                ActivityTraceFlags.Recorded);
+            activity = activitySource.StartActivity(traceName, ActivityKind.Internal, newContext);
+        }
+        else
+        {
+            activity = activitySource.StartActivity(traceName);
+        }
 
         if (activity == null)
         {

@@ -46,8 +46,9 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     /// <param name="traceName">The name of the trace.</param>
     /// <param name="config">Optional trace configuration.</param>
-    public OtelLangfuseTrace(string traceName, TraceConfig? config = null)
-        : this(DefaultActivitySource, traceName, config)
+    /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
+    public OtelLangfuseTrace(string traceName, TraceConfig? config = null, bool isRoot = false)
+        : this(DefaultActivitySource, traceName, config, isRoot)
     {
     }
 
@@ -57,12 +58,14 @@ public class OtelLangfuseTrace : IDisposable
     /// <param name="activitySource">The activity source to use for creating activities.</param>
     /// <param name="traceName">The name of the trace.</param>
     /// <param name="config">Optional trace configuration.</param>
-    public OtelLangfuseTrace(ActivitySource activitySource, string traceName, TraceConfig? config = null)
+    /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
+    public OtelLangfuseTrace(ActivitySource activitySource, string traceName, TraceConfig? config = null,
+        bool isRoot = false)
     {
         _activitySource = activitySource;
         _config = config ?? new TraceConfig();
 
-        TraceActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, _config);
+        TraceActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, _config, isRoot);
 
         if (TraceActivity != null)
         {
