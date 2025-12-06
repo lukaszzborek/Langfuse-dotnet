@@ -65,6 +65,16 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
+    ///     Set a custom tag to the underlying activity.
+    /// </summary>
+    /// <param name="key">The tag key.</param>
+    /// <param name="value">The tag value.</param>
+    public void SetTag(string key, object? value)
+    {
+        Activity?.SetTag(key, value);
+    }
+
+    /// <summary>
     ///     Ends the observation.
     /// </summary>
     public virtual void EndObservation()
