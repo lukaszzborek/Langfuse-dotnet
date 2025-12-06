@@ -100,6 +100,10 @@ public class OtelLangfuseTrace : IDisposable
     public void SetTraceName(string name)
     {
         TraceActivity?.SetTag(LangfuseAttributes.TraceName, name);
+        if (TraceActivity is not null)
+        {
+            TraceActivity.DisplayName = name;
+        }
     }
 
     /// <summary>

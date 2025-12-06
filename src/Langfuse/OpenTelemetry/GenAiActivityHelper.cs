@@ -442,7 +442,7 @@ public static class GenAiActivityHelper
             return;
         }
 
-        var json = input is string s ? s : JsonSerializer.Serialize(input, JsonOptions);
+        var json = input is string ? input : JsonSerializer.Serialize(input, JsonOptions);
         activity.SetTag(LangfuseAttributes.ObservationInput, json);
     }
 
@@ -456,7 +456,7 @@ public static class GenAiActivityHelper
             return;
         }
 
-        var json = output is string s ? s : JsonSerializer.Serialize(output, JsonOptions);
+        var json = output is string ? output : JsonSerializer.Serialize(output, JsonOptions);
         activity.SetTag(LangfuseAttributes.ObservationOutput, json);
     }
 
@@ -684,7 +684,6 @@ public static class GenAiActivityHelper
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
         activity.SetTag(GenAiAttributes.Prompt, json);
-        activity.SetTag(LangfuseAttributes.ObservationInput, json);
     }
 
     /// <summary>
@@ -734,7 +733,6 @@ public static class GenAiActivityHelper
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
         activity.SetTag(GenAiAttributes.Completion, json);
-        activity.SetTag(LangfuseAttributes.ObservationOutput, json);
     }
 
     /// <summary>
