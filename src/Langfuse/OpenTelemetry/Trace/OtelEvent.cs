@@ -1,29 +1,13 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace zborek.Langfuse.OpenTelemetry.Trace;
 
 /// <summary>
 ///     Represents an event observation.
 /// </summary>
-public class OtelEvent : IDisposable
+public class OtelEvent : OtelObservation
 {
-    private readonly Activity? _activity;
-    private bool _disposed;
-
-    public OtelEvent(OtelLangfuseTrace trace, Activity? activity)
+    internal OtelEvent(Activity? activity) : base(activity)
     {
-        _activity = activity;
-    }
-
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        _activity?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

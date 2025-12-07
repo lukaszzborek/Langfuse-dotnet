@@ -1,5 +1,3 @@
-using zborek.Langfuse.OpenTelemetry.Models;
-
 namespace zborek.Langfuse.OpenTelemetry.Trace;
 
 /// <summary>
@@ -20,43 +18,67 @@ public interface IOtelLangfuseTraceContext : IDisposable
 
     /// <summary>
     ///     Starts a new trace for the current scope.
-    ///     Should be called once at the beginning of a request/operation.
     /// </summary>
     /// <param name="traceName">The name of the trace.</param>
-    /// <param name="config">Optional trace configuration.</param>
+    /// <param name="userId">Optional user ID.</param>
+    /// <param name="sessionId">Optional session ID.</param>
+    /// <param name="version">Optional version string.</param>
+    /// <param name="release">Optional release string.</param>
+    /// <param name="tags">Optional tags.</param>
+    /// <param name="input">Optional input data.</param>
     /// <returns>The created trace.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if a trace is already active.</exception>
-    OtelLangfuseTrace StartTrace(string traceName, TraceConfig? config = null);
+    OtelLangfuseTrace StartTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null);
 
     /// <summary>
     ///     Creates a detached trace that is NOT managed by this context.
-    ///     Useful for parallel operations or background tasks where multiple traces need to exist simultaneously.
-    ///     The caller is responsible for disposing the returned trace.
+    ///     Useful for parallel operations or background tasks.
     /// </summary>
-    /// <param name="traceName">The name of the trace.</param>
-    /// <param name="config">Optional trace configuration.</param>
-    /// <returns>The created trace.</returns>
-    OtelLangfuseTrace CreateDetachedTrace(string traceName, TraceConfig? config = null);
-
-    /// <summary>
-    ///     Creates a generation observation on the current trace.
-    /// </summary>
-    OtelGeneration CreateGeneration(string name, GenAiChatCompletionConfig config);
-
-    /// <summary>
-    ///     Creates a scoped generation observation on the current trace.
-    /// </summary>
-    OtelGeneration CreateGenerationScoped(string name, GenAiChatCompletionConfig config);
+    OtelLangfuseTrace CreateDetachedTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null);
 
     /// <summary>
     ///     Creates a span observation on the current trace.
     /// </summary>
-    OtelSpan CreateSpan(string name, SpanConfig? config = null);
+    OtelSpan CreateSpan(
+        string name,
+        string? type = null,
+        string? description = null,
+        object? input = null,
+        Action<OtelSpan>? configure = null);
 
     /// <summary>
-    ///     Creates a scoped span observation on the current trace.
+    ///     Creates a generation (LLM call) observation on the current trace.
     /// </summary>
-    OtelSpan CreateSpanScoped(string name, SpanConfig? config = null);
+    OtelGeneration CreateGeneration(
+        string name,
+        string model,
+        string? provider = null,
+        object? input = null,
+        Action<OtelGeneration>? configure = null);
+
+    /// <summary>
+    ///     Creates a tool call observation on the current trace.
+    /// </summary>
+    OtelToolCall CreateToolCall(
+        string name,
+        string toolName,
+        string? toolDescription = null,
+        string toolType = "function",
+        object? input = null,
+        Action<OtelToolCall>? configure = null);
 
     /// <summary>
     ///     Creates an event observation on the current trace.
@@ -64,15 +86,24 @@ public interface IOtelLangfuseTraceContext : IDisposable
     OtelEvent CreateEvent(string name, object? input = null, object? output = null);
 
     /// <summary>
-    ///     Creates a tool call observation on the current trace.
-    /// </summary>
-    OtelToolCall CreateToolCall(string name, string toolName, string? toolDescription = null,
-        string toolType = "function", string? toolCallId = null);
-
-    /// <summary>
     ///     Creates an embedding observation on the current trace.
     /// </summary>
-    OtelEmbedding CreateEmbedding(string name, GenAiEmbeddingsConfig config);
+    OtelEmbedding CreateEmbedding(
+        string name,
+        string model,
+        string? provider = null,
+        object? input = null,
+        Action<OtelEmbedding>? configure = null);
+
+    /// <summary>
+    ///     Creates an agent observation on the current trace.
+    /// </summary>
+    OtelAgent CreateAgent(
+        string name,
+        string agentId,
+        string? description = null,
+        object? input = null,
+        Action<OtelAgent>? configure = null);
 
     /// <summary>
     ///     Sets the input on the current trace.
@@ -103,13 +134,27 @@ public class OtelLangfuseTraceContext : IOtelLangfuseTraceContext
     {
     }
 
-    public OtelLangfuseTraceContext(string traceName, TraceConfig? config = null)
+    public OtelLangfuseTraceContext(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null)
     {
-        StartTrace(traceName, config);
+        StartTrace(traceName, userId, sessionId, version, release, tags, input);
     }
 
     /// <inheritdoc />
-    public OtelLangfuseTrace StartTrace(string traceName, TraceConfig? config = null)
+    public OtelLangfuseTrace StartTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null)
     {
         if (CurrentTrace != null)
         {
@@ -117,42 +162,58 @@ public class OtelLangfuseTraceContext : IOtelLangfuseTraceContext
                 "A trace is already active in this context. Only one trace per scope is allowed.");
         }
 
-        CurrentTrace = new OtelLangfuseTrace(traceName, config);
+        CurrentTrace = new OtelLangfuseTrace(traceName, userId, sessionId, version, release, tags, input);
         return CurrentTrace;
     }
 
     /// <inheritdoc />
-    public OtelLangfuseTrace CreateDetachedTrace(string traceName, TraceConfig? config = null)
+    public OtelLangfuseTrace CreateDetachedTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null)
     {
-        return new OtelLangfuseTrace(traceName, config, true);
+        return new OtelLangfuseTrace(traceName, userId, sessionId, version, release, tags, input, true);
     }
 
     /// <inheritdoc />
-    public OtelGeneration CreateGeneration(string name, GenAiChatCompletionConfig config)
+    public OtelSpan CreateSpan(
+        string name,
+        string? type = null,
+        string? description = null,
+        object? input = null,
+        Action<OtelSpan>? configure = null)
     {
         EnsureTraceActive();
-        return CurrentTrace!.CreateGeneration(name, config);
+        return CurrentTrace!.CreateSpan(name, type, description, input, configure);
     }
 
     /// <inheritdoc />
-    public OtelGeneration CreateGenerationScoped(string name, GenAiChatCompletionConfig config)
+    public OtelGeneration CreateGeneration(
+        string name,
+        string model,
+        string? provider = null,
+        object? input = null,
+        Action<OtelGeneration>? configure = null)
     {
         EnsureTraceActive();
-        return CurrentTrace!.CreateGenerationScoped(name, config);
+        return CurrentTrace!.CreateGeneration(name, model, provider, input, configure);
     }
 
     /// <inheritdoc />
-    public OtelSpan CreateSpan(string name, SpanConfig? config = null)
+    public OtelToolCall CreateToolCall(
+        string name,
+        string toolName,
+        string? toolDescription = null,
+        string toolType = "function",
+        object? input = null,
+        Action<OtelToolCall>? configure = null)
     {
         EnsureTraceActive();
-        return CurrentTrace!.CreateSpan(name, config);
-    }
-
-    /// <inheritdoc />
-    public OtelSpan CreateSpanScoped(string name, SpanConfig? config = null)
-    {
-        EnsureTraceActive();
-        return CurrentTrace!.CreateSpanScoped(name, config);
+        return CurrentTrace!.CreateToolCall(name, toolName, toolDescription, toolType, input, configure);
     }
 
     /// <inheritdoc />
@@ -163,18 +224,27 @@ public class OtelLangfuseTraceContext : IOtelLangfuseTraceContext
     }
 
     /// <inheritdoc />
-    public OtelToolCall CreateToolCall(string name, string toolName, string? toolDescription = null,
-        string toolType = "function", string? toolCallId = null)
+    public OtelEmbedding CreateEmbedding(
+        string name,
+        string model,
+        string? provider = null,
+        object? input = null,
+        Action<OtelEmbedding>? configure = null)
     {
         EnsureTraceActive();
-        return CurrentTrace!.CreateToolCall(name, toolName, toolDescription, toolType, toolCallId);
+        return CurrentTrace!.CreateEmbedding(name, model, provider, input, configure);
     }
 
     /// <inheritdoc />
-    public OtelEmbedding CreateEmbedding(string name, GenAiEmbeddingsConfig config)
+    public OtelAgent CreateAgent(
+        string name,
+        string agentId,
+        string? description = null,
+        object? input = null,
+        Action<OtelAgent>? configure = null)
     {
         EnsureTraceActive();
-        return CurrentTrace!.CreateEmbedding(name, config);
+        return CurrentTrace!.CreateAgent(name, agentId, description, input, configure);
     }
 
     /// <inheritdoc />

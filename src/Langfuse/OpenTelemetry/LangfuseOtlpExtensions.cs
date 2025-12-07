@@ -72,6 +72,9 @@ public static class LangfuseOtlpExtensions
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddLangfuseTracing(this IServiceCollection services)
     {
+        // Register the ActivityListener for automatic Baggage propagation
+        Extensions.UseLangfuseActivityListener();
+
         services.TryAddScoped<IOtelLangfuseTraceContext, OtelLangfuseTraceContext>();
         return services;
     }

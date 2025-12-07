@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using zborek.Langfuse.OpenTelemetry.Models;
 
 namespace zborek.Langfuse.OpenTelemetry.Trace;
@@ -8,16 +8,16 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 /// </summary>
 public abstract class OtelObservation : IDisposable
 {
-    protected readonly Activity? Activity;
-    protected readonly bool Scoped;
-    protected readonly OtelLangfuseTrace Trace;
     private bool _disposed;
 
-    protected OtelObservation(OtelLangfuseTrace trace, Activity? activity, bool scoped)
+    /// <summary>
+    ///     The underlying Activity for this observation.
+    /// </summary>
+    protected Activity? Activity { get; }
+
+    protected OtelObservation(Activity? activity)
     {
-        Trace = trace;
         Activity = activity;
-        Scoped = scoped;
     }
 
     public void Dispose()
@@ -33,7 +33,7 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
-    ///     Sets input for this observation. Also propagates to trace if this is the first input.
+    ///     Sets input for this observation.
     /// </summary>
     public void SetInput(object input)
     {
@@ -41,7 +41,7 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
-    ///     Sets output for this observation. Also propagates to trace.
+    ///     Sets output for this observation.
     /// </summary>
     public void SetOutput(object output)
     {
@@ -67,23 +67,16 @@ public abstract class OtelObservation : IDisposable
     /// <summary>
     ///     Set a custom tag to the underlying activity.
     /// </summary>
-    /// <param name="key">The tag key.</param>
-    /// <param name="value">The tag value.</param>
     public void SetTag(string key, object? value)
     {
         Activity?.SetTag(key, value);
     }
 
     /// <summary>
-    ///     Ends the observation.
+    ///     Ends the observation and disposes the activity.
     /// </summary>
     public virtual void EndObservation()
     {
-        if (Scoped)
-        {
-            Trace.PopActivity();
-        }
-
         Activity?.Dispose();
     }
 }

@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
 
@@ -7,7 +5,7 @@ namespace Langfuse.Example.OpenTelemetry.Services;
 
 /// <summary>
 ///     OpenAI service that uses IOtelLangfuseTraceContext for tracing.
-///     Similar to OpenAiWithLangfuseService but using OpenTelemetry.
+///     Using the simplified API with inline params.
 /// </summary>
 public class OtelOpenAiService
 {
@@ -32,18 +30,18 @@ public class OtelOpenAiService
         string prompt,
         CancellationToken cancellationToken = default)
     {
-        // Create a generation observation - automatically becomes child of current trace
-        using var generation = _traceContext.CreateGeneration("openai-chat-completion", new GenAiChatCompletionConfig
-        {
-            Provider = "openai",
-            Model = model,
-            Temperature = 0.7
-        });
-
-        generation.SetInputMessages(new List<GenAiMessage>
-        {
-            new() { Role = "user", Content = prompt }
-        });
+        // Create a generation observation with new simplified API
+        using var generation = _traceContext.CreateGeneration("openai-chat-completion",
+            model,
+            "openai",
+            new { prompt },
+            g =>
+            {
+                g.SetInputMessages(new List<GenAiMessage>
+                {
+                    new() { Role = "user", Content = prompt }
+                });
+            });
 
         // Simulate API call (in real implementation, call OpenAI API)
         await Task.Delay(Random.Shared.Next(500, 4000), cancellationToken);
@@ -75,14 +73,11 @@ public class OtelOpenAiService
         string model = "text-embedding-3-small",
         CancellationToken cancellationToken = default)
     {
-        using var embedding = _traceContext.CreateEmbedding("openai-embedding", new GenAiEmbeddingsConfig
-        {
-            Provider = "openai",
-            Model = model,
-            Dimensions = 1536
-        });
-
-        embedding.SetText(text);
+        // Create embedding with new simplified API
+        using var embedding = _traceContext.CreateEmbedding("openai-embedding",
+            model,
+            "openai",
+            text);
 
         // Simulate API call
         await Task.Delay(200, cancellationToken);

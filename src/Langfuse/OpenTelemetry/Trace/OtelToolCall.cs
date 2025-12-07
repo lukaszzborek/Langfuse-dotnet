@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace zborek.Langfuse.OpenTelemetry.Trace;
 
@@ -7,8 +7,7 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 /// </summary>
 public class OtelToolCall : OtelObservation
 {
-    public OtelToolCall(OtelLangfuseTrace trace, Activity? activity, bool scoped)
-        : base(trace, activity, scoped)
+    internal OtelToolCall(Activity? activity) : base(activity)
     {
     }
 

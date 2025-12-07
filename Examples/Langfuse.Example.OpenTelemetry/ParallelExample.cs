@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using zborek.Langfuse.OpenTelemetry;
 using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
@@ -11,10 +7,11 @@ namespace Langfuse.Example.OpenTelemetry;
 
 public class ParallelSummarizationService
 {
-    private readonly IOtelLangfuseTraceContext _traceContext;
     private readonly ILogger<ParallelSummarizationService> _logger;
+    private readonly IOtelLangfuseTraceContext _traceContext;
 
-    public ParallelSummarizationService(IOtelLangfuseTraceContext traceContext, ILogger<ParallelSummarizationService> logger)
+    public ParallelSummarizationService(IOtelLangfuseTraceContext traceContext,
+        ILogger<ParallelSummarizationService> logger)
     {
         _traceContext = traceContext;
         _logger = logger;
@@ -30,32 +27,37 @@ public class ParallelSummarizationService
         {
             tasks.Add(Task.Run(async () =>
             {
-                using var trace = _traceContext.CreateDetachedTrace($"ArticleSummary - {article.Id}", new TraceConfig
-                {
-                    UserId = "user-parallel-123",
-                    Metadata = new Dictionary<string, object> { { "articleId", article.Id } },
-                    TraceId = Guid.NewGuid().ToString()
-                });
+                // Create detached trace for parallel processing (new root, independent of parent context)
+                using var trace = _traceContext.CreateDetachedTrace($"ArticleSummary - {article.Id}",
+                    "user-parallel-123",
+                    tags: ["parallel", "summarization"]);
 
-                _logger.LogInformation("Trace '{TraceName}' started for Article {ArticleId}", trace.TraceActivity?.DisplayName, article.Id);
+                _logger.LogInformation("Trace '{TraceName}' started for Article {ArticleId}",
+                    trace.TraceActivity?.DisplayName, article.Id);
 
                 try
                 {
-                    using var generation = trace.CreateGeneration("LLM Call - Summary", new GenAiChatCompletionConfig
-                    {
-                        Provider = "OpenAI",
-                        Model = "gpt-3.5-turbo",
-                        Temperature = 0.7
-                    });
+                    // LLM generation for summary
+                    using var generation = trace.CreateGeneration("LLM Call - Summary",
+                        "gpt-3.5-turbo",
+                        "OpenAI",
+                        configure: g =>
+                        {
+                            g.SetTemperature(0.7);
+                            g.SetInputMessages(new List<GenAiMessage>
+                            {
+                                new()
+                                {
+                                    Role = "user",
+                                    Content =
+                                        $"Summarize: {article.Content.Substring(0, Math.Min(100, article.Content.Length))}..."
+                                }
+                            });
+                        });
 
                     await Task.Delay(TimeSpan.FromSeconds(new Random().Next(1, 3)));
 
-                    generation.SetInput(new List<GenAiMessage>
-                    {
-                        new GenAiMessage { Role = "user", Content = $"Summarize: {article.Content.Substring(0, Math.Min(100, article.Content.Length))}..." }
-                    });
                     generation.SetOutput("This is a simulated summary of the article content.");
-
                     generation.SetResponse(new GenAiResponse
                     {
                         ResponseId = Guid.NewGuid().ToString(),
@@ -67,16 +69,19 @@ public class ParallelSummarizationService
 
                     _logger.LogInformation("Generation for Article {ArticleId} completed", article.Id);
 
-                    using (var ragSpan = trace.CreateSpanScoped("RAG Lookup"))
+                    // RAG lookup span - automatically becomes child of generation via Activity.Current
+                    using (var ragSpan = trace.CreateSpan("RAG Lookup",
+                               "retrieval",
+                               input: "keywords for RAG: " + article.Keywords))
                     {
                         _logger.LogInformation("Span 'RAG Lookup' started for Article {ArticleId}", article.Id);
                         await Task.Delay(500);
-                        ragSpan.SetInput("keywords for RAG: " + article.Keywords);
                         ragSpan.SetOutput("Retrieved 3 relevant documents.");
                         _logger.LogInformation("Span 'RAG Lookup' completed for Article {ArticleId}", article.Id);
                     }
 
-                    _logger.LogInformation("Trace '{TraceName}' completed for Article {ArticleId}", trace.TraceActivity?.DisplayName, article.Id);
+                    _logger.LogInformation("Trace '{TraceName}' completed for Article {ArticleId}",
+                        trace.TraceActivity?.DisplayName, article.Id);
                 }
                 catch (Exception ex)
                 {

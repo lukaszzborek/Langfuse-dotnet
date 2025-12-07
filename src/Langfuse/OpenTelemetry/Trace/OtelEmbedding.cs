@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using zborek.Langfuse.OpenTelemetry.Models;
 
 namespace zborek.Langfuse.OpenTelemetry.Trace;
@@ -8,8 +8,7 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 /// </summary>
 public class OtelEmbedding : OtelObservation
 {
-    public OtelEmbedding(OtelLangfuseTrace trace, Activity? activity, bool scoped)
-        : base(trace, activity, scoped)
+    internal OtelEmbedding(Activity? activity) : base(activity)
     {
     }
 
@@ -27,5 +26,13 @@ public class OtelEmbedding : OtelObservation
     public void SetResponse(GenAiResponse response)
     {
         GenAiActivityHelper.RecordResponse(Activity, response);
+    }
+
+    /// <summary>
+    ///     Sets the dimensions for this embedding request.
+    /// </summary>
+    public void SetDimensions(int dimensions)
+    {
+        Activity?.SetTag(GenAiAttributes.EmbeddingsDimensionCount, dimensions);
     }
 }

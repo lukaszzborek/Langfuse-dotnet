@@ -880,21 +880,21 @@ public static class GenAiActivityHelper
 
     /// <summary>
     ///     Creates and configures a general span activity within a trace for tracking operations.
+    ///     Parent is determined automatically via Activity.Current.
     /// </summary>
     public static Activity? CreateSpanActivity(
         ActivitySource activitySource,
         string spanName,
-        SpanConfig config,
-        Activity? parentActivity = null)
+        SpanConfig config)
     {
-        var activity = parentActivity == null
-            ? activitySource.StartActivity(spanName)
-            : activitySource.StartActivity(spanName, ActivityKind.Internal, parentActivity.Context);
+        var activity = activitySource.StartActivity(spanName);
 
         if (activity == null)
         {
             return null;
         }
+
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeSpan);
 
         if (!string.IsNullOrEmpty(config.SpanType))
         {
@@ -915,39 +915,5 @@ public static class GenAiActivityHelper
         }
 
         return activity;
-    }
-
-    /// <summary>
-    ///     Sets trace-level attributes on an existing trace activity for cross-span propagation.
-    /// </summary>
-    public static void SetTraceAttributes(Activity traceActivity, TraceAttributesConfig config)
-    {
-        if (!string.IsNullOrEmpty(config.UserId))
-        {
-            traceActivity.SetTag(LangfuseAttributes.UserId, config.UserId);
-        }
-
-        if (!string.IsNullOrEmpty(config.SessionId))
-        {
-            traceActivity.SetTag(LangfuseAttributes.SessionId, config.SessionId);
-        }
-
-        if (!string.IsNullOrEmpty(config.Environment))
-        {
-            traceActivity.SetTag(LangfuseAttributes.Environment, config.Environment);
-        }
-
-        if (config.Tags != null && config.Tags.Count > 0)
-        {
-            traceActivity.SetTag(LangfuseAttributes.TraceTags, JsonSerializer.Serialize(config.Tags, JsonOptions));
-        }
-
-        if (config.Metadata != null && config.Metadata.Count > 0)
-        {
-            foreach (KeyValuePair<string, object> kvp in config.Metadata)
-            {
-                traceActivity.SetTag($"{LangfuseAttributes.TraceMetadataPrefix}{kvp.Key}", kvp.Value);
-            }
-        }
     }
 }

@@ -1,18 +1,17 @@
 using Langfuse.Example.OpenTelemetry.Models;
-using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
 
 namespace Langfuse.Example.OpenTelemetry.Services;
 
 /// <summary>
 ///     Chat service that demonstrates multi-service tracing with OpenTelemetry.
-///     Similar to ChatService but using IOtelLangfuseTraceContext.
+///     Using the simplified IOtelLangfuseTraceContext API.
 /// </summary>
 public class OtelChatService
 {
-    private readonly IOtelLangfuseTraceContext _traceContext;
-    private readonly OtelOpenAiService _openAiService;
     private readonly OtelDataService _dataService;
+    private readonly OtelOpenAiService _openAiService;
+    private readonly IOtelLangfuseTraceContext _traceContext;
 
     public OtelChatService(
         IOtelLangfuseTraceContext traceContext,
@@ -28,30 +27,19 @@ public class OtelChatService
         ChatCompletionRequest request,
         CancellationToken cancellationToken = default)
     {
-        // Start the trace - this initializes the context for all services
-        using var _ = _traceContext.StartTrace("chat-with-rag", new TraceConfig
-        {
-            UserId = "user-123",
-            SessionId = $"session-{Guid.NewGuid():N}",
-            Tags = ["chat", "rag", "otel-example"],
-            Metadata = new Dictionary<string, object>
-            {
-                ["source"] = "otel-webapi",
-                ["model"] = request.Model
-            }
-        });
+        // Start the trace with inline params
+        using var _ = _traceContext.StartTrace("chat-with-rag",
+            "user-123",
+            $"session-{Guid.NewGuid():N}",
+            tags: ["chat", "rag", "otel-example"],
+            input: new { prompt = request.Prompt, model = request.Model });
 
-        _traceContext.SetInput(new { prompt = request.Prompt, model = request.Model });
-
-        // Create a scoped span for the entire chat flow
-        using (var chatSpan = _traceContext.CreateSpanScoped("chat-flow", new SpanConfig
+        // Create a span for the entire chat flow
+        using (var chatSpan = _traceContext.CreateSpan("chat-flow",
+                   "workflow",
+                   "Main chat processing flow",
+                   request.Prompt))
         {
-            SpanType = "workflow",
-            Description = "Main chat processing flow"
-        }))
-        {
-            chatSpan.SetInput(request.Prompt);
-
             // Step 1: Retrieve relevant data (uses OtelDataService)
             var contextData = await _dataService.GetRelevantDataAsync(
                 request.Prompt ?? "Hello",
@@ -80,8 +68,8 @@ public class OtelChatService
 
             // Log completion event
             using var completionEvent = _traceContext.CreateEvent("chat-completed",
-                input: new { prompt = request.Prompt },
-                output: new { responseLength = response.Content.Length });
+                new { prompt = request.Prompt },
+                new { responseLength = response.Content.Length });
 
             return response;
         }
@@ -113,8 +101,8 @@ public class OtelChatService
 /// </summary>
 public class OtelDataService
 {
-    private readonly IOtelLangfuseTraceContext _traceContext;
     private readonly OtelOpenAiService _openAiService;
+    private readonly IOtelLangfuseTraceContext _traceContext;
 
     public OtelDataService(
         IOtelLangfuseTraceContext traceContext,
@@ -128,35 +116,29 @@ public class OtelDataService
         string query,
         CancellationToken cancellationToken = default)
     {
-        // Create a scoped span for retrieval
-        using var retrievalSpan = _traceContext.CreateSpanScoped("data-retrieval", new SpanConfig
-        {
-            SpanType = "retrieval",
-            Description = "Retrieve relevant documents from knowledge base"
-        });
-
-        retrievalSpan.SetInput(query);
+        // Create a span for retrieval
+        using var retrievalSpan = _traceContext.CreateSpan("data-retrieval",
+            "retrieval",
+            "Retrieve relevant documents from knowledge base",
+            query);
 
         // Step 1: Generate embeddings for the query
         var embeddings = await _openAiService.GetEmbeddingsAsync(query, cancellationToken: cancellationToken);
 
         // Step 2: Simulate vector search
-        using (var searchSpan = _traceContext.CreateSpan("vector-search", new SpanConfig
+        using (var searchSpan = _traceContext.CreateSpan("vector-search",
+                   "search",
+                   "Search vector database",
+                   new { query, embeddingDimensions = embeddings.Dimensions }))
         {
-            SpanType = "search",
-            Description = "Search vector database"
-        }))
-        {
-            searchSpan.SetInput(new { query, embeddingDimensions = embeddings.Dimensions });
             await Task.Delay(100, cancellationToken); // Simulate search
-
             searchSpan.SetOutput(new { resultsCount = 3 });
         }
 
         // Step 3: Create event for results
-        using var resultsEvent = _traceContext.CreateEvent("documents-retrieved",
-            input: new { query },
-            output: new { count = 3, source = "vector-db" });
+        var resultsEvent = _traceContext.CreateEvent("documents-retrieved",
+            new { query },
+            new { count = 3, source = "vector-db" });
 
         var result = new RetrievalResult
         {

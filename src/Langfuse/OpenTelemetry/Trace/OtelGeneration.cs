@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using zborek.Langfuse.OpenTelemetry.Models;
 
 namespace zborek.Langfuse.OpenTelemetry.Trace;
@@ -8,8 +8,7 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 /// </summary>
 public class OtelGeneration : OtelObservation
 {
-    public OtelGeneration(OtelLangfuseTrace trace, Activity? activity, bool scoped)
-        : base(trace, activity, scoped)
+    internal OtelGeneration(Activity? activity) : base(activity)
     {
     }
 
@@ -59,5 +58,53 @@ public class OtelGeneration : OtelObservation
     public void RecordCompletionStartTime(DateTimeOffset? startTime = null)
     {
         GenAiActivityHelper.RecordCompletionStartTime(Activity, startTime);
+    }
+
+    /// <summary>
+    ///     Sets the temperature for this generation request.
+    /// </summary>
+    public void SetTemperature(double temperature)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestTemperature, temperature);
+    }
+
+    /// <summary>
+    ///     Sets the max tokens for this generation request.
+    /// </summary>
+    public void SetMaxTokens(int maxTokens)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestMaxTokens, maxTokens);
+    }
+
+    /// <summary>
+    ///     Sets the top P (nucleus sampling) for this generation request.
+    /// </summary>
+    public void SetTopP(double topP)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestTopP, topP);
+    }
+
+    /// <summary>
+    ///     Sets the top K for this generation request.
+    /// </summary>
+    public void SetTopK(int topK)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestTopK, topK);
+    }
+
+    /// <summary>
+    ///     Sets the frequency penalty for this generation request.
+    /// </summary>
+    public void SetFrequencyPenalty(double frequencyPenalty)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestFrequencyPenalty, frequencyPenalty);
+    }
+
+    /// <summary>
+    ///     Sets the presence penalty for this generation request.
+    /// </summary>
+    public void SetPresencePenalty(double presencePenalty)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestPresencePenalty, presencePenalty);
     }
 }
