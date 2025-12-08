@@ -8,12 +8,9 @@ namespace Langfuse.Example.OpenTelemetry;
 public class ParallelSummarizationService
 {
     private readonly ILogger<ParallelSummarizationService> _logger;
-    private readonly IOtelLangfuseTraceContext _traceContext;
 
-    public ParallelSummarizationService(IOtelLangfuseTraceContext traceContext,
-        ILogger<ParallelSummarizationService> logger)
+    public ParallelSummarizationService(ILogger<ParallelSummarizationService> logger)
     {
-        _traceContext = traceContext;
         _logger = logger;
     }
 
@@ -28,7 +25,7 @@ public class ParallelSummarizationService
             tasks.Add(Task.Run(async () =>
             {
                 // Create detached trace for parallel processing (new root, independent of parent context)
-                using var trace = _traceContext.CreateDetachedTrace($"ArticleSummary - {article.Id}",
+                using var trace = OtelLangfuseTrace.CreateDetachedTrace($"ArticleSummary - {article.Id}",
                     "user-parallel-123",
                     tags: ["parallel", "summarization"]);
 

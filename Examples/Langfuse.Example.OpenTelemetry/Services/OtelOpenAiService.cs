@@ -4,7 +4,7 @@ using zborek.Langfuse.OpenTelemetry.Trace;
 namespace Langfuse.Example.OpenTelemetry.Services;
 
 /// <summary>
-///     OpenAI service that uses IOtelLangfuseTraceContext for tracing.
+///     OpenAI service that uses OtelLangfuseTrace for tracing.
 ///     Using the simplified API with inline params.
 /// </summary>
 public class OtelOpenAiService
@@ -12,15 +12,15 @@ public class OtelOpenAiService
     private const string BaseUrl = "https://api.openai.com/v1";
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
-    private readonly IOtelLangfuseTraceContext _traceContext;
+    private readonly OtelLangfuseTrace _trace;
 
     public OtelOpenAiService(
         HttpClient httpClient,
-        IOtelLangfuseTraceContext traceContext,
+        OtelLangfuseTrace trace,
         IConfiguration configuration)
     {
         _httpClient = httpClient;
-        _traceContext = traceContext;
+        _trace = trace;
         _apiKey = configuration["OpenAI:ApiKey"] ?? "demo-key";
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
     }
@@ -31,7 +31,7 @@ public class OtelOpenAiService
         CancellationToken cancellationToken = default)
     {
         // Create a generation observation with new simplified API
-        using var generation = _traceContext.CreateGeneration("openai-chat-completion",
+        using var generation = _trace.CreateGeneration("openai-chat-completion",
             model,
             "openai",
             new { prompt },
@@ -74,7 +74,7 @@ public class OtelOpenAiService
         CancellationToken cancellationToken = default)
     {
         // Create embedding with new simplified API
-        using var embedding = _traceContext.CreateEmbedding("openai-embedding",
+        using var embedding = _trace.CreateEmbedding("openai-embedding",
             model,
             "openai",
             text);

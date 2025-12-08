@@ -44,7 +44,7 @@ public record StringFilterCondition : TraceFilterCondition
 }
 
 /// <summary>
-///     DateTime filter condition with operators: >, <, >=, <=
+///     DateTime filter condition with operators
 /// </summary>
 public record DateTimeFilterCondition : TraceFilterCondition
 {
@@ -62,7 +62,7 @@ public record DateTimeFilterCondition : TraceFilterCondition
 }
 
 /// <summary>
-///     Number filter condition with operators: =, >, <, >=, <=
+///     Number filter condition with operators
 /// </summary>
 public record NumberFilterCondition : TraceFilterCondition
 {
@@ -80,7 +80,7 @@ public record NumberFilterCondition : TraceFilterCondition
 }
 
 /// <summary>
-///     String options filter condition with operators: any of, none of
+///     String options filter condition with operators
 /// </summary>
 public record StringOptionsFilterCondition : TraceFilterCondition
 {
@@ -159,7 +159,7 @@ public record StringObjectFilterCondition : TraceFilterCondition
 }
 
 /// <summary>
-///     Number object filter condition with operators: =, >, <, >=, <=.
+///     Number object filter condition with operators
 ///     Used for filtering on numeric properties within JSON objects.
 /// </summary>
 public record NumberObjectFilterCondition : TraceFilterCondition
@@ -184,7 +184,7 @@ public record NumberObjectFilterCondition : TraceFilterCondition
 }
 
 /// <summary>
-///     Boolean filter condition with operators: =, <>
+///     Boolean filter condition with operators: =, &lt;&gt;
 /// </summary>
 public record BooleanFilterCondition : TraceFilterCondition
 {

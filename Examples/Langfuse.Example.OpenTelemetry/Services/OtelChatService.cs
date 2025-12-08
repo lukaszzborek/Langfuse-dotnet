@@ -5,20 +5,20 @@ namespace Langfuse.Example.OpenTelemetry.Services;
 
 /// <summary>
 ///     Chat service that demonstrates multi-service tracing with OpenTelemetry.
-///     Using the simplified IOtelLangfuseTraceContext API.
+///     Using the simplified OtelLangfuseTrace API.
 /// </summary>
 public class OtelChatService
 {
     private readonly OtelDataService _dataService;
     private readonly OtelOpenAiService _openAiService;
-    private readonly IOtelLangfuseTraceContext _traceContext;
+    private readonly OtelLangfuseTrace _trace;
 
     public OtelChatService(
-        IOtelLangfuseTraceContext traceContext,
+        OtelLangfuseTrace trace,
         OtelOpenAiService openAiService,
         OtelDataService dataService)
     {
-        _traceContext = traceContext;
+        _trace = trace;
         _openAiService = openAiService;
         _dataService = dataService;
     }
@@ -28,14 +28,14 @@ public class OtelChatService
         CancellationToken cancellationToken = default)
     {
         // Start the trace with inline params
-        using var _ = _traceContext.StartTrace("chat-with-rag",
+        _trace.StartTrace("chat-with-rag",
             "user-123",
             $"session-{Guid.NewGuid():N}",
             tags: ["chat", "rag", "otel-example"],
             input: new { prompt = request.Prompt, model = request.Model });
 
         // Create a span for the entire chat flow
-        using (var chatSpan = _traceContext.CreateSpan("chat-flow",
+        using (var chatSpan = _trace.CreateSpan("chat-flow",
                    "workflow",
                    "Main chat processing flow",
                    request.Prompt))
@@ -64,10 +64,10 @@ public class OtelChatService
             };
 
             chatSpan.SetOutput(response);
-            _traceContext.SetOutput(response);
+            _trace.SetOutput(response);
 
             // Log completion event
-            using var completionEvent = _traceContext.CreateEvent("chat-completed",
+            using var completionEvent = _trace.CreateEvent("chat-completed",
                 new { prompt = request.Prompt },
                 new { responseLength = response.Content.Length });
 
@@ -102,13 +102,13 @@ public class OtelChatService
 public class OtelDataService
 {
     private readonly OtelOpenAiService _openAiService;
-    private readonly IOtelLangfuseTraceContext _traceContext;
+    private readonly OtelLangfuseTrace _trace;
 
     public OtelDataService(
-        IOtelLangfuseTraceContext traceContext,
+        OtelLangfuseTrace trace,
         OtelOpenAiService openAiService)
     {
-        _traceContext = traceContext;
+        _trace = trace;
         _openAiService = openAiService;
     }
 
@@ -117,7 +117,7 @@ public class OtelDataService
         CancellationToken cancellationToken = default)
     {
         // Create a span for retrieval
-        using var retrievalSpan = _traceContext.CreateSpan("data-retrieval",
+        using var retrievalSpan = _trace.CreateSpan("data-retrieval",
             "retrieval",
             "Retrieve relevant documents from knowledge base",
             query);
@@ -126,7 +126,7 @@ public class OtelDataService
         var embeddings = await _openAiService.GetEmbeddingsAsync(query, cancellationToken: cancellationToken);
 
         // Step 2: Simulate vector search
-        using (var searchSpan = _traceContext.CreateSpan("vector-search",
+        using (var searchSpan = _trace.CreateSpan("vector-search",
                    "search",
                    "Search vector database",
                    new { query, embeddingDimensions = embeddings.Dimensions }))
@@ -136,7 +136,7 @@ public class OtelDataService
         }
 
         // Step 3: Create event for results
-        var resultsEvent = _traceContext.CreateEvent("documents-retrieved",
+        var resultsEvent = _trace.CreateEvent("documents-retrieved",
             new { query },
             new { count = 3, source = "vector-db" });
 

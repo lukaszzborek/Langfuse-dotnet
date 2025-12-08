@@ -7,6 +7,7 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 /// <summary>
 ///     OpenTelemetry-based Langfuse trace that manages activities using Activity.Current for parent-child relationships.
 ///     Context propagation is handled via Baggage and ActivityListener.
+///     Can be registered as scoped service and used with StartTrace() for lazy initialization.
 /// </summary>
 public class OtelLangfuseTrace : IDisposable
 {
@@ -19,14 +20,39 @@ public class OtelLangfuseTrace : IDisposable
 
     private readonly ActivitySource _activitySource;
     private bool _disposed;
+    private bool _started;
 
     /// <summary>
     ///     The root trace activity.
     /// </summary>
-    public Activity? TraceActivity { get; }
+    public Activity? TraceActivity { get; private set; }
 
     /// <summary>
-    ///     Creates a new OpenTelemetry-based Langfuse trace using the default ActivitySource.
+    ///     Gets whether a trace is currently active.
+    /// </summary>
+    public bool HasActiveTrace => _started && TraceActivity != null;
+
+    /// <summary>
+    ///     Creates a new OtelLangfuseTrace without starting a trace.
+    ///     Use StartTrace() to begin tracing.
+    /// </summary>
+    public OtelLangfuseTrace()
+        : this(DefaultActivitySource)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new OtelLangfuseTrace with a custom ActivitySource without starting a trace.
+    ///     Use StartTrace() to begin tracing.
+    /// </summary>
+    public OtelLangfuseTrace(ActivitySource activitySource)
+    {
+        _activitySource = activitySource;
+    }
+
+    /// <summary>
+    ///     Creates a new OtelLangfuseTrace and immediately starts the trace.
+    ///     Convenience constructor for immediate trace creation.
     /// </summary>
     /// <param name="traceName">The name of the trace.</param>
     /// <param name="userId">Optional user ID for the trace.</param>
@@ -45,12 +71,13 @@ public class OtelLangfuseTrace : IDisposable
         IEnumerable<string>? tags = null,
         object? input = null,
         bool isRoot = false)
-        : this(DefaultActivitySource, traceName, userId, sessionId, version, release, tags, input, isRoot)
+        : this(DefaultActivitySource)
     {
+        StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot);
     }
 
     /// <summary>
-    ///     Creates a new OpenTelemetry-based Langfuse trace with a custom ActivitySource.
+    ///     Creates a new OtelLangfuseTrace with a custom ActivitySource and immediately starts the trace.
     /// </summary>
     public OtelLangfuseTrace(
         ActivitySource activitySource,
@@ -62,8 +89,38 @@ public class OtelLangfuseTrace : IDisposable
         IEnumerable<string>? tags = null,
         object? input = null,
         bool isRoot = false)
+        : this(activitySource)
     {
-        _activitySource = activitySource;
+        StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot);
+    }
+
+    /// <summary>
+    ///     Starts the trace with the specified parameters.
+    /// </summary>
+    /// <param name="traceName">The name of the trace.</param>
+    /// <param name="userId">Optional user ID for the trace.</param>
+    /// <param name="sessionId">Optional session ID for the trace.</param>
+    /// <param name="version">Optional version string.</param>
+    /// <param name="release">Optional release string.</param>
+    /// <param name="tags">Optional tags for the trace.</param>
+    /// <param name="input">Optional input for the trace.</param>
+    /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
+    /// <returns>This trace instance for fluent API.</returns>
+    public OtelLangfuseTrace StartTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null,
+        bool isRoot = false)
+    {
+        if (_started)
+        {
+            throw new InvalidOperationException(
+                "A trace is already active. Only one trace per instance is allowed.");
+        }
 
         // Set context in Baggage for auto-enrichment by ActivityListener
         SetBaggageContext(userId, sessionId, version, release, tags);
@@ -77,12 +134,33 @@ public class OtelLangfuseTrace : IDisposable
             Tags = tags?.ToList()
         };
 
-        TraceActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, config, isRoot);
+        TraceActivity = GenAiActivityHelper.CreateTraceActivity(_activitySource, traceName, config, isRoot);
 
         if (input != null && TraceActivity != null)
         {
             GenAiActivityHelper.SetTraceInput(TraceActivity, input);
         }
+
+        _started = true;
+        return this;
+    }
+
+    /// <summary>
+    ///     Creates a detached trace that is NOT managed by this instance.
+    ///     Useful for parallel operations or background tasks.
+    /// </summary>
+    public static OtelLangfuseTrace CreateDetachedTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null)
+    {
+        var trace = new OtelLangfuseTrace();
+        trace.StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot: true);
+        return trace;
     }
 
     /// <summary>
@@ -96,8 +174,10 @@ public class OtelLangfuseTrace : IDisposable
         }
 
         _disposed = true;
+        _started = false;
         ClearBaggageContext();
         TraceActivity?.Dispose();
+        TraceActivity = null;
         GC.SuppressFinalize(this);
     }
 
@@ -106,6 +186,7 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetTraceName(string name)
     {
+        EnsureStarted();
         TraceActivity?.SetTag(LangfuseAttributes.TraceName, name);
         if (TraceActivity is not null)
         {
@@ -118,6 +199,7 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetInput(object input)
     {
+        EnsureStarted();
         GenAiActivityHelper.SetTraceInput(TraceActivity, input);
     }
 
@@ -126,6 +208,7 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetOutput(object output)
     {
+        EnsureStarted();
         GenAiActivityHelper.SetTraceOutput(TraceActivity, output);
     }
 
@@ -144,6 +227,7 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelSpan>? configure = null)
     {
+        EnsureStarted();
         var config = new SpanConfig
         {
             SpanType = type,
@@ -177,6 +261,7 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelGeneration>? configure = null)
     {
+        EnsureStarted();
         var config = new GenAiChatCompletionConfig
         {
             Model = model,
@@ -212,6 +297,7 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelToolCall>? configure = null)
     {
+        EnsureStarted();
         var activity = GenAiActivityHelper.CreateToolCallActivity(
             _activitySource, name, toolName, toolDescription, toolType, null);
         var toolCall = new OtelToolCall(activity);
@@ -233,6 +319,7 @@ public class OtelLangfuseTrace : IDisposable
     /// <param name="output">Optional output data.</param>
     public OtelEvent CreateEvent(string name, object? input = null, object? output = null)
     {
+        EnsureStarted();
         var activity = _activitySource.StartActivity(name);
         activity?.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEvent);
 
@@ -266,6 +353,7 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelEmbedding>? configure = null)
     {
+        EnsureStarted();
         var config = new GenAiEmbeddingsConfig
         {
             Model = model,
@@ -299,6 +387,7 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelAgent>? configure = null)
     {
+        EnsureStarted();
         var config = new GenAiAgentConfig
         {
             Id = agentId,
@@ -358,5 +447,14 @@ public class OtelLangfuseTrace : IDisposable
         Baggage.RemoveBaggage(LangfuseBaggageKeys.Version);
         Baggage.RemoveBaggage(LangfuseBaggageKeys.Release);
         Baggage.RemoveBaggage(LangfuseBaggageKeys.Tags);
+    }
+
+    private void EnsureStarted()
+    {
+        if (!_started)
+        {
+            throw new InvalidOperationException(
+                "No active trace. Call StartTrace() first.");
+        }
     }
 }
