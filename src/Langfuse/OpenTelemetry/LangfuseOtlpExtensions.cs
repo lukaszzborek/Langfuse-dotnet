@@ -160,8 +160,11 @@ public static class LangfuseOtlpExtensions
 
             ActivitySource.AddActivityListener(new ActivityListener
             {
-                ShouldListenTo = source => source.Name == OtelLangfuseTrace.ActivitySourceName,
-                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+                ShouldListenTo = _ => true,
+                Sample = (ref ActivityCreationOptions<ActivityContext> options) =>
+                    options.Source.Name == OtelLangfuseTrace.ActivitySourceName
+                        ? ActivitySamplingResult.AllDataAndRecorded
+                        : ActivitySamplingResult.None,
                 ActivityStarted = activity =>
                 {
                     if (activity == null)
