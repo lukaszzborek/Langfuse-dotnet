@@ -1,14 +1,11 @@
-using System.Diagnostics;
 using System.Threading.Channels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using OpenTelemetry;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.OpenTelemetry;
-using zborek.Langfuse.OpenTelemetry.Trace;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse;
@@ -18,9 +15,22 @@ namespace zborek.Langfuse;
 /// </summary>
 public static class Extensions
 {
-    private static bool _activityListenerRegistered;
-    private static readonly object _listenerLock = new();
+    /// <summary>
+    ///     Registers Langfuse services in an <see cref="IServiceCollection" />.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddLangfuse(this IServiceCollection services, Action<LangfuseConfig> configure)
+    {
+        var config = new LangfuseConfig();
+        configure(config);
 
+        services.Configure(configure);
+        
+        return ServiceCollection(services, config);
+    }
+    
     /// <summary>
     ///     Registers Langfuse services in an <see cref="IServiceCollection" />.
     /// </summary>
@@ -33,6 +43,11 @@ public static class Extensions
 
         var config = configuration.GetSection("Langfuse").Get<LangfuseConfig>();
 
+        return ServiceCollection(services, config);
+    }
+
+    private static IServiceCollection ServiceCollection(IServiceCollection services, LangfuseConfig? config)
+    {
         if (config == null)
         {
             throw new Exception("Langfuse configuration is missing");
@@ -52,71 +67,5 @@ public static class Extensions
         }
 
         return services;
-    }
-
-    /// <summary>
-    ///     Registers the Langfuse ActivityListener for automatic context enrichment from Baggage.
-    ///     Call this once at application startup. Safe to call multiple times - will only register once.
-    /// </summary>
-    public static void UseLangfuseActivityListener()
-    {
-        if (_activityListenerRegistered)
-        {
-            return;
-        }
-
-        lock (_listenerLock)
-        {
-            if (_activityListenerRegistered)
-            {
-                return;
-            }
-
-            _activityListenerRegistered = true;
-        }
-
-        ActivitySource.AddActivityListener(new ActivityListener
-        {
-            ShouldListenTo = source => source.Name == OtelLangfuseTrace.ActivitySourceName,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-            ActivityStarted = activity =>
-            {
-                if (activity == null)
-                {
-                    return;
-                }
-
-                // Auto-enrich from Baggage
-                var userId = Baggage.GetBaggage(LangfuseBaggageKeys.UserId);
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    activity.SetTag(LangfuseAttributes.UserId, userId);
-                }
-
-                var sessionId = Baggage.GetBaggage(LangfuseBaggageKeys.SessionId);
-                if (!string.IsNullOrEmpty(sessionId))
-                {
-                    activity.SetTag(LangfuseAttributes.SessionId, sessionId);
-                }
-
-                var version = Baggage.GetBaggage(LangfuseBaggageKeys.Version);
-                if (!string.IsNullOrEmpty(version))
-                {
-                    activity.SetTag(LangfuseAttributes.Version, version);
-                }
-
-                var release = Baggage.GetBaggage(LangfuseBaggageKeys.Release);
-                if (!string.IsNullOrEmpty(release))
-                {
-                    activity.SetTag(LangfuseAttributes.Release, release);
-                }
-
-                var tags = Baggage.GetBaggage(LangfuseBaggageKeys.Tags);
-                if (!string.IsNullOrEmpty(tags))
-                {
-                    activity.SetTag(LangfuseAttributes.TraceTags, tags.Split(','));
-                }
-            }
-        });
     }
 }

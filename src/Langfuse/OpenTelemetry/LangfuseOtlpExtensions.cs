@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,6 +16,9 @@ namespace zborek.Langfuse.OpenTelemetry;
 /// </summary>
 public static class LangfuseOtlpExtensions
 {
+    private static bool _activityListenerRegistered;
+    private static readonly object _listenerLock = new();
+
     /// <summary>
     ///     Adds Langfuse OTLP exporter to the tracing pipeline
     /// </summary>
@@ -51,14 +55,19 @@ public static class LangfuseOtlpExtensions
         TracerProviderBuilder builder,
         LangfuseOtlpExporterOptions langfuseOptions)
     {
+        // Automatically add the Langfuse ActivitySource (even when disabled, for consistent tracing)
+        builder.AddSource(OtelLangfuseTrace.ActivitySourceName);
+
+        if (!langfuseOptions.Enabled)
+        {
+            return builder;
+        }
+
         var otlpExporter = CreateOtlpExporter(langfuseOptions);
 
         BaseExporter<Activity> exporter = langfuseOptions.OnlyGenAiActivities || langfuseOptions.ActivityFilter != null
             ? new LangfuseFilteringExporter(otlpExporter, langfuseOptions)
             : otlpExporter;
-
-        // Automatically add the Langfuse ActivitySource
-        builder.AddSource(OtelLangfuseTrace.ActivitySourceName);
 
         return builder.AddProcessor(new BatchActivityExportProcessor(exporter));
     }
@@ -73,7 +82,7 @@ public static class LangfuseOtlpExtensions
     public static IServiceCollection AddLangfuseTracing(this IServiceCollection services)
     {
         // Register the ActivityListener for automatic Baggage propagation
-        Extensions.UseLangfuseActivityListener();
+        UseLangfuseActivityListener();
 
         services.TryAddScoped<OtelLangfuseTrace>();
         return services;
@@ -118,96 +127,72 @@ public static class LangfuseOtlpExtensions
 
         return new OtlpTraceExporter(otlpOptions);
     }
-}
 
-/// <summary>
-///     Exporter wrapper that filters activities before passing to the underlying exporter.
-///     This allows Langfuse to receive only Gen AI activities while other exporters receive all activities.
-/// </summary>
-internal class LangfuseFilteringExporter : BaseExporter<Activity>
-{
-    private static readonly string[] GenAiAttributePrefixes =
-    [
-        "gen_ai.",
-        "langfuse."
-    ];
-
-    private readonly BaseExporter<Activity> _innerExporter;
-    private readonly LangfuseOtlpExporterOptions _options;
-
-    public LangfuseFilteringExporter(BaseExporter<Activity> innerExporter, LangfuseOtlpExporterOptions options)
+    /// <summary>
+    ///     Registers the Langfuse ActivityListener for automatic context enrichment from Baggage.
+    ///     Call this once at application startup. Safe to call multiple times - will only register once.
+    /// </summary>
+    public static void UseLangfuseActivityListener()
     {
-        _innerExporter = innerExporter;
-        _options = options;
-    }
-
-    public override ExportResult Export(in Batch<Activity> batch)
-    {
-        var filteredActivities = new List<Activity>();
-
-        foreach (var activity in batch)
+        if (_activityListenerRegistered)
         {
-            if (ShouldExport(activity))
+            return;
+        }
+
+        lock (_listenerLock)
+        {
+            if (_activityListenerRegistered)
             {
-                filteredActivities.Add(activity);
+                return;
             }
-        }
 
-        if (filteredActivities.Count == 0)
-        {
-            return ExportResult.Success;
-        }
-
-
-        var filteredBatch = new Batch<Activity>(filteredActivities.ToArray(), filteredActivities.Count);
-        return _innerExporter.Export(filteredBatch);
-    }
-
-    private bool ShouldExport(Activity activity)
-    {
-        var shouldExport = true;
-
-        if (_options.OnlyGenAiActivities)
-        {
-            shouldExport = IsGenAiActivity(activity);
-        }
-
-        if (shouldExport && _options.ActivityFilter != null)
-        {
-            shouldExport = _options.ActivityFilter(activity);
-        }
-
-        return shouldExport;
-    }
-
-    private static bool IsGenAiActivity(Activity activity)
-    {
-        foreach (KeyValuePair<string, string?> tag in activity.Tags)
-        {
-            foreach (var prefix in GenAiAttributePrefixes)
+            ActivitySource.AddActivityListener(new ActivityListener
             {
-                if (tag.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                ShouldListenTo = source => source.Name == OtelLangfuseTrace.ActivitySourceName,
+                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+                ActivityStarted = activity =>
                 {
-                    return true;
+                    if (activity == null)
+                    {
+                        return;
+                    }
+
+                    // Auto-enrich from Baggage
+                    var userId = Baggage.GetBaggage(LangfuseBaggageKeys.UserId);
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        activity.SetTag(LangfuseAttributes.UserId, userId);
+                    }
+
+                    var sessionId = Baggage.GetBaggage(LangfuseBaggageKeys.SessionId);
+                    if (!string.IsNullOrEmpty(sessionId))
+                    {
+                        activity.SetTag(LangfuseAttributes.SessionId, sessionId);
+                    }
+
+                    var version = Baggage.GetBaggage(LangfuseBaggageKeys.Version);
+                    if (!string.IsNullOrEmpty(version))
+                    {
+                        activity.SetTag(LangfuseAttributes.Version, version);
+                    }
+
+                    var release = Baggage.GetBaggage(LangfuseBaggageKeys.Release);
+                    if (!string.IsNullOrEmpty(release))
+                    {
+                        activity.SetTag(LangfuseAttributes.Release, release);
+                    }
+
+                    var tags = Baggage.GetBaggage(LangfuseBaggageKeys.Tags);
+                    if (!string.IsNullOrEmpty(tags))
+                    {
+                        // Serialize as JSON array to match GenAiActivityHelper format
+                        List<string> tagList = tags.Split(',').ToList();
+                        activity.SetTag(LangfuseAttributes.TraceTags, JsonSerializer.Serialize(tagList));
+                    }
                 }
-            }
+            });
+
+            _activityListenerRegistered = true;
         }
-
-        return false;
-    }
-
-    protected override bool OnShutdown(int timeoutMilliseconds)
-    {
-        return _innerExporter.Shutdown(timeoutMilliseconds);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _innerExporter.Dispose();
-        }
-
-        base.Dispose(disposing);
     }
 }
