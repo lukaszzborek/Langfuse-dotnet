@@ -4,7 +4,7 @@ using zborek.Langfuse.OpenTelemetry.Trace;
 namespace Langfuse.Example.OpenTelemetry.Services;
 
 /// <summary>
-///     OpenAI service that uses OtelLangfuseTrace for tracing.
+///     OpenAI service that uses IOtelLangfuseTrace for tracing.
 ///     Using the simplified API with inline params.
 /// </summary>
 public class OtelOpenAiService
@@ -12,11 +12,11 @@ public class OtelOpenAiService
     private const string BaseUrl = "https://api.openai.com/v1";
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
-    private readonly OtelLangfuseTrace _trace;
+    private readonly IOtelLangfuseTrace _trace;
 
     public OtelOpenAiService(
         HttpClient httpClient,
-        OtelLangfuseTrace trace,
+        IOtelLangfuseTrace trace,
         IConfiguration configuration)
     {
         _httpClient = httpClient;

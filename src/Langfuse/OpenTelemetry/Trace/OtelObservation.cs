@@ -13,7 +13,12 @@ public abstract class OtelObservation : IDisposable
     /// <summary>
     ///     The underlying Activity for this observation.
     /// </summary>
-    protected Activity? Activity { get; }
+    public Activity? Activity { get; }
+
+    /// <summary>
+    ///     Gets whether this observation has an active underlying Activity.
+    /// </summary>
+    public bool HasActivity => Activity != null;
 
     protected OtelObservation(Activity? activity)
     {

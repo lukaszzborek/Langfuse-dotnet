@@ -9,7 +9,7 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 ///     Context propagation is handled via Baggage and ActivityListener.
 ///     Can be registered as scoped service and used with StartTrace() for lazy initialization.
 /// </summary>
-public class OtelLangfuseTrace : IDisposable
+public class OtelLangfuseTrace : IOtelLangfuseTrace
 {
     /// <summary>
     ///     The ActivitySource name used by Langfuse traces.
@@ -106,7 +106,7 @@ public class OtelLangfuseTrace : IDisposable
     /// <param name="input">Optional input for the trace.</param>
     /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
     /// <returns>This trace instance for fluent API.</returns>
-    public OtelLangfuseTrace StartTrace(
+    public IOtelLangfuseTrace StartTrace(
         string traceName,
         string? userId = null,
         string? sessionId = null,
@@ -146,24 +146,6 @@ public class OtelLangfuseTrace : IDisposable
     }
 
     /// <summary>
-    ///     Creates a detached trace that is NOT managed by this instance.
-    ///     Useful for parallel operations or background tasks.
-    /// </summary>
-    public static OtelLangfuseTrace CreateDetachedTrace(
-        string traceName,
-        string? userId = null,
-        string? sessionId = null,
-        string? version = null,
-        string? release = null,
-        IEnumerable<string>? tags = null,
-        object? input = null)
-    {
-        var trace = new OtelLangfuseTrace();
-        trace.StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot: true);
-        return trace;
-    }
-
-    /// <summary>
     ///     Disposes the trace activity and clears Baggage context.
     /// </summary>
     public void Dispose()
@@ -186,12 +168,13 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetTraceName(string name)
     {
-        EnsureStarted();
-        TraceActivity?.SetTag(LangfuseAttributes.TraceName, name);
-        if (TraceActivity is not null)
+        if (TraceActivity is null)
         {
-            TraceActivity.DisplayName = name;
+            return;
         }
+
+        TraceActivity.SetTag(LangfuseAttributes.TraceName, name);
+        TraceActivity.DisplayName = name;
     }
 
     /// <summary>
@@ -199,7 +182,11 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetInput(object input)
     {
-        EnsureStarted();
+        if (TraceActivity is null)
+        {
+            return;
+        }
+
         GenAiActivityHelper.SetTraceInput(TraceActivity, input);
     }
 
@@ -208,7 +195,11 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetOutput(object output)
     {
-        EnsureStarted();
+        if (TraceActivity is null)
+        {
+            return;
+        }
+
         GenAiActivityHelper.SetTraceOutput(TraceActivity, output);
     }
 
@@ -227,7 +218,11 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelSpan>? configure = null)
     {
-        EnsureStarted();
+        if (!HasActiveTrace)
+        {
+            return new OtelSpan(null);
+        }
+
         var config = new SpanConfig
         {
             SpanType = type,
@@ -261,7 +256,11 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelGeneration>? configure = null)
     {
-        EnsureStarted();
+        if (!HasActiveTrace)
+        {
+            return new OtelGeneration(null);
+        }
+
         var config = new GenAiChatCompletionConfig
         {
             Model = model,
@@ -297,9 +296,13 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelToolCall>? configure = null)
     {
-        EnsureStarted();
+        if (!HasActiveTrace)
+        {
+            return new OtelToolCall(null);
+        }
+
         var activity = GenAiActivityHelper.CreateToolCallActivity(
-            _activitySource, name, toolName, toolDescription, toolType, null);
+            _activitySource, name, toolName, toolDescription, toolType);
         var toolCall = new OtelToolCall(activity);
 
         if (input != null)
@@ -319,7 +322,11 @@ public class OtelLangfuseTrace : IDisposable
     /// <param name="output">Optional output data.</param>
     public OtelEvent CreateEvent(string name, object? input = null, object? output = null)
     {
-        EnsureStarted();
+        if (!HasActiveTrace)
+        {
+            return new OtelEvent(null);
+        }
+
         var activity = _activitySource.StartActivity(name);
         activity?.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEvent);
 
@@ -353,7 +360,11 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelEmbedding>? configure = null)
     {
-        EnsureStarted();
+        if (!HasActiveTrace)
+        {
+            return new OtelEmbedding(null);
+        }
+
         var config = new GenAiEmbeddingsConfig
         {
             Model = model,
@@ -387,7 +398,11 @@ public class OtelLangfuseTrace : IDisposable
         object? input = null,
         Action<OtelAgent>? configure = null)
     {
-        EnsureStarted();
+        if (!HasActiveTrace)
+        {
+            return new OtelAgent(null);
+        }
+
         var config = new GenAiAgentConfig
         {
             Id = agentId,
@@ -405,6 +420,24 @@ public class OtelLangfuseTrace : IDisposable
 
         configure?.Invoke(agent);
         return agent;
+    }
+
+    /// <summary>
+    ///     Creates a detached trace that is NOT managed by this instance.
+    ///     Useful for parallel operations or background tasks.
+    /// </summary>
+    public static OtelLangfuseTrace CreateDetachedTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null)
+    {
+        var trace = new OtelLangfuseTrace();
+        trace.StartTrace(traceName, userId, sessionId, version, release, tags, input, true);
+        return trace;
     }
 
     private static void SetBaggageContext(
@@ -447,14 +480,5 @@ public class OtelLangfuseTrace : IDisposable
         Baggage.RemoveBaggage(LangfuseBaggageKeys.Version);
         Baggage.RemoveBaggage(LangfuseBaggageKeys.Release);
         Baggage.RemoveBaggage(LangfuseBaggageKeys.Tags);
-    }
-
-    private void EnsureStarted()
-    {
-        if (!_started)
-        {
-            throw new InvalidOperationException(
-                "No active trace. Call StartTrace() first.");
-        }
     }
 }

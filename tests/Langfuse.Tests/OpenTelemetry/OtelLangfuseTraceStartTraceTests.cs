@@ -8,8 +8,8 @@ namespace zborek.Langfuse.Tests.OpenTelemetry;
 
 public class OtelLangfuseTraceStartTraceTests : IDisposable
 {
-    private readonly ActivityListener _listener;
     private readonly ConcurrentBag<Activity> _capturedActivities;
+    private readonly ActivityListener _listener;
 
     public OtelLangfuseTraceStartTraceTests()
     {
@@ -59,12 +59,12 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
 
         trace.StartTrace(
             "test-trace",
-            userId: "user-123",
-            sessionId: "session-456",
-            version: "1.0.0",
-            release: "prod-1",
-            tags: ["tag1", "tag2"],
-            input: new { query = "test" });
+            "user-123",
+            "session-456",
+            "1.0.0",
+            "prod-1",
+            ["tag1", "tag2"],
+            new { query = "test" });
 
         Assert.NotNull(trace.TraceActivity);
         Assert.Equal("user-123", trace.TraceActivity.GetTagItem(LangfuseAttributes.UserId));
@@ -81,7 +81,6 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
         var exception = Assert.Throws<InvalidOperationException>(() => trace.StartTrace("second-trace"));
         Assert.Contains("already active", exception.Message);
     }
-
 
 
     [Fact]
@@ -118,12 +117,16 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void CreateSpan_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void CreateSpan_WithoutActiveTrace_ReturnsNoOpSpan()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => trace.CreateSpan("test-span"));
-        Assert.Contains("No active trace", exception.Message);
+        using var span = trace.CreateSpan("test-span");
+
+        Assert.NotNull(span);
+        Assert.IsType<OtelSpan>(span);
+        // No-op span has null activity
+        Assert.Null(span.Activity);
     }
 
     [Fact]
@@ -135,10 +138,10 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
 
         using var span = trace.CreateSpan(
             "test-span",
-            type: "retrieval",
-            description: "Test description",
-            input: new { query = "test" },
-            configure: s =>
+            "retrieval",
+            "Test description",
+            new { query = "test" },
+            s =>
             {
                 configureInvoked = true;
                 s.SetOutput(new { result = "output" });
@@ -160,13 +163,15 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void CreateGeneration_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void CreateGeneration_WithoutActiveTrace_ReturnsNoOpGeneration()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception =
-            Assert.Throws<InvalidOperationException>(() => trace.CreateGeneration("test-generation", "gpt-4"));
-        Assert.Contains("No active trace", exception.Message);
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+
+        Assert.NotNull(generation);
+        Assert.IsType<OtelGeneration>(generation);
+        Assert.Null(generation.Activity);
     }
 
     [Fact]
@@ -178,11 +183,11 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
         using var generation = trace.CreateGeneration(
             "test-generation",
             "gpt-4",
-            provider: "openai",
-            input: new { prompt = "Hello" },
-            configure: g => { g.SetTemperature(0.7); });
+            "openai",
+            new { prompt = "Hello" },
+            g => { g.SetTemperature(0.7); });
 
-        var genActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-generation");
+        var genActivity = generation.Activity;
         Assert.NotNull(genActivity);
         Assert.Equal("gpt-4", genActivity.GetTagItem(GenAiAttributes.RequestModel));
         Assert.Equal("openai", genActivity.GetTagItem(GenAiAttributes.ProviderName));
@@ -202,13 +207,15 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void CreateToolCall_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void CreateToolCall_WithoutActiveTrace_ReturnsNoOpToolCall()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception =
-            Assert.Throws<InvalidOperationException>(() => trace.CreateToolCall("test-tool-call", "get_weather"));
-        Assert.Contains("No active trace", exception.Message);
+        using var toolCall = trace.CreateToolCall("test-tool-call", "get_weather");
+
+        Assert.NotNull(toolCall);
+        Assert.IsType<OtelToolCall>(toolCall);
+        Assert.Null(toolCall.Activity);
     }
 
     [Fact]
@@ -224,12 +231,15 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void CreateEvent_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void CreateEvent_WithoutActiveTrace_ReturnsNoOpEvent()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => trace.CreateEvent("test-event"));
-        Assert.Contains("No active trace", exception.Message);
+        using var otelEvent = trace.CreateEvent("test-event");
+
+        Assert.NotNull(otelEvent);
+        Assert.IsType<OtelEvent>(otelEvent);
+        Assert.Null(otelEvent.Activity);
     }
 
     [Fact]
@@ -240,8 +250,8 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
 
         using var otelEvent = trace.CreateEvent(
             "test-event",
-            input: new { data = "input" },
-            output: new { result = "output" });
+            new { data = "input" },
+            new { result = "output" });
 
         var eventActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-event");
         Assert.NotNull(eventActivity);
@@ -267,13 +277,15 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void CreateEmbedding_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void CreateEmbedding_WithoutActiveTrace_ReturnsNoOpEmbedding()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception =
-            Assert.Throws<InvalidOperationException>(() => trace.CreateEmbedding("test-embedding", "text-ada"));
-        Assert.Contains("No active trace", exception.Message);
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-ada");
+
+        Assert.NotNull(embedding);
+        Assert.IsType<OtelEmbedding>(embedding);
+        Assert.Null(embedding.Activity);
     }
 
     [Fact]
@@ -289,14 +301,16 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void CreateAgent_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void CreateAgent_WithoutActiveTrace_ReturnsNoOpAgent()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => trace.CreateAgent("test-agent", "agent-123"));
-        Assert.Contains("No active trace", exception.Message);
-    }
+        using var agent = trace.CreateAgent("test-agent", "agent-123");
 
+        Assert.NotNull(agent);
+        Assert.IsType<OtelAgent>(agent);
+        Assert.Null(agent.Activity);
+    }
 
 
     [Fact]
@@ -313,12 +327,12 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void SetInput_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void SetInput_WithoutActiveTrace_DoesNotThrow()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => trace.SetInput(new { query = "test" }));
-        Assert.Contains("No active trace", exception.Message);
+        // Should not throw, just no-op
+        trace.SetInput(new { query = "test" });
     }
 
     [Fact]
@@ -335,12 +349,12 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     }
 
     [Fact]
-    public void SetOutput_WithoutActiveTrace_ThrowsInvalidOperationException()
+    public void SetOutput_WithoutActiveTrace_DoesNotThrow()
     {
         using var trace = new OtelLangfuseTrace();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => trace.SetOutput(new { result = "test" }));
-        Assert.Contains("No active trace", exception.Message);
+        // Should not throw, just no-op
+        trace.SetOutput(new { result = "test" });
     }
 
     [Fact]

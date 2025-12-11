@@ -5,16 +5,16 @@ namespace Langfuse.Example.OpenTelemetry.Services;
 
 /// <summary>
 ///     Chat service that demonstrates multi-service tracing with OpenTelemetry.
-///     Using the simplified OtelLangfuseTrace API.
+///     Using the simplified IOtelLangfuseTrace API.
 /// </summary>
 public class OtelChatService
 {
     private readonly OtelDataService _dataService;
     private readonly OtelOpenAiService _openAiService;
-    private readonly OtelLangfuseTrace _trace;
+    private readonly IOtelLangfuseTrace _trace;
 
     public OtelChatService(
-        OtelLangfuseTrace trace,
+        IOtelLangfuseTrace trace,
         OtelOpenAiService openAiService,
         OtelDataService dataService)
     {
@@ -102,10 +102,10 @@ public class OtelChatService
 public class OtelDataService
 {
     private readonly OtelOpenAiService _openAiService;
-    private readonly OtelLangfuseTrace _trace;
+    private readonly IOtelLangfuseTrace _trace;
 
     public OtelDataService(
-        OtelLangfuseTrace trace,
+        IOtelLangfuseTrace trace,
         OtelOpenAiService openAiService)
     {
         _trace = trace;

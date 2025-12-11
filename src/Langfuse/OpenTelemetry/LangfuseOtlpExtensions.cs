@@ -75,7 +75,7 @@ public static class LangfuseOtlpExtensions
     /// <summary>
     ///     Registers Langfuse OpenTelemetry tracing services for dependency injection.
     ///     This includes:
-    ///     - OtelLangfuseTrace (scoped) - for sharing a trace across services within a request
+    ///     - IOtelLangfuseTrace (scoped) - for sharing a trace across services within a request
     /// </summary>
     /// <param name="services">The service collection to add the services to.</param>
     /// <returns>The service collection for method chaining.</returns>
@@ -84,7 +84,19 @@ public static class LangfuseOtlpExtensions
         // Register the ActivityListener for automatic Baggage propagation
         UseLangfuseActivityListener();
 
-        services.TryAddScoped<OtelLangfuseTrace>();
+        services.TryAddScoped<IOtelLangfuseTrace, OtelLangfuseTrace>();
+        return services;
+    }
+
+    /// <summary>
+    ///     Registers a no-op implementation of IOtelLangfuseTrace for testing scenarios.
+    ///     Use this in tests where you don't need actual Langfuse tracing.
+    /// </summary>
+    /// <param name="services">The service collection to add the services to.</param>
+    /// <returns>The service collection for method chaining.</returns>
+    public static IServiceCollection AddLangfuseTracingNoOp(this IServiceCollection services)
+    {
+        services.TryAddScoped<IOtelLangfuseTrace>(_ => NullOtelLangfuseTrace.Instance);
         return services;
     }
 
