@@ -48,6 +48,12 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
 
     private bool ShouldExport(Activity activity)
     {
+        // Check if activity is marked as skipped using standard OTel mechanism
+        if (!activity.Recorded || !activity.IsAllDataRequested)
+        {
+            return false;
+        }
+
         var shouldExport = true;
 
         if (_options.OnlyGenAiActivities)

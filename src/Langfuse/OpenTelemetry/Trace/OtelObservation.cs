@@ -78,6 +78,38 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
+    ///     Marks this observation as skipped. Skipped observations will not be exported to Langfuse.
+    ///     Use this when an operation turns out to be unnecessary (e.g., record already exists)
+    ///     and you don't want to send the observation data.
+    /// </summary>
+    public void Skip()
+    {
+        if (Activity == null)
+        {
+            return;
+        }
+
+        Activity.IsAllDataRequested = false;
+        Activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+    }
+
+    /// <summary>
+    ///     Gets whether this observation has been marked as skipped.
+    /// </summary>
+    public bool IsSkipped
+    {
+        get
+        {
+            if (Activity == null)
+            {
+                return false;
+            }
+
+            return !Activity.IsAllDataRequested || !Activity.Recorded;
+        }
+    }
+
+    /// <summary>
     ///     Ends the observation and disposes the activity.
     /// </summary>
     public virtual void EndObservation()

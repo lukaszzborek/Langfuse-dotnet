@@ -12,6 +12,8 @@ public static class OtelTraceEndpoints
         app.MapPost("/otel-trace-example", OtelTraceExample);
         app.MapPost("/otel-nested-example", OtelNestedExample);
         app.MapPost("/otel-agent-example", OtelAgentExample);
+        app.MapPost("/otel-skip-span-example", OtelSkipSpanExample);
+        app.MapPost("/otel-skip-trace-example", OtelSkipTraceExample);
 
         return app;
     }
@@ -222,5 +224,169 @@ public static class OtelTraceEndpoints
             success = true,
             traceId = trace.TraceActivity?.TraceId.ToString()
         });
+    }
+
+    /// <summary>
+    /// Example demonstrating how to skip individual spans/observations.
+    /// Useful when a task turns out to be unnecessary (e.g., cached result, record already exists).
+    /// The skipped span won't be sent to Langfuse, but the trace and other observations will be.
+    /// </summary>
+    private static async Task<IResult> OtelSkipSpanExample([FromBody] ChatCompletionRequest request)
+    {
+        // Simulate a cache lookup
+        var cachedResult = request.Prompt.Contains("cached") ? "This is a cached response" : null;
+
+        using var trace = new OtelLangfuseTrace("processing-with-cache",
+            "user-123",
+            tags: ["cache-example"],
+            input: new { query = request.Prompt });
+
+        // Span for cache check - always runs
+        using (var cacheCheckSpan = trace.CreateSpan("cache-check",
+                   "cache",
+                   "Check if result is cached"))
+        {
+            await Task.Delay(10);
+            cacheCheckSpan.SetOutput(new { cacheHit = cachedResult != null });
+        }
+
+        // Span for LLM processing - will be skipped if we have a cached result
+        using (var processingSpan = trace.CreateSpan("llm-processing",
+                   "llm",
+                   "Process with LLM if not cached"))
+        {
+            if (cachedResult != null)
+            {
+                // Skip this span - it won't be sent to Langfuse
+                processingSpan.Skip();
+
+                trace.SetOutput(new { result = cachedResult, source = "cache" });
+
+                return Results.Ok(new
+                {
+                    success = true,
+                    result = cachedResult,
+                    source = "cache",
+                    traceId = trace.TraceActivity?.TraceId.ToString(),
+                    message = "LLM processing span was skipped (not sent to Langfuse)"
+                });
+            }
+
+            // If not cached, proceed with LLM call
+            using (var generation = trace.CreateGeneration("generate-response",
+                       request.Model,
+                       request.Provider ?? "openai",
+                       configure: g =>
+                       {
+                           g.SetTemperature(0.7);
+                           g.SetPrompt(request.Prompt);
+                       }))
+            {
+                await Task.Delay(200);
+
+                var response = $"Generated response for: {request.Prompt}";
+                generation.SetResponse(new GenAiResponse
+                {
+                    Model = request.Model,
+                    InputTokens = 20,
+                    OutputTokens = 15,
+                    FinishReasons = ["stop"],
+                    Completion = response
+                });
+
+                processingSpan.SetOutput(new { response });
+                trace.SetOutput(new { result = response, source = "llm" });
+
+                return Results.Ok(new
+                {
+                    success = true,
+                    result = response,
+                    source = "llm",
+                    traceId = trace.TraceActivity?.TraceId.ToString(),
+                    message = "LLM processing span was recorded"
+                });
+            }
+        }
+    }
+
+    /// <summary>
+    /// Example demonstrating how to skip an entire trace.
+    /// Useful when the entire operation should be discarded (e.g., duplicate request, invalid input).
+    /// Nothing will be sent to Langfuse when the trace is skipped.
+    /// </summary>
+    private static async Task<IResult> OtelSkipTraceExample([FromBody] ChatCompletionRequest request)
+    {
+        // Simulate a duplicate request check
+        var isDuplicateRequest = request.Prompt.Contains("duplicate");
+
+        using var trace = new OtelLangfuseTrace("request-processing",
+            "user-456",
+            tags: ["skip-trace-example"],
+            input: new { query = request.Prompt });
+
+        using (var t = trace.CreateEmbedding("query-embedding", "text-embedding-3-small", "openai", request.Prompt))
+        {
+            await Task.Delay(10);
+            t.SetResponse(new GenAiResponse { InputTokens = 15 });
+        }
+
+        // Initial validation span
+        using (var validationSpan = trace.CreateSpan("validate-request",
+                   "validation",
+                   "Validate the incoming request"))
+        {
+            await Task.Delay(10);
+
+            if (isDuplicateRequest)
+            {
+                validationSpan.SetOutput(new { valid = false, reason = "duplicate_request" });
+
+                // Skip the entire trace - nothing will be sent to Langfuse
+                trace.SkipTrace();
+
+                return Results.Ok(new
+                {
+                    success = false,
+                    error = "Duplicate request detected",
+                    traceId = trace.TraceActivity?.TraceId.ToString(),
+                    message = "Entire trace was skipped (nothing sent to Langfuse)"
+                });
+            }
+
+            validationSpan.SetOutput(new { valid = true });
+        }
+
+        // Process the valid request
+        using (var generation = trace.CreateGeneration("process-request",
+                   request.Model,
+                   request.Provider ?? "openai",
+                   configure: g =>
+                   {
+                       g.SetTemperature(0.7);
+                       g.SetPrompt(request.Prompt);
+                   }))
+        {
+            await Task.Delay(200);
+
+            var response = $"Processed: {request.Prompt}";
+            generation.SetResponse(new GenAiResponse
+            {
+                Model = request.Model,
+                InputTokens = 20,
+                OutputTokens = 15,
+                FinishReasons = ["stop"],
+                Completion = response
+            });
+
+            trace.SetOutput(new { result = response });
+
+            return Results.Ok(new
+            {
+                success = true,
+                result = response,
+                traceId = trace.TraceActivity?.TraceId.ToString(),
+                message = "Trace was recorded normally"
+            });
+        }
     }
 }

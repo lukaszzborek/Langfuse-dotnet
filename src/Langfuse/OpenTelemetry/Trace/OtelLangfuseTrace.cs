@@ -204,6 +204,37 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
     }
 
     /// <summary>
+    ///     Marks this trace as skipped. Skipped traces and all their observations will not be exported to Langfuse.
+    ///     Use this when an entire operation turns out to be unnecessary (e.g., request already processed).
+    /// </summary>
+    public void SkipTrace()
+    {
+        if (TraceActivity == null)
+        {
+            return;
+        }
+
+        TraceActivity.IsAllDataRequested = false;
+        TraceActivity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+    }
+
+    /// <summary>
+    ///     Gets whether this trace has been marked as skipped.
+    /// </summary>
+    public bool IsSkipped
+    {
+        get
+        {
+            if (TraceActivity == null)
+            {
+                return false;
+            }
+
+            return !TraceActivity.IsAllDataRequested || !TraceActivity.Recorded;
+        }
+    }
+
+    /// <summary>
     ///     Creates a span observation.
     /// </summary>
     /// <param name="name">The span name.</param>

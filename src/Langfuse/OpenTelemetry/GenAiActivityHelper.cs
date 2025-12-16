@@ -207,7 +207,7 @@ public static class GenAiActivityHelper
         {
             return null;
         }
-
+        
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEmbedding);
 
         activity.SetTag(GenAiAttributes.OperationName, "embeddings");

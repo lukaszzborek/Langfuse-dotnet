@@ -117,3 +117,25 @@ Content-Type: application/json
 ### Run Parallel Summary Example
 POST {{url}}/run-parallel-summary
 Content-Type: application/json
+
+###
+POST {{url}}/otel-skip-span-example
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "prompt": "Research the latest trends in AI development cached",
+  "temperature": 0.7
+}
+
+###
+POST {{url}}/otel-skip-trace-example
+Content-Type: application/json
+
+{
+  "model": "gpt-4",
+  "provider": "openai",
+  "prompt": "Research the latest trends in AI development duplicate",
+  "temperature": 0.7
+}

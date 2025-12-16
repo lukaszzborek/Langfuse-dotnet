@@ -614,4 +614,199 @@ public class OtelObservationTests : IDisposable
         Assert.Equal(LangfuseAttributes.ObservationTypeGeneration,
             genActivity.GetTagItem(LangfuseAttributes.ObservationType));
     }
+
+    #region Skip Functionality Tests
+
+    [Fact]
+    public void Skip_ClearsRecordedFlag()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var span = trace.CreateSpan("test-span");
+
+        var spanActivity = span.Activity;
+        Assert.NotNull(spanActivity);
+        Assert.True(spanActivity.Recorded);
+
+        span.Skip();
+
+        Assert.False(spanActivity.Recorded);
+        Assert.False(spanActivity.IsAllDataRequested);
+    }
+
+    [Fact]
+    public void Skip_SetsIsSkippedToTrue()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var span = trace.CreateSpan("test-span");
+
+        Assert.False(span.IsSkipped);
+        span.Skip();
+        Assert.True(span.IsSkipped);
+    }
+
+    [Fact]
+    public void IsSkipped_FalseByDefault()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var span = trace.CreateSpan("test-span");
+
+        Assert.False(span.IsSkipped);
+    }
+
+    [Fact]
+    public void Skip_WorksOnGeneration()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var generation = trace.CreateGeneration("test-gen", "gpt-4");
+
+        Assert.False(generation.IsSkipped);
+        generation.Skip();
+        Assert.True(generation.IsSkipped);
+
+        var genActivity = generation.Activity;
+        Assert.NotNull(genActivity);
+        Assert.False(genActivity.Recorded);
+    }
+
+    [Fact]
+    public void Skip_WorksOnEvent()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var evt = trace.CreateEvent("test-event");
+
+        Assert.False(evt.IsSkipped);
+        evt.Skip();
+        Assert.True(evt.IsSkipped);
+
+        var eventActivity = evt.Activity;
+        Assert.NotNull(eventActivity);
+        Assert.False(eventActivity.Recorded);
+    }
+
+    [Fact]
+    public void Skip_WorksOnToolCall()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var toolCall = trace.CreateToolCall("test-tool", "get_weather");
+
+        Assert.False(toolCall.IsSkipped);
+        toolCall.Skip();
+        Assert.True(toolCall.IsSkipped);
+    }
+
+    [Fact]
+    public void Skip_WorksOnEmbedding()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var embedding = trace.CreateEmbedding("test-embed", "text-embedding-ada");
+
+        Assert.False(embedding.IsSkipped);
+        embedding.Skip();
+        Assert.True(embedding.IsSkipped);
+    }
+
+    [Fact]
+    public void Skip_WorksOnAgent()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var agent = trace.CreateAgent("test-agent", "agent-123");
+
+        Assert.False(agent.IsSkipped);
+        agent.Skip();
+        Assert.True(agent.IsSkipped);
+    }
+
+    [Fact]
+    public void Skip_CanBeCalledMultipleTimes()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var span = trace.CreateSpan("test-span");
+
+        span.Skip();
+        span.Skip();
+        span.Skip();
+
+        Assert.True(span.IsSkipped);
+    }
+
+    [Fact]
+    public void SkipTrace_ClearsRecordedFlag()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+
+        var traceActivity = trace.TraceActivity;
+        Assert.NotNull(traceActivity);
+        Assert.True(traceActivity.Recorded);
+
+        trace.SkipTrace();
+
+        Assert.False(traceActivity.Recorded);
+        Assert.False(traceActivity.IsAllDataRequested);
+    }
+
+    [Fact]
+    public void SkipTrace_SetsIsSkippedToTrue()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+
+        Assert.False(trace.IsSkipped);
+        trace.SkipTrace();
+        Assert.True(trace.IsSkipped);
+    }
+
+    [Fact]
+    public void IsSkipped_FalseByDefault_ForTrace()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+
+        Assert.False(trace.IsSkipped);
+    }
+
+    [Fact]
+    public void SkipTrace_CanBeCalledMultipleTimes()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+
+        trace.SkipTrace();
+        trace.SkipTrace();
+        trace.SkipTrace();
+
+        Assert.True(trace.IsSkipped);
+    }
+
+    [Fact]
+    public void Skip_WithNullActivity_DoesNotThrow()
+    {
+        // Using NullOtelLangfuseTrace creates observations with null activity
+        var trace = NullOtelLangfuseTrace.Instance;
+        var span = trace.CreateSpan("test-span");
+
+        var exception = Record.Exception(() => span.Skip());
+        Assert.Null(exception);
+        Assert.False(span.IsSkipped);
+    }
+
+    [Fact]
+    public void SkipTrace_WithNullActivity_DoesNotThrow()
+    {
+        var trace = NullOtelLangfuseTrace.Instance;
+
+        var exception = Record.Exception(() => trace.SkipTrace());
+        Assert.Null(exception);
+        Assert.False(trace.IsSkipped);
+    }
+
+    [Fact]
+    public void Skip_AfterSettingOutputStillWorks()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var span = trace.CreateSpan("test-span");
+
+        span.SetOutput(new { result = "done" });
+        span.Skip();
+
+        Assert.True(span.IsSkipped);
+    }
+
+    #endregion
 }
