@@ -342,7 +342,7 @@ public static class OtelTraceEndpoints
                 validationSpan.SetOutput(new { valid = false, reason = "duplicate_request" });
 
                 // Skip the entire trace - nothing will be sent to Langfuse
-                trace.SkipTrace();
+                trace.Skip();
 
                 return Results.Ok(new
                 {

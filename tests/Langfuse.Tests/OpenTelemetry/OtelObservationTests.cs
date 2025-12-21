@@ -730,51 +730,6 @@ public class OtelObservationTests : IDisposable
     }
 
     [Fact]
-    public void SkipTrace_ClearsRecordedFlag()
-    {
-        using var trace = new OtelLangfuseTrace("test-trace");
-
-        var traceActivity = trace.TraceActivity;
-        Assert.NotNull(traceActivity);
-        Assert.True(traceActivity.Recorded);
-
-        trace.SkipTrace();
-
-        Assert.False(traceActivity.Recorded);
-        Assert.False(traceActivity.IsAllDataRequested);
-    }
-
-    [Fact]
-    public void SkipTrace_SetsIsSkippedToTrue()
-    {
-        using var trace = new OtelLangfuseTrace("test-trace");
-
-        Assert.False(trace.IsSkipped);
-        trace.SkipTrace();
-        Assert.True(trace.IsSkipped);
-    }
-
-    [Fact]
-    public void IsSkipped_FalseByDefault_ForTrace()
-    {
-        using var trace = new OtelLangfuseTrace("test-trace");
-
-        Assert.False(trace.IsSkipped);
-    }
-
-    [Fact]
-    public void SkipTrace_CanBeCalledMultipleTimes()
-    {
-        using var trace = new OtelLangfuseTrace("test-trace");
-
-        trace.SkipTrace();
-        trace.SkipTrace();
-        trace.SkipTrace();
-
-        Assert.True(trace.IsSkipped);
-    }
-
-    [Fact]
     public void Skip_WithNullActivity_DoesNotThrow()
     {
         // Using NullOtelLangfuseTrace creates observations with null activity
@@ -784,16 +739,6 @@ public class OtelObservationTests : IDisposable
         var exception = Record.Exception(() => span.Skip());
         Assert.Null(exception);
         Assert.False(span.IsSkipped);
-    }
-
-    [Fact]
-    public void SkipTrace_WithNullActivity_DoesNotThrow()
-    {
-        var trace = NullOtelLangfuseTrace.Instance;
-
-        var exception = Record.Exception(() => trace.SkipTrace());
-        Assert.Null(exception);
-        Assert.False(trace.IsSkipped);
     }
 
     [Fact]

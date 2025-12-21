@@ -56,15 +56,10 @@ public interface IOtelLangfuseTrace : IDisposable
     void SetOutput(object output);
 
     /// <summary>
-    ///     Marks this trace as skipped. Skipped traces and all their observations will not be exported to Langfuse.
-    ///     Use this when an entire operation turns out to be unnecessary (e.g., request already processed).
+    ///     Marks the entire trace as skipped. Skipped traces and all their observations
+    ///     will not be exported to Langfuse.
     /// </summary>
-    void SkipTrace();
-
-    /// <summary>
-    ///     Gets whether this trace has been marked as skipped.
-    /// </summary>
-    bool IsSkipped { get; }
+    void Skip();
 
     /// <summary>
     ///     Creates a span observation.

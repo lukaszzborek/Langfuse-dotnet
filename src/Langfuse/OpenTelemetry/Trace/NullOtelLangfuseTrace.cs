@@ -49,12 +49,9 @@ public sealed class NullOtelLangfuseTrace : IOtelLangfuseTrace
     }
 
     /// <inheritdoc />
-    public void SkipTrace()
+    public void Skip()
     {
     }
-
-    /// <inheritdoc />
-    public bool IsSkipped => false;
 
     /// <inheritdoc />
     public OtelSpan CreateSpan(
