@@ -11,29 +11,21 @@ public class LangfuseApiException : Exception
     public int StatusCode { get; }
 
     /// <summary>
-    ///     Error code from the API response, if available
+    ///     Raw response body from the API
     /// </summary>
-    public string? ErrorCode { get; }
-
-    /// <summary>
-    ///     Additional error details from the API response
-    /// </summary>
-    public IDictionary<string, object>? Details { get; }
+    public string? ResponseBody { get; }
 
     /// <summary>
     ///     Initializes a new instance of the LangfuseApiException class
     /// </summary>
     /// <param name="statusCode">HTTP status code</param>
     /// <param name="message">Error message</param>
-    /// <param name="errorCode">Optional error code</param>
-    /// <param name="details">Optional error details</param>
-    public LangfuseApiException(int statusCode, string message, string? errorCode = null,
-        IDictionary<string, object>? details = null)
+    /// <param name="responseBody">Raw response body</param>
+    public LangfuseApiException(int statusCode, string message, string? responseBody = null)
         : base(message)
     {
         StatusCode = statusCode;
-        ErrorCode = errorCode;
-        Details = details;
+        ResponseBody = responseBody;
     }
 
     /// <summary>
@@ -42,14 +34,9 @@ public class LangfuseApiException : Exception
     /// <param name="statusCode">HTTP status code</param>
     /// <param name="message">Error message</param>
     /// <param name="innerException">Inner exception</param>
-    /// <param name="errorCode">Optional error code</param>
-    /// <param name="details">Optional error details</param>
-    public LangfuseApiException(int statusCode, string message, Exception innerException, string? errorCode = null,
-        IDictionary<string, object>? details = null)
+    public LangfuseApiException(int statusCode, string message, Exception innerException)
         : base(message, innerException)
     {
         StatusCode = statusCode;
-        ErrorCode = errorCode;
-        Details = details;
     }
 }

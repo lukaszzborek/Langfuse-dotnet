@@ -524,28 +524,6 @@ internal partial class LangfuseClient : ILangfuseClient
         var errorContent = await response.Content.ReadAsStringAsync();
         var statusCode = (int)response.StatusCode;
 
-        var errorMessage = response.StatusCode switch
-        {
-            HttpStatusCode.BadRequest => "Invalid request. Please check your request parameters",
-            HttpStatusCode.Unauthorized => "Authentication failed. Please check your API credentials",
-            HttpStatusCode.Forbidden => "Access forbidden. You don't have permission to access this resource",
-            HttpStatusCode.NotFound => "The requested resource was not found",
-            HttpStatusCode.MethodNotAllowed => "HTTP method not allowed for this endpoint",
-            HttpStatusCode.Conflict => "Resource already exists or conflict with existing data",
-            HttpStatusCode.UnprocessableEntity => "Request data validation failed",
-            HttpStatusCode.TooManyRequests => "Rate limit exceeded. Please retry after some time",
-            HttpStatusCode.InternalServerError => "Internal server error occurred",
-            HttpStatusCode.BadGateway => "Bad gateway error. Please try again later",
-            HttpStatusCode.ServiceUnavailable => "Service temporarily unavailable. Please try again later",
-            HttpStatusCode.GatewayTimeout => "Gateway timeout. Please try again later",
-            _ => $"API request failed with status code {statusCode}"
-        };
-
-        throw new LangfuseApiException(statusCode, errorMessage, details: new Dictionary<string, object>
-        {
-            ["responseContent"] = errorContent,
-            ["statusCode"] = statusCode,
-            ["endpoint"] = response.RequestMessage?.RequestUri?.ToString() ?? "unknown"
-        });
+        throw new LangfuseApiException(statusCode, $"API request failed with status code {statusCode} and response body : {errorContent}", errorContent);
     }
 }

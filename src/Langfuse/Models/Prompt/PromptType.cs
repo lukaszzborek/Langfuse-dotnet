@@ -6,7 +6,7 @@ namespace zborek.Langfuse.Models.Prompt;
 /// <summary>
 ///     Defines the type of prompt template, determining its structure and intended AI model interface.
 /// </summary>
-[JsonConverter(typeof(UppercaseEnumConverter<PromptType>))]
+[JsonConverter(typeof(LowercaseEnumConverter<PromptType>))]
 public enum PromptType
 {
     /// <summary>
