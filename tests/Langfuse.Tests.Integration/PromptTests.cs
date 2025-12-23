@@ -135,8 +135,8 @@ public class PromptTests
         });
 
         // Act - Get specific version
-        var promptV1 = await client.GetPromptAsync(promptName, version: 1);
-        var promptV2 = await client.GetPromptAsync(promptName, version: 2);
+        var promptV1 = await client.GetPromptAsync(promptName, 1);
+        var promptV2 = await client.GetPromptAsync(promptName, 2);
 
         // Assert
         Assert.Equal(1, promptV1.Version);

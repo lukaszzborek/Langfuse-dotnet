@@ -1,10 +1,13 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
 using Testcontainers.ClickHouse;
 using Testcontainers.Minio;
 using Testcontainers.PostgreSql;
 using Testcontainers.Redis;
+using zborek.Langfuse.OpenTelemetry;
 
 namespace Langfuse.Tests.Integration.Fixtures;
 
@@ -42,6 +45,7 @@ public class LangfuseTestFixture : IAsyncLifetime
     private INetwork? _network;
     private PostgreSqlContainer? _postgresContainer;
     private RedisContainer? _redisContainer;
+    private TracerProvider? _tracerProvider;
 
     /// <summary>
     ///     Gets the Langfuse API base URL for testing.
@@ -58,6 +62,24 @@ public class LangfuseTestFixture : IAsyncLifetime
     /// </summary>
     public string SecretKey => InitProjectSecretKey;
 
+    /// <summary>
+    ///     Gets the project ID for the test project.
+    /// </summary>
+    public string ProjectId => "test-project";
+
+    /// <summary>
+    ///     Gets the TracerProvider for OpenTelemetry-based tracing.
+    /// </summary>
+    public TracerProvider? TracerProvider => _tracerProvider;
+
+    /// <summary>
+    ///     Flushes all pending OpenTelemetry exports to ensure data is sent to Langfuse.
+    /// </summary>
+    public void FlushTraces()
+    {
+        _tracerProvider?.ForceFlush();
+    }
+
     public async Task InitializeAsync()
     {
         // Create a shared network for all containers
@@ -72,10 +94,32 @@ public class LangfuseTestFixture : IAsyncLifetime
 
         // Start Langfuse services (they depend on infrastructure)
         await StartLangfuseServicesAsync();
+
+        // Configure OpenTelemetry TracerProvider after services are running
+        ConfigureOpenTelemetry();
+    }
+
+    private void ConfigureOpenTelemetry()
+    {
+        // Register the Langfuse ActivityListener for automatic context enrichment
+        LangfuseOtlpExtensions.UseLangfuseActivityListener();
+
+        _tracerProvider = Sdk.CreateTracerProviderBuilder()
+            .AddLangfuseExporter(options =>
+            {
+                options.Endpoint = LangfuseBaseUrl;
+                options.PublicKey = PublicKey;
+                options.SecretKey = SecretKey;
+                options.OnlyGenAiActivities = true;
+            })
+            .Build();
     }
 
     public async Task DisposeAsync()
     {
+        // Dispose TracerProvider first to flush any pending exports
+        _tracerProvider?.Dispose();
+
         // Dispose containers in reverse order of dependencies
         if (_langfuseWebContainer is not null)
         {
@@ -141,10 +185,12 @@ public class LangfuseTestFixture : IAsyncLifetime
 
         // MinIO
         _minioContainer = new MinioBuilder()
+            .WithImage("cgr.dev/chainguard/minio")
             .WithNetwork(_network)
             .WithNetworkAliases("minio")
             .WithUsername(MinioUser)
             .WithPassword(MinioPassword)
+            //.WithCommand("server", "--address", ":9000", "--console-address", ":9001", $"/data/{MinioBucket}")
             .Build();
 
         // Start all infrastructure containers in parallel
@@ -162,12 +208,12 @@ public class LangfuseTestFixture : IAsyncLifetime
     private async Task CreateMinioBucketAsync()
     {
         // Use mc client to create bucket
-        await _minioContainer!.ExecAsync(new[]
+        var result = await _minioContainer!.ExecAsync(new[]
         {
             "mc", "alias", "set", "local", "http://localhost:9000", MinioUser, MinioPassword
         });
 
-        await _minioContainer.ExecAsync(new[]
+        result = await _minioContainer.ExecAsync(new[]
         {
             "mc", "mb", $"local/{MinioBucket}", "--ignore-existing"
         });
