@@ -5,6 +5,7 @@ using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Shouldly;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.AnnotationQueue;
@@ -55,20 +56,20 @@ public class LangfuseClientAnnotationQueueTests
         var result = await _client.CreateAnnotationQueueAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("queue-123", result.Id);
-        Assert.Equal("Test Queue", result.Name);
-        Assert.Equal("Test Description", result.Description);
-        Assert.Equal(2, result.ScoreConfigIds.Length);
-        Assert.Equal("score-1", result.ScoreConfigIds[0]);
-        Assert.Equal("score-2", result.ScoreConfigIds[1]);
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("queue-123");
+        result.Name.ShouldBe("Test Queue");
+        result.Description.ShouldBe("Test Description");
+        result.ScoreConfigIds.Length.ShouldBe(2);
+        result.ScoreConfigIds[0].ShouldBe("score-1");
+        result.ScoreConfigIds[1].ShouldBe("score-2");
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Post, _httpHandler.LastRequest?.Method);
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/annotation-queues", requestUri);
-        Assert.DoesNotContain("?", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/annotation-queues");
+        requestUri.ShouldNotContain("?");
     }
 
     [Fact]
@@ -99,15 +100,15 @@ public class LangfuseClientAnnotationQueueTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"name\"", requestBody);
-        Assert.Contains("\"Serialization Test\"", requestBody);
-        Assert.Contains("\"description\"", requestBody);
-        Assert.Contains("\"Testing serialization\"", requestBody);
-        Assert.Contains("\"scoreConfigIds\"", requestBody);
-        Assert.Contains("\"cfg-1\"", requestBody);
-        Assert.Contains("\"cfg-2\"", requestBody);
-        Assert.Contains("\"cfg-3\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"name\"");
+        requestBody.ShouldContain("\"Serialization Test\"");
+        requestBody.ShouldContain("\"description\"");
+        requestBody.ShouldContain("\"Testing serialization\"");
+        requestBody.ShouldContain("\"scoreConfigIds\"");
+        requestBody.ShouldContain("\"cfg-1\"");
+        requestBody.ShouldContain("\"cfg-2\"");
+        requestBody.ShouldContain("\"cfg-3\"");
     }
 
     [Fact]
@@ -137,21 +138,21 @@ public class LangfuseClientAnnotationQueueTests
         var result = await _client.CreateAnnotationQueueAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("queue-789", result.Id);
-        Assert.Equal("Deserialization Test", result.Name);
-        Assert.Null(result.Description);
-        Assert.Single(result.ScoreConfigIds);
-        Assert.Equal("cfg-x", result.ScoreConfigIds[0]);
-        Assert.Equal(now, result.CreatedAt);
-        Assert.Equal(now, result.UpdatedAt);
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("queue-789");
+        result.Name.ShouldBe("Deserialization Test");
+        result.Description.ShouldBeNull();
+        result.ScoreConfigIds.ShouldHaveSingleItem();
+        result.ScoreConfigIds[0].ShouldBe("cfg-x");
+        result.CreatedAt.ShouldBe(now);
+        result.UpdatedAt.ShouldBe(now);
     }
 
     [Fact]
     public async Task CreateAnnotationQueueAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _client.CreateAnnotationQueueAsync(null!));
+        await Should.ThrowAsync<ArgumentNullException>(async () => await _client.CreateAnnotationQueueAsync(null!));
     }
 
     [Fact]
@@ -168,10 +169,10 @@ public class LangfuseClientAnnotationQueueTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await Should.ThrowAsync<LangfuseApiException>(async () =>
                 await _client.CreateAnnotationQueueAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.Unauthorized, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -197,16 +198,16 @@ public class LangfuseClientAnnotationQueueTests
         var result = await _client.CreateQueueAssignmentAsync(queueId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("user-456", result.UserId);
-        Assert.Equal("queue-123", result.QueueId);
-        Assert.Equal("project-789", result.ProjectId);
+        result.ShouldNotBeNull();
+        result.UserId.ShouldBe("user-456");
+        result.QueueId.ShouldBe("queue-123");
+        result.ProjectId.ShouldBe("project-789");
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Post, _httpHandler.LastRequest?.Method);
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/annotation-queues/queue-123/assignments", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/annotation-queues/queue-123/assignments");
     }
 
     [Fact]
@@ -219,7 +220,7 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.CreateQueueAssignmentAsync(null!, request));
     }
 
@@ -233,7 +234,7 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.CreateQueueAssignmentAsync(string.Empty, request));
     }
 
@@ -241,7 +242,7 @@ public class LangfuseClientAnnotationQueueTests
     public async Task CreateQueueAssignmentAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
             await _client.CreateQueueAssignmentAsync("queue-123", null!));
     }
 
@@ -257,10 +258,10 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Forbidden");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await _client.CreateQueueAssignmentAsync("queue-123", request));
 
-        Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -284,14 +285,14 @@ public class LangfuseClientAnnotationQueueTests
         var result = await _client.DeleteQueueAssignmentAsync(queueId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.True(result.Success);
+        result.ShouldNotBeNull();
+        result.Success.ShouldBeTrue();
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Delete, _httpHandler.LastRequest?.Method);
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/annotation-queues/queue-123/assignments", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/annotation-queues/queue-123/assignments");
     }
 
     [Fact]
@@ -316,9 +317,9 @@ public class LangfuseClientAnnotationQueueTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"userId\"", requestBody);
-        Assert.Contains("\"user-xyz\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"userId\"");
+        requestBody.ShouldContain("\"user-xyz\"");
     }
 
     [Fact]
@@ -342,7 +343,7 @@ public class LangfuseClientAnnotationQueueTests
         var result = await _client.DeleteQueueAssignmentAsync(queueId, request);
 
         // Assert
-        Assert.True(result.Success);
+        result.Success.ShouldBeTrue();
     }
 
     [Fact]
@@ -355,7 +356,7 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.DeleteQueueAssignmentAsync(null!, request));
     }
 
@@ -369,7 +370,7 @@ public class LangfuseClientAnnotationQueueTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.DeleteQueueAssignmentAsync(string.Empty, request));
     }
 
@@ -377,7 +378,7 @@ public class LangfuseClientAnnotationQueueTests
     public async Task DeleteQueueAssignmentAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
             await _client.DeleteQueueAssignmentAsync("queue-123", null!));
     }
 
@@ -393,10 +394,10 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.NotFound, "Not Found");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await _client.DeleteQueueAssignmentAsync("queue-123", request));
 
-        Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -417,11 +418,11 @@ public class LangfuseClientAnnotationQueueTests
         });
 
         // Assert
-        Assert.Contains("\"name\":\"Test Queue\"", json);
-        Assert.Contains("\"description\":\"Test Description\"", json);
-        Assert.Contains("\"scoreConfigIds\"", json);
-        Assert.Contains("\"cfg-1\"", json);
-        Assert.Contains("\"cfg-2\"", json);
+        json.ShouldContain("\"name\":\"Test Queue\"");
+        json.ShouldContain("\"description\":\"Test Description\"");
+        json.ShouldContain("\"scoreConfigIds\"");
+        json.ShouldContain("\"cfg-1\"");
+        json.ShouldContain("\"cfg-2\"");
     }
 
     [Fact]
@@ -440,7 +441,7 @@ public class LangfuseClientAnnotationQueueTests
         });
 
         // Assert
-        Assert.Contains("\"userId\":\"user-789\"", json);
+        json.ShouldContain("\"userId\":\"user-789\"");
     }
 
     [Fact]
@@ -457,10 +458,10 @@ public class LangfuseClientAnnotationQueueTests
             });
 
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal("user-123", response.UserId);
-        Assert.Equal("queue-456", response.QueueId);
-        Assert.Equal("project-789", response.ProjectId);
+        response.ShouldNotBeNull();
+        response.UserId.ShouldBe("user-123");
+        response.QueueId.ShouldBe("queue-456");
+        response.ProjectId.ShouldBe("project-789");
     }
 
     [Fact]
@@ -477,8 +478,8 @@ public class LangfuseClientAnnotationQueueTests
             });
 
         // Assert
-        Assert.NotNull(response);
-        Assert.True(response.Success);
+        response.ShouldNotBeNull();
+        response.Success.ShouldBeTrue();
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler

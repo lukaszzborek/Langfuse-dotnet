@@ -1,6 +1,8 @@
+using System.Text.Json;
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -62,16 +64,16 @@ public class ScoreTests
         var score = await client.CreateScoreAsync(request);
 
         // Assert
-        Assert.NotNull(score);
-        Assert.NotNull(score.Id);
+        score.ShouldNotBeNull();
+        score.Id.ShouldNotBeNull();
 
         // Wait for score to be available and verify properties
         var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
-        Assert.Equal(traceId, fetchedScore.TraceId);
-        Assert.Equal("quality", fetchedScore.Name);
+        fetchedScore.TraceId.ShouldBe(traceId);
+        fetchedScore.Name.ShouldBe("quality");
         // Handle JsonElement value type
-        var actualValue = fetchedScore.Value is System.Text.Json.JsonElement je ? je.GetDouble() : Convert.ToDouble(fetchedScore.Value);
-        Assert.Equal(0.85, actualValue, precision: 2);
+        var actualValue = fetchedScore.Value is JsonElement je ? je.GetDouble() : Convert.ToDouble(fetchedScore.Value);
+        actualValue.ShouldBe(0.85, 0.01);
     }
 
     [Fact]
@@ -96,12 +98,12 @@ public class ScoreTests
         var score = await client.CreateScoreAsync(request);
 
         // Assert
-        Assert.NotNull(score);
-        Assert.NotNull(score.Id);
+        score.ShouldNotBeNull();
+        score.Id.ShouldNotBeNull();
 
         // Wait for score to be available and verify StringValue
         var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
-        Assert.Equal("positive", fetchedScore.StringValue);
+        fetchedScore.StringValue.ShouldBe("positive");
     }
 
     [Fact]
@@ -127,12 +129,12 @@ public class ScoreTests
         var score = await client.CreateScoreAsync(request);
 
         // Assert
-        Assert.NotNull(score);
-        Assert.NotNull(score.Id);
+        score.ShouldNotBeNull();
+        score.Id.ShouldNotBeNull();
 
         // Wait for score to be available and verify properties
         var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
-        Assert.Equal("is_accurate", fetchedScore.Name);
+        fetchedScore.Name.ShouldBe("is_accurate");
     }
 
     [Fact]
@@ -159,8 +161,8 @@ public class ScoreTests
         var score = await client.CreateScoreAsync(request);
 
         // Assert
-        Assert.NotNull(score);
-        Assert.NotNull(score.Id);
+        score.ShouldNotBeNull();
+        score.Id.ShouldNotBeNull();
     }
 
     [Fact]
@@ -185,11 +187,11 @@ public class ScoreTests
         var score = await traceHelper.WaitForScoreAsync(createdScore.Id);
 
         // Assert
-        Assert.NotNull(score);
-        Assert.Equal(createdScore.Id, score.Id);
-        Assert.Equal("retrieval-score", score.Name);
-        var actualValue = score.Value is System.Text.Json.JsonElement je ? je.GetDouble() : Convert.ToDouble(score.Value);
-        Assert.Equal(0.75, actualValue, precision: 2);
+        score.ShouldNotBeNull();
+        score.Id.ShouldBe(createdScore.Id);
+        score.Name.ShouldBe("retrieval-score");
+        var actualValue = score.Value is JsonElement je ? je.GetDouble() : Convert.ToDouble(score.Value);
+        actualValue.ShouldBe(0.75, 0.01);
     }
 
     [Fact]
@@ -200,10 +202,10 @@ public class ScoreTests
         var nonExistentId = Guid.NewGuid().ToString();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetScoreAsync(nonExistentId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetScoreAsync(nonExistentId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -239,9 +241,9 @@ public class ScoreTests
         var result = await client.GetScoreListAsync(new ScoreListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.True(result.Data.Length >= 2);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        (result.Data.Length >= 2).ShouldBeTrue();
     }
 
     [Fact]
@@ -272,9 +274,9 @@ public class ScoreTests
         });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.All(result.Data, s => Assert.Equal(scoreName, s.Name));
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldAllBe(s => s.Name == scoreName);
     }
 
     [Fact]
@@ -299,9 +301,9 @@ public class ScoreTests
         await client.DeleteScoreAsync(score.Id);
 
         // Assert - Verify deletion
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetScoreAsync(score.Id));
-        Assert.Equal(404, exception.StatusCode);
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetScoreAsync(score.Id));
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -327,8 +329,8 @@ public class ScoreTests
         var score = await client.CreateScoreAsync(request);
 
         // Assert
-        Assert.NotNull(score);
-        Assert.NotNull(score.Id);
+        score.ShouldNotBeNull();
+        score.Id.ShouldNotBeNull();
     }
 
     [Fact]
@@ -359,8 +361,8 @@ public class ScoreTests
         });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.All(result.Data, s => Assert.Equal(scoreName, s.Name));
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldAllBe(s => s.Name == scoreName);
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using OpenTelemetry;
+using Shouldly;
 using zborek.Langfuse.OpenTelemetry;
 using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
@@ -41,10 +42,10 @@ public class OtelObservationTests : IDisposable
         span.SetInput(new { data = "test input" });
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
+        spanActivity.ShouldNotBeNull();
         var inputJson = spanActivity.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(inputJson);
-        Assert.Contains("test input", inputJson);
+        inputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("test input");
     }
 
     [Fact]
@@ -56,10 +57,10 @@ public class OtelObservationTests : IDisposable
         span.SetOutput(new { result = "test output" });
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
+        spanActivity.ShouldNotBeNull();
         var outputJson = spanActivity.GetTagItem(LangfuseAttributes.ObservationOutput) as string;
-        Assert.NotNull(outputJson);
-        Assert.Contains("test output", outputJson);
+        outputJson.ShouldNotBeNull();
+        outputJson.ShouldContain("test output");
     }
 
     [Fact]
@@ -72,10 +73,9 @@ public class OtelObservationTests : IDisposable
         span.SetMetadata("number_key", 42);
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
-        Assert.Equal("custom_value",
-            spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key"));
-        Assert.Equal(42, spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}number_key"));
+        spanActivity.ShouldNotBeNull();
+        spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key").ShouldBe("custom_value");
+        spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}number_key").ShouldBe(42);
     }
 
     [Fact]
@@ -87,8 +87,8 @@ public class OtelObservationTests : IDisposable
         span.SetLevel(LangfuseObservationLevel.Warning);
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
-        Assert.Equal("WARNING", spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel));
+        spanActivity.ShouldNotBeNull();
+        spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel).ShouldBe("WARNING");
     }
 
     [Fact]
@@ -100,8 +100,8 @@ public class OtelObservationTests : IDisposable
         span.SetLevel(LangfuseObservationLevel.Debug);
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
-        Assert.Equal("DEBUG", spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel));
+        spanActivity.ShouldNotBeNull();
+        spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel).ShouldBe("DEBUG");
     }
 
     [Fact]
@@ -113,8 +113,8 @@ public class OtelObservationTests : IDisposable
         span.SetLevel(LangfuseObservationLevel.Error);
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
-        Assert.Equal("ERROR", spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel));
+        spanActivity.ShouldNotBeNull();
+        spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel).ShouldBe("ERROR");
     }
 
     [Fact]
@@ -126,9 +126,9 @@ public class OtelObservationTests : IDisposable
         span.SetTag("custom.tag.key", "custom_value");
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
+        spanActivity.ShouldNotBeNull();
         KeyValuePair<string, string?> customTag = spanActivity.Tags.FirstOrDefault(t => t.Key == "custom.tag.key");
-        Assert.Equal("custom_value", customTag.Value);
+        customTag.Value.ShouldBe("custom_value");
     }
 
     [Fact]
@@ -138,12 +138,12 @@ public class OtelObservationTests : IDisposable
         var span = trace.CreateSpan("test-span");
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
-        Assert.False(spanActivity.IsStopped);
+        spanActivity.ShouldNotBeNull();
+        spanActivity.IsStopped.ShouldBeFalse();
 
         span.Dispose();
 
-        Assert.True(spanActivity.IsStopped);
+        spanActivity.IsStopped.ShouldBeTrue();
     }
 
     [Fact]
@@ -170,13 +170,13 @@ public class OtelObservationTests : IDisposable
         ]);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
+        genActivity.ShouldNotBeNull();
         var promptJson = genActivity.GetTagItem(GenAiAttributes.Prompt) as string;
-        Assert.NotNull(promptJson);
-        Assert.Contains("system", promptJson);
-        Assert.Contains("You are helpful.", promptJson);
-        Assert.Contains("user", promptJson);
-        Assert.Contains("Hello!", promptJson);
+        promptJson.ShouldNotBeNull();
+        promptJson.ShouldContain("system");
+        promptJson.ShouldContain("You are helpful.");
+        promptJson.ShouldContain("user");
+        promptJson.ShouldContain("Hello!");
     }
 
     [Fact]
@@ -188,11 +188,11 @@ public class OtelObservationTests : IDisposable
         generation.SetPrompt("What is the weather?");
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
+        genActivity.ShouldNotBeNull();
         var promptJson = genActivity.GetTagItem(GenAiAttributes.Prompt) as string;
-        Assert.NotNull(promptJson);
-        Assert.Contains("user", promptJson);
-        Assert.Contains("What is the weather?", promptJson);
+        promptJson.ShouldNotBeNull();
+        promptJson.ShouldContain("user");
+        promptJson.ShouldContain("What is the weather?");
     }
 
     [Fact]
@@ -210,7 +210,7 @@ public class OtelObservationTests : IDisposable
                 OutputTokens = 50,
                 FinishReasons = ["stop"]
             }));
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -222,11 +222,11 @@ public class OtelObservationTests : IDisposable
         generation.SetCompletion("Here is my response.");
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
+        genActivity.ShouldNotBeNull();
         var completionJson = genActivity.GetTagItem(GenAiAttributes.Completion) as string;
-        Assert.NotNull(completionJson);
-        Assert.Contains("assistant", completionJson);
-        Assert.Contains("Here is my response.", completionJson);
+        completionJson.ShouldNotBeNull();
+        completionJson.ShouldContain("assistant");
+        completionJson.ShouldContain("Here is my response.");
     }
 
     [Fact]
@@ -238,9 +238,9 @@ public class OtelObservationTests : IDisposable
         generation.SetPromptReference("my-prompt", 3);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.Equal("my-prompt", genActivity.GetTagItem(LangfuseAttributes.ObservationPromptName));
-        Assert.Equal(3, genActivity.GetTagItem(LangfuseAttributes.ObservationPromptVersion));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(LangfuseAttributes.ObservationPromptName).ShouldBe("my-prompt");
+        genActivity.GetTagItem(LangfuseAttributes.ObservationPromptVersion).ShouldBe(3);
     }
 
     [Fact]
@@ -253,10 +253,10 @@ public class OtelObservationTests : IDisposable
         generation.RecordCompletionStartTime(startTime);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
+        genActivity.ShouldNotBeNull();
         var timestamp = genActivity.GetTagItem(LangfuseAttributes.ObservationCompletionStartTime) as string;
-        Assert.NotNull(timestamp);
-        Assert.Contains("2024-06-15", timestamp);
+        timestamp.ShouldNotBeNull();
+        timestamp.ShouldContain("2024-06-15");
     }
 
     [Fact]
@@ -268,8 +268,8 @@ public class OtelObservationTests : IDisposable
         generation.SetTemperature(0.7);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.Equal(0.7, genActivity.GetTagItem(GenAiAttributes.RequestTemperature));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(GenAiAttributes.RequestTemperature).ShouldBe(0.7);
     }
 
     [Fact]
@@ -281,8 +281,8 @@ public class OtelObservationTests : IDisposable
         generation.SetMaxTokens(1000);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.Equal(1000, genActivity.GetTagItem(GenAiAttributes.RequestMaxTokens));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(GenAiAttributes.RequestMaxTokens).ShouldBe(1000);
     }
 
     [Fact]
@@ -294,8 +294,8 @@ public class OtelObservationTests : IDisposable
         generation.SetTopP(0.9);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.Equal(0.9, genActivity.GetTagItem(GenAiAttributes.RequestTopP));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(GenAiAttributes.RequestTopP).ShouldBe(0.9);
     }
 
     [Fact]
@@ -307,8 +307,8 @@ public class OtelObservationTests : IDisposable
         generation.SetTopK(50);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.Equal(50, genActivity.GetTagItem(GenAiAttributes.RequestTopK));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(GenAiAttributes.RequestTopK).ShouldBe(50);
     }
 
     [Fact]
@@ -320,8 +320,8 @@ public class OtelObservationTests : IDisposable
         generation.SetFrequencyPenalty(0.5);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.Equal(0.5, genActivity.GetTagItem(GenAiAttributes.RequestFrequencyPenalty));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(GenAiAttributes.RequestFrequencyPenalty).ShouldBe(0.5);
     }
 
     [Fact]
@@ -333,8 +333,8 @@ public class OtelObservationTests : IDisposable
         generation.SetPresencePenalty(0.3);
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.Equal(0.3, genActivity.GetTagItem(GenAiAttributes.RequestPresencePenalty));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(GenAiAttributes.RequestPresencePenalty).ShouldBe(0.3);
     }
 
     [Fact]
@@ -345,7 +345,7 @@ public class OtelObservationTests : IDisposable
 
         var exception = Record.Exception(() =>
             toolCall.SetArguments(new { location = "NYC" }));
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -356,7 +356,7 @@ public class OtelObservationTests : IDisposable
 
         var exception = Record.Exception(() =>
             toolCall.SetResult(new { temperature = 72, condition = "Sunny" }));
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -371,16 +371,15 @@ public class OtelObservationTests : IDisposable
         toolCall.SetLevel(LangfuseObservationLevel.Default);
 
         var toolActivity = toolCall.Activity;
-        Assert.NotNull(toolActivity);
+        toolActivity.ShouldNotBeNull();
 
         var inputJson = toolActivity.GetTagItem(LangfuseAttributes.ObservationInput) as string;
         var outputJson = toolActivity.GetTagItem(LangfuseAttributes.ObservationOutput) as string;
-        Assert.NotNull(inputJson);
-        Assert.NotNull(outputJson);
-        Assert.Contains("NYC weather", inputJson);
-        Assert.Contains("72F", outputJson);
-        Assert.Equal("weather_api",
-            toolActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}source"));
+        inputJson.ShouldNotBeNull();
+        outputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("NYC weather");
+        outputJson.ShouldContain("72F");
+        toolActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}source").ShouldBe("weather_api");
     }
 
     [Fact]
@@ -392,10 +391,10 @@ public class OtelObservationTests : IDisposable
         embedding.SetText("Text to embed");
 
         var embedActivity = embedding.Activity;
-        Assert.NotNull(embedActivity);
+        embedActivity.ShouldNotBeNull();
         var inputJson = embedActivity.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(inputJson);
-        Assert.Contains("Text to embed", inputJson);
+        inputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("Text to embed");
     }
 
     [Fact]
@@ -411,9 +410,9 @@ public class OtelObservationTests : IDisposable
         });
 
         var embedActivity = embedding.Activity;
-        Assert.NotNull(embedActivity);
-        Assert.Equal(50, embedActivity.GetTagItem(GenAiAttributes.UsageInputTokens));
-        Assert.Equal("text-embedding-3-large", embedActivity.GetTagItem(GenAiAttributes.ResponseModel));
+        embedActivity.ShouldNotBeNull();
+        embedActivity.GetTagItem(GenAiAttributes.UsageInputTokens).ShouldBe(50);
+        embedActivity.GetTagItem(GenAiAttributes.ResponseModel).ShouldBe("text-embedding-3-large");
     }
 
     [Fact]
@@ -425,8 +424,8 @@ public class OtelObservationTests : IDisposable
         embedding.SetDimensions(1536);
 
         var embedActivity = embedding.Activity;
-        Assert.NotNull(embedActivity);
-        Assert.Equal(1536, embedActivity.GetTagItem(GenAiAttributes.EmbeddingsDimensionCount));
+        embedActivity.ShouldNotBeNull();
+        embedActivity.GetTagItem(GenAiAttributes.EmbeddingsDimensionCount).ShouldBe(1536);
     }
 
     [Fact]
@@ -440,7 +439,7 @@ public class OtelObservationTests : IDisposable
             embedding.SetOutput(new { embedding_vector = new[] { 0.1, 0.2, 0.3 } });
             embedding.SetMetadata("batch_size", 1);
         });
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -452,8 +451,8 @@ public class OtelObservationTests : IDisposable
         agent.SetDataSource("datasource-456");
 
         var agentActivity = agent.Activity;
-        Assert.NotNull(agentActivity);
-        Assert.Equal("datasource-456", agentActivity.GetTagItem(GenAiAttributes.DataSourceId));
+        agentActivity.ShouldNotBeNull();
+        agentActivity.GetTagItem(GenAiAttributes.DataSourceId).ShouldBe("datasource-456");
     }
 
     [Fact]
@@ -469,7 +468,7 @@ public class OtelObservationTests : IDisposable
             agent.SetMetadata("agent_type", "summarizer");
             agent.SetLevel(LangfuseObservationLevel.Default);
         });
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -485,16 +484,16 @@ public class OtelObservationTests : IDisposable
         span.SetTag("custom.tag", "custom_value");
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
+        spanActivity.ShouldNotBeNull();
 
         var inputJson = spanActivity.GetTagItem(LangfuseAttributes.ObservationInput) as string;
         var outputJson = spanActivity.GetTagItem(LangfuseAttributes.ObservationOutput) as string;
-        Assert.NotNull(inputJson);
-        Assert.NotNull(outputJson);
-        Assert.Equal("value", spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}key"));
-        Assert.Equal("DEBUG", spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel));
+        inputJson.ShouldNotBeNull();
+        outputJson.ShouldNotBeNull();
+        spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}key").ShouldBe("value");
+        spanActivity.GetTagItem(LangfuseAttributes.ObservationLevel).ShouldBe("DEBUG");
         KeyValuePair<string, string?> customTag = spanActivity.Tags.FirstOrDefault(t => t.Key == "custom.tag");
-        Assert.Equal("custom_value", customTag.Value);
+        customTag.Value.ShouldBe("custom_value");
     }
 
     [Fact]
@@ -508,11 +507,11 @@ public class OtelObservationTests : IDisposable
         otelEvent.SetMetadata("event_type", "click");
 
         var eventActivity = otelEvent.Activity;
-        Assert.NotNull(eventActivity);
+        eventActivity.ShouldNotBeNull();
 
         var inputJson = eventActivity.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(inputJson);
-        Assert.Contains("user_action", inputJson);
+        inputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("user_action");
     }
 
     [Fact]
@@ -547,16 +546,16 @@ public class OtelObservationTests : IDisposable
         var traceActivity = trace.TraceActivity;
         var genActivity = generation.Activity;
 
-        Assert.NotNull(traceActivity);
-        Assert.NotNull(genActivity);
+        traceActivity.ShouldNotBeNull();
+        genActivity.ShouldNotBeNull();
 
-        Assert.Equal("user-123", traceActivity.GetTagItem(LangfuseAttributes.UserId));
-        Assert.Equal("gpt-4", genActivity.GetTagItem(GenAiAttributes.RequestModel));
-        Assert.Equal("openai", genActivity.GetTagItem(GenAiAttributes.ProviderName));
-        Assert.Equal(0.7, genActivity.GetTagItem(GenAiAttributes.RequestTemperature));
-        Assert.Equal(500, genActivity.GetTagItem(GenAiAttributes.RequestMaxTokens));
-        Assert.Equal(25, genActivity.GetTagItem(GenAiAttributes.UsageInputTokens));
-        Assert.Equal(150, genActivity.GetTagItem(GenAiAttributes.UsageOutputTokens));
+        traceActivity.GetTagItem(LangfuseAttributes.UserId).ShouldBe("user-123");
+        genActivity.GetTagItem(GenAiAttributes.RequestModel).ShouldBe("gpt-4");
+        genActivity.GetTagItem(GenAiAttributes.ProviderName).ShouldBe("openai");
+        genActivity.GetTagItem(GenAiAttributes.RequestTemperature).ShouldBe(0.7);
+        genActivity.GetTagItem(GenAiAttributes.RequestMaxTokens).ShouldBe(500);
+        genActivity.GetTagItem(GenAiAttributes.UsageInputTokens).ShouldBe(25);
+        genActivity.GetTagItem(GenAiAttributes.UsageOutputTokens).ShouldBe(150);
     }
 
     [Fact]
@@ -571,16 +570,18 @@ public class OtelObservationTests : IDisposable
         toolCall.SetMetadata("api_version", "v2");
 
         var toolActivity = toolCall.Activity;
-        Assert.NotNull(toolActivity);
+        toolActivity.ShouldNotBeNull();
 
-        Assert.Equal("get_weather", toolActivity.GetTagItem(GenAiAttributes.ToolName));
-        Assert.Equal("Get current weather", toolActivity.GetTagItem(GenAiAttributes.ToolDescription));
+        toolActivity.GetTagItem(GenAiAttributes.ToolName).ShouldBe("get_weather");
+        toolActivity.GetTagItem(GenAiAttributes.ToolDescription).ShouldBe("Get current weather");
 
         var argsJson = toolActivity.GetTagItem(GenAiAttributes.ToolCallArguments) as string;
         var resultJson = toolActivity.GetTagItem(GenAiAttributes.ToolCallResult) as string;
 
-        Assert.Contains("San Francisco", argsJson);
-        Assert.Contains("Foggy", resultJson);
+        argsJson.ShouldNotBeNull();
+        resultJson.ShouldNotBeNull();
+        argsJson.ShouldContain("San Francisco");
+        resultJson.ShouldContain("Foggy");
     }
 
     [Fact]
@@ -604,15 +605,14 @@ public class OtelObservationTests : IDisposable
         var searchActivity = searchEvent.Activity;
         var genActivity = generation.Activity;
 
-        Assert.NotNull(retrievalActivity);
-        Assert.NotNull(searchActivity);
-        Assert.NotNull(genActivity);
+        retrievalActivity.ShouldNotBeNull();
+        searchActivity.ShouldNotBeNull();
+        genActivity.ShouldNotBeNull();
 
-        Assert.Equal("retrieval", retrievalActivity.GetTagItem("span.type"));
-        Assert.Equal(LangfuseAttributes.ObservationTypeEvent,
-            searchActivity.GetTagItem(LangfuseAttributes.ObservationType));
-        Assert.Equal(LangfuseAttributes.ObservationTypeGeneration,
-            genActivity.GetTagItem(LangfuseAttributes.ObservationType));
+        retrievalActivity.GetTagItem("span.type").ShouldBe("retrieval");
+        searchActivity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeEvent);
+        genActivity.GetTagItem(LangfuseAttributes.ObservationType)
+            .ShouldBe(LangfuseAttributes.ObservationTypeGeneration);
     }
 
     #region Skip Functionality Tests
@@ -624,13 +624,13 @@ public class OtelObservationTests : IDisposable
         using var span = trace.CreateSpan("test-span");
 
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
-        Assert.True(spanActivity.Recorded);
+        spanActivity.ShouldNotBeNull();
+        spanActivity.Recorded.ShouldBeTrue();
 
         span.Skip();
 
-        Assert.False(spanActivity.Recorded);
-        Assert.False(spanActivity.IsAllDataRequested);
+        spanActivity.Recorded.ShouldBeFalse();
+        spanActivity.IsAllDataRequested.ShouldBeFalse();
     }
 
     [Fact]
@@ -639,9 +639,9 @@ public class OtelObservationTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var span = trace.CreateSpan("test-span");
 
-        Assert.False(span.IsSkipped);
+        span.IsSkipped.ShouldBeFalse();
         span.Skip();
-        Assert.True(span.IsSkipped);
+        span.IsSkipped.ShouldBeTrue();
     }
 
     [Fact]
@@ -650,7 +650,7 @@ public class OtelObservationTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var span = trace.CreateSpan("test-span");
 
-        Assert.False(span.IsSkipped);
+        span.IsSkipped.ShouldBeFalse();
     }
 
     [Fact]
@@ -659,13 +659,13 @@ public class OtelObservationTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var generation = trace.CreateGeneration("test-gen", "gpt-4");
 
-        Assert.False(generation.IsSkipped);
+        generation.IsSkipped.ShouldBeFalse();
         generation.Skip();
-        Assert.True(generation.IsSkipped);
+        generation.IsSkipped.ShouldBeTrue();
 
         var genActivity = generation.Activity;
-        Assert.NotNull(genActivity);
-        Assert.False(genActivity.Recorded);
+        genActivity.ShouldNotBeNull();
+        genActivity.Recorded.ShouldBeFalse();
     }
 
     [Fact]
@@ -674,13 +674,13 @@ public class OtelObservationTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var evt = trace.CreateEvent("test-event");
 
-        Assert.False(evt.IsSkipped);
+        evt.IsSkipped.ShouldBeFalse();
         evt.Skip();
-        Assert.True(evt.IsSkipped);
+        evt.IsSkipped.ShouldBeTrue();
 
         var eventActivity = evt.Activity;
-        Assert.NotNull(eventActivity);
-        Assert.False(eventActivity.Recorded);
+        eventActivity.ShouldNotBeNull();
+        eventActivity.Recorded.ShouldBeFalse();
     }
 
     [Fact]
@@ -689,9 +689,9 @@ public class OtelObservationTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var toolCall = trace.CreateToolCall("test-tool", "get_weather");
 
-        Assert.False(toolCall.IsSkipped);
+        toolCall.IsSkipped.ShouldBeFalse();
         toolCall.Skip();
-        Assert.True(toolCall.IsSkipped);
+        toolCall.IsSkipped.ShouldBeTrue();
     }
 
     [Fact]
@@ -700,9 +700,9 @@ public class OtelObservationTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var embedding = trace.CreateEmbedding("test-embed", "text-embedding-ada");
 
-        Assert.False(embedding.IsSkipped);
+        embedding.IsSkipped.ShouldBeFalse();
         embedding.Skip();
-        Assert.True(embedding.IsSkipped);
+        embedding.IsSkipped.ShouldBeTrue();
     }
 
     [Fact]
@@ -711,9 +711,9 @@ public class OtelObservationTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var agent = trace.CreateAgent("test-agent", "agent-123");
 
-        Assert.False(agent.IsSkipped);
+        agent.IsSkipped.ShouldBeFalse();
         agent.Skip();
-        Assert.True(agent.IsSkipped);
+        agent.IsSkipped.ShouldBeTrue();
     }
 
     [Fact]
@@ -726,7 +726,7 @@ public class OtelObservationTests : IDisposable
         span.Skip();
         span.Skip();
 
-        Assert.True(span.IsSkipped);
+        span.IsSkipped.ShouldBeTrue();
     }
 
     [Fact]
@@ -737,8 +737,8 @@ public class OtelObservationTests : IDisposable
         var span = trace.CreateSpan("test-span");
 
         var exception = Record.Exception(() => span.Skip());
-        Assert.Null(exception);
-        Assert.False(span.IsSkipped);
+        exception.ShouldBeNull();
+        span.IsSkipped.ShouldBeFalse();
     }
 
     [Fact]
@@ -750,7 +750,7 @@ public class OtelObservationTests : IDisposable
         span.SetOutput(new { result = "done" });
         span.Skip();
 
-        Assert.True(span.IsSkipped);
+        span.IsSkipped.ShouldBeTrue();
     }
 
     #endregion

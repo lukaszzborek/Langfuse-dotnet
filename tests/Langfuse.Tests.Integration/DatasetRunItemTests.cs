@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Dataset;
@@ -83,10 +85,10 @@ public class DatasetRunItemTests
         var runItem = await client.CreateDataSetRunAsync(request);
 
         // Assert
-        Assert.NotNull(runItem);
-        Assert.Equal(itemId, runItem.DatasetItemId);
-        Assert.Equal(traceId, runItem.TraceId);
-        Assert.Equal(runName, runItem.DatasetRunName);
+        runItem.ShouldNotBeNull();
+        runItem.DatasetItemId.ShouldBe(itemId);
+        runItem.TraceId.ShouldBe(traceId);
+        runItem.DatasetRunName.ShouldBe(runName);
     }
 
     [Fact]
@@ -115,8 +117,8 @@ public class DatasetRunItemTests
         var runItem = await client.CreateDataSetRunAsync(request);
 
         // Assert
-        Assert.NotNull(runItem);
-        Assert.Equal(generationId, runItem.ObservationId);
+        runItem.ShouldNotBeNull();
+        runItem.ObservationId.ShouldBe(generationId);
     }
 
     [Fact]
@@ -145,7 +147,7 @@ public class DatasetRunItemTests
         });
 
         // Wait for run items to be available with polling
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
         var timeout = TimeSpan.FromSeconds(30);
         PaginatedDatasetRunItems? result = null;
 
@@ -168,8 +170,8 @@ public class DatasetRunItemTests
         }
 
         // Assert
-        Assert.NotNull(result);
-        Assert.True(result.Data.Length >= 1);
+        result.ShouldNotBeNull();
+        (result.Data.Length >= 1).ShouldBeTrue();
     }
 
     [Fact]
@@ -225,10 +227,10 @@ public class DatasetRunItemTests
         });
 
         // Assert
-        Assert.NotNull(runItem1);
-        Assert.NotNull(runItem2);
-        Assert.Equal(runName, runItem1.DatasetRunName);
-        Assert.Equal(runName, runItem2.DatasetRunName);
+        runItem1.ShouldNotBeNull();
+        runItem2.ShouldNotBeNull();
+        runItem1.DatasetRunName.ShouldBe(runName);
+        runItem2.DatasetRunName.ShouldBe(runName);
     }
 
     [Fact]
@@ -254,12 +256,12 @@ public class DatasetRunItemTests
         });
 
         // Assert
-        Assert.NotNull(runItem);
-        Assert.NotNull(runItem.Id);
+        runItem.ShouldNotBeNull();
+        runItem.Id.ShouldNotBeNull();
 
         // Verify the run exists
         var runs = await client.GetDatasetRunsAsync(datasetName, new DatasetRunListRequest { Page = 1, Limit = 50 });
-        Assert.Contains(runs.Data, r => r.Name == runName);
+        runs.Data.ShouldContain(r => r.Name == runName);
     }
 
     [Fact]
@@ -312,8 +314,8 @@ public class DatasetRunItemTests
         });
 
         // Assert
-        Assert.NotNull(page1);
-        Assert.NotNull(page1.Data);
-        Assert.True(page1.Data.Length <= 2);
+        page1.ShouldNotBeNull();
+        page1.Data.ShouldNotBeNull();
+        (page1.Data.Length <= 2).ShouldBeTrue();
     }
 }

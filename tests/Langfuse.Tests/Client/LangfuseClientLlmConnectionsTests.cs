@@ -5,6 +5,7 @@ using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Shouldly;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
@@ -64,19 +65,19 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.GetLlmConnectionsAsync();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Single(result.Data);
-        Assert.Equal("conn-1", result.Data[0].Id);
-        Assert.Equal("openai", result.Data[0].Provider);
-        Assert.Equal(LlmAdapter.OpenAi, result.Data[0].Adapter);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldHaveSingleItem();
+        result.Data[0].Id.ShouldBe("conn-1");
+        result.Data[0].Provider.ShouldBe("openai");
+        result.Data[0].Adapter.ShouldBe(LlmAdapter.OpenAi);
 
         // Verify correct endpoint was called (no query string)
-        Assert.Equal(HttpMethod.Get, _httpHandler.LastRequest?.Method);
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/llm-connections", requestUri);
-        Assert.DoesNotContain("?", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/llm-connections");
+        requestUri.ShouldNotContain("?");
     }
 
     [Fact]
@@ -96,9 +97,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("?page=2", requestUri);
-        Assert.DoesNotContain("limit=", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("?page=2");
+        requestUri.ShouldNotContain("limit=");
     }
 
     [Fact]
@@ -118,9 +119,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("?limit=25", requestUri);
-        Assert.DoesNotContain("page=", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("?limit=25");
+        requestUri.ShouldNotContain("page=");
     }
 
     [Fact]
@@ -140,8 +141,8 @@ public class LangfuseClientLlmConnectionsTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("?page=3&limit=100", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("?page=3&limit=100");
     }
 
     [Fact]
@@ -160,11 +161,11 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.GetLlmConnectionsAsync();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
-        Assert.NotNull(result.Meta);
-        Assert.Equal(0, result.Meta.TotalItems);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldBeEmpty();
+        result.Meta.ShouldNotBeNull();
+        result.Meta.TotalItems.ShouldBe(0);
     }
 
     [Fact]
@@ -210,11 +211,11 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.GetLlmConnectionsAsync();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Data.Length);
-        Assert.Equal("openai", result.Data[0].Provider);
-        Assert.Equal("anthropic", result.Data[1].Provider);
-        Assert.Equal(2, result.Meta.TotalItems);
+        result.ShouldNotBeNull();
+        result.Data.Length.ShouldBe(2);
+        result.Data[0].Provider.ShouldBe("openai");
+        result.Data[1].Provider.ShouldBe("anthropic");
+        result.Meta.TotalItems.ShouldBe(2);
     }
 
     [Fact]
@@ -224,7 +225,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
+        await Should.ThrowAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
     }
 
     [Fact]
@@ -235,9 +236,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
 
-        Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -270,15 +271,15 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("conn-new", result.Id);
-        Assert.Equal("my-provider", result.Provider);
-        Assert.Equal(LlmAdapter.OpenAi, result.Adapter);
-        Assert.Equal("sk-sec***456", result.DisplaySecretKey);
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("conn-new");
+        result.Provider.ShouldBe("my-provider");
+        result.Adapter.ShouldBe(LlmAdapter.OpenAi);
+        result.DisplaySecretKey.ShouldBe("sk-sec***456");
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Put, _httpHandler.LastRequest?.Method);
-        Assert.Contains("/api/public/llm-connections", _httpHandler.LastRequest?.RequestUri?.ToString());
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Put);
+        _httpHandler.LastRequest?.RequestUri?.ToString().ShouldContain("/api/public/llm-connections");
     }
 
     [Fact]
@@ -315,12 +316,12 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("conn-existing", result.Id);
-        Assert.Equal("existing-provider", result.Provider);
-        Assert.Equal("https://custom.api.com", result.BaseURL);
-        Assert.Single(result.CustomModels);
-        Assert.False(result.WithDefaultModels);
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("conn-existing");
+        result.Provider.ShouldBe("existing-provider");
+        result.BaseURL.ShouldBe("https://custom.api.com");
+        result.CustomModels.ShouldHaveSingleItem();
+        result.WithDefaultModels.ShouldBeFalse();
     }
 
     [Fact]
@@ -362,15 +363,15 @@ public class LangfuseClientLlmConnectionsTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"provider\"", requestBody);
-        Assert.Contains("\"test-provider\"", requestBody);
-        Assert.Contains("\"secretKey\"", requestBody);
-        Assert.Contains("\"sk-secret123\"", requestBody);
-        Assert.Contains("\"adapter\"", requestBody);
-        Assert.Contains("\"baseURL\"", requestBody);
-        Assert.Contains("\"customModels\"", requestBody);
-        Assert.Contains("\"extraHeaders\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"provider\"");
+        requestBody.ShouldContain("\"test-provider\"");
+        requestBody.ShouldContain("\"secretKey\"");
+        requestBody.ShouldContain("\"sk-secret123\"");
+        requestBody.ShouldContain("\"adapter\"");
+        requestBody.ShouldContain("\"baseURL\"");
+        requestBody.ShouldContain("\"customModels\"");
+        requestBody.ShouldContain("\"extraHeaders\"");
     }
 
     [Fact]
@@ -403,13 +404,13 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.Equal("sk-sec***789", result.DisplaySecretKey);
+        result.DisplaySecretKey.ShouldBe("sk-sec***789");
 
         // Verify response body doesn't contain full secret key
         var responseBody = await _httpHandler.GetLastResponseBodyAsync();
-        Assert.NotNull(responseBody);
-        Assert.DoesNotContain("sk-secret123456789", responseBody);
-        Assert.Contains("sk-sec***789", responseBody);
+        responseBody.ShouldNotBeNull();
+        responseBody.ShouldNotContain("sk-secret123456789");
+        responseBody.ShouldContain("sk-sec***789");
     }
 
     [Fact]
@@ -455,7 +456,7 @@ public class LangfuseClientLlmConnectionsTests
             var result = await _client.UpsertLlmConnectionAsync(request);
 
             // Assert
-            Assert.Equal(adapter, result.Adapter);
+            result.Adapter.ShouldBe(adapter);
         }
     }
 
@@ -463,7 +464,7 @@ public class LangfuseClientLlmConnectionsTests
     public async Task UpsertLlmConnectionAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _client.UpsertLlmConnectionAsync(null!));
+        await Should.ThrowAsync<ArgumentNullException>(async () => await _client.UpsertLlmConnectionAsync(null!));
     }
 
     [Fact]
@@ -481,9 +482,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.BadRequest, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -501,9 +502,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.Unauthorized, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -521,9 +522,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -541,9 +542,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.Conflict, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Conflict);
     }
 
     [Fact]
@@ -554,9 +555,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
 
-        Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -574,9 +575,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.UpsertLlmConnectionAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -587,9 +588,9 @@ public class LangfuseClientLlmConnectionsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.GetLlmConnectionsAsync());
 
-        Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -624,9 +625,9 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Empty(result.CustomModels);
-        Assert.True(result.WithDefaultModels);
+        result.ShouldNotBeNull();
+        result.CustomModels.ShouldBeEmpty();
+        result.WithDefaultModels.ShouldBeTrue();
     }
 
     [Fact]
@@ -661,8 +662,8 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Empty(result.CustomModels);
+        result.ShouldNotBeNull();
+        result.CustomModels.ShouldBeEmpty();
     }
 
     [Fact]
@@ -696,8 +697,8 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Empty(result.ExtraHeaderKeys);
+        result.ShouldNotBeNull();
+        result.ExtraHeaderKeys.ShouldBeEmpty();
     }
 
     [Fact]
@@ -731,8 +732,8 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Empty(result.ExtraHeaderKeys);
+        result.ShouldNotBeNull();
+        result.ExtraHeaderKeys.ShouldBeEmpty();
     }
 
     [Fact]
@@ -767,8 +768,8 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Null(result.BaseURL);
+        result.ShouldNotBeNull();
+        result.BaseURL.ShouldBeNull();
     }
 
     [Fact]
@@ -804,8 +805,8 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(customBaseUrl, result.BaseURL);
+        result.ShouldNotBeNull();
+        result.BaseURL.ShouldBe(customBaseUrl);
     }
 
     [Fact]
@@ -866,12 +867,12 @@ public class LangfuseClientLlmConnectionsTests
         var secondResult = await _client.UpsertLlmConnectionAsync(updateRequest);
 
         // Assert
-        Assert.Equal("conn-123", firstResult.Id);
-        Assert.Equal("conn-123", secondResult.Id);
-        Assert.Equal("my-unique-provider", secondResult.Provider);
-        Assert.Single(secondResult.CustomModels);
-        Assert.False(secondResult.WithDefaultModels);
-        Assert.True(secondResult.UpdatedAt > secondResult.CreatedAt);
+        firstResult.Id.ShouldBe("conn-123");
+        secondResult.Id.ShouldBe("conn-123");
+        secondResult.Provider.ShouldBe("my-unique-provider");
+        secondResult.CustomModels.ShouldHaveSingleItem();
+        secondResult.WithDefaultModels.ShouldBeFalse();
+        secondResult.UpdatedAt.ShouldBeGreaterThan(secondResult.CreatedAt);
     }
 
     [Fact]
@@ -906,9 +907,9 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.CustomModels.Length);
-        Assert.True(result.WithDefaultModels);
+        result.ShouldNotBeNull();
+        result.CustomModels.Length.ShouldBe(2);
+        result.WithDefaultModels.ShouldBeTrue();
     }
 
     [Fact]
@@ -953,10 +954,10 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.GetLlmConnectionsAsync();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Data.Length);
-        Assert.Equal(LlmAdapter.GoogleVertexAi, result.Data[0].Adapter);
-        Assert.Equal(LlmAdapter.GoogleAiStudio, result.Data[1].Adapter);
+        result.ShouldNotBeNull();
+        result.Data.Length.ShouldBe(2);
+        result.Data[0].Adapter.ShouldBe(LlmAdapter.GoogleVertexAi);
+        result.Data[1].Adapter.ShouldBe(LlmAdapter.GoogleAiStudio);
     }
 
     [Fact]
@@ -990,18 +991,18 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.UpsertLlmConnectionAsync(request);
 
         // Assert
-        Assert.NotNull(result.DisplaySecretKey);
-        Assert.Contains("***", result.DisplaySecretKey);
-        Assert.DoesNotContain("very-long-secret-key", result.DisplaySecretKey);
+        result.DisplaySecretKey.ShouldNotBeNull();
+        result.DisplaySecretKey.ShouldContain("***");
+        result.DisplaySecretKey.ShouldNotContain("very-long-secret-key");
 
         // Verify request body contained full secret
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.Contains(secretKey, requestBody!);
+        requestBody!.ShouldContain(secretKey);
 
         // Verify response body contains masked secret only
         var responseBody = await _httpHandler.GetLastResponseBodyAsync();
-        Assert.DoesNotContain(secretKey, responseBody!);
-        Assert.Contains("***", responseBody!);
+        responseBody!.ShouldNotContain(secretKey);
+        responseBody!.ShouldContain("***");
     }
 
     [Fact]
@@ -1040,11 +1041,11 @@ public class LangfuseClientLlmConnectionsTests
         var result = await _client.GetLlmConnectionsAsync(2, 10);
 
         // Assert
-        Assert.NotNull(result.Meta);
-        Assert.Equal(2, result.Meta.Page);
-        Assert.Equal(10, result.Meta.Limit);
-        Assert.Equal(25, result.Meta.TotalItems);
-        Assert.Equal(3, result.Meta.TotalPages);
+        result.Meta.ShouldNotBeNull();
+        result.Meta.Page.ShouldBe(2);
+        result.Meta.Limit.ShouldBe(10);
+        result.Meta.TotalItems.ShouldBe(25);
+        result.Meta.TotalPages.ShouldBe(3);
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler

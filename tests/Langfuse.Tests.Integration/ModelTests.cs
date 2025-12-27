@@ -1,5 +1,6 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -52,13 +53,13 @@ public class ModelTests
         var model = await client.CreateModelAsync(request);
 
         // Assert
-        Assert.NotNull(model);
-        Assert.NotNull(model.Id);
-        Assert.Equal(modelName, model.ModelName);
-        Assert.Equal(0.001m, model.InputPrice);
-        Assert.Equal(0.002m, model.OutputPrice);
-        Assert.Equal(ModelUsageUnit.Tokens, model.Unit);
-        Assert.False(model.IsLangfuseManaged);
+        model.ShouldNotBeNull();
+        model.Id.ShouldNotBeNull();
+        model.ModelName.ShouldBe(modelName);
+        model.InputPrice.ShouldBe(0.001m);
+        model.OutputPrice.ShouldBe(0.002m);
+        model.Unit.ShouldBe(ModelUsageUnit.Tokens);
+        model.IsLangfuseManaged.ShouldBeFalse();
     }
 
     [Fact]
@@ -79,10 +80,10 @@ public class ModelTests
         var model = await client.GetModelAsync(created.Id);
 
         // Assert
-        Assert.NotNull(model);
-        Assert.Equal(created.Id, model.Id);
-        Assert.Equal(modelName, model.ModelName);
-        Assert.Equal(0.005m, model.InputPrice);
+        model.ShouldNotBeNull();
+        model.Id.ShouldBe(created.Id);
+        model.ModelName.ShouldBe(modelName);
+        model.InputPrice.ShouldBe(0.005m);
     }
 
     [Fact]
@@ -95,11 +96,11 @@ public class ModelTests
         var result = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 100 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
         // Langfuse has many predefined models
-        Assert.True(result.Data.Length >= 2);
-        Assert.True(result.Meta.TotalItems >= result.Data.Length);
+        (result.Data.Length >= 2).ShouldBeTrue();
+        (result.Meta.TotalItems >= result.Data.Length).ShouldBeTrue();
     }
 
     [Fact]
@@ -120,9 +121,9 @@ public class ModelTests
         await client.DeleteModelAsync(created.Id);
 
         // Assert - Verify model is deleted
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetModelAsync(created.Id));
-        Assert.Equal(404, exception.StatusCode);
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetModelAsync(created.Id));
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -145,8 +146,8 @@ public class ModelTests
         var model = await client.CreateModelAsync(request);
 
         // Assert
-        Assert.Equal(0.00001m, model.InputPrice);
-        Assert.Equal(0.00002m, model.OutputPrice);
+        model.InputPrice.ShouldBe(0.00001m);
+        model.OutputPrice.ShouldBe(0.00002m);
     }
 
     [Fact]
@@ -169,8 +170,8 @@ public class ModelTests
         var model = await client.CreateModelAsync(request);
 
         // Assert
-        Assert.NotNull(model.StartDate);
-        Assert.Equal(startDate.Date, model.StartDate.Value.Date);
+        model.StartDate.ShouldNotBeNull();
+        model.StartDate.Value.Date.ShouldBe(startDate.Date);
     }
 
     [Fact]
@@ -180,10 +181,10 @@ public class ModelTests
         var client = CreateClient();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetModelAsync("non-existent-model-id"));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetModelAsync("non-existent-model-id"));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -196,9 +197,9 @@ public class ModelTests
         var result = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 100 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
         // Langfuse includes many predefined models
-        Assert.Contains(result.Data, m => m.IsLangfuseManaged);
+        result.Data.ShouldContain(m => m.IsLangfuseManaged);
     }
 }

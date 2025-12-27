@@ -6,6 +6,7 @@ using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Shouldly;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
@@ -135,17 +136,17 @@ public class LangfuseClientScoreTests
         var result = await _client.UpdateScoreConfigAsync(configId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(configId, result.Id);
-        Assert.Equal("Updated Config", result.Name);
-        Assert.Equal("Updated Description", result.Description);
-        Assert.True(result.IsArchived);
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe(configId);
+        result.Name.ShouldBe("Updated Config");
+        result.Description.ShouldBe("Updated Description");
+        result.IsArchived.ShouldBeTrue();
 
         // Verify correct endpoint and method
-        Assert.Equal("PATCH", _httpHandler.LastRequest?.Method.Method);
+        _httpHandler.LastRequest?.Method.Method.ShouldBe("PATCH");
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/score-configs/config-123", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/score-configs/config-123");
     }
 
     [Fact]
@@ -177,10 +178,10 @@ public class LangfuseClientScoreTests
         var result = await _client.UpdateScoreConfigAsync(configId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Partially Updated", result.Name);
-        Assert.Equal("Original Description", result.Description);
-        Assert.False(result.IsArchived);
+        result.ShouldNotBeNull();
+        result.Name.ShouldBe("Partially Updated");
+        result.Description.ShouldBe("Original Description");
+        result.IsArchived.ShouldBeFalse();
     }
 
     [Fact]
@@ -227,14 +228,14 @@ public class LangfuseClientScoreTests
         var result = await _client.UpdateScoreConfigAsync(configId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Fully Updated", result.Name);
-        Assert.Equal("New Description", result.Description);
-        Assert.True(result.IsArchived);
-        Assert.Equal(0.0, result.MinValue);
-        Assert.Equal(10.0, result.MaxValue);
-        Assert.NotNull(result.Categories);
-        Assert.Equal(2, result.Categories.Length);
+        result.ShouldNotBeNull();
+        result.Name.ShouldBe("Fully Updated");
+        result.Description.ShouldBe("New Description");
+        result.IsArchived.ShouldBeTrue();
+        result.MinValue.ShouldBe(0.0);
+        result.MaxValue.ShouldBe(10.0);
+        result.Categories.ShouldNotBeNull();
+        result.Categories.Length.ShouldBe(2);
     }
 
     [Fact]
@@ -267,15 +268,15 @@ public class LangfuseClientScoreTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"name\"", requestBody);
-        Assert.Contains("\"Serialization Test\"", requestBody);
-        Assert.Contains("\"description\"", requestBody);
-        Assert.Contains("\"Testing serialization\"", requestBody);
-        Assert.Contains("\"minValue\"", requestBody);
-        Assert.Contains("1.5", requestBody);
-        Assert.Contains("\"maxValue\"", requestBody);
-        Assert.Contains("9.5", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"name\"");
+        requestBody.ShouldContain("\"Serialization Test\"");
+        requestBody.ShouldContain("\"description\"");
+        requestBody.ShouldContain("\"Testing serialization\"");
+        requestBody.ShouldContain("\"minValue\"");
+        requestBody.ShouldContain("1.5");
+        requestBody.ShouldContain("\"maxValue\"");
+        requestBody.ShouldContain("9.5");
     }
 
     [Fact]
@@ -310,17 +311,17 @@ public class LangfuseClientScoreTests
         var result = await _client.UpdateScoreConfigAsync(configId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(configId, result.Id);
-        Assert.Equal("Deserialization Test", result.Name);
-        Assert.Equal("Some description", result.Description);
-        Assert.False(result.IsArchived);
-        Assert.Equal(ScoreDataType.Boolean, result.DataType);
-        Assert.Null(result.MinValue);
-        Assert.Null(result.MaxValue);
-        Assert.Null(result.Categories);
-        Assert.Equal(now.AddDays(-10), result.CreatedAt);
-        Assert.Equal(now, result.UpdatedAt);
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe(configId);
+        result.Name.ShouldBe("Deserialization Test");
+        result.Description.ShouldBe("Some description");
+        result.IsArchived.ShouldBeFalse();
+        result.DataType.ShouldBe(ScoreDataType.Boolean);
+        result.MinValue.ShouldBeNull();
+        result.MaxValue.ShouldBeNull();
+        result.Categories.ShouldBeNull();
+        result.CreatedAt.ShouldBe(now.AddDays(-10));
+        result.UpdatedAt.ShouldBe(now);
     }
 
     [Fact]
@@ -330,7 +331,7 @@ public class LangfuseClientScoreTests
         var request = new UpdateScoreConfigRequest { Name = "Test" };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.UpdateScoreConfigAsync(null!, request));
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.UpdateScoreConfigAsync(null!, request));
     }
 
     [Fact]
@@ -340,7 +341,7 @@ public class LangfuseClientScoreTests
         var request = new UpdateScoreConfigRequest { Name = "Test" };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.UpdateScoreConfigAsync(string.Empty, request));
     }
 
@@ -351,14 +352,14 @@ public class LangfuseClientScoreTests
         var request = new UpdateScoreConfigRequest { Name = "Test" };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.UpdateScoreConfigAsync("   ", request));
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.UpdateScoreConfigAsync("   ", request));
     }
 
     [Fact]
     public async Task UpdateScoreConfigAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
             await _client.UpdateScoreConfigAsync("config-123", null!));
     }
 
@@ -370,10 +371,10 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.NotFound, "Not Found");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await _client.UpdateScoreConfigAsync("config-404", request));
 
-        Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -384,10 +385,10 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await _client.UpdateScoreConfigAsync("config-123", request));
 
-        Assert.Equal((int)HttpStatusCode.Unauthorized, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Unauthorized);
     }
 
     #endregion
@@ -424,8 +425,8 @@ public class LangfuseClientScoreTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("sessionId=session-123", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("sessionId=session-123");
     }
 
     [Fact]
@@ -456,8 +457,8 @@ public class LangfuseClientScoreTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("sessionId=session+with+spaces", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("sessionId=session+with+spaces");
     }
 
     [Fact]
@@ -492,12 +493,12 @@ public class LangfuseClientScoreTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("sessionId=session-456", requestUri);
-        Assert.Contains("userId=user-789", requestUri);
-        Assert.Contains("name=score-name", requestUri);
-        Assert.Contains("page=2", requestUri);
-        Assert.Contains("limit=20", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("sessionId=session-456");
+        requestUri.ShouldContain("userId=user-789");
+        requestUri.ShouldContain("name=score-name");
+        requestUri.ShouldContain("page=2");
+        requestUri.ShouldContain("limit=20");
     }
 
     [Fact]
@@ -529,8 +530,8 @@ public class LangfuseClientScoreTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.DoesNotContain("sessionId", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldNotContain("sessionId");
     }
 
     [Fact]
@@ -562,8 +563,8 @@ public class LangfuseClientScoreTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.DoesNotContain("sessionId", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldNotContain("sessionId");
     }
 
     #endregion
@@ -595,14 +596,14 @@ public class LangfuseClientScoreTests
         });
 
         // Assert
-        Assert.Contains("\"name\":\"Test Config\"", json);
-        Assert.Contains("\"description\":\"Test Description\"", json);
-        Assert.Contains("\"isArchived\":true", json);
-        Assert.Contains("\"minValue\":0", json);
-        Assert.Contains("\"maxValue\":100", json);
-        Assert.Contains("\"categories\"", json);
-        Assert.Contains("\"label\":\"Excellent\"", json);
-        Assert.Contains("\"value\":5", json);
+        json.ShouldContain("\"name\":\"Test Config\"");
+        json.ShouldContain("\"description\":\"Test Description\"");
+        json.ShouldContain("\"isArchived\":true");
+        json.ShouldContain("\"minValue\":0");
+        json.ShouldContain("\"maxValue\":100");
+        json.ShouldContain("\"categories\"");
+        json.ShouldContain("\"label\":\"Excellent\"");
+        json.ShouldContain("\"value\":5");
     }
 
     [Fact]
@@ -622,12 +623,12 @@ public class LangfuseClientScoreTests
         });
 
         // Assert
-        Assert.Contains("\"name\":\"Minimal Config\"", json);
-        Assert.DoesNotContain("\"description\"", json);
-        Assert.DoesNotContain("\"isArchived\"", json);
-        Assert.DoesNotContain("\"minValue\"", json);
-        Assert.DoesNotContain("\"maxValue\"", json);
-        Assert.DoesNotContain("\"categories\"", json);
+        json.ShouldContain("\"name\":\"Minimal Config\"");
+        json.ShouldNotContain("\"description\"");
+        json.ShouldNotContain("\"isArchived\"");
+        json.ShouldNotContain("\"minValue\"");
+        json.ShouldNotContain("\"maxValue\"");
+        json.ShouldNotContain("\"categories\"");
     }
 
     [Fact]
@@ -648,9 +649,9 @@ public class LangfuseClientScoreTests
         });
 
         // Assert
-        Assert.Contains("\"sessionId\":\"session-xyz\"", json);
-        Assert.Contains("\"page\":1", json);
-        Assert.Contains("\"limit\":25", json);
+        json.ShouldContain("\"sessionId\":\"session-xyz\"");
+        json.ShouldContain("\"page\":1");
+        json.ShouldContain("\"limit\":25");
     }
 
     #endregion

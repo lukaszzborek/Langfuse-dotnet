@@ -1,5 +1,6 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -58,12 +59,12 @@ public class DatasetItemTests
         var item = await client.CreateDatasetItemAsync(request);
 
         // Assert
-        Assert.NotNull(item);
-        Assert.NotNull(item.Id);
-        Assert.Equal(datasetName, item.DatasetName);
-        Assert.NotNull(item.Input);
-        Assert.NotNull(item.ExpectedOutput);
-        Assert.Equal(DatasetStatus.Active, item.Status);
+        item.ShouldNotBeNull();
+        item.Id.ShouldNotBeNull();
+        item.DatasetName.ShouldBe(datasetName);
+        item.Input.ShouldNotBeNull();
+        item.ExpectedOutput.ShouldNotBeNull();
+        item.Status.ShouldBe(DatasetStatus.Active);
     }
 
     [Fact]
@@ -83,9 +84,9 @@ public class DatasetItemTests
         var item = await client.GetDatasetItemAsync(created.Id);
 
         // Assert
-        Assert.NotNull(item);
-        Assert.Equal(created.Id, item.Id);
-        Assert.Equal(datasetName, item.DatasetName);
+        item.ShouldNotBeNull();
+        item.Id.ShouldBe(created.Id);
+        item.DatasetName.ShouldBe(datasetName);
     }
 
     [Fact]
@@ -121,10 +122,10 @@ public class DatasetItemTests
         });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Equal(3, result.Data.Length);
-        Assert.All(result.Data, item => Assert.Equal(datasetName, item.DatasetName));
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.Length.ShouldBe(3);
+        result.Data.ShouldAllBe(item => item.DatasetName == datasetName);
     }
 
     [Fact]
@@ -143,12 +144,12 @@ public class DatasetItemTests
         var deleteResult = await client.DeleteDatasetItemAsync(created.Id);
 
         // Assert
-        Assert.NotNull(deleteResult);
+        deleteResult.ShouldNotBeNull();
 
         // Verify item is deleted
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetDatasetItemAsync(created.Id));
-        Assert.Equal(404, exception.StatusCode);
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetDatasetItemAsync(created.Id));
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -169,7 +170,7 @@ public class DatasetItemTests
         var item = await client.CreateDatasetItemAsync(request);
 
         // Assert
-        Assert.Equal(customId, item.Id);
+        item.Id.ShouldBe(customId);
     }
 
     [Fact]
@@ -189,7 +190,7 @@ public class DatasetItemTests
         var item = await client.CreateDatasetItemAsync(request);
 
         // Assert
-        Assert.Equal(DatasetStatus.Archived, item.Status);
+        item.Status.ShouldBe(DatasetStatus.Archived);
     }
 
     [Fact]
@@ -199,9 +200,9 @@ public class DatasetItemTests
         var client = CreateClient();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetDatasetItemAsync("non-existent-item-id"));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetDatasetItemAsync("non-existent-item-id"));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 }

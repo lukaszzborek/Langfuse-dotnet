@@ -3,6 +3,7 @@ using System.Text;
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -74,9 +75,9 @@ public class MediaTests
         var response = await client.GetMediaUploadUrlAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.MediaId);
-        Assert.NotNull(response.UploadUrl);
+        response.ShouldNotBeNull();
+        response.MediaId.ShouldNotBeNull();
+        response.UploadUrl.ShouldNotBeNull();
     }
 
     [Fact]
@@ -107,9 +108,9 @@ public class MediaTests
         var response = await client.GetMediaUploadUrlAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.MediaId);
-        Assert.NotNull(response.UploadUrl);
+        response.ShouldNotBeNull();
+        response.MediaId.ShouldNotBeNull();
+        response.UploadUrl.ShouldNotBeNull();
     }
 
     [Fact]
@@ -120,10 +121,10 @@ public class MediaTests
         var nonExistentId = Guid.NewGuid().ToString();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetMediaAsync(nonExistentId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetMediaAsync(nonExistentId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -153,8 +154,8 @@ public class MediaTests
         var response = await client.GetMediaUploadUrlAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.MediaId);
+        response.ShouldNotBeNull();
+        response.MediaId.ShouldNotBeNull();
     }
 
     [Fact]
@@ -183,8 +184,8 @@ public class MediaTests
         var response = await client.GetMediaUploadUrlAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.UploadUrl);
+        response.ShouldNotBeNull();
+        response.UploadUrl.ShouldNotBeNull();
     }
 
     [Fact]
@@ -213,8 +214,8 @@ public class MediaTests
         var response = await client.GetMediaUploadUrlAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.MediaId);
+        response.ShouldNotBeNull();
+        response.MediaId.ShouldNotBeNull();
     }
 
     [Fact]
@@ -243,7 +244,7 @@ public class MediaTests
         var response = await client.GetMediaUploadUrlAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.MediaId);
+        response.ShouldNotBeNull();
+        response.MediaId.ShouldNotBeNull();
     }
 }

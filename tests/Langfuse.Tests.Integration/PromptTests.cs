@@ -1,5 +1,6 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -52,13 +53,13 @@ public class PromptTests
         var prompt = await client.CreatePromptAsync(request);
 
         // Assert
-        Assert.NotNull(prompt);
-        Assert.Equal(promptName, prompt.Name);
-        Assert.Equal(1, prompt.Version);
-        Assert.Equal("text", prompt.Type);
-        Assert.IsType<TextPrompt>(prompt);
+        prompt.ShouldNotBeNull();
+        prompt.Name.ShouldBe(promptName);
+        prompt.Version.ShouldBe(1);
+        prompt.Type.ShouldBe("text");
+        prompt.ShouldBeOfType<TextPrompt>();
         var textPrompt = (TextPrompt)prompt;
-        Assert.Equal("Hello {{name}}, how can I help you today?", textPrompt.PromptText);
+        textPrompt.PromptText.ShouldBe("Hello {{name}}, how can I help you today?");
     }
 
     [Fact]
@@ -83,11 +84,11 @@ public class PromptTests
         var prompt = await client.CreatePromptAsync(request);
 
         // Assert
-        Assert.NotNull(prompt);
-        Assert.Equal(promptName, prompt.Name);
-        Assert.Equal(1, prompt.Version);
-        Assert.Equal("chat", prompt.Type);
-        Assert.IsType<ChatPrompt>(prompt);
+        prompt.ShouldNotBeNull();
+        prompt.Name.ShouldBe(promptName);
+        prompt.Version.ShouldBe(1);
+        prompt.Type.ShouldBe("chat");
+        prompt.ShouldBeOfType<ChatPrompt>();
     }
 
     [Fact]
@@ -108,9 +109,9 @@ public class PromptTests
         var prompt = await client.GetPromptAsync(promptName);
 
         // Assert
-        Assert.NotNull(prompt);
-        Assert.Equal(promptName, prompt.Name);
-        Assert.Equal(1, prompt.Version);
+        prompt.ShouldNotBeNull();
+        prompt.Name.ShouldBe(promptName);
+        prompt.Version.ShouldBe(1);
     }
 
     [Fact]
@@ -139,12 +140,12 @@ public class PromptTests
         var promptV2 = await client.GetPromptAsync(promptName, 2);
 
         // Assert
-        Assert.Equal(1, promptV1.Version);
-        Assert.Equal(2, promptV2.Version);
-        Assert.IsType<TextPrompt>(promptV1);
-        Assert.IsType<TextPrompt>(promptV2);
-        Assert.Equal("Version 1 content", ((TextPrompt)promptV1).PromptText);
-        Assert.Equal("Version 2 content", ((TextPrompt)promptV2).PromptText);
+        promptV1.Version.ShouldBe(1);
+        promptV2.Version.ShouldBe(2);
+        promptV1.ShouldBeOfType<TextPrompt>();
+        promptV2.ShouldBeOfType<TextPrompt>();
+        ((TextPrompt)promptV1).PromptText.ShouldBe("Version 1 content");
+        ((TextPrompt)promptV2).PromptText.ShouldBe("Version 2 content");
     }
 
     [Fact]
@@ -174,8 +175,8 @@ public class PromptTests
         var prodPrompt = await client.GetPromptAsync(promptName, label: "production");
 
         // Assert
-        Assert.Equal(1, prodPrompt.Version);
-        Assert.Contains("production", prodPrompt.Labels);
+        prodPrompt.Version.ShouldBe(1);
+        prodPrompt.Labels.ShouldContain("production");
     }
 
     [Fact]
@@ -201,9 +202,9 @@ public class PromptTests
         var result = await client.GetPromptListAsync(new PromptListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.True(result.Data.Length >= 2);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        (result.Data.Length >= 2).ShouldBeTrue();
     }
 
     [Fact]
@@ -226,9 +227,9 @@ public class PromptTests
         });
 
         // Assert
-        Assert.NotNull(updated);
-        Assert.Contains("production", updated.Labels);
-        Assert.Contains("active", updated.Labels);
+        updated.ShouldNotBeNull();
+        updated.Labels.ShouldContain("production");
+        updated.Labels.ShouldContain("active");
     }
 
     [Fact]
@@ -238,10 +239,10 @@ public class PromptTests
         var client = CreateClient();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetPromptAsync("non-existent-prompt"));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetPromptAsync("non-existent-prompt"));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -261,10 +262,10 @@ public class PromptTests
         var prompt = await client.CreatePromptAsync(request);
 
         // Assert
-        Assert.Equal(3, prompt.Tags.Count);
-        Assert.Contains("tag1", prompt.Tags);
-        Assert.Contains("tag2", prompt.Tags);
-        Assert.Contains("tag3", prompt.Tags);
+        prompt.Tags.Count.ShouldBe(3);
+        prompt.Tags.ShouldContain("tag1");
+        prompt.Tags.ShouldContain("tag2");
+        prompt.Tags.ShouldContain("tag3");
     }
 
     [Fact]
@@ -288,8 +289,8 @@ public class PromptTests
         });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Single(result.Data);
-        Assert.Equal(uniqueName, result.Data[0].Name);
+        result.ShouldNotBeNull();
+        result.Data.Length.ShouldBe(1);
+        result.Data[0].Name.ShouldBe(uniqueName);
     }
 }

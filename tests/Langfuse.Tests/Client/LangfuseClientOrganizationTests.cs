@@ -5,6 +5,7 @@ using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Shouldly;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
@@ -49,15 +50,15 @@ public class LangfuseClientOrganizationTests
         var result = await _client.DeleteOrganizationMembershipAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Membership deleted successfully", result.Message);
-        Assert.Equal("user-123", result.UserId);
+        result.ShouldNotBeNull();
+        result.Message.ShouldBe("Membership deleted successfully");
+        result.UserId.ShouldBe("user-123");
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Delete, _httpHandler.LastRequest?.Method);
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/organizations/memberships", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/organizations/memberships");
     }
 
     [Fact]
@@ -82,9 +83,9 @@ public class LangfuseClientOrganizationTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"userId\"", requestBody);
-        Assert.Contains("\"user-456\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"userId\"");
+        requestBody.ShouldContain("\"user-456\"");
     }
 
     [Fact]
@@ -109,8 +110,8 @@ public class LangfuseClientOrganizationTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"userId\":\"user-serialization-test\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"userId\":\"user-serialization-test\"");
     }
 
     [Fact]
@@ -134,16 +135,16 @@ public class LangfuseClientOrganizationTests
         var result = await _client.DeleteOrganizationMembershipAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("User removed from organization", result.Message);
-        Assert.Equal("user-789", result.UserId);
+        result.ShouldNotBeNull();
+        result.Message.ShouldBe("User removed from organization");
+        result.UserId.ShouldBe("user-789");
     }
 
     [Fact]
     public async Task DeleteOrganizationMembershipAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
             await _client.DeleteOrganizationMembershipAsync(null!));
     }
 
@@ -160,10 +161,10 @@ public class LangfuseClientOrganizationTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await Should.ThrowAsync<LangfuseApiException>(async () =>
                 await _client.DeleteOrganizationMembershipAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -188,15 +189,15 @@ public class LangfuseClientOrganizationTests
         var result = await _client.DeleteProjectMembershipAsync(projectId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Membership deleted successfully", result.Message);
-        Assert.Equal("user-456", result.UserId);
+        result.ShouldNotBeNull();
+        result.Message.ShouldBe("Membership deleted successfully");
+        result.UserId.ShouldBe("user-456");
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Delete, _httpHandler.LastRequest?.Method);
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/projects/project-123/memberships", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/projects/project-123/memberships");
     }
 
     [Fact]
@@ -222,9 +223,9 @@ public class LangfuseClientOrganizationTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("/api/public/projects/", requestUri);
-        Assert.Contains("project-with-special-chars", requestUri);
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/projects/");
+        requestUri.ShouldContain("project-with-special-chars");
     }
 
     [Fact]
@@ -250,9 +251,9 @@ public class LangfuseClientOrganizationTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"userId\"", requestBody);
-        Assert.Contains("\"user-abc\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"userId\"");
+        requestBody.ShouldContain("\"user-abc\"");
     }
 
     [Fact]
@@ -278,8 +279,8 @@ public class LangfuseClientOrganizationTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"userId\":\"user-serialize\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"userId\":\"user-serialize\"");
     }
 
     [Fact]
@@ -304,9 +305,9 @@ public class LangfuseClientOrganizationTests
         var result = await _client.DeleteProjectMembershipAsync(projectId, request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("User removed from project", result.Message);
-        Assert.Equal("user-deserialize", result.UserId);
+        result.ShouldNotBeNull();
+        result.Message.ShouldBe("User removed from project");
+        result.UserId.ShouldBe("user-deserialize");
     }
 
     [Fact]
@@ -319,7 +320,7 @@ public class LangfuseClientOrganizationTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.DeleteProjectMembershipAsync(null!, request));
     }
 
@@ -333,7 +334,7 @@ public class LangfuseClientOrganizationTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.DeleteProjectMembershipAsync(string.Empty, request));
     }
 
@@ -341,7 +342,7 @@ public class LangfuseClientOrganizationTests
     public async Task DeleteProjectMembershipAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
             await _client.DeleteProjectMembershipAsync("project-123", null!));
     }
 
@@ -357,10 +358,10 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.Forbidden, "Access forbidden");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await _client.DeleteProjectMembershipAsync("project-123", request));
 
-        Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -379,7 +380,7 @@ public class LangfuseClientOrganizationTests
         });
 
         // Assert
-        Assert.Contains("\"userId\":\"user-serialize-test\"", json);
+        json.ShouldContain("\"userId\":\"user-serialize-test\"");
     }
 
     [Fact]
@@ -396,9 +397,9 @@ public class LangfuseClientOrganizationTests
             });
 
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal("Successfully deleted", response.Message);
-        Assert.Equal("user-test-123", response.UserId);
+        response.ShouldNotBeNull();
+        response.Message.ShouldBe("Successfully deleted");
+        response.UserId.ShouldBe("user-test-123");
     }
 
     [Fact]
@@ -415,9 +416,9 @@ public class LangfuseClientOrganizationTests
             });
 
         // Assert
-        Assert.NotNull(response);
-        Assert.Equal("User removed from organization", response.Message);
-        Assert.Equal("user-456", response.UserId);
+        response.ShouldNotBeNull();
+        response.Message.ShouldBe("User removed from organization");
+        response.UserId.ShouldBe("user-456");
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler

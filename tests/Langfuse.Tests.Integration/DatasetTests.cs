@@ -1,5 +1,6 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -50,11 +51,11 @@ public class DatasetTests
         var dataset = await client.CreateDatasetAsync(request);
 
         // Assert
-        Assert.NotNull(dataset);
-        Assert.Equal(datasetName, dataset.Name);
-        Assert.Equal("Test dataset for integration tests", dataset.Description);
-        Assert.NotNull(dataset.Id);
-        Assert.NotNull(dataset.ProjectId);
+        dataset.ShouldNotBeNull();
+        dataset.Name.ShouldBe(datasetName);
+        dataset.Description.ShouldBe("Test dataset for integration tests");
+        dataset.Id.ShouldNotBeNull();
+        dataset.ProjectId.ShouldNotBeNull();
     }
 
     [Fact]
@@ -73,9 +74,9 @@ public class DatasetTests
         var dataset = await client.GetDatasetAsync(datasetName);
 
         // Assert
-        Assert.NotNull(dataset);
-        Assert.Equal(datasetName, dataset.Name);
-        Assert.Equal("Dataset for retrieval test", dataset.Description);
+        dataset.ShouldNotBeNull();
+        dataset.Name.ShouldBe(datasetName);
+        dataset.Description.ShouldBe("Dataset for retrieval test");
     }
 
     [Fact]
@@ -93,10 +94,10 @@ public class DatasetTests
         var result = await client.GetDatasetListAsync(new DatasetListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.True(result.Data.Length >= 2);
-        Assert.Contains(result.Data, d => d.Name.StartsWith(prefix));
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        (result.Data.Length >= 2).ShouldBeTrue();
+        result.Data.ShouldContain(d => d.Name.StartsWith(prefix));
     }
 
     [Fact]
@@ -111,9 +112,9 @@ public class DatasetTests
         var runs = await client.GetDatasetRunsAsync(datasetName, new DatasetRunListRequest { Page = 1, Limit = 10 });
 
         // Assert
-        Assert.NotNull(runs);
-        Assert.NotNull(runs.Data);
-        Assert.Empty(runs.Data);
+        runs.ShouldNotBeNull();
+        runs.Data.ShouldNotBeNull();
+        runs.Data.ShouldBeEmpty();
     }
 
     [Fact]
@@ -125,10 +126,10 @@ public class DatasetTests
         await client.CreateDatasetAsync(new CreateDatasetRequest { Name = datasetName });
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetDatasetRunAsync(datasetName, "non-existent-run"));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetDatasetRunAsync(datasetName, "non-existent-run"));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -140,10 +141,10 @@ public class DatasetTests
         await client.CreateDatasetAsync(new CreateDatasetRequest { Name = datasetName });
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.DeleteDatasetRunAsync(datasetName, "non-existent-run"));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.DeleteDatasetRunAsync(datasetName, "non-existent-run"));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -168,7 +169,7 @@ public class DatasetTests
         });
 
         // Assert - Should have same ID (upsert behavior)
-        Assert.Equal(dataset1.Id, dataset2.Id);
-        Assert.Equal("Updated description", dataset2.Description);
+        dataset2.Id.ShouldBe(dataset1.Id);
+        dataset2.Description.ShouldBe("Updated description");
     }
 }

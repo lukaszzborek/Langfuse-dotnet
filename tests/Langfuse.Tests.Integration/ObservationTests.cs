@@ -1,6 +1,7 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -54,9 +55,9 @@ public class ObservationTests
         var observations = await client.GetObservationListAsync(new ObservationListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(observations);
-        Assert.NotNull(observations.Data);
-        Assert.True(observations.Data.Length >= 1);
+        observations.ShouldNotBeNull();
+        observations.Data.ShouldNotBeNull();
+        (observations.Data.Length >= 1).ShouldBeTrue();
     }
 
     [Fact]
@@ -79,9 +80,9 @@ public class ObservationTests
         });
 
         // Assert
-        Assert.NotNull(observations);
-        Assert.NotNull(observations.Data);
-        Assert.All(observations.Data, o => Assert.Equal("SPAN", o.Type));
+        observations.ShouldNotBeNull();
+        observations.Data.ShouldNotBeNull();
+        observations.Data.ShouldAllBe(o => o.Type == "SPAN");
     }
 
     [Fact]
@@ -104,9 +105,9 @@ public class ObservationTests
         });
 
         // Assert
-        Assert.NotNull(observations);
-        Assert.NotNull(observations.Data);
-        Assert.All(observations.Data, o => Assert.Equal("GENERATION", o.Type));
+        observations.ShouldNotBeNull();
+        observations.Data.ShouldNotBeNull();
+        observations.Data.ShouldAllBe(o => o.Type == "GENERATION");
     }
 
     [Fact]
@@ -129,9 +130,9 @@ public class ObservationTests
         });
 
         // Assert
-        Assert.NotNull(observations);
-        Assert.NotNull(observations.Data);
-        Assert.All(observations.Data, o => Assert.Equal("EVENT", o.Type));
+        observations.ShouldNotBeNull();
+        observations.Data.ShouldNotBeNull();
+        observations.Data.ShouldAllBe(o => o.Type == "EVENT");
     }
 
     [Fact]
@@ -154,10 +155,10 @@ public class ObservationTests
         });
 
         // Assert
-        Assert.NotNull(observations);
-        Assert.NotNull(observations.Data);
-        Assert.True(observations.Data.Length >= 3); // span, generation, event
-        Assert.All(observations.Data, o => Assert.Equal(result.TraceId, o.TraceId));
+        observations.ShouldNotBeNull();
+        observations.Data.ShouldNotBeNull();
+        (observations.Data.Length >= 3).ShouldBeTrue(); // span, generation, event
+        observations.Data.ShouldAllBe(o => o.TraceId == result.TraceId);
     }
 
     [Fact]
@@ -175,10 +176,10 @@ public class ObservationTests
         var observation = await client.GetObservationAsync(spanId);
 
         // Assert
-        Assert.NotNull(observation);
-        Assert.Equal(spanId, observation.Id);
-        Assert.Equal("test-span-retrieval", observation.Name);
-        Assert.Equal("SPAN", observation.Type);
+        observation.ShouldNotBeNull();
+        observation.Id.ShouldBe(spanId);
+        observation.Name.ShouldBe("test-span-retrieval");
+        observation.Type.ShouldBe("SPAN");
     }
 
     [Fact]
@@ -189,10 +190,10 @@ public class ObservationTests
         var nonExistentId = Guid.NewGuid().ToString();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetObservationAsync(nonExistentId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetObservationAsync(nonExistentId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -213,11 +214,11 @@ public class ObservationTests
         var observation = await client.GetObservationAsync(generationId);
 
         // Assert
-        Assert.NotNull(observation);
-        Assert.Equal(generationId, observation.Id);
-        Assert.Equal("llm-generation", observation.Name);
-        Assert.Equal("GENERATION", observation.Type);
-        Assert.Equal("gpt-4-turbo", observation.Model);
+        observation.ShouldNotBeNull();
+        observation.Id.ShouldBe(generationId);
+        observation.Name.ShouldBe("llm-generation");
+        observation.Type.ShouldBe("GENERATION");
+        observation.Model.ShouldBe("gpt-4-turbo");
     }
 
     [Fact]
@@ -241,8 +242,8 @@ public class ObservationTests
         });
 
         // Assert
-        Assert.NotNull(observations);
-        Assert.NotNull(observations.Data);
-        Assert.Contains(observations.Data, o => o.Name == uniqueName);
+        observations.ShouldNotBeNull();
+        observations.Data.ShouldNotBeNull();
+        observations.Data.ShouldContain(o => o.Name == uniqueName);
     }
 }

@@ -1,6 +1,7 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -56,9 +57,9 @@ public class SessionTests
         var result = await client.GetSessionListAsync(new SessionListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Contains(result.Data, s => s.Id == sessionId);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldContain(s => s.Id == sessionId);
     }
 
     [Fact]
@@ -81,8 +82,8 @@ public class SessionTests
         var session = await client.GetSessionAsync(sessionId);
 
         // Assert
-        Assert.NotNull(session);
-        Assert.Equal(sessionId, session.Id);
+        session.ShouldNotBeNull();
+        session.Id.ShouldBe(sessionId);
     }
 
     [Fact]
@@ -93,10 +94,10 @@ public class SessionTests
         var nonExistentId = $"non-existent-{Guid.NewGuid():N}";
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetSessionAsync(nonExistentId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetSessionAsync(nonExistentId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -121,9 +122,9 @@ public class SessionTests
         });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Contains(result.Data, s => s.Id == sessionId);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldContain(s => s.Id == sessionId);
     }
 
     [Fact]
@@ -149,7 +150,7 @@ public class SessionTests
         var session = await client.GetSessionAsync(sessionId);
 
         // Assert
-        Assert.NotNull(session);
-        Assert.Equal(sessionId, session.Id);
+        session.ShouldNotBeNull();
+        session.Id.ShouldBe(sessionId);
     }
 }

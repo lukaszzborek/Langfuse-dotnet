@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using OpenTelemetry;
+using Shouldly;
 using zborek.Langfuse.OpenTelemetry;
 using zborek.Langfuse.OpenTelemetry.Trace;
 
@@ -40,8 +41,8 @@ public class OtelLangfuseTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace("test-trace");
 
-        Assert.NotNull(trace.TraceActivity);
-        Assert.Equal("test-trace", trace.TraceActivity.GetTagItem(LangfuseAttributes.TraceName));
+        trace.TraceActivity.ShouldNotBeNull();
+        trace.TraceActivity.GetTagItem(LangfuseAttributes.TraceName).ShouldBe("test-trace");
     }
 
     [Fact]
@@ -49,8 +50,8 @@ public class OtelLangfuseTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace("test-trace", "user-123");
 
-        Assert.Equal("user-123", trace.TraceActivity?.GetTagItem(LangfuseAttributes.UserId));
-        Assert.Equal("user-123", Baggage.GetBaggage(LangfuseBaggageKeys.UserId));
+        trace.TraceActivity?.GetTagItem(LangfuseAttributes.UserId).ShouldBe("user-123");
+        Baggage.GetBaggage(LangfuseBaggageKeys.UserId).ShouldBe("user-123");
     }
 
     [Fact]
@@ -58,8 +59,8 @@ public class OtelLangfuseTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace("test-trace", sessionId: "session-456");
 
-        Assert.Equal("session-456", trace.TraceActivity?.GetTagItem(LangfuseAttributes.SessionId));
-        Assert.Equal("session-456", Baggage.GetBaggage(LangfuseBaggageKeys.SessionId));
+        trace.TraceActivity?.GetTagItem(LangfuseAttributes.SessionId).ShouldBe("session-456");
+        Baggage.GetBaggage(LangfuseBaggageKeys.SessionId).ShouldBe("session-456");
     }
 
     [Fact]
@@ -67,8 +68,8 @@ public class OtelLangfuseTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace("test-trace", version: "1.0.0");
 
-        Assert.Equal("1.0.0", trace.TraceActivity?.GetTagItem(LangfuseAttributes.Version));
-        Assert.Equal("1.0.0", Baggage.GetBaggage(LangfuseBaggageKeys.Version));
+        trace.TraceActivity?.GetTagItem(LangfuseAttributes.Version).ShouldBe("1.0.0");
+        Baggage.GetBaggage(LangfuseBaggageKeys.Version).ShouldBe("1.0.0");
     }
 
     [Fact]
@@ -76,7 +77,7 @@ public class OtelLangfuseTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace("test-trace", release: "prod-1");
 
-        Assert.Equal("prod-1", Baggage.GetBaggage(LangfuseBaggageKeys.Release));
+        Baggage.GetBaggage(LangfuseBaggageKeys.Release).ShouldBe("prod-1");
     }
 
     [Fact]
@@ -85,14 +86,14 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace", tags: ["tag1", "tag2"]);
 
         var tagsJson = trace.TraceActivity?.GetTagItem(LangfuseAttributes.TraceTags) as string;
-        Assert.NotNull(tagsJson);
-        Assert.Contains("tag1", tagsJson);
-        Assert.Contains("tag2", tagsJson);
+        tagsJson.ShouldNotBeNull();
+        tagsJson.ShouldContain("tag1");
+        tagsJson.ShouldContain("tag2");
 
         var baggageTags = Baggage.GetBaggage(LangfuseBaggageKeys.Tags);
-        Assert.NotNull(baggageTags);
-        Assert.Contains("tag1", baggageTags);
-        Assert.Contains("tag2", baggageTags);
+        baggageTags.ShouldNotBeNull();
+        baggageTags.ShouldContain("tag1");
+        baggageTags.ShouldContain("tag2");
     }
 
     [Fact]
@@ -101,20 +102,20 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace", input: new { query = "test query" });
 
         var inputJson = trace.TraceActivity?.GetTagItem(LangfuseAttributes.TraceInput) as string;
-        Assert.NotNull(inputJson);
-        Assert.Contains("test query", inputJson);
+        inputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("test query");
     }
 
     [Fact]
     public void Constructor_WithIsRoot_CreatesNewTraceId()
     {
         using var parentActivity = _activitySource.StartActivity("parent");
-        Assert.NotNull(parentActivity);
+        parentActivity.ShouldNotBeNull();
 
         using var trace = new OtelLangfuseTrace("test-trace", isRoot: true);
 
-        Assert.NotNull(trace.TraceActivity);
-        Assert.NotEqual(parentActivity.TraceId, trace.TraceActivity.TraceId);
+        trace.TraceActivity.ShouldNotBeNull();
+        trace.TraceActivity.TraceId.ShouldNotBe(parentActivity.TraceId);
     }
 
     [Fact]
@@ -132,8 +133,8 @@ public class OtelLangfuseTraceTests : IDisposable
         {
             using var trace = new OtelLangfuseTrace(customSource, "test-trace");
 
-            Assert.NotNull(trace.TraceActivity);
-            Assert.Equal("CustomSource", trace.TraceActivity.Source.Name);
+            trace.TraceActivity.ShouldNotBeNull();
+            trace.TraceActivity.Source.Name.ShouldBe("CustomSource");
         }
         finally
         {
@@ -154,15 +155,15 @@ public class OtelLangfuseTraceTests : IDisposable
             "prod-1",
             ["tag1"]);
 
-        Assert.NotNull(Baggage.GetBaggage(LangfuseBaggageKeys.UserId));
+        Baggage.GetBaggage(LangfuseBaggageKeys.UserId).ShouldNotBeNull();
 
         trace.Dispose();
 
-        Assert.Null(Baggage.GetBaggage(LangfuseBaggageKeys.UserId));
-        Assert.Null(Baggage.GetBaggage(LangfuseBaggageKeys.SessionId));
-        Assert.Null(Baggage.GetBaggage(LangfuseBaggageKeys.Version));
-        Assert.Null(Baggage.GetBaggage(LangfuseBaggageKeys.Release));
-        Assert.Null(Baggage.GetBaggage(LangfuseBaggageKeys.Tags));
+        Baggage.GetBaggage(LangfuseBaggageKeys.UserId).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseBaggageKeys.SessionId).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseBaggageKeys.Version).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseBaggageKeys.Release).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseBaggageKeys.Tags).ShouldBeNull();
     }
 
     [Fact]
@@ -183,7 +184,7 @@ public class OtelLangfuseTraceTests : IDisposable
 
         trace.SetTraceName("updated-name");
 
-        Assert.Equal("updated-name", trace.TraceActivity?.GetTagItem(LangfuseAttributes.TraceName));
+        trace.TraceActivity?.GetTagItem(LangfuseAttributes.TraceName).ShouldBe("updated-name");
     }
 
     [Fact]
@@ -193,7 +194,7 @@ public class OtelLangfuseTraceTests : IDisposable
 
         trace.SetTraceName("updated-name");
 
-        Assert.Equal("updated-name", trace.TraceActivity?.DisplayName);
+        trace.TraceActivity?.DisplayName.ShouldBe("updated-name");
     }
 
 
@@ -206,10 +207,10 @@ public class OtelLangfuseTraceTests : IDisposable
 
         var traceInput = trace.TraceActivity?.GetTagItem(LangfuseAttributes.TraceInput) as string;
         var observationInput = trace.TraceActivity?.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(traceInput);
-        Assert.NotNull(observationInput);
-        Assert.Contains("test input", traceInput);
-        Assert.Equal(traceInput, observationInput);
+        traceInput.ShouldNotBeNull();
+        observationInput.ShouldNotBeNull();
+        traceInput.ShouldContain("test input");
+        traceInput.ShouldBe(observationInput);
     }
 
     [Fact]
@@ -222,10 +223,10 @@ public class OtelLangfuseTraceTests : IDisposable
 
         var traceOutput = trace.TraceActivity?.GetTagItem(LangfuseAttributes.TraceOutput) as string;
         var observationOutput = trace.TraceActivity?.GetTagItem(LangfuseAttributes.ObservationOutput) as string;
-        Assert.NotNull(traceOutput);
-        Assert.NotNull(observationOutput);
-        Assert.Contains("test output", traceOutput);
-        Assert.Equal(traceOutput, observationOutput);
+        traceOutput.ShouldNotBeNull();
+        observationOutput.ShouldNotBeNull();
+        traceOutput.ShouldContain("test output");
+        traceOutput.ShouldBe(observationOutput);
     }
 
     [Fact]
@@ -235,8 +236,8 @@ public class OtelLangfuseTraceTests : IDisposable
 
         using var span = trace.CreateSpan("test-span");
 
-        Assert.NotNull(span);
-        Assert.IsType<OtelSpan>(span);
+        span.ShouldNotBeNull();
+        span.ShouldBeOfType<OtelSpan>();
     }
 
     [Fact]
@@ -247,8 +248,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var span = trace.CreateSpan("test-span", "retrieval");
 
         var spanActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-span");
-        Assert.NotNull(spanActivity);
-        Assert.Equal("retrieval", spanActivity.GetTagItem("span.type"));
+        spanActivity.ShouldNotBeNull();
+        spanActivity.GetTagItem("span.type").ShouldBe("retrieval");
     }
 
     [Fact]
@@ -259,8 +260,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var span = trace.CreateSpan("test-span", description: "Test description");
 
         var spanActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-span");
-        Assert.NotNull(spanActivity);
-        Assert.Equal("Test description", spanActivity.GetTagItem("span.description"));
+        spanActivity.ShouldNotBeNull();
+        spanActivity.GetTagItem("span.description").ShouldBe("Test description");
     }
 
     [Fact]
@@ -272,7 +273,7 @@ public class OtelLangfuseTraceTests : IDisposable
         {
             using var span = trace.CreateSpan("test-span", input: new { data = "test" });
         });
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -287,11 +288,10 @@ public class OtelLangfuseTraceTests : IDisposable
             s.SetMetadata("custom_key", "custom_value");
         });
 
-        Assert.True(configureInvoked);
+        configureInvoked.ShouldBeTrue();
         var spanActivity = span.Activity;
-        Assert.NotNull(spanActivity);
-        Assert.Equal("custom_value",
-            spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key"));
+        spanActivity.ShouldNotBeNull();
+        spanActivity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key").ShouldBe("custom_value");
     }
 
     [Fact]
@@ -300,8 +300,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var generation = trace.CreateGeneration("test-generation", "gpt-4");
 
-        Assert.NotNull(generation);
-        Assert.IsType<OtelGeneration>(generation);
+        generation.ShouldNotBeNull();
+        generation.ShouldBeOfType<OtelGeneration>();
     }
 
     [Fact]
@@ -311,9 +311,9 @@ public class OtelLangfuseTraceTests : IDisposable
         using var generation = trace.CreateGeneration("test-generation", "gpt-4", "openai");
 
         var genActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-generation");
-        Assert.NotNull(genActivity);
-        Assert.Equal("gpt-4", genActivity.GetTagItem(GenAiAttributes.RequestModel));
-        Assert.Equal("openai", genActivity.GetTagItem(GenAiAttributes.ProviderName));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(GenAiAttributes.RequestModel).ShouldBe("gpt-4");
+        genActivity.GetTagItem(GenAiAttributes.ProviderName).ShouldBe("openai");
     }
 
     [Fact]
@@ -323,10 +323,10 @@ public class OtelLangfuseTraceTests : IDisposable
         using var generation = trace.CreateGeneration("test-generation", "gpt-4", input: new { prompt = "Hello" });
 
         var genActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-generation");
-        Assert.NotNull(genActivity);
+        genActivity.ShouldNotBeNull();
         var inputJson = genActivity.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(inputJson);
-        Assert.Contains("Hello", inputJson);
+        inputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("Hello");
     }
 
     [Fact]
@@ -336,9 +336,9 @@ public class OtelLangfuseTraceTests : IDisposable
         using var generation = trace.CreateGeneration("test-generation", "gpt-4");
 
         var genActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-generation");
-        Assert.NotNull(genActivity);
-        Assert.Equal(LangfuseAttributes.ObservationTypeGeneration,
-            genActivity.GetTagItem(LangfuseAttributes.ObservationType));
+        genActivity.ShouldNotBeNull();
+        genActivity.GetTagItem(LangfuseAttributes.ObservationType)
+            .ShouldBe(LangfuseAttributes.ObservationTypeGeneration);
     }
 
 
@@ -348,8 +348,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var toolCall = trace.CreateToolCall("test-tool-call", "get_weather");
 
-        Assert.NotNull(toolCall);
-        Assert.IsType<OtelToolCall>(toolCall);
+        toolCall.ShouldNotBeNull();
+        toolCall.ShouldBeOfType<OtelToolCall>();
     }
 
     [Fact]
@@ -359,8 +359,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var toolCall = trace.CreateToolCall("test-tool-call", "get_weather");
 
         var toolActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-tool-call");
-        Assert.NotNull(toolActivity);
-        Assert.Equal("get_weather", toolActivity.GetTagItem(GenAiAttributes.ToolName));
+        toolActivity.ShouldNotBeNull();
+        toolActivity.GetTagItem(GenAiAttributes.ToolName).ShouldBe("get_weather");
     }
 
     [Fact]
@@ -371,8 +371,8 @@ public class OtelLangfuseTraceTests : IDisposable
             trace.CreateToolCall("test-tool-call", "get_weather", "Gets current weather");
 
         var toolActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-tool-call");
-        Assert.NotNull(toolActivity);
-        Assert.Equal("Gets current weather", toolActivity.GetTagItem(GenAiAttributes.ToolDescription));
+        toolActivity.ShouldNotBeNull();
+        toolActivity.GetTagItem(GenAiAttributes.ToolDescription).ShouldBe("Gets current weather");
     }
 
     [Fact]
@@ -382,8 +382,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var toolCall = trace.CreateToolCall("test-tool-call", "get_weather", toolType: "api");
 
         var toolActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-tool-call");
-        Assert.NotNull(toolActivity);
-        Assert.Equal("api", toolActivity.GetTagItem(GenAiAttributes.ToolType));
+        toolActivity.ShouldNotBeNull();
+        toolActivity.GetTagItem(GenAiAttributes.ToolType).ShouldBe("api");
     }
 
     [Fact]
@@ -394,10 +394,10 @@ public class OtelLangfuseTraceTests : IDisposable
             trace.CreateToolCall("test-tool-call", "get_weather", input: new { location = "NYC" });
 
         var toolActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-tool-call");
-        Assert.NotNull(toolActivity);
+        toolActivity.ShouldNotBeNull();
         var argsJson = toolActivity.GetTagItem(GenAiAttributes.ToolCallArguments) as string;
-        Assert.NotNull(argsJson);
-        Assert.Contains("NYC", argsJson);
+        argsJson.ShouldNotBeNull();
+        argsJson.ShouldContain("NYC");
     }
 
 
@@ -407,8 +407,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var otelEvent = trace.CreateEvent("test-event");
 
-        Assert.NotNull(otelEvent);
-        Assert.IsType<OtelEvent>(otelEvent);
+        otelEvent.ShouldNotBeNull();
+        otelEvent.ShouldBeOfType<OtelEvent>();
     }
 
     [Fact]
@@ -418,9 +418,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var otelEvent = trace.CreateEvent("test-event");
 
         var eventActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-event");
-        Assert.NotNull(eventActivity);
-        Assert.Equal(LangfuseAttributes.ObservationTypeEvent,
-            eventActivity.GetTagItem(LangfuseAttributes.ObservationType));
+        eventActivity.ShouldNotBeNull();
+        eventActivity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeEvent);
     }
 
     [Fact]
@@ -432,7 +431,7 @@ public class OtelLangfuseTraceTests : IDisposable
         {
             using var otelEvent = trace.CreateEvent("test-event", new { data = "test input" });
         });
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -444,7 +443,7 @@ public class OtelLangfuseTraceTests : IDisposable
         {
             using var otelEvent = trace.CreateEvent("test-event", output: new { result = "test output" });
         });
-        Assert.Null(exception);
+        exception.ShouldBeNull();
     }
 
 
@@ -454,8 +453,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada");
 
-        Assert.NotNull(embedding);
-        Assert.IsType<OtelEmbedding>(embedding);
+        embedding.ShouldNotBeNull();
+        embedding.ShouldBeOfType<OtelEmbedding>();
     }
 
     [Fact]
@@ -465,11 +464,11 @@ public class OtelLangfuseTraceTests : IDisposable
         using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", "openai");
 
         var embedActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-embedding");
-        Assert.NotNull(embedActivity);
-        Assert.Equal("text-embedding-ada", embedActivity.GetTagItem(GenAiAttributes.RequestModel));
-        Assert.Equal("openai", embedActivity.GetTagItem(GenAiAttributes.ProviderName));
-        Assert.Equal(LangfuseAttributes.ObservationTypeEmbedding,
-            embedActivity.GetTagItem(LangfuseAttributes.ObservationType));
+        embedActivity.ShouldNotBeNull();
+        embedActivity.GetTagItem(GenAiAttributes.RequestModel).ShouldBe("text-embedding-ada");
+        embedActivity.GetTagItem(GenAiAttributes.ProviderName).ShouldBe("openai");
+        embedActivity.GetTagItem(LangfuseAttributes.ObservationType)
+            .ShouldBe(LangfuseAttributes.ObservationTypeEmbedding);
     }
 
     [Fact]
@@ -479,10 +478,10 @@ public class OtelLangfuseTraceTests : IDisposable
         using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", input: "Text to embed");
 
         var embedActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-embedding");
-        Assert.NotNull(embedActivity);
+        embedActivity.ShouldNotBeNull();
         var inputJson = embedActivity.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(inputJson);
-        Assert.Contains("Text to embed", inputJson);
+        inputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("Text to embed");
     }
 
 
@@ -492,8 +491,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace");
         using var agent = trace.CreateAgent("test-agent", "agent-123");
 
-        Assert.NotNull(agent);
-        Assert.IsType<OtelAgent>(agent);
+        agent.ShouldNotBeNull();
+        agent.ShouldBeOfType<OtelAgent>();
     }
 
     [Fact]
@@ -503,9 +502,9 @@ public class OtelLangfuseTraceTests : IDisposable
         using var agent = trace.CreateAgent("test-agent", "agent-123");
 
         var agentActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-agent");
-        Assert.NotNull(agentActivity);
-        Assert.Equal("agent-123", agentActivity.GetTagItem(GenAiAttributes.AgentId));
-        Assert.Equal("test-agent", agentActivity.GetTagItem(GenAiAttributes.AgentName));
+        agentActivity.ShouldNotBeNull();
+        agentActivity.GetTagItem(GenAiAttributes.AgentId).ShouldBe("agent-123");
+        agentActivity.GetTagItem(GenAiAttributes.AgentName).ShouldBe("test-agent");
     }
 
     [Fact]
@@ -515,8 +514,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var agent = trace.CreateAgent("test-agent", "agent-123", "A helpful assistant");
 
         var agentActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-agent");
-        Assert.NotNull(agentActivity);
-        Assert.Equal("A helpful assistant", agentActivity.GetTagItem(GenAiAttributes.AgentDescription));
+        agentActivity.ShouldNotBeNull();
+        agentActivity.GetTagItem(GenAiAttributes.AgentDescription).ShouldBe("A helpful assistant");
     }
 
     [Fact]
@@ -526,9 +525,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var agent = trace.CreateAgent("test-agent", "agent-123");
 
         var agentActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-agent");
-        Assert.NotNull(agentActivity);
-        Assert.Equal(LangfuseAttributes.ObservationTypeAgent,
-            agentActivity.GetTagItem(LangfuseAttributes.ObservationType));
+        agentActivity.ShouldNotBeNull();
+        agentActivity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeAgent);
     }
 
 
@@ -539,8 +537,8 @@ public class OtelLangfuseTraceTests : IDisposable
         using var span = trace.CreateSpan("child-span");
 
         var spanActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "child-span");
-        Assert.NotNull(spanActivity);
-        Assert.Equal(trace.TraceActivity?.SpanId, spanActivity.ParentSpanId);
+        spanActivity.ShouldNotBeNull();
+        (spanActivity.ParentSpanId == trace.TraceActivity?.SpanId).ShouldBeTrue();
     }
 
     [Fact]
@@ -553,10 +551,10 @@ public class OtelLangfuseTraceTests : IDisposable
         var outerActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "outer-span");
         var innerActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "inner-span");
 
-        Assert.NotNull(outerActivity);
-        Assert.NotNull(innerActivity);
+        outerActivity.ShouldNotBeNull();
+        innerActivity.ShouldNotBeNull();
 
         // Inner span should be child of outer span (due to Activity.Current propagation)
-        Assert.Equal(outerActivity.SpanId, innerActivity.ParentSpanId);
+        (innerActivity.ParentSpanId == outerActivity.SpanId).ShouldBeTrue();
     }
 }

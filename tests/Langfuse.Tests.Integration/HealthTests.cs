@@ -1,5 +1,6 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 
@@ -36,7 +37,7 @@ public class HealthTests
         var health = await client.GetHealthAsync();
 
         // Assert
-        Assert.NotNull(health);
-        Assert.Equal("OK", health.Status);
+        health.ShouldNotBeNull();
+        health.Status.ShouldBe("OK");
     }
 }

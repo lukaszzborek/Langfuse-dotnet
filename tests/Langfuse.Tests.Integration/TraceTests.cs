@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -57,9 +59,9 @@ public class TraceTests
         var result = await client.GetTraceListAsync(new TraceListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.True(result.Data.Length >= 2);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        (result.Data.Length >= 2).ShouldBeTrue();
     }
 
     [Fact]
@@ -77,10 +79,10 @@ public class TraceTests
         var result = await client.GetTraceListAsync(new TraceListRequest { Name = uniqueName, Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Single(result.Data);
-        Assert.Equal(uniqueName, result.Data[0].Name);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.Length.ShouldBe(1);
+        result.Data[0].Name.ShouldBe(uniqueName);
     }
 
     [Fact]
@@ -98,9 +100,9 @@ public class TraceTests
         var result = await client.GetTraceListAsync(new TraceListRequest { UserId = userId, Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Contains(result.Data, t => t.UserId == userId);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldContain(t => t.UserId == userId);
     }
 
     [Fact]
@@ -119,9 +121,9 @@ public class TraceTests
             await client.GetTraceListAsync(new TraceListRequest { Tags = [uniqueTag], Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Contains(result.Data, t => t.Tags != null && t.Tags.Contains(uniqueTag));
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldContain(t => t.Tags != null && t.Tags.Contains(uniqueTag));
     }
 
     [Fact]
@@ -144,10 +146,10 @@ public class TraceTests
         var trace = await client.GetTraceAsync(traceId);
 
         // Assert
-        Assert.NotNull(trace);
-        Assert.Equal(traceId, trace.Id);
-        Assert.Equal(traceName, trace.Name);
-        Assert.Equal("test-user", trace.UserId);
+        trace.ShouldNotBeNull();
+        trace.Id.ShouldBe(traceId);
+        trace.Name.ShouldBe(traceName);
+        trace.UserId.ShouldBe("test-user");
     }
 
     [Fact]
@@ -158,10 +160,10 @@ public class TraceTests
         var nonExistentId = Guid.NewGuid().ToString();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetTraceAsync(nonExistentId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetTraceAsync(nonExistentId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -178,10 +180,10 @@ public class TraceTests
         var deleteResponse = await client.DeleteTraceAsync(traceId);
 
         // Assert
-        Assert.NotNull(deleteResponse);
+        deleteResponse.ShouldNotBeNull();
 
         // Wait for deletion to propagate and verify trace is gone
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
         var timeout = TimeSpan.FromSeconds(30);
         LangfuseApiException? deleteException = null;
 
@@ -200,8 +202,8 @@ public class TraceTests
             }
         }
 
-        Assert.NotNull(deleteException);
-        Assert.Equal(404, deleteException.StatusCode);
+        deleteException.ShouldNotBeNull();
+        deleteException.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -219,10 +221,11 @@ public class TraceTests
         await traceHelper.WaitForTraceAsync(traceId2);
 
         // Act
-        var deleteResponse = await client.DeleteTraceManyAsync(new DeleteTraceManyRequest { TraceIds = [traceId1, traceId2] });
+        var deleteResponse =
+            await client.DeleteTraceManyAsync(new DeleteTraceManyRequest { TraceIds = [traceId1, traceId2] });
 
         // Assert - verify delete was called successfully
-        Assert.NotNull(deleteResponse);
+        deleteResponse.ShouldNotBeNull();
 
         // The bulk delete API processes asynchronously, so we verify at least
         // the API accepted the request. Full deletion verification is optional
@@ -245,8 +248,8 @@ public class TraceTests
             await client.GetTraceListAsync(new TraceListRequest { SessionId = sessionId, Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Contains(result.Data, t => t.SessionId == sessionId);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldContain(t => t.SessionId == sessionId);
     }
 }

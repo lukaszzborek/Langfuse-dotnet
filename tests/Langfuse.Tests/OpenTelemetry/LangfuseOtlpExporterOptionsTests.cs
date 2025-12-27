@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Shouldly;
 using zborek.Langfuse.OpenTelemetry;
 
 namespace zborek.Langfuse.Tests.OpenTelemetry;
@@ -12,12 +13,12 @@ public class LangfuseOtlpExporterOptionsTests
         var options = new LangfuseOtlpExporterOptions();
 
         // Assert
-        Assert.Equal("https://cloud.langfuse.com", options.Endpoint);
-        Assert.Equal(string.Empty, options.PublicKey);
-        Assert.Equal(string.Empty, options.SecretKey);
-        Assert.NotNull(options.Headers);
-        Assert.Empty(options.Headers);
-        Assert.Equal(10000, options.TimeoutMilliseconds);
+        options.Endpoint.ShouldBe("https://cloud.langfuse.com");
+        options.PublicKey.ShouldBe(string.Empty);
+        options.SecretKey.ShouldBe(string.Empty);
+        options.Headers.ShouldNotBeNull();
+        options.Headers.ShouldBeEmpty();
+        options.TimeoutMilliseconds.ShouldBe(10000);
     }
 
     [Fact]
@@ -31,7 +32,7 @@ public class LangfuseOtlpExporterOptionsTests
         options.Endpoint = customEndpoint;
 
         // Assert
-        Assert.Equal(customEndpoint, options.Endpoint);
+        options.Endpoint.ShouldBe(customEndpoint);
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public class LangfuseOtlpExporterOptionsTests
         options.PublicKey = publicKey;
 
         // Assert
-        Assert.Equal(publicKey, options.PublicKey);
+        options.PublicKey.ShouldBe(publicKey);
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public class LangfuseOtlpExporterOptionsTests
         options.SecretKey = secretKey;
 
         // Assert
-        Assert.Equal(secretKey, options.SecretKey);
+        options.SecretKey.ShouldBe(secretKey);
     }
 
     [Fact]
@@ -77,10 +78,10 @@ public class LangfuseOtlpExporterOptionsTests
         options.Headers = headers;
 
         // Assert
-        Assert.Equal(headers, options.Headers);
-        Assert.Equal(2, options.Headers.Count);
-        Assert.Equal("CustomValue", options.Headers["X-Custom-Header"]);
-        Assert.Equal("AnotherValue", options.Headers["X-Another-Header"]);
+        options.Headers.ShouldBe(headers);
+        options.Headers.Count.ShouldBe(2);
+        options.Headers["X-Custom-Header"].ShouldBe("CustomValue");
+        options.Headers["X-Another-Header"].ShouldBe("AnotherValue");
     }
 
     [Fact]
@@ -93,8 +94,8 @@ public class LangfuseOtlpExporterOptionsTests
         options.Headers.Add("X-Test-Header", "TestValue");
 
         // Assert
-        Assert.Single(options.Headers);
-        Assert.Equal("TestValue", options.Headers["X-Test-Header"]);
+        options.Headers.ShouldHaveSingleItem();
+        options.Headers["X-Test-Header"].ShouldBe("TestValue");
     }
 
     [Fact]
@@ -108,7 +109,7 @@ public class LangfuseOtlpExporterOptionsTests
         options.TimeoutMilliseconds = customTimeout;
 
         // Assert
-        Assert.Equal(customTimeout, options.TimeoutMilliseconds);
+        options.TimeoutMilliseconds.ShouldBe(customTimeout);
     }
 
     [Fact]
@@ -133,12 +134,12 @@ public class LangfuseOtlpExporterOptionsTests
         configuration.GetSection("LangfuseOtlp").Bind(options);
 
         // Assert
-        Assert.Equal("https://test.langfuse.com", options.Endpoint);
-        Assert.Equal("pk-test-key", options.PublicKey);
-        Assert.Equal("sk-test-key", options.SecretKey);
-        Assert.Equal(15000, options.TimeoutMilliseconds);
-        Assert.Single(options.Headers);
-        Assert.Equal("CustomValue", options.Headers["X-Custom"]);
+        options.Endpoint.ShouldBe("https://test.langfuse.com");
+        options.PublicKey.ShouldBe("pk-test-key");
+        options.SecretKey.ShouldBe("sk-test-key");
+        options.TimeoutMilliseconds.ShouldBe(15000);
+        options.Headers.ShouldHaveSingleItem();
+        options.Headers["X-Custom"].ShouldBe("CustomValue");
     }
 
     [Fact]
@@ -159,11 +160,11 @@ public class LangfuseOtlpExporterOptionsTests
         configuration.GetSection("LangfuseOtlp").Bind(options);
 
         // Assert
-        Assert.Equal("https://cloud.langfuse.com", options.Endpoint);
-        Assert.Equal("pk-test-key", options.PublicKey);
-        Assert.Equal(string.Empty, options.SecretKey);
-        Assert.Equal(10000, options.TimeoutMilliseconds);
-        Assert.Empty(options.Headers);
+        options.Endpoint.ShouldBe("https://cloud.langfuse.com");
+        options.PublicKey.ShouldBe("pk-test-key");
+        options.SecretKey.ShouldBe(string.Empty);
+        options.TimeoutMilliseconds.ShouldBe(10000);
+        options.Headers.ShouldBeEmpty();
     }
 
     [Fact]
@@ -184,10 +185,10 @@ public class LangfuseOtlpExporterOptionsTests
         };
 
         // Assert
-        Assert.Equal("https://custom.langfuse.com", options.Endpoint);
-        Assert.Equal("pk-custom-key", options.PublicKey);
-        Assert.Equal("sk-custom-key", options.SecretKey);
-        Assert.Equal(20000, options.TimeoutMilliseconds);
-        Assert.Equal(2, options.Headers.Count);
+        options.Endpoint.ShouldBe("https://custom.langfuse.com");
+        options.PublicKey.ShouldBe("pk-custom-key");
+        options.SecretKey.ShouldBe("sk-custom-key");
+        options.TimeoutMilliseconds.ShouldBe(20000);
+        options.Headers.Count.ShouldBe(2);
     }
 }

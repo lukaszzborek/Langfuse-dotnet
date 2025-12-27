@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using System.Text.Json;
+using Shouldly;
 using zborek.Langfuse.OpenTelemetry;
 using zborek.Langfuse.OpenTelemetry.Models;
 
@@ -8,8 +8,8 @@ namespace zborek.Langfuse.Tests.OpenTelemetry;
 public class GenAiActivityHelperTests : IDisposable
 {
     private readonly ActivitySource _activitySource;
-    private readonly ActivityListener _listener;
     private readonly List<Activity> _capturedActivities;
+    private readonly ActivityListener _listener;
 
     public GenAiActivityHelperTests()
     {
@@ -39,15 +39,14 @@ public class GenAiActivityHelperTests : IDisposable
             Model = "gpt-4",
             Provider = "openai"
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("chat", activity.GetTagItem(GenAiAttributes.OperationName));
-        Assert.Equal("openai", activity.GetTagItem(GenAiAttributes.ProviderName));
-        Assert.Equal("gpt-4", activity.GetTagItem(GenAiAttributes.RequestModel));
-        Assert.Equal(LangfuseAttributes.ObservationTypeGeneration,
-            activity.GetTagItem(LangfuseAttributes.ObservationType));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe("chat");
+        activity.GetTagItem(GenAiAttributes.ProviderName).ShouldBe("openai");
+        activity.GetTagItem(GenAiAttributes.RequestModel).ShouldBe("gpt-4");
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeGeneration);
     }
 
     [Fact]
@@ -59,11 +58,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             Temperature = 0.7
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal(0.7, activity.GetTagItem(GenAiAttributes.RequestTemperature));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestTemperature).ShouldBe(0.7);
     }
 
     [Fact]
@@ -75,11 +74,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             TopP = 0.9
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal(0.9, activity.GetTagItem(GenAiAttributes.RequestTopP));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestTopP).ShouldBe(0.9);
     }
 
     [Fact]
@@ -91,11 +90,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             TopK = 50
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal(50.0, activity.GetTagItem(GenAiAttributes.RequestTopK));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestTopK).ShouldBe(50.0);
     }
 
     [Fact]
@@ -109,9 +108,9 @@ public class GenAiActivityHelperTests : IDisposable
         };
 
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal(1000, activity.GetTagItem(GenAiAttributes.RequestMaxTokens));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestMaxTokens).ShouldBe(1000);
     }
 
     [Fact]
@@ -125,9 +124,9 @@ public class GenAiActivityHelperTests : IDisposable
         };
 
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal(0.5, activity.GetTagItem(GenAiAttributes.RequestFrequencyPenalty));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestFrequencyPenalty).ShouldBe(0.5);
     }
 
     [Fact]
@@ -139,11 +138,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             PresencePenalty = 0.3
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal(0.3, activity.GetTagItem(GenAiAttributes.RequestPresencePenalty));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestPresencePenalty).ShouldBe(0.3);
     }
 
     [Fact]
@@ -155,11 +154,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             ChoiceCount = 3
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal(3, activity.GetTagItem(GenAiAttributes.RequestChoiceCount));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestChoiceCount).ShouldBe(3);
     }
 
     [Fact]
@@ -174,8 +173,8 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal(12345, activity.GetTagItem(GenAiAttributes.RequestSeed));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestSeed).ShouldBe(12345);
     }
 
     [Fact]
@@ -190,11 +189,11 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
+        activity.ShouldNotBeNull();
         var stopSequencesJson = activity.GetTagItem(GenAiAttributes.RequestStopSequences) as string;
-        Assert.NotNull(stopSequencesJson);
-        Assert.Contains("stop1", stopSequencesJson);
-        Assert.Contains("stop2", stopSequencesJson);
+        stopSequencesJson.ShouldNotBeNull();
+        stopSequencesJson.ShouldContain("stop1");
+        stopSequencesJson.ShouldContain("stop2");
     }
 
     [Fact]
@@ -206,11 +205,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             OutputType = "json"
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("json", activity.GetTagItem(GenAiAttributes.OutputType));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.OutputType).ShouldBe("json");
     }
 
     [Fact]
@@ -222,11 +221,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             ConversationId = "conv-123"
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("conv-123", activity.GetTagItem(GenAiAttributes.ConversationId));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.ConversationId).ShouldBe("conv-123");
     }
 
     [Fact]
@@ -238,11 +237,11 @@ public class GenAiActivityHelperTests : IDisposable
             Provider = "openai",
             SystemInstructions = "You are a helpful assistant."
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("You are a helpful assistant.", activity.GetTagItem(GenAiAttributes.SystemInstructions));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.SystemInstructions).ShouldBe("You are a helpful assistant.");
     }
 
     [Fact]
@@ -258,9 +257,9 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("api.openai.com", activity.GetTagItem(GenAiAttributes.ServerAddress));
-        Assert.Equal(443, activity.GetTagItem(GenAiAttributes.ServerPort));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.ServerAddress).ShouldBe("api.openai.com");
+        activity.GetTagItem(GenAiAttributes.ServerPort).ShouldBe(443);
     }
 
     [Fact]
@@ -273,12 +272,12 @@ public class GenAiActivityHelperTests : IDisposable
             PromptName = "my-prompt",
             PromptVersion = 2
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("my-prompt", activity.GetTagItem(LangfuseAttributes.ObservationPromptName));
-        Assert.Equal(2, activity.GetTagItem(LangfuseAttributes.ObservationPromptVersion));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationPromptName).ShouldBe("my-prompt");
+        activity.GetTagItem(LangfuseAttributes.ObservationPromptVersion).ShouldBe(2);
     }
 
     [Fact]
@@ -293,8 +292,8 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("WARNING", activity.GetTagItem(LangfuseAttributes.ObservationLevel));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationLevel).ShouldBe("WARNING");
     }
 
     [Fact]
@@ -310,15 +309,13 @@ public class GenAiActivityHelperTests : IDisposable
                 { "number_key", 42 }
             }
         };
-        
+
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("custom_value",
-            activity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key"));
-        Assert.Equal(42, activity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}number_key"));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key").ShouldBe("custom_value");
+        activity.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}number_key").ShouldBe(42);
     }
-
 
 
     [Fact]
@@ -329,15 +326,14 @@ public class GenAiActivityHelperTests : IDisposable
             Model = "text-davinci-003",
             Provider = "openai"
         };
-        
+
         using var activity = GenAiActivityHelper.CreateTextCompletionActivity(_activitySource, "test-text", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("text_completion", activity.GetTagItem(GenAiAttributes.OperationName));
-        Assert.Equal("openai", activity.GetTagItem(GenAiAttributes.ProviderName));
-        Assert.Equal("text-davinci-003", activity.GetTagItem(GenAiAttributes.RequestModel));
-        Assert.Equal(LangfuseAttributes.ObservationTypeGeneration,
-            activity.GetTagItem(LangfuseAttributes.ObservationType));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe("text_completion");
+        activity.GetTagItem(GenAiAttributes.ProviderName).ShouldBe("openai");
+        activity.GetTagItem(GenAiAttributes.RequestModel).ShouldBe("text-davinci-003");
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeGeneration);
     }
 
     [Fact]
@@ -350,14 +346,13 @@ public class GenAiActivityHelperTests : IDisposable
             Temperature = 0.5,
             MaxTokens = 500
         };
-        
-        using var activity = GenAiActivityHelper.CreateTextCompletionActivity(_activitySource, "test-text", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal(0.5, activity.GetTagItem(GenAiAttributes.RequestTemperature));
-        Assert.Equal(500, activity.GetTagItem(GenAiAttributes.RequestMaxTokens));
-    }
 
+        using var activity = GenAiActivityHelper.CreateTextCompletionActivity(_activitySource, "test-text", config);
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestTemperature).ShouldBe(0.5);
+        activity.GetTagItem(GenAiAttributes.RequestMaxTokens).ShouldBe(500);
+    }
 
 
     [Fact]
@@ -365,13 +360,12 @@ public class GenAiActivityHelperTests : IDisposable
     {
         using var activity =
             GenAiActivityHelper.CreateEmbeddingsActivity(_activitySource, "test-embed", "openai", "text-embedding-ada");
-        
-        Assert.NotNull(activity);
-        Assert.Equal("embeddings", activity.GetTagItem(GenAiAttributes.OperationName));
-        Assert.Equal("openai", activity.GetTagItem(GenAiAttributes.ProviderName));
-        Assert.Equal("text-embedding-ada", activity.GetTagItem(GenAiAttributes.RequestModel));
-        Assert.Equal(LangfuseAttributes.ObservationTypeEmbedding,
-            activity.GetTagItem(LangfuseAttributes.ObservationType));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe("embeddings");
+        activity.GetTagItem(GenAiAttributes.ProviderName).ShouldBe("openai");
+        activity.GetTagItem(GenAiAttributes.RequestModel).ShouldBe("text-embedding-ada");
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeEmbedding);
     }
 
     [Fact]
@@ -386,20 +380,19 @@ public class GenAiActivityHelperTests : IDisposable
             ServerAddress = "api.openai.com",
             ServerPort = 443
         };
-        
+
         using var activity = GenAiActivityHelper.CreateEmbeddingsActivity(_activitySource, "test-embed", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal(1536, activity.GetTagItem(GenAiAttributes.EmbeddingsDimensionCount));
-        Assert.Equal("api.openai.com", activity.GetTagItem(GenAiAttributes.ServerAddress));
-        Assert.Equal(443, activity.GetTagItem(GenAiAttributes.ServerPort));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.EmbeddingsDimensionCount).ShouldBe(1536);
+        activity.GetTagItem(GenAiAttributes.ServerAddress).ShouldBe("api.openai.com");
+        activity.GetTagItem(GenAiAttributes.ServerPort).ShouldBe(443);
 
         var encodingFormatsJson = activity.GetTagItem(GenAiAttributes.RequestEncodingFormats) as string;
-        Assert.NotNull(encodingFormatsJson);
-        Assert.Contains("float", encodingFormatsJson);
-        Assert.Contains("base64", encodingFormatsJson);
+        encodingFormatsJson.ShouldNotBeNull();
+        encodingFormatsJson.ShouldContain("float");
+        encodingFormatsJson.ShouldContain("base64");
     }
-
 
 
     [Fact]
@@ -408,11 +401,11 @@ public class GenAiActivityHelperTests : IDisposable
         using var activity =
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, "test-tool", "get_weather");
 
-        Assert.NotNull(activity);
-        Assert.Equal("execute_tool", activity.GetTagItem(GenAiAttributes.OperationName));
-        Assert.Equal("get_weather", activity.GetTagItem(GenAiAttributes.ToolName));
-        Assert.Equal("function", activity.GetTagItem(GenAiAttributes.ToolType));
-        Assert.Equal(LangfuseAttributes.ObservationTypeTool, activity.GetTagItem(LangfuseAttributes.ObservationType));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe("execute_tool");
+        activity.GetTagItem(GenAiAttributes.ToolName).ShouldBe("get_weather");
+        activity.GetTagItem(GenAiAttributes.ToolType).ShouldBe("function");
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeTool);
     }
 
     [Fact]
@@ -426,12 +419,11 @@ public class GenAiActivityHelperTests : IDisposable
             "api",
             "call-123");
 
-        Assert.NotNull(activity);
-        Assert.Equal("Gets the current weather for a location", activity.GetTagItem(GenAiAttributes.ToolDescription));
-        Assert.Equal("api", activity.GetTagItem(GenAiAttributes.ToolType));
-        Assert.Equal("call-123", activity.GetTagItem(GenAiAttributes.ToolCallId));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.ToolDescription).ShouldBe("Gets the current weather for a location");
+        activity.GetTagItem(GenAiAttributes.ToolType).ShouldBe("api");
+        activity.GetTagItem(GenAiAttributes.ToolCallId).ShouldBe("call-123");
     }
-
 
 
     [Fact]
@@ -445,11 +437,11 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, "test-agent", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("create_agent", activity.GetTagItem(GenAiAttributes.OperationName));
-        Assert.Equal("agent-123", activity.GetTagItem(GenAiAttributes.AgentId));
-        Assert.Equal("TestAgent", activity.GetTagItem(GenAiAttributes.AgentName));
-        Assert.Equal(LangfuseAttributes.ObservationTypeAgent, activity.GetTagItem(LangfuseAttributes.ObservationType));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe("create_agent");
+        activity.GetTagItem(GenAiAttributes.AgentId).ShouldBe("agent-123");
+        activity.GetTagItem(GenAiAttributes.AgentName).ShouldBe("TestAgent");
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeAgent);
     }
 
     [Fact]
@@ -461,24 +453,24 @@ public class GenAiActivityHelperTests : IDisposable
             Name = "TestAgent",
             Description = "A helpful assistant agent"
         };
-        
-        using var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, "test-agent", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("A helpful assistant agent", activity.GetTagItem(GenAiAttributes.AgentDescription));
-    }
 
+        using var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, "test-agent", config);
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.AgentDescription).ShouldBe("A helpful assistant agent");
+    }
 
 
     [Fact]
     public void CreateInvokeAgentActivity_SetsRequiredTags()
     {
-        using var activity = GenAiActivityHelper.CreateInvokeAgentActivity(_activitySource, "invoke-agent", "agent-456");
+        using var activity =
+            GenAiActivityHelper.CreateInvokeAgentActivity(_activitySource, "invoke-agent", "agent-456");
 
-        Assert.NotNull(activity);
-        Assert.Equal("invoke_agent", activity.GetTagItem(GenAiAttributes.OperationName));
-        Assert.Equal("agent-456", activity.GetTagItem(GenAiAttributes.AgentId));
-        Assert.Equal(LangfuseAttributes.ObservationTypeAgent, activity.GetTagItem(LangfuseAttributes.ObservationType));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe("invoke_agent");
+        activity.GetTagItem(GenAiAttributes.AgentId).ShouldBe("agent-456");
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeAgent);
     }
 
     [Fact]
@@ -486,11 +478,10 @@ public class GenAiActivityHelperTests : IDisposable
     {
         using var activity =
             GenAiActivityHelper.CreateInvokeAgentActivity(_activitySource, "invoke-agent", "agent-456", "MyAgent");
-        
-        Assert.NotNull(activity);
-        Assert.Equal("MyAgent", activity.GetTagItem(GenAiAttributes.AgentName));
-    }
 
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.AgentName).ShouldBe("MyAgent");
+    }
 
 
     [Fact]
@@ -499,9 +490,9 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new TraceConfig { Name = "my-trace" };
 
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("my-trace", activity.GetTagItem(LangfuseAttributes.TraceName));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.TraceName).ShouldBe("my-trace");
     }
 
     [Fact]
@@ -514,10 +505,10 @@ public class GenAiActivityHelperTests : IDisposable
         };
 
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("user-123", activity.GetTagItem(LangfuseAttributes.UserId));
-        Assert.Equal("session-456", activity.GetTagItem(LangfuseAttributes.SessionId));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.UserId).ShouldBe("user-123");
+        activity.GetTagItem(LangfuseAttributes.SessionId).ShouldBe("session-456");
     }
 
     [Fact]
@@ -528,12 +519,12 @@ public class GenAiActivityHelperTests : IDisposable
             Version = "1.0.0",
             Release = "prod-release-1"
         };
-        
+
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("1.0.0", activity.GetTagItem(LangfuseAttributes.Version));
-        Assert.Equal("prod-release-1", activity.GetTagItem(LangfuseAttributes.Release));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.Version).ShouldBe("1.0.0");
+        activity.GetTagItem(LangfuseAttributes.Release).ShouldBe("prod-release-1");
     }
 
     [Fact]
@@ -543,8 +534,8 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("production", activity.GetTagItem(LangfuseAttributes.Environment));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.Environment).ShouldBe("production");
     }
 
     [Fact]
@@ -555,12 +546,12 @@ public class GenAiActivityHelperTests : IDisposable
             ServiceName = "my-service",
             ServiceVersion = "2.0.0"
         };
-        
+
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("my-service", activity.GetTagItem(GenAiAttributes.ServiceName));
-        Assert.Equal("2.0.0", activity.GetTagItem(GenAiAttributes.ServiceVersion));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.ServiceName).ShouldBe("my-service");
+        activity.GetTagItem(GenAiAttributes.ServiceVersion).ShouldBe("2.0.0");
     }
 
     [Fact]
@@ -570,8 +561,8 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal(true, activity.GetTagItem(LangfuseAttributes.TracePublic));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.TracePublic).ShouldBe(true);
     }
 
     [Fact]
@@ -581,12 +572,12 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
 
-        Assert.NotNull(activity);
+        activity.ShouldNotBeNull();
         var tagsJson = activity.GetTagItem(LangfuseAttributes.TraceTags) as string;
-        Assert.NotNull(tagsJson);
-        Assert.Contains("tag1", tagsJson);
-        Assert.Contains("tag2", tagsJson);
-        Assert.Contains("tag3", tagsJson);
+        tagsJson.ShouldNotBeNull();
+        tagsJson.ShouldContain("tag1");
+        tagsJson.ShouldContain("tag2");
+        tagsJson.ShouldContain("tag3");
     }
 
     [Fact]
@@ -597,16 +588,16 @@ public class GenAiActivityHelperTests : IDisposable
             Input = new { query = "test query" },
             Output = new { result = "test result" }
         };
-        
+
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
 
-        Assert.NotNull(activity);
+        activity.ShouldNotBeNull();
         var inputJson = activity.GetTagItem(LangfuseAttributes.TraceInput) as string;
         var outputJson = activity.GetTagItem(LangfuseAttributes.TraceOutput) as string;
-        Assert.NotNull(inputJson);
-        Assert.NotNull(outputJson);
-        Assert.Contains("test query", inputJson);
-        Assert.Contains("test result", outputJson);
+        inputJson.ShouldNotBeNull();
+        outputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("test query");
+        outputJson.ShouldContain("test result");
     }
 
     [Fact]
@@ -620,12 +611,12 @@ public class GenAiActivityHelperTests : IDisposable
                 { "key2", 123 }
             }
         };
-        
+
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal("value1", activity.GetTagItem($"{LangfuseAttributes.TraceMetadataPrefix}key1"));
-        Assert.Equal(123, activity.GetTagItem($"{LangfuseAttributes.TraceMetadataPrefix}key2"));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem($"{LangfuseAttributes.TraceMetadataPrefix}key1").ShouldBe("value1");
+        activity.GetTagItem($"{LangfuseAttributes.TraceMetadataPrefix}key2").ShouldBe(123);
     }
 
     [Fact]
@@ -633,34 +624,33 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new TraceConfig { Name = "root-trace" };
 
-        using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config, isRoot: true);
+        using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace-op", config, true);
 
-        Assert.NotNull(activity);
-        Assert.NotEqual(default, activity.TraceId);
+        activity.ShouldNotBeNull();
+        activity.TraceId.ShouldNotBe(default);
     }
-
 
 
     [Fact]
     public void CreateSpanActivity_SetsObservationType()
     {
         var config = new SpanConfig();
-        
+
         using var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, "test-span", config);
-        
-        Assert.NotNull(activity);
-        Assert.Equal(LangfuseAttributes.ObservationTypeSpan, activity.GetTagItem(LangfuseAttributes.ObservationType));
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeSpan);
     }
 
     [Fact]
     public void CreateSpanActivity_SetsOptionalSpanType()
     {
         var config = new SpanConfig { SpanType = "retrieval" };
-        
+
         using var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, "test-span", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("retrieval", activity.GetTagItem("span.type"));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem("span.type").ShouldBe("retrieval");
     }
 
     [Fact]
@@ -670,8 +660,8 @@ public class GenAiActivityHelperTests : IDisposable
 
         using var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, "test-span", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("Test span description", activity.GetTagItem("span.description"));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem("span.description").ShouldBe("Test span description");
     }
 
     [Fact]
@@ -685,14 +675,13 @@ public class GenAiActivityHelperTests : IDisposable
                 { "custom.attr2", 42 }
             }
         };
-        
+
         using var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, "test-span", config);
 
-        Assert.NotNull(activity);
-        Assert.Equal("value1", activity.GetTagItem("custom.attr1"));
-        Assert.Equal(42, activity.GetTagItem("custom.attr2"));
+        activity.ShouldNotBeNull();
+        activity.GetTagItem("custom.attr1").ShouldBe("value1");
+        activity.GetTagItem("custom.attr2").ShouldBe(42);
     }
-
 
 
     [Fact]
@@ -704,7 +693,7 @@ public class GenAiActivityHelperTests : IDisposable
 
         GenAiActivityHelper.RecordResponse(activity, response);
 
-        Assert.Equal("resp-123", activity?.GetTagItem(GenAiAttributes.ResponseId));
+        activity?.GetTagItem(GenAiAttributes.ResponseId).ShouldBe("resp-123");
     }
 
     [Fact]
@@ -713,10 +702,10 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
         var response = new GenAiResponse { Model = "gpt-4-0613" };
-        
+
         GenAiActivityHelper.RecordResponse(activity, response);
 
-        Assert.Equal("gpt-4-0613", activity?.GetTagItem(GenAiAttributes.ResponseModel));
+        activity?.GetTagItem(GenAiAttributes.ResponseModel).ShouldBe("gpt-4-0613");
     }
 
     [Fact]
@@ -729,9 +718,9 @@ public class GenAiActivityHelperTests : IDisposable
         GenAiActivityHelper.RecordResponse(activity, response);
 
         var finishReasonsJson = activity?.GetTagItem(GenAiAttributes.ResponseFinishReasons) as string;
-        Assert.NotNull(finishReasonsJson);
-        Assert.Contains("stop", finishReasonsJson);
-        Assert.Contains("length", finishReasonsJson);
+        finishReasonsJson.ShouldNotBeNull();
+        finishReasonsJson.ShouldContain("stop");
+        finishReasonsJson.ShouldContain("length");
     }
 
     [Fact]
@@ -746,9 +735,9 @@ public class GenAiActivityHelperTests : IDisposable
         };
 
         GenAiActivityHelper.RecordResponse(activity, response);
-        
-        Assert.Equal(100, activity?.GetTagItem(GenAiAttributes.UsageInputTokens));
-        Assert.Equal(50, activity?.GetTagItem(GenAiAttributes.UsageOutputTokens));
+
+        activity?.GetTagItem(GenAiAttributes.UsageInputTokens).ShouldBe(100);
+        activity?.GetTagItem(GenAiAttributes.UsageOutputTokens).ShouldBe(50);
     }
 
     [Fact]
@@ -764,13 +753,13 @@ public class GenAiActivityHelperTests : IDisposable
                 { "reasoning_tokens", 20 }
             }
         };
-        
+
         GenAiActivityHelper.RecordResponse(activity, response);
-        
+
         var usageDetailsJson = activity?.GetTagItem(LangfuseAttributes.ObservationUsageDetails) as string;
-        Assert.NotNull(usageDetailsJson);
-        Assert.Contains("cached_tokens", usageDetailsJson);
-        Assert.Contains("50", usageDetailsJson);
+        usageDetailsJson.ShouldNotBeNull();
+        usageDetailsJson.ShouldContain("cached_tokens");
+        usageDetailsJson.ShouldContain("50");
     }
 
     [Fact]
@@ -784,14 +773,14 @@ public class GenAiActivityHelperTests : IDisposable
             OutputCost = 0.02m,
             TotalCost = 0.03m
         };
-        
+
         GenAiActivityHelper.RecordResponse(activity, response);
 
         var costDetailsJson = activity?.GetTagItem(LangfuseAttributes.ObservationCostDetails) as string;
-        Assert.NotNull(costDetailsJson);
-        Assert.Contains("input", costDetailsJson);
-        Assert.Contains("output", costDetailsJson);
-        Assert.Contains("total", costDetailsJson);
+        costDetailsJson.ShouldNotBeNull();
+        costDetailsJson.ShouldContain("input");
+        costDetailsJson.ShouldContain("output");
+        costDetailsJson.ShouldContain("total");
     }
 
     [Fact]
@@ -805,8 +794,8 @@ public class GenAiActivityHelperTests : IDisposable
         GenAiActivityHelper.RecordResponse(activity, response);
 
         var completionStartTime = activity?.GetTagItem(LangfuseAttributes.ObservationCompletionStartTime) as string;
-        Assert.NotNull(completionStartTime);
-        Assert.Contains("2024-01-15", completionStartTime);
+        completionStartTime.ShouldNotBeNull();
+        completionStartTime.ShouldContain("2024-01-15");
     }
 
     [Fact]
@@ -815,13 +804,13 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
         var response = new GenAiResponse { Completion = "Hello, world!" };
-        
+
         GenAiActivityHelper.RecordResponse(activity, response);
 
         var completionJson = activity?.GetTagItem(GenAiAttributes.Completion) as string;
-        Assert.NotNull(completionJson);
-        Assert.Contains("Hello, world!", completionJson);
-        Assert.Contains("assistant", completionJson);
+        completionJson.ShouldNotBeNull();
+        completionJson.ShouldContain("Hello, world!");
+        completionJson.ShouldContain("assistant");
     }
 
     [Fact]
@@ -837,15 +826,14 @@ public class GenAiActivityHelperTests : IDisposable
                 new GenAiMessage { Role = "assistant", Content = "Response 2" }
             ]
         };
-        
+
         GenAiActivityHelper.RecordResponse(activity, response);
 
         var completionJson = activity?.GetTagItem(GenAiAttributes.Completion) as string;
-        Assert.NotNull(completionJson);
-        Assert.Contains("Response 1", completionJson);
-        Assert.Contains("Response 2", completionJson);
+        completionJson.ShouldNotBeNull();
+        completionJson.ShouldContain("Response 1");
+        completionJson.ShouldContain("Response 2");
     }
-
 
 
     [Fact]
@@ -854,11 +842,11 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
         var exception = new InvalidOperationException("Test error message");
-        
+
         GenAiActivityHelper.RecordError(activity!, exception);
-        
-        Assert.Equal(ActivityStatusCode.Error, activity?.Status);
-        Assert.Equal("Test error message", activity?.StatusDescription);
+
+        activity?.Status.ShouldBe(ActivityStatusCode.Error);
+        activity?.StatusDescription.ShouldBe("Test error message");
     }
 
     [Fact]
@@ -867,11 +855,11 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
         var exception = new ArgumentException("Invalid argument");
-        
+
         GenAiActivityHelper.RecordError(activity!, exception);
 
-        Assert.Equal("System.ArgumentException", activity?.GetTagItem(GenAiAttributes.ErrorType));
-        Assert.Equal("Invalid argument", activity?.GetTagItem(GenAiAttributes.ErrorMessage));
+        activity?.GetTagItem(GenAiAttributes.ErrorType).ShouldBe("System.ArgumentException");
+        activity?.GetTagItem(GenAiAttributes.ErrorMessage).ShouldBe("Invalid argument");
     }
 
     [Fact]
@@ -889,12 +877,12 @@ public class GenAiActivityHelperTests : IDisposable
         {
             capturedException = ex;
         }
-        
+
         GenAiActivityHelper.RecordError(activity!, capturedException!);
-        
+
         var stackTrace = activity?.GetTagItem(GenAiAttributes.ErrorStack) as string;
-        Assert.NotNull(stackTrace);
-        Assert.Contains("GenAiActivityHelperTests", stackTrace);
+        stackTrace.ShouldNotBeNull();
+        stackTrace.ShouldContain("GenAiActivityHelperTests");
     }
 
     [Fact]
@@ -903,13 +891,12 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
         var exception = new Exception("Test exception");
-        
+
         GenAiActivityHelper.RecordError(activity!, exception);
 
-        var exceptionEvent = activity?.Events.FirstOrDefault(e => e.Name == "exception");
-        Assert.NotNull(exceptionEvent);
+        ActivityEvent? exceptionEvent = activity?.Events.FirstOrDefault(e => e.Name == "exception");
+        exceptionEvent.ShouldNotBeNull();
     }
-
 
 
     [Fact]
@@ -922,15 +909,15 @@ public class GenAiActivityHelperTests : IDisposable
             new() { Role = "system", Content = "You are helpful." },
             new() { Role = "user", Content = "Hello!" }
         };
-        
+
         GenAiActivityHelper.RecordInputMessages(activity, messages);
-        
+
         var promptJson = activity?.GetTagItem(GenAiAttributes.Prompt) as string;
-        Assert.NotNull(promptJson);
-        Assert.Contains("system", promptJson);
-        Assert.Contains("You are helpful.", promptJson);
-        Assert.Contains("user", promptJson);
-        Assert.Contains("Hello!", promptJson);
+        promptJson.ShouldNotBeNull();
+        promptJson.ShouldContain("system");
+        promptJson.ShouldContain("You are helpful.");
+        promptJson.ShouldContain("user");
+        promptJson.ShouldContain("Hello!");
     }
 
     [Fact]
@@ -942,7 +929,7 @@ public class GenAiActivityHelperTests : IDisposable
 
         GenAiActivityHelper.RecordInputMessages(activity, messages);
 
-        Assert.Null(activity?.GetTagItem(GenAiAttributes.Prompt));
+        activity?.GetTagItem(GenAiAttributes.Prompt).ShouldBeNull();
     }
 
     [Fact]
@@ -951,12 +938,12 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
         var message = new GenAiMessage { Role = "user", Content = "Test message" };
-        
+
         GenAiActivityHelper.RecordInputMessage(activity, message);
-        
+
         var promptJson = activity?.GetTagItem(GenAiAttributes.Prompt) as string;
-        Assert.NotNull(promptJson);
-        Assert.Contains("Test message", promptJson);
+        promptJson.ShouldNotBeNull();
+        promptJson.ShouldContain("Test message");
     }
 
     [Fact]
@@ -964,13 +951,13 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
-        
+
         GenAiActivityHelper.RecordPrompt(activity, "What is the weather?");
-        
+
         var promptJson = activity?.GetTagItem(GenAiAttributes.Prompt) as string;
-        Assert.NotNull(promptJson);
-        Assert.Contains("user", promptJson);
-        Assert.Contains("What is the weather?", promptJson);
+        promptJson.ShouldNotBeNull();
+        promptJson.ShouldContain("user");
+        promptJson.ShouldContain("What is the weather?");
     }
 
     [Fact]
@@ -982,13 +969,13 @@ public class GenAiActivityHelperTests : IDisposable
         {
             new() { Role = "assistant", Content = "Here is my response." }
         };
-        
+
         GenAiActivityHelper.RecordOutputMessages(activity, messages);
-        
+
         var completionJson = activity?.GetTagItem(GenAiAttributes.Completion) as string;
-        Assert.NotNull(completionJson);
-        Assert.Contains("assistant", completionJson);
-        Assert.Contains("Here is my response.", completionJson);
+        completionJson.ShouldNotBeNull();
+        completionJson.ShouldContain("assistant");
+        completionJson.ShouldContain("Here is my response.");
     }
 
     [Fact]
@@ -996,13 +983,13 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
-        
+
         GenAiActivityHelper.RecordCompletion(activity, "The weather is sunny.");
-        
+
         var completionJson = activity?.GetTagItem(GenAiAttributes.Completion) as string;
-        Assert.NotNull(completionJson);
-        Assert.Contains("assistant", completionJson);
-        Assert.Contains("The weather is sunny.", completionJson);
+        completionJson.ShouldNotBeNull();
+        completionJson.ShouldContain("assistant");
+        completionJson.ShouldContain("The weather is sunny.");
     }
 
     [Fact]
@@ -1017,10 +1004,10 @@ public class GenAiActivityHelperTests : IDisposable
 
         var promptJson = activity?.GetTagItem(GenAiAttributes.Prompt) as string;
         var completionJson = activity?.GetTagItem(GenAiAttributes.Completion) as string;
-        Assert.NotNull(promptJson);
-        Assert.NotNull(completionJson);
-        Assert.Contains("Hi", promptJson);
-        Assert.Contains("Hello!", completionJson);
+        promptJson.ShouldNotBeNull();
+        completionJson.ShouldNotBeNull();
+        promptJson.ShouldContain("Hi");
+        completionJson.ShouldContain("Hello!");
     }
 
     [Fact]
@@ -1028,10 +1015,10 @@ public class GenAiActivityHelperTests : IDisposable
     {
         using var activity =
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, "test-tool", "get_weather");
-        
+
         GenAiActivityHelper.RecordToolCallArguments(activity, "{\"location\": \"NYC\"}");
-        
-        Assert.Equal("{\"location\": \"NYC\"}", activity?.GetTagItem(GenAiAttributes.ToolCallArguments));
+
+        activity?.GetTagItem(GenAiAttributes.ToolCallArguments).ShouldBe("{\"location\": \"NYC\"}");
     }
 
     [Fact]
@@ -1041,11 +1028,11 @@ public class GenAiActivityHelperTests : IDisposable
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, "test-tool", "get_weather");
 
         GenAiActivityHelper.RecordToolCallArguments(activity, new { location = "NYC", unit = "celsius" });
-        
+
         var argsJson = activity?.GetTagItem(GenAiAttributes.ToolCallArguments) as string;
-        Assert.NotNull(argsJson);
-        Assert.Contains("NYC", argsJson);
-        Assert.Contains("celsius", argsJson);
+        argsJson.ShouldNotBeNull();
+        argsJson.ShouldContain("NYC");
+        argsJson.ShouldContain("celsius");
     }
 
     [Fact]
@@ -1055,8 +1042,8 @@ public class GenAiActivityHelperTests : IDisposable
             GenAiActivityHelper.CreateToolCallActivity(_activitySource, "test-tool", "get_weather");
 
         GenAiActivityHelper.RecordToolCallResult(activity, "72°F, Sunny");
-        
-        Assert.Equal("72°F, Sunny", activity?.GetTagItem(GenAiAttributes.ToolCallResult));
+
+        activity?.GetTagItem(GenAiAttributes.ToolCallResult).ShouldBe("72°F, Sunny");
     }
 
     [Fact]
@@ -1068,9 +1055,9 @@ public class GenAiActivityHelperTests : IDisposable
         GenAiActivityHelper.RecordToolCallResult(activity, new { temperature = 72, condition = "Sunny" });
 
         var resultJson = activity?.GetTagItem(GenAiAttributes.ToolCallResult) as string;
-        Assert.NotNull(resultJson);
-        Assert.Contains("72", resultJson);
-        Assert.Contains("Sunny", resultJson);
+        resultJson.ShouldNotBeNull();
+        resultJson.ShouldContain("72");
+        resultJson.ShouldContain("Sunny");
     }
 
     [Fact]
@@ -1080,10 +1067,10 @@ public class GenAiActivityHelperTests : IDisposable
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
 
         GenAiActivityHelper.SetObservationInput(activity, new { query = "test query" });
-        
+
         var inputJson = activity?.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(inputJson);
-        Assert.Contains("test query", inputJson);
+        inputJson.ShouldNotBeNull();
+        inputJson.ShouldContain("test query");
     }
 
     [Fact]
@@ -1091,10 +1078,10 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
-        
+
         GenAiActivityHelper.SetObservationInput(activity, "plain text input");
-        
-        Assert.Equal("plain text input", activity?.GetTagItem(LangfuseAttributes.ObservationInput));
+
+        activity?.GetTagItem(LangfuseAttributes.ObservationInput).ShouldBe("plain text input");
     }
 
     [Fact]
@@ -1102,12 +1089,12 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
-        
+
         GenAiActivityHelper.SetObservationOutput(activity, new { result = "test result" });
-        
+
         var outputJson = activity?.GetTagItem(LangfuseAttributes.ObservationOutput) as string;
-        Assert.NotNull(outputJson);
-        Assert.Contains("test result", outputJson);
+        outputJson.ShouldNotBeNull();
+        outputJson.ShouldContain("test result");
     }
 
     [Fact]
@@ -1115,10 +1102,10 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
-        
+
         GenAiActivityHelper.SetObservationLevel(activity, LangfuseObservationLevel.Error);
 
-        Assert.Equal("ERROR", activity?.GetTagItem(LangfuseAttributes.ObservationLevel));
+        activity?.GetTagItem(LangfuseAttributes.ObservationLevel).ShouldBe("ERROR");
     }
 
     [Fact]
@@ -1129,8 +1116,7 @@ public class GenAiActivityHelperTests : IDisposable
 
         GenAiActivityHelper.SetObservationMetadata(activity, "custom_key", "custom_value");
 
-        Assert.Equal("custom_value",
-            activity?.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key"));
+        activity?.GetTagItem($"{LangfuseAttributes.ObservationMetadataPrefix}custom_key").ShouldBe("custom_value");
     }
 
     [Fact]
@@ -1138,11 +1124,11 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
-        
+
         GenAiActivityHelper.SetPromptReference(activity, "my-prompt", 3);
 
-        Assert.Equal("my-prompt", activity?.GetTagItem(LangfuseAttributes.ObservationPromptName));
-        Assert.Equal(3, activity?.GetTagItem(LangfuseAttributes.ObservationPromptVersion));
+        activity?.GetTagItem(LangfuseAttributes.ObservationPromptName).ShouldBe("my-prompt");
+        activity?.GetTagItem(LangfuseAttributes.ObservationPromptVersion).ShouldBe(3);
     }
 
     [Fact]
@@ -1152,9 +1138,9 @@ public class GenAiActivityHelperTests : IDisposable
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
 
         GenAiActivityHelper.SetPromptReference(activity, "my-prompt");
-        
-        Assert.Equal("my-prompt", activity?.GetTagItem(LangfuseAttributes.ObservationPromptName));
-        Assert.Null(activity?.GetTagItem(LangfuseAttributes.ObservationPromptVersion));
+
+        activity?.GetTagItem(LangfuseAttributes.ObservationPromptName).ShouldBe("my-prompt");
+        activity?.GetTagItem(LangfuseAttributes.ObservationPromptVersion).ShouldBeNull();
     }
 
     [Fact]
@@ -1163,12 +1149,12 @@ public class GenAiActivityHelperTests : IDisposable
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
         var startTime = new DateTimeOffset(2024, 6, 15, 14, 30, 0, TimeSpan.Zero);
-        
+
         GenAiActivityHelper.RecordCompletionStartTime(activity, startTime);
 
         var timestamp = activity?.GetTagItem(LangfuseAttributes.ObservationCompletionStartTime) as string;
-        Assert.NotNull(timestamp);
-        Assert.Contains("2024-06-15", timestamp);
+        timestamp.ShouldNotBeNull();
+        timestamp.ShouldContain("2024-06-15");
     }
 
     [Fact]
@@ -1180,9 +1166,8 @@ public class GenAiActivityHelperTests : IDisposable
         GenAiActivityHelper.RecordCompletionStartTime(activity);
 
         var timestamp = activity?.GetTagItem(LangfuseAttributes.ObservationCompletionStartTime) as string;
-        Assert.NotNull(timestamp);
+        timestamp.ShouldNotBeNull();
     }
-
 
 
     [Fact]
@@ -1190,14 +1175,14 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new TraceConfig { Name = "test-trace" };
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace", config);
-        
+
         GenAiActivityHelper.SetTraceInput(activity, new { query = "test" });
 
         var traceInput = activity?.GetTagItem(LangfuseAttributes.TraceInput) as string;
         var observationInput = activity?.GetTagItem(LangfuseAttributes.ObservationInput) as string;
-        Assert.NotNull(traceInput);
-        Assert.NotNull(observationInput);
-        Assert.Equal(traceInput, observationInput);
+        traceInput.ShouldNotBeNull();
+        observationInput.ShouldNotBeNull();
+        traceInput.ShouldBe(observationInput);
     }
 
     [Fact]
@@ -1210,9 +1195,9 @@ public class GenAiActivityHelperTests : IDisposable
 
         var traceOutput = activity?.GetTagItem(LangfuseAttributes.TraceOutput) as string;
         var observationOutput = activity?.GetTagItem(LangfuseAttributes.ObservationOutput) as string;
-        Assert.NotNull(traceOutput);
-        Assert.NotNull(observationOutput);
-        Assert.Equal(traceOutput, observationOutput);
+        traceOutput.ShouldNotBeNull();
+        observationOutput.ShouldNotBeNull();
+        traceOutput.ShouldBe(observationOutput);
     }
 
     [Fact]
@@ -1224,9 +1209,9 @@ public class GenAiActivityHelperTests : IDisposable
         GenAiActivityHelper.SetTraceTags(activity, ["tag1", "tag2"]);
 
         var tagsJson = activity?.GetTagItem(LangfuseAttributes.TraceTags) as string;
-        Assert.NotNull(tagsJson);
-        Assert.Contains("tag1", tagsJson);
-        Assert.Contains("tag2", tagsJson);
+        tagsJson.ShouldNotBeNull();
+        tagsJson.ShouldContain("tag1");
+        tagsJson.ShouldContain("tag2");
     }
 
     [Fact]
@@ -1234,14 +1219,14 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new TraceConfig { Name = "test-trace" };
         using var activity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "trace", config);
-        
+
         GenAiActivityHelper.SetTraceTags(activity, []);
 
         var freshConfig = new TraceConfig { Name = "fresh-trace" };
         using var freshActivity = GenAiActivityHelper.CreateTraceActivity(_activitySource, "fresh", freshConfig);
         GenAiActivityHelper.SetTraceTags(freshActivity, []);
 
-        Assert.Null(freshActivity?.GetTagItem(LangfuseAttributes.TraceTags));
+        freshActivity?.GetTagItem(LangfuseAttributes.TraceTags).ShouldBeNull();
     }
 
     [Fact]
@@ -1249,10 +1234,10 @@ public class GenAiActivityHelperTests : IDisposable
     {
         var config = new GenAiChatCompletionConfig { Model = "gpt-4", Provider = "openai" };
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test", config);
-        
+
         GenAiActivityHelper.SetDataSource(activity, "datasource-123");
-        
-        Assert.Equal("datasource-123", activity?.GetTagItem(GenAiAttributes.DataSourceId));
+
+        activity?.GetTagItem(GenAiAttributes.DataSourceId).ShouldBe("datasource-123");
     }
 
     [Fact]
@@ -1267,13 +1252,13 @@ public class GenAiActivityHelperTests : IDisposable
             ScoreLabel = "high",
             Explanation = "Very accurate response"
         };
-        
+
         GenAiActivityHelper.RecordEvaluation(activity, evaluation);
-        
-        Assert.Equal("accuracy", activity?.GetTagItem(GenAiAttributes.EvaluationName));
-        Assert.Equal(0.95, activity?.GetTagItem(GenAiAttributes.EvaluationScoreValue));
-        Assert.Equal("high", activity?.GetTagItem(GenAiAttributes.EvaluationScoreLabel));
-        Assert.Equal("Very accurate response", activity?.GetTagItem(GenAiAttributes.EvaluationExplanation));
+
+        activity?.GetTagItem(GenAiAttributes.EvaluationName).ShouldBe("accuracy");
+        activity?.GetTagItem(GenAiAttributes.EvaluationScoreValue).ShouldBe(0.95);
+        activity?.GetTagItem(GenAiAttributes.EvaluationScoreLabel).ShouldBe("high");
+        activity?.GetTagItem(GenAiAttributes.EvaluationExplanation).ShouldBe("Very accurate response");
     }
 
     [Fact]
@@ -1284,12 +1269,11 @@ public class GenAiActivityHelperTests : IDisposable
 
         GenAiActivityHelper.RecordEvaluation(activity, "relevance", 0.8, "medium", "Somewhat relevant");
 
-        Assert.Equal("relevance", activity?.GetTagItem(GenAiAttributes.EvaluationName));
-        Assert.Equal(0.8, activity?.GetTagItem(GenAiAttributes.EvaluationScoreValue));
-        Assert.Equal("medium", activity?.GetTagItem(GenAiAttributes.EvaluationScoreLabel));
-        Assert.Equal("Somewhat relevant", activity?.GetTagItem(GenAiAttributes.EvaluationExplanation));
+        activity?.GetTagItem(GenAiAttributes.EvaluationName).ShouldBe("relevance");
+        activity?.GetTagItem(GenAiAttributes.EvaluationScoreValue).ShouldBe(0.8);
+        activity?.GetTagItem(GenAiAttributes.EvaluationScoreLabel).ShouldBe("medium");
+        activity?.GetTagItem(GenAiAttributes.EvaluationExplanation).ShouldBe("Somewhat relevant");
     }
-
 
 
     [Fact]
@@ -1333,5 +1317,4 @@ public class GenAiActivityHelperTests : IDisposable
         GenAiActivityHelper.RecordToolCallResult(null, "test");
         GenAiActivityHelper.RecordToolCallResult(null, new { test = "value" });
     }
-
 }

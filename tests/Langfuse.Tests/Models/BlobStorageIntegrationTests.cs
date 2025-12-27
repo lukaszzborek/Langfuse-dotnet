@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Shouldly;
 using zborek.Langfuse.Models.BlobStorageIntegration;
 
 namespace zborek.Langfuse.Tests.Models;
@@ -17,9 +18,9 @@ public class BlobStorageIntegrationTests
 
         var json = JsonSerializer.Serialize(testData);
 
-        Assert.Contains("\"S3\"", json);
-        Assert.Contains("\"S3_COMPATIBLE\"", json);
-        Assert.Contains("\"AZURE_BLOB_STORAGE\"", json);
+        json.ShouldContain("\"S3\"");
+        json.ShouldContain("\"S3_COMPATIBLE\"");
+        json.ShouldContain("\"AZURE_BLOB_STORAGE\"");
     }
 
     [Fact]
@@ -33,9 +34,9 @@ public class BlobStorageIntegrationTests
         var result2 = JsonSerializer.Deserialize<TestTypeWrapper>(json2);
         var result3 = JsonSerializer.Deserialize<TestTypeWrapper>(json3);
 
-        Assert.Equal(BlobStorageIntegrationType.S3, result1!.Type);
-        Assert.Equal(BlobStorageIntegrationType.S3Compatible, result2!.Type);
-        Assert.Equal(BlobStorageIntegrationType.AzureBlobStorage, result3!.Type);
+        result1!.Type.ShouldBe(BlobStorageIntegrationType.S3);
+        result2!.Type.ShouldBe(BlobStorageIntegrationType.S3Compatible);
+        result3!.Type.ShouldBe(BlobStorageIntegrationType.AzureBlobStorage);
     }
 
     [Fact]
@@ -50,9 +51,9 @@ public class BlobStorageIntegrationTests
 
         var json = JsonSerializer.Serialize(testData);
 
-        Assert.Contains("\"hourly\"", json);
-        Assert.Contains("\"daily\"", json);
-        Assert.Contains("\"weekly\"", json);
+        json.ShouldContain("\"hourly\"");
+        json.ShouldContain("\"daily\"");
+        json.ShouldContain("\"weekly\"");
     }
 
     [Fact]
@@ -66,9 +67,9 @@ public class BlobStorageIntegrationTests
         var result2 = JsonSerializer.Deserialize<TestFrequencyWrapper>(json2);
         var result3 = JsonSerializer.Deserialize<TestFrequencyWrapper>(json3);
 
-        Assert.Equal(BlobStorageExportFrequency.Hourly, result1!.Frequency);
-        Assert.Equal(BlobStorageExportFrequency.Daily, result2!.Frequency);
-        Assert.Equal(BlobStorageExportFrequency.Weekly, result3!.Frequency);
+        result1!.Frequency.ShouldBe(BlobStorageExportFrequency.Hourly);
+        result2!.Frequency.ShouldBe(BlobStorageExportFrequency.Daily);
+        result3!.Frequency.ShouldBe(BlobStorageExportFrequency.Weekly);
     }
 
     [Fact]
@@ -83,9 +84,9 @@ public class BlobStorageIntegrationTests
 
         var json = JsonSerializer.Serialize(testData);
 
-        Assert.Contains("\"FULL_HISTORY\"", json);
-        Assert.Contains("\"FROM_TODAY\"", json);
-        Assert.Contains("\"FROM_CUSTOM_DATE\"", json);
+        json.ShouldContain("\"FULL_HISTORY\"");
+        json.ShouldContain("\"FROM_TODAY\"");
+        json.ShouldContain("\"FROM_CUSTOM_DATE\"");
     }
 
     [Fact]
@@ -100,9 +101,9 @@ public class BlobStorageIntegrationTests
 
         var json = JsonSerializer.Serialize(testData);
 
-        Assert.Contains("\"JSON\"", json);
-        Assert.Contains("\"CSV\"", json);
-        Assert.Contains("\"JSONL\"", json);
+        json.ShouldContain("\"JSON\"");
+        json.ShouldContain("\"CSV\"");
+        json.ShouldContain("\"JSONL\"");
     }
 
     [Fact]
@@ -128,29 +129,29 @@ public class BlobStorageIntegrationTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"projectId\"", json);
-        Assert.Contains("\"project-123\"", json);
-        Assert.Contains("\"type\"", json);
-        Assert.Contains("\"S3_COMPATIBLE\"", json);
-        Assert.Contains("\"bucketName\"", json);
-        Assert.Contains("\"my-bucket\"", json);
-        Assert.Contains("\"endpoint\"", json);
-        Assert.Contains("\"https://s3.example.com\"", json);
-        Assert.Contains("\"region\"", json);
-        Assert.Contains("\"us-east-1\"", json);
-        Assert.Contains("\"accessKeyId\"", json);
-        Assert.Contains("\"secretAccessKey\"", json);
-        Assert.Contains("\"prefix\"", json);
-        Assert.Contains("\"exports/\"", json);
-        Assert.Contains("\"exportFrequency\"", json);
-        Assert.Contains("\"daily\"", json);
-        Assert.Contains("\"enabled\"", json);
-        Assert.Contains("\"forcePathStyle\"", json);
-        Assert.Contains("\"fileType\"", json);
-        Assert.Contains("\"JSONL\"", json);
-        Assert.Contains("\"exportMode\"", json);
-        Assert.Contains("\"FROM_CUSTOM_DATE\"", json);
-        Assert.Contains("\"exportStartDate\"", json);
+        json.ShouldContain("\"projectId\"");
+        json.ShouldContain("\"project-123\"");
+        json.ShouldContain("\"type\"");
+        json.ShouldContain("\"S3_COMPATIBLE\"");
+        json.ShouldContain("\"bucketName\"");
+        json.ShouldContain("\"my-bucket\"");
+        json.ShouldContain("\"endpoint\"");
+        json.ShouldContain("\"https://s3.example.com\"");
+        json.ShouldContain("\"region\"");
+        json.ShouldContain("\"us-east-1\"");
+        json.ShouldContain("\"accessKeyId\"");
+        json.ShouldContain("\"secretAccessKey\"");
+        json.ShouldContain("\"prefix\"");
+        json.ShouldContain("\"exports/\"");
+        json.ShouldContain("\"exportFrequency\"");
+        json.ShouldContain("\"daily\"");
+        json.ShouldContain("\"enabled\"");
+        json.ShouldContain("\"forcePathStyle\"");
+        json.ShouldContain("\"fileType\"");
+        json.ShouldContain("\"JSONL\"");
+        json.ShouldContain("\"exportMode\"");
+        json.ShouldContain("\"FROM_CUSTOM_DATE\"");
+        json.ShouldContain("\"exportStartDate\"");
     }
 
     [Fact]
@@ -176,16 +177,16 @@ public class BlobStorageIntegrationTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"projectId\":\"project-123\"", json);
-        Assert.Contains("\"type\":\"S3\"", json);
-        Assert.Contains("\"bucketName\":\"my-bucket\"", json);
-        Assert.Contains("\"endpoint\":null", json);
-        Assert.Contains("\"accessKeyId\":null", json);
-        Assert.Contains("\"secretAccessKey\":null", json);
-        Assert.Contains("\"prefix\":null", json);
-        Assert.Contains("\"exportStartDate\":null", json);
-        Assert.Contains("\"enabled\":false", json);
-        Assert.Contains("\"forcePathStyle\":false", json);
+        json.ShouldContain("\"projectId\":\"project-123\"");
+        json.ShouldContain("\"type\":\"S3\"");
+        json.ShouldContain("\"bucketName\":\"my-bucket\"");
+        json.ShouldContain("\"endpoint\":null");
+        json.ShouldContain("\"accessKeyId\":null");
+        json.ShouldContain("\"secretAccessKey\":null");
+        json.ShouldContain("\"prefix\":null");
+        json.ShouldContain("\"exportStartDate\":null");
+        json.ShouldContain("\"enabled\":false");
+        json.ShouldContain("\"forcePathStyle\":false");
     }
 
     [Fact]
@@ -214,25 +215,25 @@ public class BlobStorageIntegrationTests
 
         var response = JsonSerializer.Deserialize<BlobStorageIntegrationResponse>(json);
 
-        Assert.NotNull(response);
-        Assert.Equal("integration-123", response.Id);
-        Assert.Equal("project-456", response.ProjectId);
-        Assert.Equal(BlobStorageIntegrationType.S3, response.Type);
-        Assert.Equal("test-bucket", response.BucketName);
-        Assert.Null(response.Endpoint);
-        Assert.Equal("eu-central-1", response.Region);
-        Assert.Equal("AKIATEST", response.AccessKeyId);
-        Assert.Equal("data/", response.Prefix);
-        Assert.Equal(BlobStorageExportFrequency.Weekly, response.ExportFrequency);
-        Assert.True(response.Enabled);
-        Assert.False(response.ForcePathStyle);
-        Assert.Equal(BlobStorageIntegrationFileType.Csv, response.FileType);
-        Assert.Equal(BlobStorageExportMode.FromToday, response.ExportMode);
-        Assert.Null(response.ExportStartDate);
-        Assert.Equal(new DateTime(2024, 8, 10, 12, 0, 0, DateTimeKind.Utc), response.NextSyncAt);
-        Assert.Equal(new DateTime(2024, 8, 3, 12, 0, 0, DateTimeKind.Utc), response.LastSyncAt);
-        Assert.Equal(new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc), response.CreatedAt);
-        Assert.Equal(new DateTime(2024, 8, 1, 15, 30, 0, DateTimeKind.Utc), response.UpdatedAt);
+        response.ShouldNotBeNull();
+        response.Id.ShouldBe("integration-123");
+        response.ProjectId.ShouldBe("project-456");
+        response.Type.ShouldBe(BlobStorageIntegrationType.S3);
+        response.BucketName.ShouldBe("test-bucket");
+        response.Endpoint.ShouldBeNull();
+        response.Region.ShouldBe("eu-central-1");
+        response.AccessKeyId.ShouldBe("AKIATEST");
+        response.Prefix.ShouldBe("data/");
+        response.ExportFrequency.ShouldBe(BlobStorageExportFrequency.Weekly);
+        response.Enabled.ShouldBeTrue();
+        response.ForcePathStyle.ShouldBeFalse();
+        response.FileType.ShouldBe(BlobStorageIntegrationFileType.Csv);
+        response.ExportMode.ShouldBe(BlobStorageExportMode.FromToday);
+        response.ExportStartDate.ShouldBeNull();
+        response.NextSyncAt.ShouldBe(new DateTime(2024, 8, 10, 12, 0, 0, DateTimeKind.Utc));
+        response.LastSyncAt.ShouldBe(new DateTime(2024, 8, 3, 12, 0, 0, DateTimeKind.Utc));
+        response.CreatedAt.ShouldBe(new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc));
+        response.UpdatedAt.ShouldBe(new DateTime(2024, 8, 1, 15, 30, 0, DateTimeKind.Utc));
     }
 
     [Fact]
@@ -273,19 +274,19 @@ public class BlobStorageIntegrationTests
 
         var response = JsonSerializer.Deserialize<BlobStorageIntegrationsResponse>(json);
 
-        Assert.NotNull(response);
-        Assert.NotNull(response.Data);
-        Assert.Equal(2, response.Data.Length);
+        response.ShouldNotBeNull();
+        response.Data.ShouldNotBeNull();
+        response.Data.Length.ShouldBe(2);
 
-        Assert.Equal("int-1", response.Data[0].Id);
-        Assert.Equal(BlobStorageIntegrationType.S3, response.Data[0].Type);
-        Assert.Equal(BlobStorageExportFrequency.Daily, response.Data[0].ExportFrequency);
-        Assert.True(response.Data[0].Enabled);
+        response.Data[0].Id.ShouldBe("int-1");
+        response.Data[0].Type.ShouldBe(BlobStorageIntegrationType.S3);
+        response.Data[0].ExportFrequency.ShouldBe(BlobStorageExportFrequency.Daily);
+        response.Data[0].Enabled.ShouldBeTrue();
 
-        Assert.Equal("int-2", response.Data[1].Id);
-        Assert.Equal(BlobStorageIntegrationType.AzureBlobStorage, response.Data[1].Type);
-        Assert.Equal(BlobStorageExportFrequency.Hourly, response.Data[1].ExportFrequency);
-        Assert.False(response.Data[1].Enabled);
+        response.Data[1].Id.ShouldBe("int-2");
+        response.Data[1].Type.ShouldBe(BlobStorageIntegrationType.AzureBlobStorage);
+        response.Data[1].ExportFrequency.ShouldBe(BlobStorageExportFrequency.Hourly);
+        response.Data[1].Enabled.ShouldBeFalse();
     }
 
     [Fact]
@@ -295,8 +296,8 @@ public class BlobStorageIntegrationTests
 
         var response = JsonSerializer.Deserialize<BlobStorageIntegrationDeletionResponse>(json);
 
-        Assert.NotNull(response);
-        Assert.Equal("Blob storage integration deleted successfully", response.Message);
+        response.ShouldNotBeNull();
+        response.Message.ShouldBe("Blob storage integration deleted successfully");
     }
 
     [Fact]
@@ -325,13 +326,13 @@ public class BlobStorageIntegrationTests
 
         var response = JsonSerializer.Deserialize<BlobStorageIntegrationResponse>(json);
 
-        Assert.NotNull(response);
-        Assert.Null(response.Endpoint);
-        Assert.Null(response.AccessKeyId);
-        Assert.Null(response.Prefix);
-        Assert.Null(response.ExportStartDate);
-        Assert.Null(response.NextSyncAt);
-        Assert.Null(response.LastSyncAt);
+        response.ShouldNotBeNull();
+        response.Endpoint.ShouldBeNull();
+        response.AccessKeyId.ShouldBeNull();
+        response.Prefix.ShouldBeNull();
+        response.ExportStartDate.ShouldBeNull();
+        response.NextSyncAt.ShouldBeNull();
+        response.LastSyncAt.ShouldBeNull();
     }
 
     private class TestTypeWrapper

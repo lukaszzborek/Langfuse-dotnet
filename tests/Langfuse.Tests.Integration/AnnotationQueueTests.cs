@@ -1,6 +1,7 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.AnnotationQueue;
@@ -49,8 +50,8 @@ public class AnnotationQueueTests
         var result = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
         // Note: Queues are typically created via UI, so the list might be empty
     }
 
@@ -62,10 +63,10 @@ public class AnnotationQueueTests
         var nonExistentId = Guid.NewGuid().ToString();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetQueueAsync(nonExistentId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetQueueAsync(nonExistentId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -100,9 +101,9 @@ public class AnnotationQueueTests
         var item = await client.CreateItemAsync(queueId, request);
 
         // Assert
-        Assert.NotNull(item);
-        Assert.Equal(traceId, item.ObjectId);
-        Assert.Equal(AnnotationObjectType.Trace, item.ObjectType);
+        item.ShouldNotBeNull();
+        item.ObjectId.ShouldBe(traceId);
+        item.ObjectType.ShouldBe(AnnotationObjectType.Trace);
     }
 
     [Fact]
@@ -137,9 +138,9 @@ public class AnnotationQueueTests
         var items = await client.ListItemsAsync(queueId, new AnnotationQueueItemListRequest { Page = 1, Limit = 50 });
 
         // Assert
-        Assert.NotNull(items);
-        Assert.NotNull(items.Data);
-        Assert.True(items.Data.Length >= 1);
+        items.ShouldNotBeNull();
+        items.Data.ShouldNotBeNull();
+        (items.Data.Length >= 1).ShouldBeTrue();
     }
 
     [Fact]
@@ -174,9 +175,9 @@ public class AnnotationQueueTests
         var item = await client.GetItemAsync(queueId, createdItem.Id);
 
         // Assert
-        Assert.NotNull(item);
-        Assert.Equal(createdItem.Id, item.Id);
-        Assert.Equal(traceId, item.ObjectId);
+        item.ShouldNotBeNull();
+        item.Id.ShouldBe(createdItem.Id);
+        item.ObjectId.ShouldBe(traceId);
     }
 
     [Fact]
@@ -215,8 +216,8 @@ public class AnnotationQueueTests
         });
 
         // Assert
-        Assert.NotNull(updatedItem);
-        Assert.Equal(AnnotationQueueStatus.Completed, updatedItem.Status);
+        updatedItem.ShouldNotBeNull();
+        updatedItem.Status.ShouldBe(AnnotationQueueStatus.Completed);
     }
 
     [Fact]
@@ -251,12 +252,12 @@ public class AnnotationQueueTests
         var deleteResponse = await client.DeleteItemAsync(queueId, createdItem.Id);
 
         // Assert
-        Assert.NotNull(deleteResponse);
+        deleteResponse.ShouldNotBeNull();
 
         // Verify deletion
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetItemAsync(queueId, createdItem.Id));
-        Assert.Equal(404, exception.StatusCode);
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetItemAsync(queueId, createdItem.Id));
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -278,10 +279,10 @@ public class AnnotationQueueTests
         var nonExistentItemId = Guid.NewGuid().ToString();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetItemAsync(queueId, nonExistentItemId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetItemAsync(queueId, nonExistentItemId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -317,8 +318,8 @@ public class AnnotationQueueTests
         var item = await client.CreateItemAsync(queueId, request);
 
         // Assert
-        Assert.NotNull(item);
-        Assert.Equal(spanId, item.ObjectId);
-        Assert.Equal(AnnotationObjectType.Observation, item.ObjectType);
+        item.ShouldNotBeNull();
+        item.ObjectId.ShouldBe(spanId);
+        item.ObjectType.ShouldBe(AnnotationObjectType.Observation);
     }
 }

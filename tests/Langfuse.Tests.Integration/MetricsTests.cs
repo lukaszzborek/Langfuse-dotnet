@@ -2,6 +2,7 @@ using System.Text.Json;
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Metrics;
@@ -71,7 +72,7 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 
     [Fact]
@@ -107,7 +108,7 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 
     [Fact]
@@ -146,7 +147,7 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 
     [Fact]
@@ -183,7 +184,7 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 
     [Fact]
@@ -219,7 +220,7 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 
     [Fact]
@@ -255,7 +256,7 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 
     [Fact]
@@ -294,7 +295,7 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 
     [Fact]
@@ -337,6 +338,6 @@ public class MetricsTests
         var response = await client.GetMetricsAsync(request);
 
         // Assert
-        Assert.NotNull(response);
+        response.ShouldNotBeNull();
     }
 }

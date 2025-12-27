@@ -1,5 +1,6 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
@@ -52,14 +53,14 @@ public class ScoreConfigTests
         var config = await client.CreateScoreConfigAsync(request);
 
         // Assert
-        Assert.NotNull(config);
-        Assert.NotNull(config.Id);
-        Assert.Equal(configName, config.Name);
-        Assert.Equal(ScoreDataType.Numeric, config.DataType);
-        Assert.Equal(0, config.MinValue);
-        Assert.Equal(100, config.MaxValue);
-        Assert.Equal("Numeric score from 0 to 100", config.Description);
-        Assert.False(config.IsArchived);
+        config.ShouldNotBeNull();
+        config.Id.ShouldNotBeNull();
+        config.Name.ShouldBe(configName);
+        config.DataType.ShouldBe(ScoreDataType.Numeric);
+        config.MinValue.ShouldBe(0);
+        config.MaxValue.ShouldBe(100);
+        config.Description.ShouldBe("Numeric score from 0 to 100");
+        config.IsArchived.ShouldBeFalse();
     }
 
     [Fact]
@@ -85,14 +86,14 @@ public class ScoreConfigTests
         var config = await client.CreateScoreConfigAsync(request);
 
         // Assert
-        Assert.NotNull(config);
-        Assert.Equal(configName, config.Name);
-        Assert.Equal(ScoreDataType.Categorical, config.DataType);
-        Assert.NotNull(config.Categories);
-        Assert.Equal(3, config.Categories.Length);
-        Assert.Contains(config.Categories, c => c.Label == "Positive" && c.Value == 1);
-        Assert.Contains(config.Categories, c => c.Label == "Neutral" && c.Value == 0);
-        Assert.Contains(config.Categories, c => c.Label == "Negative" && c.Value == -1);
+        config.ShouldNotBeNull();
+        config.Name.ShouldBe(configName);
+        config.DataType.ShouldBe(ScoreDataType.Categorical);
+        config.Categories.ShouldNotBeNull();
+        config.Categories.Length.ShouldBe(3);
+        config.Categories.ShouldContain(c => c.Label == "Positive" && c.Value == 1);
+        config.Categories.ShouldContain(c => c.Label == "Neutral" && c.Value == 0);
+        config.Categories.ShouldContain(c => c.Label == "Negative" && c.Value == -1);
     }
 
     [Fact]
@@ -112,10 +113,10 @@ public class ScoreConfigTests
         var config = await client.CreateScoreConfigAsync(request);
 
         // Assert
-        Assert.NotNull(config);
-        Assert.Equal(configName, config.Name);
-        Assert.Equal(ScoreDataType.Boolean, config.DataType);
-        Assert.Equal("Pass/Fail evaluation", config.Description);
+        config.ShouldNotBeNull();
+        config.Name.ShouldBe(configName);
+        config.DataType.ShouldBe(ScoreDataType.Boolean);
+        config.Description.ShouldBe("Pass/Fail evaluation");
     }
 
     [Fact]
@@ -136,10 +137,10 @@ public class ScoreConfigTests
         var config = await client.GetScoreConfigAsync(created.Id);
 
         // Assert
-        Assert.NotNull(config);
-        Assert.Equal(created.Id, config.Id);
-        Assert.Equal(configName, config.Name);
-        Assert.Equal(ScoreDataType.Numeric, config.DataType);
+        config.ShouldNotBeNull();
+        config.Id.ShouldBe(created.Id);
+        config.Name.ShouldBe(configName);
+        config.DataType.ShouldBe(ScoreDataType.Numeric);
     }
 
     [Fact]
@@ -165,10 +166,10 @@ public class ScoreConfigTests
         var result = await client.GetScoreConfigListAsync(new ScoreConfigListRequest { Offset = 0, Limit = 50 });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.True(result.Data.Length >= 2);
-        Assert.Contains(result.Data, c => c.Name.StartsWith(prefix));
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        (result.Data.Length >= 2).ShouldBeTrue();
+        result.Data.ShouldContain(c => c.Name.StartsWith(prefix));
     }
 
     [Fact]
@@ -194,11 +195,11 @@ public class ScoreConfigTests
         });
 
         // Assert
-        Assert.NotNull(updated);
-        Assert.Equal(created.Id, updated.Id);
-        Assert.Equal("Updated description", updated.Description);
-        Assert.Equal(100, updated.MaxValue);
-        Assert.Equal(0, updated.MinValue); // Unchanged
+        updated.ShouldNotBeNull();
+        updated.Id.ShouldBe(created.Id);
+        updated.Description.ShouldBe("Updated description");
+        updated.MaxValue.ShouldBe(100);
+        updated.MinValue.ShouldBe(0); // Unchanged
     }
 
     [Fact]
@@ -220,7 +221,7 @@ public class ScoreConfigTests
         });
 
         // Assert
-        Assert.True(updated.IsArchived);
+        updated.IsArchived.ShouldBeTrue();
     }
 
     [Fact]
@@ -230,10 +231,10 @@ public class ScoreConfigTests
         var client = CreateClient();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetScoreConfigAsync("non-existent-config-id"));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetScoreConfigAsync("non-existent-config-id"));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -256,7 +257,7 @@ public class ScoreConfigTests
         });
 
         // Assert
-        Assert.Equal(newName, updated.Name);
+        updated.Name.ShouldBe(newName);
     }
 
     [Fact]
@@ -289,8 +290,8 @@ public class ScoreConfigTests
         });
 
         // Assert
-        Assert.NotNull(updated.Categories);
-        Assert.Equal(4, updated.Categories.Length);
-        Assert.Contains(updated.Categories, c => c.Label == "Excellent");
+        updated.Categories.ShouldNotBeNull();
+        updated.Categories.Length.ShouldBe(4);
+        updated.Categories.ShouldContain(c => c.Label == "Excellent");
     }
 }

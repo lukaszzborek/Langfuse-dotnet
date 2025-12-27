@@ -1,6 +1,7 @@
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Comment;
@@ -61,8 +62,8 @@ public class CommentTests
         var response = await client.CreateCommentAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.Id);
+        response.ShouldNotBeNull();
+        response.Id.ShouldNotBeNull();
     }
 
     [Fact]
@@ -88,8 +89,8 @@ public class CommentTests
         var response = await client.CreateCommentAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.Id);
+        response.ShouldNotBeNull();
+        response.Id.ShouldNotBeNull();
     }
 
     [Fact]
@@ -114,10 +115,10 @@ public class CommentTests
         var comment = await client.GetCommentAsync(createResponse.Id);
 
         // Assert
-        Assert.NotNull(comment);
-        Assert.Equal(createResponse.Id, comment.Id);
-        Assert.Equal("Comment for retrieval test", comment.Content);
-        Assert.Equal(traceId, comment.ObjectId);
+        comment.ShouldNotBeNull();
+        comment.Id.ShouldBe(createResponse.Id);
+        comment.Content.ShouldBe("Comment for retrieval test");
+        comment.ObjectId.ShouldBe(traceId);
     }
 
     [Fact]
@@ -128,10 +129,10 @@ public class CommentTests
         var nonExistentId = Guid.NewGuid().ToString();
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(() =>
-            client.GetCommentAsync(nonExistentId));
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetCommentAsync(nonExistentId));
 
-        Assert.Equal(404, exception.StatusCode);
+        exception.StatusCode.ShouldBe(404);
     }
 
     [Fact]
@@ -170,9 +171,9 @@ public class CommentTests
         });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.True(result.Data.Length >= 2);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        (result.Data.Length >= 2).ShouldBeTrue();
     }
 
     [Fact]
@@ -203,9 +204,9 @@ public class CommentTests
         });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.All(result.Data, c => Assert.Equal(CommentObjectType.Trace, c.ObjectType));
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldAllBe(c => c.ObjectType == CommentObjectType.Trace);
     }
 
     [Fact]
@@ -232,7 +233,7 @@ public class CommentTests
         var response = await client.CreateCommentAsync(request);
 
         // Assert
-        Assert.NotNull(response);
-        Assert.NotNull(response.Id);
+        response.ShouldNotBeNull();
+        response.Id.ShouldNotBeNull();
     }
 }
