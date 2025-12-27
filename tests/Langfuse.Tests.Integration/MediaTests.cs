@@ -44,7 +44,7 @@ public class MediaTests
     private static string ComputeSha256Hash(byte[] data)
     {
         var hash = SHA256.HashData(data);
-        return Convert.ToHexString(hash).ToLowerInvariant();
+        return Convert.ToBase64String(hash);
     }
 
     [Fact]

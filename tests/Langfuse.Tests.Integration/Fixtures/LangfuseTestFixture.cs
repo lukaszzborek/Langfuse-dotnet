@@ -161,6 +161,7 @@ public class LangfuseTestFixture : IAsyncLifetime
     {
         // PostgreSQL
         _postgresContainer = new PostgreSqlBuilder()
+            .WithImage("postgres:18")
             .WithNetwork(_network)
             .WithNetworkAliases("postgres")
             .WithUsername(PostgresUser)
@@ -170,6 +171,7 @@ public class LangfuseTestFixture : IAsyncLifetime
 
         // ClickHouse
         _clickHouseContainer = new ClickHouseBuilder()
+            .WithImage("clickhouse/clickhouse-server:latest")
             .WithNetwork(_network)
             .WithNetworkAliases("clickhouse")
             .WithUsername(ClickHouseUser)
@@ -178,6 +180,7 @@ public class LangfuseTestFixture : IAsyncLifetime
 
         // Redis
         _redisContainer = new RedisBuilder()
+            .WithImage("redis:latest")
             .WithNetwork(_network)
             .WithNetworkAliases("redis")
             .WithCommand("--requirepass", RedisPassword, "--maxmemory-policy", "noeviction")

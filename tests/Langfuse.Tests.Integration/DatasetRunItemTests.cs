@@ -144,18 +144,31 @@ public class DatasetRunItemTests
             TraceId = traceId
         });
 
-        // Act
-        var result = await client.GetDatasetRunListAsync(new DatasetRunItemListRequest
+        // Wait for run items to be available with polling
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var timeout = TimeSpan.FromSeconds(30);
+        PaginatedDatasetRunItems? result = null;
+
+        while (stopwatch.Elapsed < timeout)
         {
-            DatasetId = dataset.Id,
-            RunName = runName,
-            Page = 1,
-            Limit = 50
-        });
+            result = await client.GetDatasetRunListAsync(new DatasetRunItemListRequest
+            {
+                DatasetId = dataset.Id,
+                RunName = runName,
+                Page = 1,
+                Limit = 50
+            });
+
+            if (result.Data.Length >= 1)
+            {
+                break;
+            }
+
+            await Task.Delay(500);
+        }
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotNull(result.Data);
         Assert.True(result.Data.Length >= 1);
     }
 

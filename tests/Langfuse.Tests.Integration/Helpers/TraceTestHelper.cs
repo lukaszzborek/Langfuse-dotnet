@@ -82,6 +82,36 @@ public class TraceTestHelper
     }
 
     /// <summary>
+    ///     Waits for a score to become available in the API with full data (handles eventual consistency)
+    /// </summary>
+    public async Task<zborek.Langfuse.Models.Score.ScoreModel> WaitForScoreAsync(string scoreId, TimeSpan? timeout = null,
+        CancellationToken cancellationToken = default)
+    {
+        timeout ??= TimeSpan.FromSeconds(30);
+        var stopwatch = Stopwatch.StartNew();
+
+        while (stopwatch.Elapsed < timeout)
+        {
+            try
+            {
+                var score = await _client.GetScoreAsync(scoreId, cancellationToken);
+                if (score != null && !string.IsNullOrEmpty(score.Name))
+                {
+                    return score;
+                }
+            }
+            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
+            {
+                // Not found yet, wait and retry
+            }
+
+            await Task.Delay(500, cancellationToken);
+        }
+
+        throw new TimeoutException($"Score {scoreId} did not become available within {timeout}");
+    }
+
+    /// <summary>
     ///     Waits for a session to become available in the API (handles eventual consistency)
     /// </summary>
     public async Task WaitForSessionAsync(string sessionId, TimeSpan? timeout = null,

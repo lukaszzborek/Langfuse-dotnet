@@ -233,10 +233,11 @@ public class MetricsTests
         await traceHelper.WaitForTraceAsync(traceId);
 
         // Build metrics query with time dimension (hourly grouping)
+        // timeDimension must be an object with a granularity field
         var query = new
         {
             view = "traces",
-            timeDimension = "hour",
+            timeDimension = new { granularity = "hour" },
             metrics = new[]
             {
                 new { measure = "count", aggregation = "count" }
