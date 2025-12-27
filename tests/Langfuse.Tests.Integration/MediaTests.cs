@@ -51,14 +51,12 @@ public class MediaTests
     [Fact]
     public async Task GetMediaUploadUrlAsync_ReturnsPresignedUrl()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Simulate a file content
         var fileContent = Encoding.UTF8.GetBytes("This is test file content for media upload");
         var sha256Hash = ComputeSha256Hash(fileContent);
 
@@ -71,10 +69,8 @@ public class MediaTests
             Field = "input"
         };
 
-        // Act
         var response = await client.GetMediaUploadUrlAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
         response.UploadUrl.ShouldNotBeNull();
@@ -83,7 +79,6 @@ public class MediaTests
     [Fact]
     public async Task GetMediaUploadUrlAsync_WithObservation_ReturnsPresignedUrl()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -104,10 +99,8 @@ public class MediaTests
             Field = "output"
         };
 
-        // Act
         var response = await client.GetMediaUploadUrlAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
         response.UploadUrl.ShouldNotBeNull();
@@ -116,11 +109,9 @@ public class MediaTests
     [Fact]
     public async Task GetMediaAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
         var nonExistentId = Guid.NewGuid().ToString();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetMediaAsync(nonExistentId));
 
@@ -130,14 +121,12 @@ public class MediaTests
     [Fact]
     public async Task GetMediaUploadUrlAsync_ForDifferentContentTypes()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Test with image/png content type
         var pngContent = new byte[] { 0x89, 0x50, 0x4E, 0x47 }; // PNG magic bytes
         var sha256Hash = ComputeSha256Hash(pngContent);
 
@@ -150,10 +139,8 @@ public class MediaTests
             Field = "metadata"
         };
 
-        // Act
         var response = await client.GetMediaUploadUrlAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
     }
@@ -161,7 +148,6 @@ public class MediaTests
     [Fact]
     public async Task GetMediaUploadUrlAsync_WithInputField()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -180,10 +166,8 @@ public class MediaTests
             Field = "input"
         };
 
-        // Act
         var response = await client.GetMediaUploadUrlAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.UploadUrl.ShouldNotBeNull();
     }
@@ -191,7 +175,6 @@ public class MediaTests
     [Fact]
     public async Task GetMediaUploadUrlAsync_WithOutputField()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -210,10 +193,8 @@ public class MediaTests
             Field = "output"
         };
 
-        // Act
         var response = await client.GetMediaUploadUrlAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
     }
@@ -221,7 +202,6 @@ public class MediaTests
     [Fact]
     public async Task GetMediaUploadUrlAsync_WithMetadataField()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -240,10 +220,8 @@ public class MediaTests
             Field = "metadata"
         };
 
-        // Act
         var response = await client.GetMediaUploadUrlAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
     }

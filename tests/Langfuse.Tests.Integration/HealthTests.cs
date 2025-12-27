@@ -19,7 +19,6 @@ public class HealthTests
     [Fact]
     public async Task GetHealthAsync_ReturnsHealthyStatus()
     {
-        // Arrange
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddLangfuse(config =>
@@ -33,10 +32,8 @@ public class HealthTests
         await using var provider = services.BuildServiceProvider();
         var client = provider.GetRequiredService<ILangfuseClient>();
 
-        // Act
         var health = await client.GetHealthAsync();
 
-        // Assert
         health.ShouldNotBeNull();
         health.Status.ShouldBe("OK");
     }

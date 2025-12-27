@@ -44,7 +44,6 @@ public class TraceTests
     [Fact]
     public async Task GetTraceListAsync_ReturnsPaginatedList()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var prefix = $"list-test-{Guid.NewGuid():N}";
@@ -55,10 +54,8 @@ public class TraceTests
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);
 
-        // Act
         var result = await client.GetTraceListAsync(new TraceListRequest { Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         (result.Data.Length >= 2).ShouldBeTrue();
@@ -67,7 +64,6 @@ public class TraceTests
     [Fact]
     public async Task GetTraceListAsync_FiltersByName()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var uniqueName = $"filter-name-{Guid.NewGuid():N}";
@@ -75,10 +71,8 @@ public class TraceTests
         var traceId = traceHelper.CreateTrace(uniqueName);
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Act
         var result = await client.GetTraceListAsync(new TraceListRequest { Name = uniqueName, Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.Length.ShouldBe(1);
@@ -88,7 +82,6 @@ public class TraceTests
     [Fact]
     public async Task GetTraceListAsync_FiltersByUserId()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var userId = $"user-{Guid.NewGuid():N}";
@@ -96,10 +89,8 @@ public class TraceTests
         var traceId = traceHelper.CreateTrace(userId: userId);
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Act
         var result = await client.GetTraceListAsync(new TraceListRequest { UserId = userId, Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.ShouldContain(t => t.UserId == userId);
@@ -108,7 +99,6 @@ public class TraceTests
     [Fact]
     public async Task GetTraceListAsync_FiltersByTags()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var uniqueTag = $"tag-{Guid.NewGuid():N}";
@@ -116,11 +106,9 @@ public class TraceTests
         var traceId = traceHelper.CreateTrace(tags: [uniqueTag, "integration-test"]);
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Act
         var result =
             await client.GetTraceListAsync(new TraceListRequest { Tags = [uniqueTag], Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.ShouldContain(t => t.Tags != null && t.Tags.Contains(uniqueTag));
@@ -129,7 +117,6 @@ public class TraceTests
     [Fact]
     public async Task GetTraceAsync_ReturnsTraceWithDetails()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var traceName = $"detail-test-{Guid.NewGuid():N}";
@@ -142,10 +129,8 @@ public class TraceTests
         );
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Act
         var trace = await client.GetTraceAsync(traceId);
 
-        // Assert
         trace.ShouldNotBeNull();
         trace.Id.ShouldBe(traceId);
         trace.Name.ShouldBe(traceName);
@@ -155,11 +140,9 @@ public class TraceTests
     [Fact]
     public async Task GetTraceAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
         var nonExistentId = Guid.NewGuid().ToString();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetTraceAsync(nonExistentId));
 
@@ -169,20 +152,16 @@ public class TraceTests
     [Fact]
     public async Task DeleteTraceAsync_DeletesTrace()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace("trace-to-delete");
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Act
         var deleteResponse = await client.DeleteTraceAsync(traceId);
 
-        // Assert
         deleteResponse.ShouldNotBeNull();
 
-        // Wait for deletion to propagate and verify trace is gone
         var stopwatch = Stopwatch.StartNew();
         var timeout = TimeSpan.FromSeconds(30);
         LangfuseApiException? deleteException = null;
@@ -209,18 +188,15 @@ public class TraceTests
     [Fact]
     public async Task DeleteTraceManyAsync_DeletesByIds()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // Create multiple traces
         var traceId1 = traceHelper.CreateTrace("bulk-delete-1");
         var traceId2 = traceHelper.CreateTrace("bulk-delete-2");
 
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);
 
-        // Act
         var deleteResponse =
             await client.DeleteTraceManyAsync(new DeleteTraceManyRequest { TraceIds = [traceId1, traceId2] });
 
@@ -235,7 +211,6 @@ public class TraceTests
     [Fact]
     public async Task GetTraceListAsync_FiltersBySessionId()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var sessionId = $"session-{Guid.NewGuid():N}";
@@ -243,11 +218,9 @@ public class TraceTests
         var traceId = traceHelper.CreateTrace(sessionId: sessionId);
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Act
         var result =
             await client.GetTraceListAsync(new TraceListRequest { SessionId = sessionId, Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.ShouldContain(t => t.SessionId == sessionId);

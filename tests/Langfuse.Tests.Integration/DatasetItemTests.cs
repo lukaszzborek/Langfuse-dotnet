@@ -44,7 +44,6 @@ public class DatasetItemTests
     [Fact]
     public async Task CreateDatasetItemAsync_CreatesItem()
     {
-        // Arrange
         var client = CreateClient();
         var datasetName = await CreateTestDatasetAsync(client);
         var request = new CreateDatasetItemRequest
@@ -55,10 +54,8 @@ public class DatasetItemTests
             Metadata = new { category = "geography", difficulty = "easy" }
         };
 
-        // Act
         var item = await client.CreateDatasetItemAsync(request);
 
-        // Assert
         item.ShouldNotBeNull();
         item.Id.ShouldNotBeNull();
         item.DatasetName.ShouldBe(datasetName);
@@ -70,7 +67,6 @@ public class DatasetItemTests
     [Fact]
     public async Task GetDatasetItemAsync_ReturnsItem()
     {
-        // Arrange
         var client = CreateClient();
         var datasetName = await CreateTestDatasetAsync(client);
         var created = await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
@@ -80,10 +76,8 @@ public class DatasetItemTests
             ExpectedOutput = new { response = "Hi there" }
         });
 
-        // Act
         var item = await client.GetDatasetItemAsync(created.Id);
 
-        // Assert
         item.ShouldNotBeNull();
         item.Id.ShouldBe(created.Id);
         item.DatasetName.ShouldBe(datasetName);
@@ -92,11 +86,9 @@ public class DatasetItemTests
     [Fact]
     public async Task GetDatasetItemListAsync_ReturnsPaginatedList()
     {
-        // Arrange
         var client = CreateClient();
         var datasetName = await CreateTestDatasetAsync(client);
 
-        // Create multiple items
         await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
         {
             DatasetName = datasetName,
@@ -113,7 +105,6 @@ public class DatasetItemTests
             Input = new { query = "Item 3" }
         });
 
-        // Act
         var result = await client.GetDatasetItemListAsync(new DatasetItemListRequest
         {
             DatasetName = datasetName,
@@ -121,7 +112,6 @@ public class DatasetItemTests
             Limit = 10
         });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.Length.ShouldBe(3);
@@ -131,7 +121,6 @@ public class DatasetItemTests
     [Fact]
     public async Task DeleteDatasetItemAsync_DeletesItem()
     {
-        // Arrange
         var client = CreateClient();
         var datasetName = await CreateTestDatasetAsync(client);
         var created = await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
@@ -140,13 +129,10 @@ public class DatasetItemTests
             Input = new { query = "To be deleted" }
         });
 
-        // Act
         var deleteResult = await client.DeleteDatasetItemAsync(created.Id);
 
-        // Assert
         deleteResult.ShouldNotBeNull();
 
-        // Verify item is deleted
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetDatasetItemAsync(created.Id));
         exception.StatusCode.ShouldBe(404);
@@ -155,7 +141,6 @@ public class DatasetItemTests
     [Fact]
     public async Task CreateDatasetItemAsync_WithCustomId_UsesProvidedId()
     {
-        // Arrange
         var client = CreateClient();
         var datasetName = await CreateTestDatasetAsync(client);
         var customId = $"custom-{Guid.NewGuid():N}";
@@ -166,17 +151,14 @@ public class DatasetItemTests
             Input = new { query = "Custom ID test" }
         };
 
-        // Act
         var item = await client.CreateDatasetItemAsync(request);
 
-        // Assert
         item.Id.ShouldBe(customId);
     }
 
     [Fact]
     public async Task CreateDatasetItemAsync_WithArchivedStatus_CreatesArchivedItem()
     {
-        // Arrange
         var client = CreateClient();
         var datasetName = await CreateTestDatasetAsync(client);
         var request = new CreateDatasetItemRequest
@@ -186,20 +168,16 @@ public class DatasetItemTests
             Status = DatasetStatus.Archived
         };
 
-        // Act
         var item = await client.CreateDatasetItemAsync(request);
 
-        // Assert
         item.Status.ShouldBe(DatasetStatus.Archived);
     }
 
     [Fact]
     public async Task GetDatasetItemAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetDatasetItemAsync("non-existent-item-id"));
 

@@ -44,7 +44,6 @@ public class ScoreTests
     [Fact]
     public async Task CreateScoreAsync_CreatesNumericScore()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -60,18 +59,14 @@ public class ScoreTests
             Comment = "Good quality response"
         };
 
-        // Act
         var score = await client.CreateScoreAsync(request);
 
-        // Assert
         score.ShouldNotBeNull();
         score.Id.ShouldNotBeNull();
 
-        // Wait for score to be available and verify properties
         var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
         fetchedScore.TraceId.ShouldBe(traceId);
         fetchedScore.Name.ShouldBe("quality");
-        // Handle JsonElement value type
         var actualValue = fetchedScore.Value is JsonElement je ? je.GetDouble() : Convert.ToDouble(fetchedScore.Value);
         actualValue.ShouldBe(0.85, 0.01);
     }
@@ -79,7 +74,6 @@ public class ScoreTests
     [Fact]
     public async Task CreateScoreAsync_CreatesCategoricalScore()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -94,14 +88,11 @@ public class ScoreTests
             DataType = ScoreDataType.Categorical
         };
 
-        // Act
         var score = await client.CreateScoreAsync(request);
 
-        // Assert
         score.ShouldNotBeNull();
         score.Id.ShouldNotBeNull();
 
-        // Wait for score to be available and verify StringValue
         var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
         fetchedScore.StringValue.ShouldBe("positive");
     }
@@ -109,14 +100,12 @@ public class ScoreTests
     [Fact]
     public async Task CreateScoreAsync_CreatesBooleanScore()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // For boolean scores, API expects 1 for true, 0 for false
         var request = new ScoreCreateRequest
         {
             TraceId = traceId,
@@ -125,14 +114,11 @@ public class ScoreTests
             DataType = ScoreDataType.Boolean
         };
 
-        // Act
         var score = await client.CreateScoreAsync(request);
 
-        // Assert
         score.ShouldNotBeNull();
         score.Id.ShouldNotBeNull();
 
-        // Wait for score to be available and verify properties
         var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
         fetchedScore.Name.ShouldBe("is_accurate");
     }
@@ -140,7 +126,6 @@ public class ScoreTests
     [Fact]
     public async Task CreateScoreAsync_ScoresObservation()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -157,10 +142,8 @@ public class ScoreTests
             DataType = ScoreDataType.Numeric
         };
 
-        // Act
         var score = await client.CreateScoreAsync(request);
 
-        // Assert
         score.ShouldNotBeNull();
         score.Id.ShouldNotBeNull();
     }
@@ -168,7 +151,6 @@ public class ScoreTests
     [Fact]
     public async Task GetScoreAsync_ReturnsScore()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -183,10 +165,8 @@ public class ScoreTests
             DataType = ScoreDataType.Numeric
         });
 
-        // Act - Wait for score to be available before fetching
         var score = await traceHelper.WaitForScoreAsync(createdScore.Id);
 
-        // Assert
         score.ShouldNotBeNull();
         score.Id.ShouldBe(createdScore.Id);
         score.Name.ShouldBe("retrieval-score");
@@ -197,11 +177,9 @@ public class ScoreTests
     [Fact]
     public async Task GetScoreAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
         var nonExistentId = Guid.NewGuid().ToString();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetScoreAsync(nonExistentId));
 
@@ -211,14 +189,12 @@ public class ScoreTests
     [Fact]
     public async Task GetScoreListAsync_ReturnsPaginatedList()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Create multiple scores and wait for them to be available
         var score1 = await client.CreateScoreAsync(new ScoreCreateRequest
         {
             TraceId = traceId,
@@ -237,10 +213,8 @@ public class ScoreTests
         await traceHelper.WaitForScoreAsync(score1.Id);
         await traceHelper.WaitForScoreAsync(score2.Id);
 
-        // Act
         var result = await client.GetScoreListAsync(new ScoreListRequest { Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         (result.Data.Length >= 2).ShouldBeTrue();
@@ -249,7 +223,6 @@ public class ScoreTests
     [Fact]
     public async Task GetScoreListAsync_FiltersByScoreName()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -265,7 +238,6 @@ public class ScoreTests
             DataType = ScoreDataType.Numeric
         });
 
-        // Act
         var result = await client.GetScoreListAsync(new ScoreListRequest
         {
             Name = scoreName,
@@ -273,7 +245,6 @@ public class ScoreTests
             Limit = 50
         });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.ShouldAllBe(s => s.Name == scoreName);
@@ -282,7 +253,6 @@ public class ScoreTests
     [Fact]
     public async Task DeleteScoreAsync_DeletesScore()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -297,10 +267,8 @@ public class ScoreTests
             DataType = ScoreDataType.Numeric
         });
 
-        // Act
         await client.DeleteScoreAsync(score.Id);
 
-        // Assert - Verify deletion
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetScoreAsync(score.Id));
         exception.StatusCode.ShouldBe(404);
@@ -309,7 +277,6 @@ public class ScoreTests
     [Fact]
     public async Task CreateScoreAsync_WithMetadata_IncludesMetadata()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -325,10 +292,8 @@ public class ScoreTests
             Metadata = new { evaluator = "human", confidence = 0.95 }
         };
 
-        // Act
         var score = await client.CreateScoreAsync(request);
 
-        // Assert
         score.ShouldNotBeNull();
         score.Id.ShouldNotBeNull();
     }
@@ -336,7 +301,6 @@ public class ScoreTests
     [Fact]
     public async Task GetScoreListAsync_FiltersByName()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -352,7 +316,6 @@ public class ScoreTests
             DataType = ScoreDataType.Numeric
         });
 
-        // Act
         var result = await client.GetScoreListAsync(new ScoreListRequest
         {
             Name = scoreName,
@@ -360,7 +323,6 @@ public class ScoreTests
             Limit = 50
         });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.ShouldAllBe(s => s.Name == scoreName);

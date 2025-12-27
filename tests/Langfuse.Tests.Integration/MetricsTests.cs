@@ -43,15 +43,12 @@ public class MetricsTests
     [Fact]
     public async Task GetMetricsAsync_ReturnsTraceMetrics()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // Create some traces to have data
         var traceId = traceHelper.CreateTrace("metrics-test-trace");
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Build metrics query for traces view with count metric
         var query = new
         {
             view = "traces",
@@ -68,26 +65,21 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task GetMetricsAsync_ReturnsObservationMetrics()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // Create trace with observations
         var result = traceHelper.CreateComplexTrace();
         await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
 
-        // Build metrics query for observations view
         var query = new
         {
             view = "observations",
@@ -104,17 +96,14 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task GetMetricsAsync_GroupsByDimension()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -122,7 +111,6 @@ public class MetricsTests
         var traceId = traceHelper.CreateTrace(userId: userId);
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Build metrics query with grouping by name dimension
         var query = new
         {
             view = "traces",
@@ -143,17 +131,14 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task GetMetricsAsync_FiltersByTimeRange()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -163,7 +148,6 @@ public class MetricsTests
         var fromTimestamp = DateTime.UtcNow.AddHours(-1);
         var toTimestamp = DateTime.UtcNow.AddHours(1);
 
-        // Build metrics query with specific time range
         var query = new
         {
             view = "traces",
@@ -180,26 +164,21 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task GetMetricsAsync_WithLatencyMetric()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // Create trace with observations that have duration
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(spanId);
 
-        // Build metrics query for latency
         var query = new
         {
             view = "observations",
@@ -216,25 +195,20 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task GetMetricsAsync_WithTimeDimension()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Build metrics query with time dimension (hourly grouping)
-        // timeDimension must be an object with a granularity field
         var query = new
         {
             view = "traces",
@@ -252,17 +226,14 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task GetMetricsAsync_WithFilter()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -270,7 +241,6 @@ public class MetricsTests
         var traceId = traceHelper.CreateTrace(uniqueName);
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Build metrics query with filter
         var query = new
         {
             view = "traces",
@@ -291,28 +261,23 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task GetMetricsAsync_WithRowLimit()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // Create multiple traces
         for (var i = 0; i < 3; i++)
         {
             var traceId = traceHelper.CreateTrace($"limit-test-{i}");
             await traceHelper.WaitForTraceAsync(traceId);
         }
 
-        // Build metrics query with row limit
         var query = new
         {
             view = "traces",
@@ -334,10 +299,8 @@ public class MetricsTests
             Query = JsonSerializer.Serialize(query)
         };
 
-        // Act
         var response = await client.GetMetricsAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
     }
 }

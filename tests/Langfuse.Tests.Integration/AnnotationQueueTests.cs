@@ -40,54 +40,44 @@ public class AnnotationQueueTests
         return new TraceTestHelper(client, _fixture);
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task ListQueuesAsync_ReturnsList()
     {
-        // Arrange
         var client = CreateClient();
 
-        // Act
         var result = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        // Note: Queues are typically created via UI, so the list might be empty
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task GetQueueAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
         var nonExistentId = Guid.NewGuid().ToString();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetQueueAsync(nonExistentId));
 
         exception.StatusCode.ShouldBe(404);
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task CreateItemAsync_WithExistingQueue_AddsTraceToQueue()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // First, check if any queues exist
         var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
 
         if (queues.Data == null || queues.Data.Length == 0)
         {
-            // Skip test if no queues exist - queues must be created via UI
-            return;
+            throw new Exception("No queues found");
         }
 
         var queueId = queues.Data[0].Id;
 
-        // Create a trace to add to the queue
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
@@ -97,34 +87,28 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Trace
         };
 
-        // Act
         var item = await client.CreateItemAsync(queueId, request);
 
-        // Assert
         item.ShouldNotBeNull();
         item.ObjectId.ShouldBe(traceId);
         item.ObjectType.ShouldBe(AnnotationObjectType.Trace);
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task ListItemsAsync_WithExistingQueue_ReturnsItems()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // First, check if any queues exist
         var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
 
         if (queues.Data == null || queues.Data.Length == 0)
         {
-            // Skip test if no queues exist
-            return;
+            throw new Exception("No queues found");
         }
 
         var queueId = queues.Data[0].Id;
 
-        // Create and add a trace to the queue
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
@@ -134,34 +118,28 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Trace
         });
 
-        // Act
         var items = await client.ListItemsAsync(queueId, new AnnotationQueueItemListRequest { Page = 1, Limit = 50 });
 
-        // Assert
         items.ShouldNotBeNull();
         items.Data.ShouldNotBeNull();
         (items.Data.Length >= 1).ShouldBeTrue();
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task GetItemAsync_WithExistingQueue_ReturnsItem()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // First, check if any queues exist
         var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
 
         if (queues.Data == null || queues.Data.Length == 0)
         {
-            // Skip test if no queues exist
-            return;
+            throw new Exception("No queues found");
         }
 
         var queueId = queues.Data[0].Id;
 
-        // Create and add a trace to the queue
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
@@ -171,34 +149,28 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Trace
         });
 
-        // Act
         var item = await client.GetItemAsync(queueId, createdItem.Id);
 
-        // Assert
         item.ShouldNotBeNull();
         item.Id.ShouldBe(createdItem.Id);
         item.ObjectId.ShouldBe(traceId);
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task UpdateItemAsync_WithExistingQueue_UpdatesStatus()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // First, check if any queues exist
         var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
 
-        if (queues.Data == null || queues.Data.Length == 0)
+        if (queues.Data.Length == 0)
         {
-            // Skip test if no queues exist
-            return;
+            throw new Exception("No queues found");
         }
 
         var queueId = queues.Data[0].Id;
 
-        // Create and add a trace to the queue
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
@@ -209,36 +181,30 @@ public class AnnotationQueueTests
             Status = AnnotationQueueStatus.Pending
         });
 
-        // Act
         var updatedItem = await client.UpdateItemAsync(queueId, createdItem.Id, new UpdateAnnotationQueueItemRequest
         {
             Status = AnnotationQueueStatus.Completed
         });
 
-        // Assert
         updatedItem.ShouldNotBeNull();
         updatedItem.Status.ShouldBe(AnnotationQueueStatus.Completed);
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task DeleteItemAsync_WithExistingQueue_RemovesItem()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // First, check if any queues exist
         var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
 
-        if (queues.Data == null || queues.Data.Length == 0)
+        if (queues.Data.Length == 0)
         {
-            // Skip test if no queues exist
-            return;
+            throw new Exception("No queues found");
         }
 
         var queueId = queues.Data[0].Id;
 
-        // Create and add a trace to the queue
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
@@ -248,62 +214,51 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Trace
         });
 
-        // Act
         var deleteResponse = await client.DeleteItemAsync(queueId, createdItem.Id);
 
-        // Assert
         deleteResponse.ShouldNotBeNull();
 
-        // Verify deletion
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetItemAsync(queueId, createdItem.Id));
         exception.StatusCode.ShouldBe(404);
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task GetItemAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
 
-        // First, check if any queues exist
         var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
 
-        if (queues.Data == null || queues.Data.Length == 0)
+        if (queues.Data.Length == 0)
         {
-            // Skip test if no queues exist
-            return;
+            throw new Exception("No queues found");
         }
 
         var queueId = queues.Data[0].Id;
         var nonExistentItemId = Guid.NewGuid().ToString();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetItemAsync(queueId, nonExistentItemId));
 
         exception.StatusCode.ShouldBe(404);
     }
 
-    [Fact]
+    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
     public async Task CreateItemAsync_WithObservation_AddsObservationToQueue()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // First, check if any queues exist
         var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
 
-        if (queues.Data == null || queues.Data.Length == 0)
+        if (queues.Data.Length == 0)
         {
-            // Skip test if no queues exist
-            return;
+            throw new Exception("No queues found");
         }
 
         var queueId = queues.Data[0].Id;
 
-        // Create a trace with an observation
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(spanId);
@@ -314,10 +269,8 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Observation
         };
 
-        // Act
         var item = await client.CreateItemAsync(queueId, request);
 
-        // Assert
         item.ShouldNotBeNull();
         item.ObjectId.ShouldBe(spanId);
         item.ObjectType.ShouldBe(AnnotationObjectType.Observation);

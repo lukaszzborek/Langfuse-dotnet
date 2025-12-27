@@ -43,7 +43,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationListAsync_ReturnsPaginatedList()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -51,10 +50,8 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
 
-        // Act
         var observations = await client.GetObservationListAsync(new ObservationListRequest { Page = 1, Limit = 50 });
 
-        // Assert
         observations.ShouldNotBeNull();
         observations.Data.ShouldNotBeNull();
         (observations.Data.Length >= 1).ShouldBeTrue();
@@ -63,7 +60,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationListAsync_FiltersByType_Span()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -71,7 +67,6 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(spanId);
 
-        // Act
         var observations = await client.GetObservationListAsync(new ObservationListRequest
         {
             Type = "SPAN",
@@ -79,7 +74,6 @@ public class ObservationTests
             Limit = 50
         });
 
-        // Assert
         observations.ShouldNotBeNull();
         observations.Data.ShouldNotBeNull();
         observations.Data.ShouldAllBe(o => o.Type == "SPAN");
@@ -88,7 +82,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationListAsync_FiltersByType_Generation()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -96,7 +89,6 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(generationId);
 
-        // Act
         var observations = await client.GetObservationListAsync(new ObservationListRequest
         {
             Type = "GENERATION",
@@ -104,7 +96,6 @@ public class ObservationTests
             Limit = 50
         });
 
-        // Assert
         observations.ShouldNotBeNull();
         observations.Data.ShouldNotBeNull();
         observations.Data.ShouldAllBe(o => o.Type == "GENERATION");
@@ -113,7 +104,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationListAsync_FiltersByType_Event()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -121,7 +111,6 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(eventId);
 
-        // Act
         var observations = await client.GetObservationListAsync(new ObservationListRequest
         {
             Type = "EVENT",
@@ -129,7 +118,6 @@ public class ObservationTests
             Limit = 50
         });
 
-        // Assert
         observations.ShouldNotBeNull();
         observations.Data.ShouldNotBeNull();
         observations.Data.ShouldAllBe(o => o.Type == "EVENT");
@@ -138,7 +126,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationListAsync_FiltersByTraceId()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -146,7 +133,6 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
 
-        // Act
         var observations = await client.GetObservationListAsync(new ObservationListRequest
         {
             TraceId = result.TraceId,
@@ -154,7 +140,6 @@ public class ObservationTests
             Limit = 50
         });
 
-        // Assert
         observations.ShouldNotBeNull();
         observations.Data.ShouldNotBeNull();
         (observations.Data.Length >= 3).ShouldBeTrue(); // span, generation, event
@@ -164,7 +149,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationAsync_ReturnsObservation()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -172,10 +156,8 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(spanId);
 
-        // Act
         var observation = await client.GetObservationAsync(spanId);
 
-        // Assert
         observation.ShouldNotBeNull();
         observation.Id.ShouldBe(spanId);
         observation.Name.ShouldBe("test-span-retrieval");
@@ -185,11 +167,9 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
         var nonExistentId = Guid.NewGuid().ToString();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetObservationAsync(nonExistentId));
 
@@ -199,7 +179,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationAsync_ReturnsGenerationWithModel()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -210,10 +189,8 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(generationId);
 
-        // Act
         var observation = await client.GetObservationAsync(generationId);
 
-        // Assert
         observation.ShouldNotBeNull();
         observation.Id.ShouldBe(generationId);
         observation.Name.ShouldBe("llm-generation");
@@ -224,7 +201,6 @@ public class ObservationTests
     [Fact]
     public async Task GetObservationListAsync_FiltersByName()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var uniqueName = $"obs-name-{Guid.NewGuid():N}";
@@ -233,7 +209,6 @@ public class ObservationTests
         await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(spanId);
 
-        // Act
         var observations = await client.GetObservationListAsync(new ObservationListRequest
         {
             Name = uniqueName,
@@ -241,7 +216,6 @@ public class ObservationTests
             Limit = 50
         });
 
-        // Assert
         observations.ShouldNotBeNull();
         observations.Data.ShouldNotBeNull();
         observations.Data.ShouldContain(o => o.Name == uniqueName);

@@ -62,7 +62,6 @@ public class DatasetRunItemTests
     [Fact]
     public async Task CreateDataSetRunAsync_LinksToTrace()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -81,10 +80,8 @@ public class DatasetRunItemTests
             Metadata = new { evaluator = "integration-test" }
         };
 
-        // Act
         var runItem = await client.CreateDataSetRunAsync(request);
 
-        // Assert
         runItem.ShouldNotBeNull();
         runItem.DatasetItemId.ShouldBe(itemId);
         runItem.TraceId.ShouldBe(traceId);
@@ -94,7 +91,6 @@ public class DatasetRunItemTests
     [Fact]
     public async Task CreateDataSetRunAsync_WithObservation_LinksToObservation()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -113,10 +109,8 @@ public class DatasetRunItemTests
             ObservationId = generationId
         };
 
-        // Act
         var runItem = await client.CreateDataSetRunAsync(request);
 
-        // Assert
         runItem.ShouldNotBeNull();
         runItem.ObservationId.ShouldBe(generationId);
     }
@@ -124,18 +118,14 @@ public class DatasetRunItemTests
     [Fact]
     public async Task GetDatasetRunListAsync_ReturnsRunItems()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
-        // Get or create dataset
         var (datasetName, itemId) = await CreateTestDatasetWithItemAsync(client);
         var runName = $"list-run-{Guid.NewGuid():N}";
 
-        // Get dataset to get its ID
         var dataset = await client.GetDatasetAsync(datasetName);
 
-        // Create a trace and run item
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
@@ -146,7 +136,6 @@ public class DatasetRunItemTests
             TraceId = traceId
         });
 
-        // Wait for run items to be available with polling
         var stopwatch = Stopwatch.StartNew();
         var timeout = TimeSpan.FromSeconds(30);
         PaginatedDatasetRunItems? result = null;
@@ -169,7 +158,6 @@ public class DatasetRunItemTests
             await Task.Delay(500);
         }
 
-        // Assert
         result.ShouldNotBeNull();
         (result.Data.Length >= 1).ShouldBeTrue();
     }
@@ -177,7 +165,6 @@ public class DatasetRunItemTests
     [Fact]
     public async Task CreateDataSetRunAsync_MultipleItemsSameRun()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -188,7 +175,6 @@ public class DatasetRunItemTests
             Description = "Test dataset with multiple items"
         });
 
-        // Create multiple dataset items
         var item1 = await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
         {
             DatasetName = datasetName,
@@ -205,13 +191,11 @@ public class DatasetRunItemTests
 
         var runName = $"multi-item-run-{Guid.NewGuid():N}";
 
-        // Create traces for each item
         var traceId1 = traceHelper.CreateTrace("trace-1");
         var traceId2 = traceHelper.CreateTrace("trace-2");
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);
 
-        // Act - Create run items for the same run
         var runItem1 = await client.CreateDataSetRunAsync(new CreateDatasetRunItemRequest
         {
             DatasetItemId = item1.Id,
@@ -226,7 +210,6 @@ public class DatasetRunItemTests
             TraceId = traceId2
         });
 
-        // Assert
         runItem1.ShouldNotBeNull();
         runItem2.ShouldNotBeNull();
         runItem1.DatasetRunName.ShouldBe(runName);
@@ -236,7 +219,6 @@ public class DatasetRunItemTests
     [Fact]
     public async Task CreateDataSetRunAsync_CreatesNewRun()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -246,7 +228,6 @@ public class DatasetRunItemTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Act
         var runItem = await client.CreateDataSetRunAsync(new CreateDatasetRunItemRequest
         {
             DatasetItemId = itemId,
@@ -255,11 +236,9 @@ public class DatasetRunItemTests
             RunDescription = "New run description"
         });
 
-        // Assert
         runItem.ShouldNotBeNull();
         runItem.Id.ShouldNotBeNull();
 
-        // Verify the run exists
         var runs = await client.GetDatasetRunsAsync(datasetName, new DatasetRunListRequest { Page = 1, Limit = 50 });
         runs.Data.ShouldContain(r => r.Name == runName);
     }
@@ -267,7 +246,6 @@ public class DatasetRunItemTests
     [Fact]
     public async Task GetDatasetRunListAsync_Pagination()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -275,7 +253,6 @@ public class DatasetRunItemTests
         var dataset = await client.GetDatasetAsync(datasetName);
         var runName = $"pagination-run-{Guid.NewGuid():N}";
 
-        // Create multiple items and run items
         for (var i = 0; i < 3; i++)
         {
             var item = await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
@@ -296,7 +273,6 @@ public class DatasetRunItemTests
             });
         }
 
-        // Act
         var page1 = await client.GetDatasetRunListAsync(new DatasetRunItemListRequest
         {
             DatasetId = dataset.Id,
@@ -313,7 +289,6 @@ public class DatasetRunItemTests
             Limit = 2
         });
 
-        // Assert
         page1.ShouldNotBeNull();
         page1.Data.ShouldNotBeNull();
         (page1.Data.Length <= 2).ShouldBeTrue();

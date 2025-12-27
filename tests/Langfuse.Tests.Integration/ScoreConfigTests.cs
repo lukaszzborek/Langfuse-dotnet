@@ -37,7 +37,6 @@ public class ScoreConfigTests
     [Fact]
     public async Task CreateScoreConfigAsync_CreatesNumericConfig()
     {
-        // Arrange
         var client = CreateClient();
         var configName = $"nc-{Guid.NewGuid():N}"[..20];
         var request = new CreateScoreConfigRequest
@@ -49,10 +48,8 @@ public class ScoreConfigTests
             MaxValue = 100
         };
 
-        // Act
         var config = await client.CreateScoreConfigAsync(request);
 
-        // Assert
         config.ShouldNotBeNull();
         config.Id.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
@@ -66,7 +63,6 @@ public class ScoreConfigTests
     [Fact]
     public async Task CreateScoreConfigAsync_CreatesCategoricalConfig()
     {
-        // Arrange
         var client = CreateClient();
         var configName = $"cc-{Guid.NewGuid():N}"[..20];
         var request = new CreateScoreConfigRequest
@@ -82,10 +78,8 @@ public class ScoreConfigTests
             ]
         };
 
-        // Act
         var config = await client.CreateScoreConfigAsync(request);
 
-        // Assert
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
         config.DataType.ShouldBe(ScoreDataType.Categorical);
@@ -99,7 +93,6 @@ public class ScoreConfigTests
     [Fact]
     public async Task CreateScoreConfigAsync_CreatesBooleanConfig()
     {
-        // Arrange
         var client = CreateClient();
         var configName = $"bc-{Guid.NewGuid():N}"[..20];
         var request = new CreateScoreConfigRequest
@@ -109,10 +102,8 @@ public class ScoreConfigTests
             Description = "Pass/Fail evaluation"
         };
 
-        // Act
         var config = await client.CreateScoreConfigAsync(request);
 
-        // Assert
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
         config.DataType.ShouldBe(ScoreDataType.Boolean);
@@ -122,7 +113,6 @@ public class ScoreConfigTests
     [Fact]
     public async Task GetScoreConfigAsync_ReturnsConfig()
     {
-        // Arrange
         var client = CreateClient();
         var configName = $"gc-{Guid.NewGuid():N}"[..20];
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
@@ -133,10 +123,8 @@ public class ScoreConfigTests
             MaxValue = 5
         });
 
-        // Act
         var config = await client.GetScoreConfigAsync(created.Id);
 
-        // Assert
         config.ShouldNotBeNull();
         config.Id.ShouldBe(created.Id);
         config.Name.ShouldBe(configName);
@@ -146,11 +134,9 @@ public class ScoreConfigTests
     [Fact]
     public async Task GetScoreConfigListAsync_ReturnsPaginatedList()
     {
-        // Arrange
         var client = CreateClient();
         var prefix = $"lc-{Guid.NewGuid():N}"[..15];
 
-        // Create multiple configs
         await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"{prefix}-1",
@@ -162,10 +148,8 @@ public class ScoreConfigTests
             DataType = ScoreDataType.Boolean
         });
 
-        // Act
         var result = await client.GetScoreConfigListAsync(new ScoreConfigListRequest { Offset = 0, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         (result.Data.Length >= 2).ShouldBeTrue();
@@ -175,7 +159,6 @@ public class ScoreConfigTests
     [Fact]
     public async Task UpdateScoreConfigAsync_UpdatesPartially()
     {
-        // Arrange
         var client = CreateClient();
         var configName = $"uc-{Guid.NewGuid():N}"[..20];
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
@@ -187,14 +170,12 @@ public class ScoreConfigTests
             MaxValue = 10
         });
 
-        // Act
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             Description = "Updated description",
             MaxValue = 100
         });
 
-        // Assert
         updated.ShouldNotBeNull();
         updated.Id.ShouldBe(created.Id);
         updated.Description.ShouldBe("Updated description");
@@ -205,7 +186,6 @@ public class ScoreConfigTests
     [Fact]
     public async Task UpdateScoreConfigAsync_ArchivesConfig()
     {
-        // Arrange
         var client = CreateClient();
         var configName = $"ac-{Guid.NewGuid():N}"[..20];
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
@@ -214,23 +194,19 @@ public class ScoreConfigTests
             DataType = ScoreDataType.Boolean
         });
 
-        // Act
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             IsArchived = true
         });
 
-        // Assert
         updated.IsArchived.ShouldBeTrue();
     }
 
     [Fact]
     public async Task GetScoreConfigAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetScoreConfigAsync("non-existent-config-id"));
 
@@ -240,7 +216,6 @@ public class ScoreConfigTests
     [Fact]
     public async Task UpdateScoreConfigAsync_UpdatesName()
     {
-        // Arrange
         var client = CreateClient();
         var originalName = $"on-{Guid.NewGuid():N}"[..20];
         var newName = $"nn-{Guid.NewGuid():N}"[..20];
@@ -250,20 +225,17 @@ public class ScoreConfigTests
             DataType = ScoreDataType.Numeric
         });
 
-        // Act
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             Name = newName
         });
 
-        // Assert
         updated.Name.ShouldBe(newName);
     }
 
     [Fact]
     public async Task UpdateScoreConfigAsync_UpdatesCategoricalCategories()
     {
-        // Arrange
         var client = CreateClient();
         var configName = $"cu-{Guid.NewGuid():N}"[..20];
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
@@ -277,7 +249,6 @@ public class ScoreConfigTests
             ]
         });
 
-        // Act
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             Categories =
@@ -289,7 +260,6 @@ public class ScoreConfigTests
             ]
         });
 
-        // Assert
         updated.Categories.ShouldNotBeNull();
         updated.Categories.Length.ShouldBe(4);
         updated.Categories.ShouldContain(c => c.Label == "Excellent");

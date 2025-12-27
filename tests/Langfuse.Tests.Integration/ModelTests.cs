@@ -37,7 +37,6 @@ public class ModelTests
     [Fact]
     public async Task CreateModelAsync_CreatesCustomModel()
     {
-        // Arrange
         var client = CreateClient();
         var modelName = $"custom-model-{Guid.NewGuid():N}";
         var request = new CreateModelRequest
@@ -49,10 +48,8 @@ public class ModelTests
             Unit = ModelUsageUnit.Tokens
         };
 
-        // Act
         var model = await client.CreateModelAsync(request);
 
-        // Assert
         model.ShouldNotBeNull();
         model.Id.ShouldNotBeNull();
         model.ModelName.ShouldBe(modelName);
@@ -65,7 +62,6 @@ public class ModelTests
     [Fact]
     public async Task GetModelAsync_ReturnsModel()
     {
-        // Arrange
         var client = CreateClient();
         var modelName = $"custom-model-{Guid.NewGuid():N}";
         var created = await client.CreateModelAsync(new CreateModelRequest
@@ -76,10 +72,8 @@ public class ModelTests
             Unit = ModelUsageUnit.Tokens
         });
 
-        // Act
         var model = await client.GetModelAsync(created.Id);
 
-        // Assert
         model.ShouldNotBeNull();
         model.Id.ShouldBe(created.Id);
         model.ModelName.ShouldBe(modelName);
@@ -89,16 +83,12 @@ public class ModelTests
     [Fact]
     public async Task GetModelListAsync_ReturnsPaginatedList()
     {
-        // Arrange
         var client = CreateClient();
 
-        // Act - List models without creating any (uses Langfuse's predefined models)
         var result = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 100 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        // Langfuse has many predefined models
         (result.Data.Length >= 2).ShouldBeTrue();
         (result.Meta.TotalItems >= result.Data.Length).ShouldBeTrue();
     }
@@ -106,7 +96,6 @@ public class ModelTests
     [Fact]
     public async Task DeleteModelAsync_DeletesCustomModel()
     {
-        // Arrange
         var client = CreateClient();
         var modelName = $"custom-model-{Guid.NewGuid():N}";
         var created = await client.CreateModelAsync(new CreateModelRequest
@@ -117,10 +106,8 @@ public class ModelTests
             InputPrice = 0.001m
         });
 
-        // Act
         await client.DeleteModelAsync(created.Id);
 
-        // Assert - Verify model is deleted
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetModelAsync(created.Id));
         exception.StatusCode.ShouldBe(404);
@@ -129,10 +116,8 @@ public class ModelTests
     [Fact]
     public async Task CreateModelAsync_WithPricing_SetsPricesCorrectly()
     {
-        // Arrange
         var client = CreateClient();
         var modelName = $"priced-model-{Guid.NewGuid():N}";
-        // Note: Cannot set both input/output prices AND totalPrice - they are mutually exclusive
         var request = new CreateModelRequest
         {
             ModelName = modelName,
@@ -142,10 +127,8 @@ public class ModelTests
             Unit = ModelUsageUnit.Tokens
         };
 
-        // Act
         var model = await client.CreateModelAsync(request);
 
-        // Assert
         model.InputPrice.ShouldBe(0.00001m);
         model.OutputPrice.ShouldBe(0.00002m);
     }
@@ -153,7 +136,6 @@ public class ModelTests
     [Fact]
     public async Task CreateModelAsync_WithStartDate_SetsDateCorrectly()
     {
-        // Arrange
         var client = CreateClient();
         var modelName = $"dated-model-{Guid.NewGuid():N}";
         var startDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -166,10 +148,8 @@ public class ModelTests
             InputPrice = 0.001m
         };
 
-        // Act
         var model = await client.CreateModelAsync(request);
 
-        // Assert
         model.StartDate.ShouldNotBeNull();
         model.StartDate.Value.Date.ShouldBe(startDate.Date);
     }
@@ -177,10 +157,8 @@ public class ModelTests
     [Fact]
     public async Task GetModelAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetModelAsync("non-existent-model-id"));
 
@@ -190,16 +168,12 @@ public class ModelTests
     [Fact]
     public async Task GetModelListAsync_IncludesLangfuseManagedModels()
     {
-        // Arrange
         var client = CreateClient();
 
-        // Act
         var result = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 100 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        // Langfuse includes many predefined models
         result.Data.ShouldContain(m => m.IsLangfuseManaged);
     }
 }

@@ -37,7 +37,6 @@ public class PromptTests
     [Fact]
     public async Task CreatePromptAsync_CreatesTextPrompt()
     {
-        // Arrange
         var client = CreateClient();
         var promptName = $"test-prompt-{Guid.NewGuid():N}";
         var request = new CreateTextPromptRequest
@@ -49,10 +48,8 @@ public class PromptTests
             Tags = ["integration-test"]
         };
 
-        // Act
         var prompt = await client.CreatePromptAsync(request);
 
-        // Assert
         prompt.ShouldNotBeNull();
         prompt.Name.ShouldBe(promptName);
         prompt.Version.ShouldBe(1);
@@ -65,7 +62,6 @@ public class PromptTests
     [Fact]
     public async Task CreatePromptAsync_CreatesChatPrompt()
     {
-        // Arrange
         var client = CreateClient();
         var promptName = $"test-chat-prompt-{Guid.NewGuid():N}";
         var request = new CreateChatPromptRequest
@@ -80,10 +76,8 @@ public class PromptTests
             Labels = ["test", "chat"]
         };
 
-        // Act
         var prompt = await client.CreatePromptAsync(request);
 
-        // Assert
         prompt.ShouldNotBeNull();
         prompt.Name.ShouldBe(promptName);
         prompt.Version.ShouldBe(1);
@@ -94,10 +88,8 @@ public class PromptTests
     [Fact]
     public async Task GetPromptAsync_ReturnsByName()
     {
-        // Arrange
         var client = CreateClient();
         var promptName = $"test-prompt-{Guid.NewGuid():N}";
-        // The API defaults to 'production' label when fetching without version/label
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
@@ -105,10 +97,8 @@ public class PromptTests
             Labels = ["production"]
         });
 
-        // Act
         var prompt = await client.GetPromptAsync(promptName);
 
-        // Assert
         prompt.ShouldNotBeNull();
         prompt.Name.ShouldBe(promptName);
         prompt.Version.ShouldBe(1);
@@ -117,29 +107,24 @@ public class PromptTests
     [Fact]
     public async Task GetPromptAsync_ReturnsByVersion()
     {
-        // Arrange
         var client = CreateClient();
         var promptName = $"test-prompt-{Guid.NewGuid():N}";
 
-        // Create version 1
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
             Prompt = "Version 1 content"
         });
 
-        // Create version 2
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
             Prompt = "Version 2 content"
         });
 
-        // Act - Get specific version
         var promptV1 = await client.GetPromptAsync(promptName, 1);
         var promptV2 = await client.GetPromptAsync(promptName, 2);
 
-        // Assert
         promptV1.Version.ShouldBe(1);
         promptV2.Version.ShouldBe(2);
         promptV1.ShouldBeOfType<TextPrompt>();
@@ -151,11 +136,9 @@ public class PromptTests
     [Fact]
     public async Task GetPromptAsync_ReturnsByLabel()
     {
-        // Arrange
         var client = CreateClient();
         var promptName = $"test-prompt-{Guid.NewGuid():N}";
 
-        // Create version 1 with production label
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
@@ -163,7 +146,6 @@ public class PromptTests
             Labels = ["production"]
         });
 
-        // Create version 2 without production label
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
@@ -171,10 +153,8 @@ public class PromptTests
             Labels = ["development"]
         });
 
-        // Act - Get by label
         var prodPrompt = await client.GetPromptAsync(promptName, label: "production");
 
-        // Assert
         prodPrompt.Version.ShouldBe(1);
         prodPrompt.Labels.ShouldContain("production");
     }
@@ -182,11 +162,9 @@ public class PromptTests
     [Fact]
     public async Task GetPromptListAsync_ReturnsPaginatedList()
     {
-        // Arrange
         var client = CreateClient();
         var prefix = $"list-prompt-{Guid.NewGuid():N}";
 
-        // Create multiple prompts
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = $"{prefix}-1",
@@ -198,10 +176,8 @@ public class PromptTests
             Prompt = "Prompt 2"
         });
 
-        // Act
         var result = await client.GetPromptListAsync(new PromptListRequest { Page = 1, Limit = 50 });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         (result.Data.Length >= 2).ShouldBeTrue();
@@ -210,7 +186,6 @@ public class PromptTests
     [Fact]
     public async Task UpdatePromptVersionAsync_UpdatesLabels()
     {
-        // Arrange
         var client = CreateClient();
         var promptName = $"test-prompt-{Guid.NewGuid():N}";
         await client.CreatePromptAsync(new CreateTextPromptRequest
@@ -220,13 +195,11 @@ public class PromptTests
             Labels = ["draft"]
         });
 
-        // Act
         var updated = await client.UpdatePromptVersionAsync(promptName, 1, new UpdatePromptVersionRequest
         {
             NewLabels = ["production", "active"]
         });
 
-        // Assert
         updated.ShouldNotBeNull();
         updated.Labels.ShouldContain("production");
         updated.Labels.ShouldContain("active");
@@ -235,10 +208,8 @@ public class PromptTests
     [Fact]
     public async Task GetPromptAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetPromptAsync("non-existent-prompt"));
 
@@ -248,7 +219,6 @@ public class PromptTests
     [Fact]
     public async Task CreatePromptAsync_WithTags_SetsTagsCorrectly()
     {
-        // Arrange
         var client = CreateClient();
         var promptName = $"test-prompt-{Guid.NewGuid():N}";
         var request = new CreateTextPromptRequest
@@ -258,10 +228,8 @@ public class PromptTests
             Tags = ["tag1", "tag2", "tag3"]
         };
 
-        // Act
         var prompt = await client.CreatePromptAsync(request);
 
-        // Assert
         prompt.Tags.Count.ShouldBe(3);
         prompt.Tags.ShouldContain("tag1");
         prompt.Tags.ShouldContain("tag2");
@@ -271,7 +239,6 @@ public class PromptTests
     [Fact]
     public async Task GetPromptListAsync_FiltersByName()
     {
-        // Arrange
         var client = CreateClient();
         var uniqueName = $"unique-prompt-{Guid.NewGuid():N}";
         await client.CreatePromptAsync(new CreateTextPromptRequest
@@ -280,7 +247,6 @@ public class PromptTests
             Prompt = "Unique content"
         });
 
-        // Act
         var result = await client.GetPromptListAsync(new PromptListRequest
         {
             Name = uniqueName,
@@ -288,7 +254,6 @@ public class PromptTests
             Limit = 10
         });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.Length.ShouldBe(1);
         result.Data[0].Name.ShouldBe(uniqueName);

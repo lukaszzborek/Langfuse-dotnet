@@ -43,7 +43,6 @@ public class CommentTests
     [Fact]
     public async Task CreateCommentAsync_CreatesTraceComment()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -58,10 +57,8 @@ public class CommentTests
             Content = "This is a test comment on a trace"
         };
 
-        // Act
         var response = await client.CreateCommentAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
     }
@@ -69,7 +66,6 @@ public class CommentTests
     [Fact]
     public async Task CreateCommentAsync_CreatesObservationComment()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -85,10 +81,8 @@ public class CommentTests
             Content = "This is a test comment on an observation"
         };
 
-        // Act
         var response = await client.CreateCommentAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
     }
@@ -111,10 +105,8 @@ public class CommentTests
             Content = "Comment for retrieval test"
         });
 
-        // Act
         var comment = await client.GetCommentAsync(createResponse.Id);
 
-        // Assert
         comment.ShouldNotBeNull();
         comment.Id.ShouldBe(createResponse.Id);
         comment.Content.ShouldBe("Comment for retrieval test");
@@ -124,11 +116,9 @@ public class CommentTests
     [Fact]
     public async Task GetCommentAsync_NotFound_ThrowsException()
     {
-        // Arrange
         var client = CreateClient();
         var nonExistentId = Guid.NewGuid().ToString();
 
-        // Act & Assert
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetCommentAsync(nonExistentId));
 
@@ -138,14 +128,12 @@ public class CommentTests
     [Fact]
     public async Task GetCommentListAsync_ReturnsList()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Create multiple comments
         await client.CreateCommentAsync(new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
@@ -161,7 +149,6 @@ public class CommentTests
             Content = "Second comment"
         });
 
-        // Act
         var result = await client.GetCommentListAsync(new CommentListRequest
         {
             ObjectType = "TRACE",
@@ -170,7 +157,6 @@ public class CommentTests
             Limit = 50
         });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         (result.Data.Length >= 2).ShouldBeTrue();
@@ -179,7 +165,6 @@ public class CommentTests
     [Fact]
     public async Task GetCommentListAsync_FiltersByObjectType()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -194,7 +179,6 @@ public class CommentTests
             Content = "Trace comment for filter test"
         });
 
-        // Act
         var result = await client.GetCommentListAsync(new CommentListRequest
         {
             ObjectType = "TRACE",
@@ -203,7 +187,6 @@ public class CommentTests
             Limit = 50
         });
 
-        // Assert
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.ShouldAllBe(c => c.ObjectType == CommentObjectType.Trace);
@@ -212,7 +195,6 @@ public class CommentTests
     [Fact]
     public async Task CreateCommentAsync_WithAuthorUserId()
     {
-        // Arrange
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
@@ -229,10 +211,8 @@ public class CommentTests
             AuthorUserId = authorId
         };
 
-        // Act
         var response = await client.CreateCommentAsync(request);
 
-        // Assert
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
     }
