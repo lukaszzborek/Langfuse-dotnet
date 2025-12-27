@@ -314,4 +314,73 @@ public class ObservationTests
         observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
         observation.UpdatedAt.ShouldBeGreaterThan(beforeTest);
     }
+
+    [Fact]
+    public async Task SkippedSpan_IsNotExportedToLangfuse()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var (traceId, skippedSpanId) = traceHelper.CreateTraceWithSkippedSpan();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var exists = await traceHelper.ObservationExistsAsync(skippedSpanId);
+
+        exists.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task SkippedGeneration_IsNotExportedToLangfuse()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var (traceId, skippedGenerationId) = traceHelper.CreateTraceWithSkippedGeneration();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var exists = await traceHelper.ObservationExistsAsync(skippedGenerationId);
+
+        exists.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task MixedObservations_OnlyActiveObservationsAreExported()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var (traceId, activeSpanId, skippedSpanId) = traceHelper.CreateTraceWithMixedObservations();
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(activeSpanId);
+
+        var activeExists = await traceHelper.ObservationExistsAsync(activeSpanId);
+        var skippedExists = await traceHelper.ObservationExistsAsync(skippedSpanId);
+
+        activeExists.ShouldBeTrue();
+        skippedExists.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task SkippedSpan_TraceStillExistsWithoutSkippedObservation()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var (traceId, skippedSpanId) = traceHelper.CreateTraceWithSkippedSpan();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var trace = await client.GetTraceAsync(traceId);
+
+        trace.ShouldNotBeNull();
+        trace.Id.ShouldBe(traceId);
+
+        var observations = await client.GetObservationListAsync(new ObservationListRequest
+        {
+            TraceId = traceId,
+            Page = 1,
+            Limit = 50
+        });
+
+        observations.Data.ShouldNotContain(o => o.Id == skippedSpanId);
+    }
 }

@@ -342,6 +342,140 @@ public class TraceTestHelper
             EventId = eventId
         };
     }
+
+    /// <summary>
+    ///     Creates a trace with a skipped span observation using OpenTelemetry.
+    ///     The span will be marked as skipped and should not be exported to Langfuse.
+    /// </summary>
+    public (string TraceId, string SkippedSpanId) CreateTraceWithSkippedSpan(
+        string? traceName = null,
+        string? spanName = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        using var span = trace.CreateSpan(spanName ?? "skipped-span", input: "span input");
+        span.SetOutput("span output");
+        span.Skip();
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
+        var spanId = span.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Span activity not created");
+
+        span.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return (traceId, spanId);
+    }
+
+    /// <summary>
+    ///     Creates a trace with a skipped generation observation using OpenTelemetry.
+    ///     The generation will be marked as skipped and should not be exported to Langfuse.
+    /// </summary>
+    public (string TraceId, string SkippedGenerationId) CreateTraceWithSkippedGeneration(
+        string? traceName = null,
+        string? generationName = null,
+        string? model = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        using var generation = trace.CreateGeneration(
+            generationName ?? "skipped-generation",
+            model ?? "gpt-4",
+            input: "prompt text");
+
+        generation.SetOutput("model response");
+        generation.Skip();
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
+        var generationId = generation.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Generation activity not created");
+
+        generation.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return (traceId, generationId);
+    }
+
+    /// <summary>
+    ///     Creates a trace with both skipped and non-skipped observations.
+    /// </summary>
+    public (string TraceId, string ActiveSpanId, string SkippedSpanId) CreateTraceWithMixedObservations(
+        string? traceName = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        using var activeSpan = trace.CreateSpan("active-span", input: "active span input");
+        activeSpan.SetOutput("active span output");
+
+        using var skippedSpan = trace.CreateSpan("skipped-span", input: "skipped span input");
+        skippedSpan.SetOutput("skipped span output");
+        skippedSpan.Skip();
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
+        var activeSpanId = activeSpan.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Active span activity not created");
+        var skippedSpanId = skippedSpan.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Skipped span activity not created");
+
+        skippedSpan.Dispose();
+        activeSpan.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return (traceId, activeSpanId, skippedSpanId);
+    }
+
+    /// <summary>
+    ///     Checks if an observation exists in Langfuse (returns true if found, false if 404)
+    /// </summary>
+    public async Task<bool> ObservationExistsAsync(string observationId, TimeSpan? timeout = null,
+        CancellationToken cancellationToken = default)
+    {
+        timeout ??= TimeSpan.FromSeconds(10);
+        var stopwatch = Stopwatch.StartNew();
+
+        while (stopwatch.Elapsed < timeout)
+        {
+            try
+            {
+                var observation = await _client.GetObservationAsync(observationId, cancellationToken);
+                if (observation != null)
+                {
+                    return true;
+                }
+            }
+            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
+            {
+                // Not found, continue checking
+            }
+
+            await Task.Delay(500, cancellationToken);
+        }
+
+        return false;
+    }
 }
 
 /// <summary>
