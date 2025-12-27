@@ -264,4 +264,107 @@ public class ScoreConfigTests
         updated.Categories.Length.ShouldBe(4);
         updated.Categories.ShouldContain(c => c.Label == "Excellent");
     }
+
+    [Fact]
+    public async Task CreateScoreConfigAsync_Numeric_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var configName = $"cnc-{Guid.NewGuid():N}"[..20];
+        var description = "Comprehensive numeric score config for testing";
+        var minValue = 0.0;
+        var maxValue = 100.0;
+
+        var request = new CreateScoreConfigRequest
+        {
+            Name = configName,
+            DataType = ScoreDataType.Numeric,
+            Description = description,
+            MinValue = minValue,
+            MaxValue = maxValue
+        };
+
+        var config = await client.CreateScoreConfigAsync(request);
+
+        config.Id.ShouldNotBeNullOrEmpty();
+        config.Name.ShouldBe(configName);
+        config.DataType.ShouldBe(ScoreDataType.Numeric);
+        config.Description.ShouldBe(description);
+        config.MinValue.ShouldBe(minValue);
+        config.MaxValue.ShouldBe(maxValue);
+        config.IsArchived.ShouldBeFalse();
+        config.ProjectId.ShouldNotBeNullOrEmpty();
+        config.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        config.CreatedAt.ShouldBeLessThan(DateTimeOffset.UtcNow.AddMinutes(2));
+        config.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        config.UpdatedAt.ShouldBeLessThan(DateTimeOffset.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task CreateScoreConfigAsync_Categorical_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var configName = $"ccc-{Guid.NewGuid():N}"[..20];
+        var description = "Comprehensive categorical score config";
+        var categories = new[]
+        {
+            new ConfigCategory { Label = "Excellent", Value = 4 },
+            new ConfigCategory { Label = "Good", Value = 3 },
+            new ConfigCategory { Label = "Fair", Value = 2 },
+            new ConfigCategory { Label = "Poor", Value = 1 }
+        };
+
+        var request = new CreateScoreConfigRequest
+        {
+            Name = configName,
+            DataType = ScoreDataType.Categorical,
+            Description = description,
+            Categories = categories
+        };
+
+        var config = await client.CreateScoreConfigAsync(request);
+
+        config.Id.ShouldNotBeNullOrEmpty();
+        config.Name.ShouldBe(configName);
+        config.DataType.ShouldBe(ScoreDataType.Categorical);
+        config.Description.ShouldBe(description);
+        config.Categories.ShouldNotBeNull();
+        config.Categories.Length.ShouldBe(4);
+        config.Categories.ShouldContain(c => c.Label == "Excellent" && c.Value == 4);
+        config.Categories.ShouldContain(c => c.Label == "Good" && c.Value == 3);
+        config.Categories.ShouldContain(c => c.Label == "Fair" && c.Value == 2);
+        config.Categories.ShouldContain(c => c.Label == "Poor" && c.Value == 1);
+        config.ProjectId.ShouldNotBeNullOrEmpty();
+        config.IsArchived.ShouldBeFalse();
+        config.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        config.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+    }
+
+    [Fact]
+    public async Task GetScoreConfigAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var configName = $"gsc-{Guid.NewGuid():N}"[..20];
+        var description = "Score config for get validation";
+
+        var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
+        {
+            Name = configName,
+            DataType = ScoreDataType.Boolean,
+            Description = description
+        });
+
+        var config = await client.GetScoreConfigAsync(created.Id);
+
+        config.Id.ShouldBe(created.Id);
+        config.Name.ShouldBe(configName);
+        config.DataType.ShouldBe(ScoreDataType.Boolean);
+        config.Description.ShouldBe(description);
+        config.IsArchived.ShouldBeFalse();
+        config.ProjectId.ShouldNotBeNullOrEmpty();
+        config.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        config.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+    }
 }

@@ -136,4 +136,35 @@ public class SessionTests
         session.ShouldNotBeNull();
         session.Id.ShouldBe(sessionId);
     }
+
+    [Fact]
+    public async Task GetSessionAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var sessionId = $"comprehensive-session-{Guid.NewGuid():N}";
+        var userId = $"user-{Guid.NewGuid():N}";
+
+        var traceId1 = traceHelper.CreateTrace(name: "trace-1", sessionId: sessionId, userId: userId);
+        var traceId2 = traceHelper.CreateTrace(name: "trace-2", sessionId: sessionId, userId: userId);
+
+        await traceHelper.WaitForTraceAsync(traceId1);
+        await traceHelper.WaitForTraceAsync(traceId2);
+        await traceHelper.WaitForSessionAsync(sessionId);
+
+        var session = await client.GetSessionAsync(sessionId);
+
+        session.Id.ShouldBe(sessionId);
+        session.StartTime.ShouldBeGreaterThan(beforeTest);
+        session.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        if (session.UserId != null)
+        {
+            session.UserId.ShouldBe(userId);
+        }
+        if (session.Traces != null)
+        {
+            session.Traces.Length.ShouldBeGreaterThanOrEqualTo(2);
+        }
+    }
 }

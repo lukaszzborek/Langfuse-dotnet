@@ -327,4 +327,151 @@ public class ScoreTests
         result.Data.ShouldNotBeNull();
         result.Data.ShouldAllBe(s => s.Name == scoreName);
     }
+
+    [Fact]
+    public async Task CreateScoreAsync_NumericScore_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var scoreName = $"comprehensive-score-{Guid.NewGuid():N}"[..20];
+        var scoreValue = 0.85;
+        var comment = "Comprehensive test score comment";
+        var metadata = new { evaluator = "integration-test", confidence = 0.95 };
+
+        var request = new ScoreCreateRequest
+        {
+            TraceId = traceId,
+            Name = scoreName,
+            Value = scoreValue,
+            DataType = ScoreDataType.Numeric,
+            Comment = comment,
+            Metadata = metadata
+        };
+
+        var createdScore = await client.CreateScoreAsync(request);
+
+        createdScore.Id.ShouldNotBeNullOrEmpty();
+
+        var score = await traceHelper.WaitForScoreAsync(createdScore.Id);
+
+        score.Id.ShouldNotBeNullOrEmpty();
+        score.Id.ShouldBe(createdScore.Id);
+        score.TraceId.ShouldBe(traceId);
+        score.Name.ShouldBe(scoreName);
+        var actualValue = score.Value is JsonElement je ? je.GetDouble() : Convert.ToDouble(score.Value);
+        actualValue.ShouldBe(scoreValue, 0.01);
+        score.DataType.ShouldBe(ScoreDataType.Numeric);
+        score.Source.ShouldNotBeNull();
+        score.Comment.ShouldBe(comment);
+        score.Timestamp.ShouldBeGreaterThan(beforeTest);
+        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        score.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        score.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        score.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        score.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_CategoricalScore_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var scoreName = $"cat-score-{Guid.NewGuid():N}"[..20];
+        var categoryValue = "positive";
+
+        var request = new ScoreCreateRequest
+        {
+            TraceId = traceId,
+            Name = scoreName,
+            Value = categoryValue,
+            DataType = ScoreDataType.Categorical
+        };
+
+        var createdScore = await client.CreateScoreAsync(request);
+        var score = await traceHelper.WaitForScoreAsync(createdScore.Id);
+
+        score.Id.ShouldNotBeNullOrEmpty();
+        score.TraceId.ShouldBe(traceId);
+        score.Name.ShouldBe(scoreName);
+        score.StringValue.ShouldBe(categoryValue);
+        score.DataType.ShouldBe(ScoreDataType.Categorical);
+        score.Timestamp.ShouldBeGreaterThan(beforeTest);
+        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        score.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        score.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_WithObservation_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration();
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(generationId);
+
+        var scoreName = $"obs-score-{Guid.NewGuid():N}"[..20];
+
+        var request = new ScoreCreateRequest
+        {
+            TraceId = traceId,
+            ObservationId = generationId,
+            Name = scoreName,
+            Value = 0.9,
+            DataType = ScoreDataType.Numeric
+        };
+
+        var createdScore = await client.CreateScoreAsync(request);
+        var score = await traceHelper.WaitForScoreAsync(createdScore.Id);
+
+        score.Id.ShouldNotBeNullOrEmpty();
+        score.TraceId.ShouldBe(traceId);
+        score.ObservationId.ShouldBe(generationId);
+        score.Name.ShouldBe(scoreName);
+        score.Timestamp.ShouldBeGreaterThan(beforeTest);
+        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_WithoutObservation_ValidatesObservationIdIsNull()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var scoreName = $"no-obs-score-{Guid.NewGuid():N}"[..20];
+
+        var request = new ScoreCreateRequest
+        {
+            TraceId = traceId,
+            Name = scoreName,
+            Value = 0.75,
+            DataType = ScoreDataType.Numeric
+        };
+
+        var createdScore = await client.CreateScoreAsync(request);
+        var score = await traceHelper.WaitForScoreAsync(createdScore.Id);
+
+        score.Id.ShouldNotBeNullOrEmpty();
+        score.TraceId.ShouldBe(traceId);
+        score.ObservationId.ShouldBeNull();
+        score.Name.ShouldBe(scoreName);
+        score.Timestamp.ShouldBeGreaterThan(beforeTest);
+        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
 }

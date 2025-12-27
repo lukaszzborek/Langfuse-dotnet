@@ -293,4 +293,109 @@ public class DatasetRunItemTests
         page1.Data.ShouldNotBeNull();
         (page1.Data.Length <= 2).ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task CreateDataSetRunAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var (datasetName, itemId) = await CreateTestDatasetWithItemAsync(client);
+        var runName = $"comprehensive-run-{Guid.NewGuid():N}";
+        var runDescription = "Comprehensive test run for field validation";
+        var metadata = new { evaluator = "integration-test", version = "1.0" };
+
+        var traceId = traceHelper.CreateTrace("evaluation-trace-comprehensive");
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var request = new CreateDatasetRunItemRequest
+        {
+            DatasetItemId = itemId,
+            RunName = runName,
+            TraceId = traceId,
+            RunDescription = runDescription,
+            Metadata = metadata
+        };
+
+        var runItem = await client.CreateDataSetRunAsync(request);
+
+        runItem.Id.ShouldNotBeNullOrEmpty();
+        runItem.DatasetItemId.ShouldBe(itemId);
+        runItem.DatasetRunName.ShouldBe(runName);
+        runItem.DatasetRunId.ShouldNotBeNullOrEmpty();
+        runItem.TraceId.ShouldBe(traceId);
+        runItem.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        runItem.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        runItem.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        runItem.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task CreateDataSetRunAsync_WithObservation_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var (datasetName, itemId) = await CreateTestDatasetWithItemAsync(client);
+        var runName = $"obs-run-{Guid.NewGuid():N}";
+
+        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration();
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(generationId);
+
+        var request = new CreateDatasetRunItemRequest
+        {
+            DatasetItemId = itemId,
+            RunName = runName,
+            TraceId = traceId,
+            ObservationId = generationId
+        };
+
+        var runItem = await client.CreateDataSetRunAsync(request);
+
+        runItem.Id.ShouldNotBeNullOrEmpty();
+        runItem.DatasetItemId.ShouldBe(itemId);
+        runItem.DatasetRunName.ShouldBe(runName);
+        runItem.TraceId.ShouldBe(traceId);
+        runItem.ObservationId.ShouldBe(generationId);
+        runItem.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        runItem.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        runItem.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        runItem.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task CreateDataSetRunAsync_WithoutObservation_ValidatesObservationIdIsNull()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var (datasetName, itemId) = await CreateTestDatasetWithItemAsync(client);
+        var runName = $"no-obs-run-{Guid.NewGuid():N}";
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var request = new CreateDatasetRunItemRequest
+        {
+            DatasetItemId = itemId,
+            RunName = runName,
+            TraceId = traceId
+        };
+
+        var runItem = await client.CreateDataSetRunAsync(request);
+
+        runItem.Id.ShouldNotBeNullOrEmpty();
+        runItem.DatasetItemId.ShouldBe(itemId);
+        runItem.DatasetRunName.ShouldBe(runName);
+        runItem.TraceId.ShouldBe(traceId);
+        runItem.ObservationId.ShouldBeNull();
+        runItem.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        runItem.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        runItem.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        runItem.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
 }

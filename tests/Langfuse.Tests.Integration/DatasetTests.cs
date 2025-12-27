@@ -151,4 +151,66 @@ public class DatasetTests
         dataset2.Id.ShouldBe(dataset1.Id);
         dataset2.Description.ShouldBe("Updated description");
     }
+
+    [Fact]
+    public async Task CreateDatasetAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var datasetName = $"comprehensive-dataset-{Guid.NewGuid():N}";
+        var description = "Comprehensive test dataset for field validation";
+        var metadata = new { category = "integration-test", version = 1, nested = new { key = "value" } };
+
+        var request = new CreateDatasetRequest
+        {
+            Name = datasetName,
+            Description = description,
+            Metadata = metadata
+        };
+
+        var dataset = await client.CreateDatasetAsync(request);
+
+        dataset.Id.ShouldNotBeNullOrEmpty();
+        Guid.TryParse(dataset.Id, out var parsedId).ShouldBeTrue();
+        parsedId.ShouldNotBe(Guid.Empty);
+        dataset.Name.ShouldBe(datasetName);
+        dataset.Description.ShouldBe(description);
+        dataset.ProjectId.ShouldNotBeNullOrEmpty();
+        dataset.Metadata.ShouldNotBeNull();
+        dataset.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        dataset.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        dataset.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        dataset.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task GetDatasetAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var datasetName = $"get-comprehensive-dataset-{Guid.NewGuid():N}";
+        var description = "Dataset for get field validation";
+        var metadata = new { source = "integration-test" };
+
+        await client.CreateDatasetAsync(new CreateDatasetRequest
+        {
+            Name = datasetName,
+            Description = description,
+            Metadata = metadata
+        });
+
+        var dataset = await client.GetDatasetAsync(datasetName);
+
+        dataset.Id.ShouldNotBeNullOrEmpty();
+        Guid.TryParse(dataset.Id, out var parsedId).ShouldBeTrue();
+        parsedId.ShouldNotBe(Guid.Empty);
+        dataset.Name.ShouldBe(datasetName);
+        dataset.Description.ShouldBe(description);
+        dataset.ProjectId.ShouldNotBeNullOrEmpty();
+        dataset.Metadata.ShouldNotBeNull();
+        dataset.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        dataset.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        dataset.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        dataset.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
 }

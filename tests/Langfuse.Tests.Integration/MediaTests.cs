@@ -225,4 +225,64 @@ public class MediaTests
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task GetMediaUploadUrlAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var fileContent = Encoding.UTF8.GetBytes("Comprehensive test content for media upload validation");
+        var sha256Hash = ComputeSha256Hash(fileContent);
+
+        var request = new MediaUploadRequest
+        {
+            TraceId = traceId,
+            ContentType = "text/plain",
+            ContentLength = fileContent.Length,
+            Sha256Hash = sha256Hash,
+            Field = "input"
+        };
+
+        var response = await client.GetMediaUploadUrlAsync(request);
+
+        response.MediaId.ShouldNotBeNullOrEmpty();
+        response.UploadUrl.ShouldNotBeNullOrEmpty();
+        Uri.TryCreate(response.UploadUrl, UriKind.Absolute, out var parsedUri).ShouldBeTrue();
+        parsedUri.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task GetMediaUploadUrlAsync_WithObservation_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration();
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(generationId);
+
+        var fileContent = Encoding.UTF8.GetBytes("Observation media content for comprehensive validation");
+        var sha256Hash = ComputeSha256Hash(fileContent);
+
+        var request = new MediaUploadRequest
+        {
+            TraceId = traceId,
+            ObservationId = generationId,
+            ContentType = "application/json",
+            ContentLength = fileContent.Length,
+            Sha256Hash = sha256Hash,
+            Field = "output"
+        };
+
+        var response = await client.GetMediaUploadUrlAsync(request);
+
+        response.MediaId.ShouldNotBeNullOrEmpty();
+        response.UploadUrl.ShouldNotBeNullOrEmpty();
+        Uri.TryCreate(response.UploadUrl, UriKind.Absolute, out var parsedUri).ShouldBeTrue();
+        parsedUri.ShouldNotBeNull();
+    }
 }

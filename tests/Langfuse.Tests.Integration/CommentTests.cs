@@ -216,4 +216,78 @@ public class CommentTests
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task CreateCommentAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var content = "Comprehensive test comment with detailed feedback about the trace";
+        var authorId = $"author-{Guid.NewGuid():N}";
+
+        var request = new CreateCommentRequest
+        {
+            ProjectId = _fixture.ProjectId,
+            ObjectType = CommentObjectType.Trace,
+            ObjectId = traceId,
+            Content = content,
+            AuthorUserId = authorId
+        };
+
+        var response = await client.CreateCommentAsync(request);
+
+        response.Id.ShouldNotBeNullOrEmpty();
+
+        var comment = await client.GetCommentAsync(response.Id);
+
+        comment.Id.ShouldBe(response.Id);
+        comment.ProjectId.ShouldBe(_fixture.ProjectId);
+        comment.ObjectType.ShouldBe(CommentObjectType.Trace);
+        comment.ObjectId.ShouldBe(traceId);
+        comment.Content.ShouldBe(content);
+        comment.AuthorUserId.ShouldBe(authorId);
+        comment.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        comment.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        comment.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        comment.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task GetCommentAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(spanId);
+
+        var content = "Observation comment for field validation";
+
+        var createResponse = await client.CreateCommentAsync(new CreateCommentRequest
+        {
+            ProjectId = _fixture.ProjectId,
+            ObjectType = CommentObjectType.Observation,
+            ObjectId = spanId,
+            Content = content
+        });
+
+        var comment = await client.GetCommentAsync(createResponse.Id);
+
+        comment.Id.ShouldBe(createResponse.Id);
+        comment.ProjectId.ShouldBe(_fixture.ProjectId);
+        comment.ObjectType.ShouldBe(CommentObjectType.Observation);
+        comment.ObjectId.ShouldBe(spanId);
+        comment.Content.ShouldBe(content);
+        comment.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        comment.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        comment.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        comment.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
 }

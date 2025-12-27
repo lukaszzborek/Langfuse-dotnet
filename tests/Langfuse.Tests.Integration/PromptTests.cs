@@ -258,4 +258,106 @@ public class PromptTests
         result.Data.Length.ShouldBe(1);
         result.Data[0].Name.ShouldBe(uniqueName);
     }
+
+    [Fact]
+    public async Task CreatePromptAsync_TextPrompt_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var promptName = $"comprehensive-prompt-{Guid.NewGuid():N}";
+        var promptContent = "Hello {{name}}, welcome to {{platform}}! Your query is: {{query}}";
+        var config = new { temperature = 0.7, model = "gpt-4", maxTokens = 1000 };
+
+        var request = new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = promptContent,
+            Config = config,
+            Labels = ["production", "active"],
+            Tags = ["integration-test", "comprehensive"]
+        };
+
+        var prompt = await client.CreatePromptAsync(request);
+
+        prompt.ShouldBeOfType<TextPrompt>();
+        var textPrompt = (TextPrompt)prompt;
+        prompt.Name.ShouldBe(promptName);
+        prompt.Version.ShouldBe(1);
+        prompt.Type.ShouldBe("text");
+        textPrompt.PromptText.ShouldBe(promptContent);
+        prompt.Config.ShouldNotBeNull();
+        prompt.Labels.ShouldNotBeNull();
+        prompt.Labels.Count.ShouldBe(2);
+        prompt.Labels.ShouldContain("production");
+        prompt.Labels.ShouldContain("active");
+        prompt.Tags.ShouldNotBeNull();
+        prompt.Tags.Count.ShouldBe(2);
+        prompt.Tags.ShouldContain("integration-test");
+        prompt.Tags.ShouldContain("comprehensive");
+    }
+
+    [Fact]
+    public async Task CreatePromptAsync_ChatPrompt_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var promptName = $"comprehensive-chat-{Guid.NewGuid():N}";
+        var messages = new[]
+        {
+            new ChatMessage { Role = "system", Content = "You are a helpful assistant specialized in {{domain}}." },
+            new ChatMessage { Role = "user", Content = "{{user_query}}" }
+        };
+        var config = new { temperature = 0.5, model = "gpt-4-turbo" };
+
+        var request = new CreateChatPromptRequest
+        {
+            Name = promptName,
+            Prompt = messages,
+            Config = config,
+            Labels = ["development"],
+            Tags = ["chat", "integration-test"]
+        };
+
+        var prompt = await client.CreatePromptAsync(request);
+
+        prompt.ShouldBeOfType<ChatPrompt>();
+        var chatPrompt = (ChatPrompt)prompt;
+        prompt.Name.ShouldBe(promptName);
+        prompt.Version.ShouldBe(1);
+        prompt.Type.ShouldBe("chat");
+        chatPrompt.PromptMessages.ShouldNotBeNull();
+        chatPrompt.PromptMessages.Count.ShouldBe(2);
+        prompt.Config.ShouldNotBeNull();
+        prompt.Labels.ShouldContain("development");
+        prompt.Tags.ShouldContain("chat");
+        prompt.Tags.ShouldContain("integration-test");
+    }
+
+    [Fact]
+    public async Task GetPromptAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var promptName = $"get-comprehensive-{Guid.NewGuid():N}";
+        var promptContent = "Test prompt for get validation with {{placeholder}}";
+        var config = new { temperature = 0.8 };
+
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = promptContent,
+            Config = config,
+            Labels = ["test"],
+            Tags = ["validation"]
+        });
+
+        var prompt = await client.GetPromptAsync(promptName);
+
+        prompt.ShouldBeOfType<TextPrompt>();
+        var textPrompt = (TextPrompt)prompt;
+        prompt.Name.ShouldBe(promptName);
+        prompt.Version.ShouldBe(1);
+        prompt.Type.ShouldBe("text");
+        textPrompt.PromptText.ShouldBe(promptContent);
+        prompt.Config.ShouldNotBeNull();
+        prompt.Labels.ShouldContain("test");
+        prompt.Tags.ShouldContain("validation");
+    }
 }

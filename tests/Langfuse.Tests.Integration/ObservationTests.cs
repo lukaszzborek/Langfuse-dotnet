@@ -220,4 +220,98 @@ public class ObservationTests
         observations.Data.ShouldNotBeNull();
         observations.Data.ShouldContain(o => o.Name == uniqueName);
     }
+
+    [Fact]
+    public async Task GetObservationAsync_Span_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var spanName = $"span-comprehensive-{Guid.NewGuid():N}";
+
+        var (traceId, spanId) = traceHelper.CreateTraceWithSpan(spanName: spanName);
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(spanId);
+
+        var observation = await client.GetObservationAsync(spanId);
+
+        observation.Id.ShouldNotBeNullOrEmpty();
+        observation.Id.ShouldBe(spanId);
+        observation.Type.ShouldBe("SPAN");
+        observation.Name.ShouldBe(spanName);
+        observation.TraceId.ShouldNotBeNullOrEmpty();
+        observation.TraceId.ShouldBe(traceId);
+        observation.StartTime.ShouldNotBeNull();
+        observation.StartTime.Value.ShouldBeGreaterThan(beforeTest);
+        observation.StartTime.Value.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.EndTime.ShouldNotBeNull();
+        observation.EndTime.Value.ShouldBeGreaterThanOrEqualTo(observation.StartTime.Value);
+        observation.Input.ShouldNotBeNull();
+        observation.Output.ShouldNotBeNull();
+        observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        observation.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+    }
+
+    [Fact]
+    public async Task GetObservationAsync_Generation_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var generationName = $"gen-comprehensive-{Guid.NewGuid():N}";
+        var modelName = "gpt-4-turbo";
+
+        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration(
+            generationName: generationName,
+            model: modelName
+        );
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(generationId);
+
+        var observation = await client.GetObservationAsync(generationId);
+
+        observation.Id.ShouldNotBeNullOrEmpty();
+        observation.Id.ShouldBe(generationId);
+        observation.Type.ShouldBe("GENERATION");
+        observation.Name.ShouldBe(generationName);
+        observation.TraceId.ShouldNotBeNullOrEmpty();
+        observation.TraceId.ShouldBe(traceId);
+        observation.Model.ShouldBe(modelName);
+        observation.StartTime.ShouldNotBeNull();
+        observation.StartTime.Value.ShouldBeGreaterThan(beforeTest);
+        observation.StartTime.Value.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.Input.ShouldNotBeNull();
+        observation.Output.ShouldNotBeNull();
+        observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        observation.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+    }
+
+    [Fact]
+    public async Task GetObservationAsync_Event_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var eventName = $"event-comprehensive-{Guid.NewGuid():N}";
+
+        var (traceId, eventId) = traceHelper.CreateTraceWithEvent(eventName: eventName);
+        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForObservationAsync(eventId);
+
+        var observation = await client.GetObservationAsync(eventId);
+
+        observation.Id.ShouldNotBeNullOrEmpty();
+        observation.Id.ShouldBe(eventId);
+        observation.Type.ShouldBe("EVENT");
+        observation.Name.ShouldBe(eventName);
+        observation.TraceId.ShouldNotBeNullOrEmpty();
+        observation.TraceId.ShouldBe(traceId);
+        observation.StartTime.ShouldNotBeNull();
+        observation.StartTime.Value.ShouldBeGreaterThan(beforeTest);
+        observation.StartTime.Value.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.Input.ShouldNotBeNull();
+        observation.Output.ShouldNotBeNull();
+        observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        observation.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+    }
 }

@@ -176,4 +176,66 @@ public class ModelTests
         result.Data.ShouldNotBeNull();
         result.Data.ShouldContain(m => m.IsLangfuseManaged);
     }
+
+    [Fact]
+    public async Task CreateModelAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var modelName = $"comprehensive-model-{Guid.NewGuid():N}";
+        var matchPattern = $"(?i)^{modelName}$";
+        var inputPrice = 0.00001m;
+        var outputPrice = 0.00002m;
+        var startDate = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var request = new CreateModelRequest
+        {
+            ModelName = modelName,
+            MatchPattern = matchPattern,
+            InputPrice = inputPrice,
+            OutputPrice = outputPrice,
+            Unit = ModelUsageUnit.Tokens,
+            StartDate = startDate
+        };
+
+        var model = await client.CreateModelAsync(request);
+
+        model.Id.ShouldNotBeNullOrEmpty();
+        model.ModelName.ShouldBe(modelName);
+        model.MatchPattern.ShouldBe(matchPattern);
+        model.InputPrice.ShouldBe(inputPrice);
+        model.OutputPrice.ShouldBe(outputPrice);
+        model.Unit.ShouldBe(ModelUsageUnit.Tokens);
+        model.StartDate.ShouldNotBeNull();
+        model.StartDate.Value.Date.ShouldBe(startDate.Date);
+        model.IsLangfuseManaged.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task GetModelAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var modelName = $"get-comprehensive-model-{Guid.NewGuid():N}";
+        var matchPattern = $"(?i)^{modelName}$";
+        var inputPrice = 0.005m;
+        var outputPrice = 0.01m;
+
+        var created = await client.CreateModelAsync(new CreateModelRequest
+        {
+            ModelName = modelName,
+            MatchPattern = matchPattern,
+            InputPrice = inputPrice,
+            OutputPrice = outputPrice,
+            Unit = ModelUsageUnit.Tokens
+        });
+
+        var model = await client.GetModelAsync(created.Id);
+
+        model.Id.ShouldBe(created.Id);
+        model.ModelName.ShouldBe(modelName);
+        model.MatchPattern.ShouldBe(matchPattern);
+        model.InputPrice.ShouldBe(inputPrice);
+        model.OutputPrice.ShouldBe(outputPrice);
+        model.Unit.ShouldBe(ModelUsageUnit.Tokens);
+        model.IsLangfuseManaged.ShouldBeFalse();
+    }
 }

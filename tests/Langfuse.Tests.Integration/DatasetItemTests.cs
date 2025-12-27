@@ -183,4 +183,71 @@ public class DatasetItemTests
 
         exception.StatusCode.ShouldBe(404);
     }
+
+    [Fact]
+    public async Task CreateDatasetItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var datasetName = await CreateTestDatasetAsync(client);
+        var inputData = new { query = "What is the capital of France?", context = "European geography" };
+        var expectedOutputData = new { answer = "Paris", confidence = 0.99 };
+        var metadata = new { category = "geography", difficulty = "easy", source = "integration-test" };
+
+        var request = new CreateDatasetItemRequest
+        {
+            DatasetName = datasetName,
+            Input = inputData,
+            ExpectedOutput = expectedOutputData,
+            Metadata = metadata,
+            Status = DatasetStatus.Active
+        };
+
+        var item = await client.CreateDatasetItemAsync(request);
+
+        item.Id.ShouldNotBeNullOrEmpty();
+        item.DatasetName.ShouldBe(datasetName);
+        item.DatasetId.ShouldNotBeNullOrEmpty();
+        item.Input.ShouldNotBeNull();
+        item.ExpectedOutput.ShouldNotBeNull();
+        item.Status.ShouldBe(DatasetStatus.Active);
+        item.Metadata.ShouldNotBeNull();
+        item.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        item.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        item.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        item.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+
+    [Fact]
+    public async Task GetDatasetItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var datasetName = await CreateTestDatasetAsync(client);
+        var inputData = new { prompt = "Test input for get validation" };
+        var expectedOutputData = new { response = "Expected output" };
+        var metadata = new { testType = "comprehensive" };
+
+        var created = await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
+        {
+            DatasetName = datasetName,
+            Input = inputData,
+            ExpectedOutput = expectedOutputData,
+            Metadata = metadata
+        });
+
+        var item = await client.GetDatasetItemAsync(created.Id);
+
+        item.Id.ShouldBe(created.Id);
+        item.DatasetName.ShouldBe(datasetName);
+        item.DatasetId.ShouldNotBeNullOrEmpty();
+        item.Input.ShouldNotBeNull();
+        item.ExpectedOutput.ShouldNotBeNull();
+        item.Status.ShouldBe(DatasetStatus.Active);
+        item.Metadata.ShouldNotBeNull();
+        item.CreatedAt.ShouldBeGreaterThan(beforeTest);
+        item.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        item.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        item.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
 }

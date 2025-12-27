@@ -225,4 +225,48 @@ public class TraceTests
         result.Data.ShouldNotBeNull();
         result.Data.ShouldContain(t => t.SessionId == sessionId);
     }
+
+    [Fact]
+    public async Task GetTraceAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var traceName = $"comprehensive-test-{Guid.NewGuid():N}";
+        var userId = $"user-{Guid.NewGuid():N}";
+        var sessionId = $"session-{Guid.NewGuid():N}";
+        var tags = new[] { $"tag-{Guid.NewGuid():N}", "integration-test" };
+        var inputData = new { prompt = "test prompt", context = "test context" };
+        var outputData = new { response = "test response", confidence = 0.95 };
+        var metadata = new { source = "integration-test", version = "1.0" };
+
+        var traceId = traceHelper.CreateTrace(
+            name: traceName,
+            sessionId: sessionId,
+            userId: userId,
+            tags: tags,
+            input: inputData,
+            output: outputData,
+            metadata: metadata
+        );
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var trace = await client.GetTraceAsync(traceId);
+
+        trace.Id.ShouldNotBeNullOrEmpty();
+        trace.Id.ShouldBe(traceId);
+        trace.Name.ShouldBe(traceName);
+        trace.UserId.ShouldBe(userId);
+        trace.SessionId.ShouldBe(sessionId);
+        trace.Tags.ShouldNotBeNull();
+        trace.Tags.Length.ShouldBe(2);
+        trace.Tags.ShouldContain(tags[0]);
+        trace.Tags.ShouldContain("integration-test");
+        trace.Input.ShouldNotBeNull();
+        trace.Output.ShouldNotBeNull();
+        trace.Timestamp.ShouldBeGreaterThan(beforeTest);
+        trace.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        trace.Observations.ShouldNotBeNull();
+        trace.Scores.ShouldNotBeNull();
+    }
 }
