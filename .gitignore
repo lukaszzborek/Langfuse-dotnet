@@ -401,3 +401,6 @@ FodyWeavers.xsd
 .idea/*
 appsettings.Development.json
 .aider*
+
+# OpenAPI split files (generated)
+openapi-split/

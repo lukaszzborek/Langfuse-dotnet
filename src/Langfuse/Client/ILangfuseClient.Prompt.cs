@@ -50,4 +50,24 @@ public partial interface ILangfuseClient
     /// <remarks>Allows updating labels and metadata for existing prompt versions without creating new versions</remarks>
     Task<PromptModel> UpdatePromptVersionAsync(string promptName, int version, UpdatePromptVersionRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Delete prompt versions. If neither version nor label is specified, all versions of the prompt are deleted.
+    /// </summary>
+    /// <param name="promptName">The name of the prompt to delete</param>
+    /// <param name="version">Optional version to filter deletion. If specified, deletes only this specific version.</param>
+    /// <param name="label">Optional label to filter deletion. If specified, deletes all prompt versions that have this label.</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>A task representing the asynchronous operation</returns>
+    /// <exception cref="LangfuseApiException">Thrown when the prompt is not found or deletion fails</exception>
+    /// <remarks>
+    ///     <para>Deletion behavior:</para>
+    ///     <list type="bullet">
+    ///         <item>If neither version nor label is specified, all versions are deleted</item>
+    ///         <item>If version is specified, only that specific version is deleted</item>
+    ///         <item>If label is specified, all versions with that label are deleted</item>
+    ///     </list>
+    /// </remarks>
+    Task DeletePromptAsync(string promptName, int? version = null, string? label = null,
+        CancellationToken cancellationToken = default);
 }

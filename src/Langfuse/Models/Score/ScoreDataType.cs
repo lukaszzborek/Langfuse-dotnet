@@ -22,5 +22,10 @@ public enum ScoreDataType
     /// <summary>
     ///     Categorical
     /// </summary>
-    Categorical
+    Categorical,
+
+    /// <summary>
+    ///     Correction - used for correction scores that override other scores
+    /// </summary>
+    Correction
 }

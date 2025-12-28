@@ -80,4 +80,11 @@ public class Model
     /// </summary>
     [JsonPropertyName("prices")]
     public ModelPrices? Prices { get; set; }
+
+    /// <summary>
+    ///     Pricing tiers for the model. Enables tiered pricing based on usage thresholds.
+    ///     When using tiered pricing, the flat price fields (inputPrice, outputPrice, totalPrice) are ignored.
+    /// </summary>
+    [JsonPropertyName("pricingTiers")]
+    public List<PricingTier>? PricingTiers { get; set; }
 }

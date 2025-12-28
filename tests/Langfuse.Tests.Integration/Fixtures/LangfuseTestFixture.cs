@@ -193,7 +193,6 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithNetworkAliases("minio")
             .WithUsername(MinioUser)
             .WithPassword(MinioPassword)
-            //.WithCommand("server", "--address", ":9000", "--console-address", ":9001", $"/data/{MinioBucket}")
             .Build();
 
         // Start all infrastructure containers in parallel
