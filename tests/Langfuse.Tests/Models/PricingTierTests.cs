@@ -21,18 +21,20 @@ public class PricingTierTests
         // Arrange
         var condition = new PricingTierCondition
         {
-            UsageKeyRegex = "input.*",
+            UsageDetailPattern = "^input",
             Operator = PricingTierOperator.Gte,
-            Value = 128000
+            Value = 128000,
+            CaseSensitive = false
         };
 
         // Act
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
         // Assert
-        json.ShouldContain("\"usageKeyRegex\":\"input.*\"");
+        json.ShouldContain("\"usageDetailPattern\":\"^input\"");
         json.ShouldContain("\"operator\":\"gte\"");
         json.ShouldContain("\"value\":128000");
+        json.ShouldContain("\"caseSensitive\":false");
     }
 
     [Fact]
@@ -41,9 +43,10 @@ public class PricingTierTests
         // Arrange
         var json = """
                    {
-                     "usageKeyRegex": "output.*",
+                     "usageDetailPattern": "^output",
                      "operator": "gt",
-                     "value": 50000
+                     "value": 50000,
+                     "caseSensitive": true
                    }
                    """;
 
@@ -52,9 +55,10 @@ public class PricingTierTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.UsageKeyRegex.ShouldBe("output.*");
+        result.UsageDetailPattern.ShouldBe("^output");
         result.Operator.ShouldBe(PricingTierOperator.Gt);
         result.Value.ShouldBe(50000);
+        result.CaseSensitive.ShouldBeTrue();
     }
 
     #endregion
@@ -107,9 +111,10 @@ public class PricingTierTests
             [
                 new PricingTierCondition
                 {
-                    UsageKeyRegex = "input.*",
+                    UsageDetailPattern = "^input",
                     Operator = PricingTierOperator.Gte,
-                    Value = 128000
+                    Value = 128000,
+                    CaseSensitive = false
                 }
             ],
             Prices = new Dictionary<string, double>
@@ -125,9 +130,10 @@ public class PricingTierTests
         // Assert
         json.ShouldContain("\"isDefault\":false");
         json.ShouldContain("\"priority\":1");
-        json.ShouldContain("\"usageKeyRegex\":\"input.*\"");
+        json.ShouldContain("\"usageDetailPattern\":\"^input\"");
         json.ShouldContain("\"operator\":\"gte\"");
         json.ShouldContain("\"value\":128000");
+        json.ShouldContain("\"caseSensitive\":false");
     }
 
     [Fact]
@@ -142,14 +148,16 @@ public class PricingTierTests
                      "priority": 2,
                      "conditions": [
                        {
-                         "usageKeyRegex": "input_tokens",
+                         "usageDetailPattern": "^input_tokens$",
                          "operator": "gt",
-                         "value": 200000
+                         "value": 200000,
+                         "caseSensitive": false
                        },
                        {
-                         "usageKeyRegex": "output_tokens",
+                         "usageDetailPattern": "^output_tokens$",
                          "operator": "gt",
-                         "value": 50000
+                         "value": 50000,
+                         "caseSensitive": false
                        }
                      ],
                      "prices": {
@@ -170,9 +178,10 @@ public class PricingTierTests
         result.IsDefault.ShouldBeFalse();
         result.Priority.ShouldBe(2);
         result.Conditions.Count.ShouldBe(2);
-        result.Conditions[0].UsageKeyRegex.ShouldBe("input_tokens");
+        result.Conditions[0].UsageDetailPattern.ShouldBe("^input_tokens$");
         result.Conditions[0].Operator.ShouldBe(PricingTierOperator.Gt);
-        result.Conditions[1].UsageKeyRegex.ShouldBe("output_tokens");
+        result.Conditions[0].CaseSensitive.ShouldBeFalse();
+        result.Conditions[1].UsageDetailPattern.ShouldBe("^output_tokens$");
         result.Prices.Count.ShouldBe(3);
         result.Prices["input"].ShouldBe(0.000005);
         result.Prices["output"].ShouldBe(0.00002);
@@ -196,9 +205,10 @@ public class PricingTierTests
             [
                 new PricingTierCondition
                 {
-                    UsageKeyRegex = "input.*",
+                    UsageDetailPattern = "^input",
                     Operator = PricingTierOperator.Gte,
-                    Value = 100000
+                    Value = 100000,
+                    CaseSensitive = false
                 }
             ],
             Prices = new Dictionary<string, double>
@@ -278,9 +288,10 @@ public class PricingTierTests
                          "priority": 1,
                          "conditions": [
                            {
-                             "usageKeyRegex": "input.*",
+                             "usageDetailPattern": "^input",
                              "operator": "gte",
-                             "value": 128000
+                             "value": 128000,
+                             "caseSensitive": false
                            }
                          ],
                          "prices": {

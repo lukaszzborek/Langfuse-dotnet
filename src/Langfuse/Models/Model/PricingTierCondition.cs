@@ -20,12 +20,13 @@ public class PricingTierCondition
     /// <summary>
     ///     Regex pattern to match against usage detail keys.
     ///     Values from all matching keys are summed for comparison.
+    ///     The pattern is case-insensitive by default.
     /// </summary>
     /// <example>
-    ///     "input.*" matches "input_tokens", "input_cached", etc.
+    ///     "^input" matches "input", "input_tokens", "input_cached", etc.
     /// </example>
-    [JsonPropertyName("usageKeyRegex")]
-    public string UsageKeyRegex { get; set; } = string.Empty;
+    [JsonPropertyName("usageDetailPattern")]
+    public string UsageDetailPattern { get; set; } = string.Empty;
 
     /// <summary>
     ///     Comparison operator for evaluating the condition.
@@ -38,4 +39,11 @@ public class PricingTierCondition
     /// </summary>
     [JsonPropertyName("value")]
     public double Value { get; set; }
+
+    /// <summary>
+    ///     Whether the regex pattern matching is case-sensitive.
+    ///     Default is false (case-insensitive matching).
+    /// </summary>
+    [JsonPropertyName("caseSensitive")]
+    public bool CaseSensitive { get; set; }
 }
