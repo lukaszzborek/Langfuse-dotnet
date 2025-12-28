@@ -109,4 +109,17 @@ internal partial class LangfuseClient
         return await DeleteWithBodyAsync<MembershipDeletionResponse>(endpoint, request,
             "Delete Project Membership", cancellationToken);
     }
+
+    /// <summary>
+    ///     Get all API keys for the organization associated with the API key.
+    ///     Requires organization-scoped API key.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of organization API keys</returns>
+    public async Task<OrganizationApiKeysResponse> GetOrganizationApiKeysAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string endpoint = "/api/public/organizations/apiKeys";
+        return await GetAsync<OrganizationApiKeysResponse>(endpoint, "Get Organization API Keys", cancellationToken);
+    }
 }

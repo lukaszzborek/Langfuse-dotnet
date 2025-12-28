@@ -615,8 +615,6 @@ public class OtelObservationTests : IDisposable
             .ShouldBe(LangfuseAttributes.ObservationTypeGeneration);
     }
 
-    #region Skip Functionality Tests
-
     [Fact]
     public void Skip_ClearsRecordedFlag()
     {
@@ -752,6 +750,4 @@ public class OtelObservationTests : IDisposable
 
         span.IsSkipped.ShouldBeTrue();
     }
-
-    #endregion
 }

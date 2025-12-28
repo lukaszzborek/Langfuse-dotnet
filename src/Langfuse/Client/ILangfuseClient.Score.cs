@@ -33,10 +33,11 @@ public partial interface ILangfuseClient
     /// </summary>
     /// <param name="request">Score creation parameters including name, value, trace/observation ID, and optional metadata</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The created score with assigned ID and timestamps</returns>
+    /// <returns>Response containing the ID of the created score</returns>
     /// <exception cref="LangfuseApiException">Thrown when score creation fails</exception>
     /// <remarks>Scores can be numeric, categorical, or boolean values used for evaluation and analysis</remarks>
-    Task<ScoreModel> CreateScoreAsync(ScoreCreateRequest request, CancellationToken cancellationToken = default);
+    Task<CreateScoreResponse> CreateScoreAsync(ScoreCreateRequest request,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Deletes a score by its ID

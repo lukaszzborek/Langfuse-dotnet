@@ -27,7 +27,7 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
-    public async Task<ScoreModel> CreateScoreAsync(ScoreCreateRequest request,
+    public async Task<CreateScoreResponse> CreateScoreAsync(ScoreCreateRequest request,
         CancellationToken cancellationToken = default)
     {
         if (request == null)
@@ -54,7 +54,7 @@ internal partial class LangfuseClient
         }
 
         const string endpoint = "/api/public/scores";
-        return await PostAsync<ScoreModel>(endpoint, request, "Create Score", cancellationToken);
+        return await PostAsync<CreateScoreResponse>(endpoint, request, "Create Score", cancellationToken);
     }
 
     /// <inheritdoc />

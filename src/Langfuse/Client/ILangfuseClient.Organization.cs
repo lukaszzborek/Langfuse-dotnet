@@ -57,4 +57,36 @@ public partial interface ILangfuseClient
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
     /// <remarks>Requires organization-scoped API key for access</remarks>
     Task<OrganizationProjectsResponse> GetOrganizationProjectsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes a membership from the organization associated with the API key
+    /// </summary>
+    /// <param name="request">Membership deletion request containing user ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Deletion confirmation with user ID and message</returns>
+    /// <exception cref="LangfuseApiException">Thrown when membership deletion fails</exception>
+    /// <remarks>Requires organization-scoped API key for access</remarks>
+    Task<MembershipDeletionResponse> DeleteOrganizationMembershipAsync(DeleteMembershipRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes a membership from a specific project within the organization
+    /// </summary>
+    /// <param name="projectId">The unique identifier of the project</param>
+    /// <param name="request">Membership deletion request containing user ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Deletion confirmation with user ID and message</returns>
+    /// <exception cref="LangfuseApiException">Thrown when the project is not found or membership deletion fails</exception>
+    /// <remarks>Requires organization-scoped API key for access. The user must be a member of the organization.</remarks>
+    Task<MembershipDeletionResponse> DeleteProjectMembershipAsync(string projectId, DeleteMembershipRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Retrieves all API keys for the organization associated with the API key
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of organization API keys with metadata</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    /// <remarks>Requires organization-scoped API key for access. Secret keys are masked for security.</remarks>
+    Task<OrganizationApiKeysResponse> GetOrganizationApiKeysAsync(CancellationToken cancellationToken = default);
 }
