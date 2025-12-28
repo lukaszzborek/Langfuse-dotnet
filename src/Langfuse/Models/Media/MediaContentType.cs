@@ -50,6 +50,16 @@ public enum MediaContentType
     ImageBmp,
 
     /// <summary>
+    ///     AVIF image format
+    /// </summary>
+    ImageAvif,
+
+    /// <summary>
+    ///     HEIC image format
+    /// </summary>
+    ImageHeic,
+
+    /// <summary>
     ///     MPEG audio format
     /// </summary>
     AudioMpeg,
@@ -90,6 +100,16 @@ public enum MediaContentType
     AudioFlac,
 
     /// <summary>
+    ///     Opus audio format
+    /// </summary>
+    AudioOpus,
+
+    /// <summary>
+    ///     WebM audio format
+    /// </summary>
+    AudioWebm,
+
+    /// <summary>
     ///     MP4 video format
     /// </summary>
     VideoMp4,
@@ -98,6 +118,31 @@ public enum MediaContentType
     ///     WebM video format
     /// </summary>
     VideoWebm,
+
+    /// <summary>
+    ///     OGG video format
+    /// </summary>
+    VideoOgg,
+
+    /// <summary>
+    ///     MPEG video format
+    /// </summary>
+    VideoMpeg,
+
+    /// <summary>
+    ///     QuickTime video format
+    /// </summary>
+    VideoQuicktime,
+
+    /// <summary>
+    ///     AVI video format
+    /// </summary>
+    VideoXMsvideo,
+
+    /// <summary>
+    ///     Matroska video format (MKV)
+    /// </summary>
+    VideoXMatroska,
 
     /// <summary>
     ///     Plain text format
@@ -120,6 +165,31 @@ public enum MediaContentType
     TextCsv,
 
     /// <summary>
+    ///     Markdown text format
+    /// </summary>
+    TextMarkdown,
+
+    /// <summary>
+    ///     Python source code format
+    /// </summary>
+    TextXPython,
+
+    /// <summary>
+    ///     JavaScript source code format
+    /// </summary>
+    ApplicationJavascript,
+
+    /// <summary>
+    ///     TypeScript source code format
+    /// </summary>
+    TextXTypescript,
+
+    /// <summary>
+    ///     YAML data format
+    /// </summary>
+    ApplicationXYaml,
+
+    /// <summary>
     ///     PDF document format
     /// </summary>
     ApplicationPdf,
@@ -130,9 +200,14 @@ public enum MediaContentType
     ApplicationMsword,
 
     /// <summary>
-    ///     Microsoft Excel document format
+    ///     Microsoft Excel document format (xls)
     /// </summary>
     ApplicationVndMsExcel,
+
+    /// <summary>
+    ///     Microsoft Excel document format (xlsx)
+    /// </summary>
+    ApplicationVndOpenxmlformatsOfficedocumentSpreadsheetmlSheet,
 
     /// <summary>
     ///     ZIP archive format

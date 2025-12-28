@@ -11,5 +11,5 @@ public class ModelPrice
     ///     The price amount in USD for this usage type.
     /// </summary>
     [JsonPropertyName("price")]
-    public decimal Price { get; set; }
+    public double Price { get; set; }
 }

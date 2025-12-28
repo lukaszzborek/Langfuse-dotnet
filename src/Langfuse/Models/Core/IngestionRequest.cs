@@ -12,4 +12,10 @@ public class IngestionRequest
     /// </summary>
     [JsonPropertyName("batch")]
     public object[] Batch { get; set; } = [];
+
+    /// <summary>
+    ///     Optional metadata field used by Langfuse SDKs for debugging.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
 }

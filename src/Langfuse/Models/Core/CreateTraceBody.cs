@@ -59,7 +59,7 @@ public class CreateTraceBody
     /// <summary>
     ///     The version of the trace type. Used to understand how changes to the trace type affect metrics. Useful in debugging
     /// </summary>
-    [JsonPropertyName("Version")]
+    [JsonPropertyName("version")]
     public string? Version { get; set; }
 
     /// <summary>
@@ -79,6 +79,12 @@ public class CreateTraceBody
     ///     You can make a trace public to share it via a public link. This allows others to view the trace without needing to
     ///     log in or be members of your Langfuse project
     /// </summary>
-    [JsonPropertyName("Public")]
-    public bool Public { get; set; }
+    [JsonPropertyName("public")]
+    public bool? Public { get; set; }
+
+    /// <summary>
+    ///     The environment of the trace. Used to differentiate between production, staging, development, etc.
+    /// </summary>
+    [JsonPropertyName("environment")]
+    public string? Environment { get; set; }
 }

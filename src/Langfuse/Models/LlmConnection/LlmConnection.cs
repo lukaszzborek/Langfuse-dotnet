@@ -57,6 +57,15 @@ public record LlmConnection
     public required string[] ExtraHeaderKeys { get; init; }
 
     /// <summary>
+    ///     Adapter-specific configuration.
+    ///     Required for Bedrock (e.g., {"region":"us-east-1"}),
+    ///     optional for VertexAI (e.g., {"location":"us-central1"}),
+    ///     not used by other adapters.
+    /// </summary>
+    [JsonPropertyName("config")]
+    public Dictionary<string, object>? Config { get; init; }
+
+    /// <summary>
     ///     Creation timestamp
     /// </summary>
     [JsonPropertyName("createdAt")]

@@ -66,4 +66,28 @@ internal partial class LangfuseClient
         var endpoint = $"/api/public/v2/prompts/{Uri.EscapeDataString(promptName)}/versions/{version}";
         return await PatchAsync<PromptModel>(endpoint, request, "Update Prompt Version", cancellationToken);
     }
+
+    public async Task DeletePromptAsync(string promptName, int? version = null, string? label = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(promptName))
+        {
+            throw new ArgumentException("Prompt name cannot be null or empty", nameof(promptName));
+        }
+
+        var queryParams = new List<string>();
+        if (version.HasValue)
+        {
+            queryParams.Add($"version={version.Value}");
+        }
+
+        if (!string.IsNullOrEmpty(label))
+        {
+            queryParams.Add($"label={Uri.EscapeDataString(label)}");
+        }
+
+        var query = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : "";
+        var endpoint = $"/api/public/v2/prompts/{Uri.EscapeDataString(promptName)}{query}";
+        await DeleteAsync(endpoint, "Delete Prompt", cancellationToken);
+    }
 }

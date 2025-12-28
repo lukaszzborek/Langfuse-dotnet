@@ -20,14 +20,14 @@ public class IngestionErrorResponse
     public int Status { get; set; }
 
     /// <summary>
-    ///     Message
+    ///     Message describing the error
     /// </summary>
     [JsonPropertyName("message")]
-    public string Message { get; set; } = string.Empty;
+    public string? Message { get; set; }
 
     /// <summary>
-    ///     Error message
+    ///     Error details. Can be any JSON value.
     /// </summary>
     [JsonPropertyName("error")]
-    public string Error { get; set; } = string.Empty;
+    public object? Error { get; set; }
 }

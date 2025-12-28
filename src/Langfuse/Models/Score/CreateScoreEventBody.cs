@@ -60,8 +60,38 @@ public class CreateScoreEventBody
 
     /// <summary>
     ///     Optional: Score config id to ensure that the score follows a specific schema. Can be defined in the Langfuse UI or
-    ///     via API. When provided the score’s <see cref="DataType" /> is automatically set based on the config
+    ///     via API. When provided the score's <see cref="DataType" /> is automatically set based on the config
     /// </summary>
     [JsonPropertyName("configId")]
     public string? ConfigId { get; set; }
+
+    /// <summary>
+    ///     Optional: ID of the session this score belongs to. Used for session-level aggregated evaluations.
+    /// </summary>
+    [JsonPropertyName("sessionId")]
+    public string? SessionId { get; set; }
+
+    /// <summary>
+    ///     Optional: ID of the dataset run this score belongs to. Used when scoring dataset evaluations and experiments.
+    /// </summary>
+    [JsonPropertyName("datasetRunId")]
+    public string? DatasetRunId { get; set; }
+
+    /// <summary>
+    ///     Optional: Additional metadata associated with the score as a JSON object.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
+
+    /// <summary>
+    ///     Optional: The environment of the score (e.g., production, staging, development).
+    /// </summary>
+    [JsonPropertyName("environment")]
+    public string? Environment { get; set; }
+
+    /// <summary>
+    ///     Optional: ID of the annotation queue referenced by the score.
+    /// </summary>
+    [JsonPropertyName("queueId")]
+    public string? QueueId { get; set; }
 }

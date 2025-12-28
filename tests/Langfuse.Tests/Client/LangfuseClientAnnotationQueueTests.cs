@@ -32,7 +32,6 @@ public class LangfuseClientAnnotationQueueTests
     [Fact]
     public async Task CreateAnnotationQueueAsync_Success()
     {
-        // Arrange
         var request = new CreateAnnotationQueueRequest
         {
             Name = "Test Queue",
@@ -52,10 +51,8 @@ public class LangfuseClientAnnotationQueueTests
 
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
-        // Act
         var result = await _client.CreateAnnotationQueueAsync(request);
 
-        // Assert
         result.ShouldNotBeNull();
         result.Id.ShouldBe("queue-123");
         result.Name.ShouldBe("Test Queue");
@@ -64,7 +61,6 @@ public class LangfuseClientAnnotationQueueTests
         result.ScoreConfigIds[0].ShouldBe("score-1");
         result.ScoreConfigIds[1].ShouldBe("score-2");
 
-        // Verify correct endpoint and method
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
         requestUri.ShouldNotBeNull();

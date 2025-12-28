@@ -352,7 +352,7 @@ public class PromptTests
         });
 
         result.ShouldNotBeNull();
-        
+
         var prompt = await client.GetPromptAsync(promptName);
 
         prompt.ShouldBeOfType<TextPrompt>();
@@ -365,7 +365,7 @@ public class PromptTests
         prompt.Labels.ShouldContain("production");
         prompt.Tags.ShouldContain("validation");
     }
-    
+
     [Fact]
     public async Task GetPromptAsync_TestLabel()
     {
@@ -385,7 +385,7 @@ public class PromptTests
 
         var exception = await Should.ThrowAsync<LangfuseApiException>(() => client.GetPromptAsync(promptName));
         exception.StatusCode.ShouldBe(404);
-        
+
         var prompt = await client.GetPromptAsync(promptName, label: "test");
 
         prompt.ShouldBeOfType<TextPrompt>();
@@ -398,4 +398,167 @@ public class PromptTests
         prompt.Labels.ShouldContain("test");
         prompt.Tags.ShouldContain("validation");
     }
+
+    [Fact]
+    public async Task UpdatePromptVersionAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var promptName = $"update-validation-{Guid.NewGuid():N}";
+        var promptContent = "Test prompt for update validation";
+
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = promptContent,
+            Config = new { temperature = 0.7 },
+            Labels = ["draft"],
+            Tags = ["test"]
+        });
+
+        var updated = await client.UpdatePromptVersionAsync(promptName, 1, new UpdatePromptVersionRequest
+        {
+            NewLabels = ["production", "active"]
+        });
+
+        updated.ShouldNotBeNull();
+        updated.Name.ShouldBe(promptName);
+        updated.Version.ShouldBe(1);
+        updated.Type.ShouldBe("text");
+        updated.Config.ShouldNotBeNull();
+        updated.Labels.ShouldNotBeNull();
+        updated.Labels.ShouldContain("production");
+        updated.Labels.ShouldContain("active");
+        updated.Tags.ShouldNotBeNull();
+        updated.Tags.ShouldContain("test");
+    }
+
+    #region Delete Prompt Tests
+
+    [Fact]
+    public async Task DeletePromptAsync_DeletesAllVersions()
+    {
+        var client = CreateClient();
+        var promptName = $"delete-all-{Guid.NewGuid():N}";
+
+        // Create multiple versions
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = "Version 1 content"
+        });
+
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = "Version 2 content"
+        });
+
+        // Verify prompts exist
+        var promptsBeforeDelete = await client.GetPromptListAsync(new PromptListRequest
+        {
+            Name = promptName,
+            Page = 1,
+            Limit = 10
+        });
+        promptsBeforeDelete.Data.Length.ShouldBeGreaterThan(0);
+
+        // Delete all versions
+        await client.DeletePromptAsync(promptName);
+
+        // Verify prompts are deleted
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetPromptAsync(promptName));
+        exception.StatusCode.ShouldBe(404);
+    }
+
+    [Fact]
+    public async Task DeletePromptAsync_ByVersion_DeletesSpecificVersion()
+    {
+        var client = CreateClient();
+        var promptName = $"delete-version-{Guid.NewGuid():N}";
+
+        // Create two versions
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = "Version 1 content"
+        });
+
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = "Version 2 content"
+        });
+
+        // Delete version 1
+        await client.DeletePromptAsync(promptName, 1);
+
+        // Version 1 should be deleted
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetPromptAsync(promptName, 1));
+        exception.StatusCode.ShouldBe(404);
+
+        // Version 2 should still exist
+        var v2Prompt = await client.GetPromptAsync(promptName, 2);
+        v2Prompt.ShouldNotBeNull();
+        v2Prompt.Version.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task DeletePromptAsync_ByLabel_DeletesVersionWithLabel()
+    {
+        var client = CreateClient();
+        var promptName = $"delete-label-{Guid.NewGuid():N}";
+
+        // Create a prompt with a specific label
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = "Production version",
+            Labels = ["production"]
+        });
+
+        // Create another version with different label
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = "Staging version",
+            Labels = ["staging"]
+        });
+
+        // Delete by label
+        await client.DeletePromptAsync(promptName, label: "production");
+
+        // Production version should be deleted
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetPromptAsync(promptName, label: "production"));
+        exception.StatusCode.ShouldBe(404);
+
+        // Staging version should still exist
+        var stagingPrompt = await client.GetPromptAsync(promptName, label: "staging");
+        stagingPrompt.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task DeletePromptAsync_NonExistent_ThrowsException()
+    {
+        var client = CreateClient();
+        var nonExistentName = $"non-existent-{Guid.NewGuid():N}";
+
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.DeletePromptAsync(nonExistentName));
+
+        exception.StatusCode.ShouldBe(404);
+    }
+
+    [Fact]
+    public async Task DeletePromptAsync_EmptyName_ThrowsArgumentException()
+    {
+        var client = CreateClient();
+
+        await Should.ThrowAsync<ArgumentException>(async () =>
+            await client.DeletePromptAsync(string.Empty));
+    }
+
+    #endregion
 }

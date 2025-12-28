@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Models.Organization;
 
 namespace zborek.Langfuse.Models.Project;
 
@@ -20,6 +21,12 @@ public class ProjectModel
     /// </summary>
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    ///     The organization this project belongs to.
+    /// </summary>
+    [JsonPropertyName("organization")]
+    public Organization.Organization Organization { get; set; } = new();
 
     /// <summary>
     ///     Additional metadata associated with the project as a JSON object, containing custom properties and configuration.

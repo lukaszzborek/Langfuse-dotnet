@@ -14,8 +14,8 @@ public class ScoreConfigListRequest
     public int? Limit { get; set; }
 
     /// <summary>
-    ///     Number of items to skip for pagination
+    ///     Page number (1-based). Default is 1.
     /// </summary>
-    [JsonPropertyName("offset")]
-    public int? Offset { get; set; }
+    [JsonPropertyName("page")]
+    public int? Page { get; set; }
 }

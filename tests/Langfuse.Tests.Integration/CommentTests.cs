@@ -253,10 +253,8 @@ public class CommentTests
         comment.ObjectId.ShouldBe(traceId);
         comment.Content.ShouldBe(content);
         comment.AuthorUserId.ShouldBe(authorId);
-        comment.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        comment.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        comment.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        comment.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        comment.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        comment.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -287,9 +285,7 @@ public class CommentTests
         comment.ObjectType.ShouldBe(CommentObjectType.Observation);
         comment.ObjectId.ShouldBe(spanId);
         comment.Content.ShouldBe(content);
-        comment.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        comment.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        comment.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        comment.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        comment.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        comment.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 }

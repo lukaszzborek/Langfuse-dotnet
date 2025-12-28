@@ -30,82 +30,6 @@ public class LangfuseClientScoreTests
         _client = new LangfuseClient(httpClient, channel, config, logger);
     }
 
-    private class TestHttpMessageHandler : HttpMessageHandler
-    {
-        private readonly List<HttpRequestMessage> _requests = new();
-        private Exception? _exception;
-        private string? _lastResponseBody;
-        private HttpResponseMessage? _response;
-
-        public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
-
-        public void SetupResponse(HttpStatusCode statusCode, object responseBody)
-        {
-            var json = JsonSerializer.Serialize(responseBody, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            _lastResponseBody = json;
-            _response = new HttpResponseMessage(statusCode)
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
-        }
-
-        public void SetupResponse(HttpStatusCode statusCode, string responseBody)
-        {
-            _lastResponseBody = responseBody;
-            _response = new HttpResponseMessage(statusCode)
-            {
-                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
-            };
-        }
-
-        public void SetupException(Exception exception)
-        {
-            _exception = exception;
-        }
-
-        public async Task<string?> GetLastRequestBodyAsync()
-        {
-            if (LastRequest?.Content == null)
-            {
-                return null;
-            }
-
-            return await LastRequest.Content.ReadAsStringAsync();
-        }
-
-        public Task<string?> GetLastResponseBodyAsync()
-        {
-            return Task.FromResult(_lastResponseBody);
-        }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            _requests.Add(request);
-
-            if (_exception != null)
-            {
-                throw _exception;
-            }
-
-            if (_response != null)
-            {
-                _response.RequestMessage = request;
-                return Task.FromResult(_response);
-            }
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{}", Encoding.UTF8, "application/json")
-            });
-        }
-    }
-
-    #region UpdateScoreConfigAsync Tests
-
     [Fact]
     public async Task UpdateScoreConfigAsync_Success()
     {
@@ -124,7 +48,7 @@ public class LangfuseClientScoreTests
             Name = "Updated Config",
             Description = "Updated Description",
             IsArchived = true,
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-123"
@@ -166,7 +90,7 @@ public class LangfuseClientScoreTests
             Name = "Partially Updated",
             Description = "Original Description",
             IsArchived = false,
-            DataType = ScoreDataType.Categorical,
+            DataType = ScoreConfigDataType.Categorical,
             CreatedAt = DateTimeOffset.UtcNow.AddDays(-7),
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-456"
@@ -216,7 +140,7 @@ public class LangfuseClientScoreTests
                 new ConfigCategory { Label = "Good", Value = 1 },
                 new ConfigCategory { Label = "Bad", Value = 0 }
             },
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-789"
@@ -255,7 +179,7 @@ public class LangfuseClientScoreTests
         {
             Id = configId,
             Name = "Serialization Test",
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-test"
@@ -296,7 +220,7 @@ public class LangfuseClientScoreTests
             Name = "Deserialization Test",
             Description = "Some description",
             IsArchived = false,
-            DataType = ScoreDataType.Boolean,
+            DataType = ScoreConfigDataType.Boolean,
             MinValue = null,
             MaxValue = null,
             Categories = null,
@@ -316,7 +240,7 @@ public class LangfuseClientScoreTests
         result.Name.ShouldBe("Deserialization Test");
         result.Description.ShouldBe("Some description");
         result.IsArchived.ShouldBeFalse();
-        result.DataType.ShouldBe(ScoreDataType.Boolean);
+        result.DataType.ShouldBe(ScoreConfigDataType.Boolean);
         result.MinValue.ShouldBeNull();
         result.MaxValue.ShouldBeNull();
         result.Categories.ShouldBeNull();
@@ -390,10 +314,6 @@ public class LangfuseClientScoreTests
 
         exception.StatusCode.ShouldBe((int)HttpStatusCode.Unauthorized);
     }
-
-    #endregion
-
-    #region GetScoreListAsync with SessionId Tests
 
     [Fact]
     public async Task GetScoreListAsync_WithSessionId_IncludesInQueryString()
@@ -567,9 +487,252 @@ public class LangfuseClientScoreTests
         requestUri.ShouldNotContain("sessionId");
     }
 
-    #endregion
+    [Fact]
+    public async Task CreateScoreAsync_Success()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "quality",
+            Value = 0.95,
+            TraceId = "trace-123"
+        };
 
-    #region Model Serialization Tests
+        var expectedResponse = new CreateScoreResponse
+        {
+            Id = "score-456"
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.CreateScoreAsync(request);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("score-456");
+
+        // Verify correct endpoint and method
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
+        var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("/api/public/scores");
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_WithObservationId_Success()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "relevance",
+            Value = 1.0,
+            ObservationId = "observation-789"
+        };
+
+        var expectedResponse = new CreateScoreResponse
+        {
+            Id = "score-new"
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.CreateScoreAsync(request);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("score-new");
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_WithSessionId_Success()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "session-quality",
+            Value = 0.8,
+            SessionId = "session-123"
+        };
+
+        var expectedResponse = new CreateScoreResponse
+        {
+            Id = "score-session"
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.CreateScoreAsync(request);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("score-session");
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_RequestSerialization()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "test-score",
+            Value = 0.75,
+            TraceId = "trace-abc",
+            Comment = "Test comment",
+            DataType = ScoreDataType.Numeric
+        };
+
+        var expectedResponse = new CreateScoreResponse
+        {
+            Id = "score-serialized"
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        await _client.CreateScoreAsync(request);
+
+        // Assert
+        var requestBody = await _httpHandler.GetLastRequestBodyAsync();
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"name\"");
+        requestBody.ShouldContain("\"test-score\"");
+        requestBody.ShouldContain("\"value\"");
+        requestBody.ShouldContain("0.75");
+        requestBody.ShouldContain("\"traceId\"");
+        requestBody.ShouldContain("\"trace-abc\"");
+        requestBody.ShouldContain("\"comment\"");
+        requestBody.ShouldContain("\"Test comment\"");
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_NullRequest_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        await Should.ThrowAsync<ArgumentNullException>(async () => await _client.CreateScoreAsync(null!));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_EmptyName_ThrowsArgumentException()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "",
+            Value = 1.0,
+            TraceId = "trace-123"
+        };
+
+        // Act & Assert
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.CreateScoreAsync(request));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_NullName_ThrowsArgumentException()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = null!,
+            Value = 1.0,
+            TraceId = "trace-123"
+        };
+
+        // Act & Assert
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.CreateScoreAsync(request));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_NullValue_ThrowsArgumentException()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "test",
+            Value = null,
+            TraceId = "trace-123"
+        };
+
+        // Act & Assert
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.CreateScoreAsync(request));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_NoTraceObservationOrSession_ThrowsArgumentException()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "test",
+            Value = 1.0,
+            TraceId = null,
+            ObservationId = null,
+            SessionId = null
+        };
+
+        // Act & Assert
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.CreateScoreAsync(request));
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_Unauthorized_ThrowsException()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "test",
+            Value = 1.0,
+            TraceId = "trace-123"
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await _client.CreateScoreAsync(request));
+
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_BadRequest_ThrowsException()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "test",
+            Value = 1.0,
+            TraceId = "trace-123"
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.BadRequest, "Bad Request");
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await _client.CreateScoreAsync(request));
+
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public void CreateScoreResponse_Deserialization()
+    {
+        // Arrange
+        var json = "{\"id\":\"score-xyz-123\"}";
+
+        // Act
+        var response = JsonSerializer.Deserialize<CreateScoreResponse>(json,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+        // Assert
+        response.ShouldNotBeNull();
+        response.Id.ShouldBe("score-xyz-123");
+    }
 
     [Fact]
     public void UpdateScoreConfigRequest_Serialization_AllFields()
@@ -654,5 +817,77 @@ public class LangfuseClientScoreTests
         json.ShouldContain("\"limit\":25");
     }
 
-    #endregion
+    private class TestHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly List<HttpRequestMessage> _requests = new();
+        private Exception? _exception;
+        private string? _lastResponseBody;
+        private HttpResponseMessage? _response;
+
+        public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
+
+        public void SetupResponse(HttpStatusCode statusCode, object responseBody)
+        {
+            var json = JsonSerializer.Serialize(responseBody, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            _lastResponseBody = json;
+            _response = new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+        }
+
+        public void SetupResponse(HttpStatusCode statusCode, string responseBody)
+        {
+            _lastResponseBody = responseBody;
+            _response = new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+            };
+        }
+
+        public void SetupException(Exception exception)
+        {
+            _exception = exception;
+        }
+
+        public async Task<string?> GetLastRequestBodyAsync()
+        {
+            if (LastRequest?.Content == null)
+            {
+                return null;
+            }
+
+            return await LastRequest.Content.ReadAsStringAsync();
+        }
+
+        public Task<string?> GetLastResponseBodyAsync()
+        {
+            return Task.FromResult(_lastResponseBody);
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            _requests.Add(request);
+
+            if (_exception != null)
+            {
+                throw _exception;
+            }
+
+            if (_response != null)
+            {
+                _response.RequestMessage = request;
+                return Task.FromResult(_response);
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{}", Encoding.UTF8, "application/json")
+            });
+        }
+    }
 }

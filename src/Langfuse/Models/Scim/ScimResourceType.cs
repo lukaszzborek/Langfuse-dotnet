@@ -26,5 +26,5 @@ public class ScimResourceType
     public List<ScimSchemaExtension> SchemaExtensions { get; set; } = new();
 
     [JsonPropertyName("meta")]
-    public ScimResourceMeta? Meta { get; set; }
+    public ScimResourceMeta Meta { get; set; } = new();
 }

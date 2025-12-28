@@ -14,11 +14,11 @@ public class ScimUser
     public string UserName { get; set; } = string.Empty;
 
     [JsonPropertyName("name")]
-    public ScimUserName? Name { get; set; }
+    public ScimUserName Name { get; set; } = new();
 
     [JsonPropertyName("emails")]
     public List<ScimUserEmail> Emails { get; set; } = new();
 
     [JsonPropertyName("meta")]
-    public ScimMeta? Meta { get; set; }
+    public ScimMeta Meta { get; set; } = new();
 }

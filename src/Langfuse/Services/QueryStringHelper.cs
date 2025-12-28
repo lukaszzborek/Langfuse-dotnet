@@ -8,6 +8,7 @@ using zborek.Langfuse.Models.Dataset;
 using zborek.Langfuse.Models.Metrics;
 using zborek.Langfuse.Models.Model;
 using zborek.Langfuse.Models.Observation;
+using zborek.Langfuse.Models.ObservationV2;
 using zborek.Langfuse.Models.Prompt;
 using zborek.Langfuse.Models.Score;
 using zborek.Langfuse.Models.Session;
@@ -126,8 +127,14 @@ internal static class QueryStringHelper
         AddParameter(parameters, "limit", request.Limit);
         AddParameter(parameters, "fromTimestamp", request.FromTimestamp?.ToString("O"));
         AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
-        AddParameter(parameters, "environment", request.Environment);
-        AddParameter(parameters, "userId", request.UserId);
+
+        if (request.Environment != null)
+        {
+            foreach (var env in request.Environment)
+            {
+                AddParameter(parameters, "environment", env);
+            }
+        }
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
@@ -361,7 +368,7 @@ internal static class QueryStringHelper
         var parameters = new List<string>();
 
         AddParameter(parameters, "limit", request.Limit);
-        AddParameter(parameters, "offset", request.Offset);
+        AddParameter(parameters, "page", request.Page);
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
@@ -403,6 +410,47 @@ internal static class QueryStringHelper
         AddParameter(parameters, "status", request.Status?.ToString().ToUpperInvariant());
         AddParameter(parameters, "page", request.Page);
         AddParameter(parameters, "limit", request.Limit);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from an observations V2 request
+    /// </summary>
+    /// <param name="request">The observations V2 request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(ObservationsV2Request? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "fields", request.Fields);
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "cursor", request.Cursor);
+        AddParameter(parameters, "parseIoAsJson", request.ParseIoAsJson);
+        AddParameter(parameters, "name", request.Name);
+        AddParameter(parameters, "userId", request.UserId);
+        AddParameter(parameters, "type", request.Type);
+        AddParameter(parameters, "traceId", request.TraceId);
+        AddParameter(parameters, "level", request.Level?.ToString().ToUpperInvariant());
+        AddParameter(parameters, "parentObservationId", request.ParentObservationId);
+        AddParameter(parameters, "fromStartTime", request.FromStartTime?.ToString("O"));
+        AddParameter(parameters, "toStartTime", request.ToStartTime?.ToString("O"));
+        AddParameter(parameters, "version", request.Version);
+        AddParameter(parameters, "filter", request.Filter);
+
+        // Handle environment array parameter
+        if (request.Environment is { Count: > 0 })
+        {
+            foreach (var env in request.Environment)
+            {
+                AddParameter(parameters, "environment", env);
+            }
+        }
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }

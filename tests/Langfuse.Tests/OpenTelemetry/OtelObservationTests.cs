@@ -161,7 +161,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetInputMessages_SetsPromptTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetInputMessages(
         [
@@ -183,7 +183,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetPrompt_SetsUserMessage()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetPrompt("What is the weather?");
 
@@ -199,7 +199,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetResponse_DoesNotThrow()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         var exception = Record.Exception(() =>
             generation.SetResponse(new GenAiResponse
@@ -217,7 +217,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetCompletion_SetsAssistantMessage()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetCompletion("Here is my response.");
 
@@ -233,7 +233,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetPromptReference_SetsPromptTags()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetPromptReference("my-prompt", 3);
 
@@ -247,7 +247,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_RecordCompletionStartTime_SetsTimestamp()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
         var startTime = new DateTimeOffset(2024, 6, 15, 10, 30, 0, TimeSpan.Zero);
 
         generation.RecordCompletionStartTime(startTime);
@@ -263,7 +263,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetTemperature_SetsTemperatureTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetTemperature(0.7);
 
@@ -276,7 +276,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetMaxTokens_SetsMaxTokensTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetMaxTokens(1000);
 
@@ -289,7 +289,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetTopP_SetsTopPTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetTopP(0.9);
 
@@ -302,7 +302,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetTopK_SetsTopKTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetTopK(50);
 
@@ -315,7 +315,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetFrequencyPenalty_SetsTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetFrequencyPenalty(0.5);
 
@@ -328,7 +328,7 @@ public class OtelObservationTests : IDisposable
     public void OtelGeneration_SetPresencePenalty_SetsTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.SetPresencePenalty(0.3);
 
@@ -386,7 +386,7 @@ public class OtelObservationTests : IDisposable
     public void OtelEmbedding_SetText_SetsObservationInput()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada");
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", "test-provider");
 
         embedding.SetText("Text to embed");
 
@@ -401,7 +401,7 @@ public class OtelObservationTests : IDisposable
     public void OtelEmbedding_SetResponse_SetsResponseTags()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada");
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", "test-provider");
 
         embedding.SetResponse(new GenAiResponse
         {
@@ -419,7 +419,7 @@ public class OtelObservationTests : IDisposable
     public void OtelEmbedding_SetDimensions_SetsDimensionsTag()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada");
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", "test-provider");
 
         embedding.SetDimensions(1536);
 
@@ -432,7 +432,7 @@ public class OtelObservationTests : IDisposable
     public void OtelEmbedding_InheritsBaseObservationMethods()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada");
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", "test-provider");
 
         var exception = Record.Exception(() =>
         {
@@ -597,7 +597,7 @@ public class OtelObservationTests : IDisposable
 
         retrievalSpan.SetOutput(new { documents = new[] { "doc1", "doc2", "doc3" } });
 
-        using var generation = trace.CreateGeneration("answer-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("answer-generation", "gpt-4", "test-provider");
         generation.SetPrompt("Based on the documents, explain machine learning basics.");
         generation.SetCompletion("Machine learning is a subset of AI...");
 
@@ -614,8 +614,6 @@ public class OtelObservationTests : IDisposable
         genActivity.GetTagItem(LangfuseAttributes.ObservationType)
             .ShouldBe(LangfuseAttributes.ObservationTypeGeneration);
     }
-
-    #region Skip Functionality Tests
 
     [Fact]
     public void Skip_ClearsRecordedFlag()
@@ -657,7 +655,7 @@ public class OtelObservationTests : IDisposable
     public void Skip_WorksOnGeneration()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-gen", "gpt-4");
+        using var generation = trace.CreateGeneration("test-gen", "gpt-4", "test-provider");
 
         generation.IsSkipped.ShouldBeFalse();
         generation.Skip();
@@ -698,7 +696,7 @@ public class OtelObservationTests : IDisposable
     public void Skip_WorksOnEmbedding()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var embedding = trace.CreateEmbedding("test-embed", "text-embedding-ada");
+        using var embedding = trace.CreateEmbedding("test-embed", "text-embedding-ada", "test-provider");
 
         embedding.IsSkipped.ShouldBeFalse();
         embedding.Skip();
@@ -752,6 +750,4 @@ public class OtelObservationTests : IDisposable
 
         span.IsSkipped.ShouldBeTrue();
     }
-
-    #endregion
 }

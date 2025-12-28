@@ -106,4 +106,23 @@ public class ScoreModel
     /// </summary>
     [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
+
+    /// <summary>
+    ///     ID of the dataset run this score belongs to. Used when scoring dataset evaluations and experiments.
+    /// </summary>
+    [JsonPropertyName("datasetRunId")]
+    public string? DatasetRunId { get; set; }
+
+    /// <summary>
+    ///     ID of the annotation queue referenced by the score. Indicates if score was initially created while processing
+    ///     annotation queue.
+    /// </summary>
+    [JsonPropertyName("queueId")]
+    public string? QueueId { get; set; }
+
+    /// <summary>
+    ///     The environment of the score (e.g., production, staging, development).
+    /// </summary>
+    [JsonPropertyName("environment")]
+    public string? Environment { get; set; }
 }

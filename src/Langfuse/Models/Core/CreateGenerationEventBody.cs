@@ -144,6 +144,19 @@ public class CreateGenerationEventBody : IDisposable
     public int? PromptVersion { get; set; }
 
     /// <summary>
+    ///     The environment of the observation. Used to differentiate between production, staging, development, etc.
+    /// </summary>
+    [JsonPropertyName("environment")]
+    public string? Environment { get; set; }
+
+    /// <summary>
+    ///     Detailed usage information by type. Keys are usage types (e.g., "input_tokens", "output_tokens"),
+    ///     values are counts. Used for fine-grained usage tracking and tiered pricing evaluation.
+    /// </summary>
+    [JsonPropertyName("usageDetails")]
+    public Dictionary<string, int>? UsageDetails { get; set; }
+
+    /// <summary>
     ///     Remove the last parent id from the trace
     /// </summary>
     public void Dispose()

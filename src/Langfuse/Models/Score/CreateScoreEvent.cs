@@ -33,6 +33,12 @@ public class CreateScoreEvent : IIngestionEvent
     public string Timestamp { get; set; }
 
     /// <summary>
+    ///     Optional metadata field used by Langfuse SDKs for debugging.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
+
+    /// <summary>
     /// </summary>
     /// <param name="body">Score event body</param>
     /// <param name="id">Score event id</param>

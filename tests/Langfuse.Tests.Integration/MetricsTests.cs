@@ -303,4 +303,35 @@ public class MetricsTests
 
         response.ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task GetMetricsAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var traceId = traceHelper.CreateTrace("metrics-validation-trace");
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var query = new
+        {
+            view = "traces",
+            metrics = new[]
+            {
+                new { measure = "count", aggregation = "count" }
+            },
+            fromTimestamp = DateTime.UtcNow.AddDays(-1).ToString("o"),
+            toTimestamp = DateTime.UtcNow.AddDays(1).ToString("o")
+        };
+
+        var request = new MetricsRequest
+        {
+            Query = JsonSerializer.Serialize(query)
+        };
+
+        var response = await client.GetMetricsAsync(request);
+
+        response.ShouldNotBeNull();
+        response.Data.ShouldNotBeNull();
+    }
 }

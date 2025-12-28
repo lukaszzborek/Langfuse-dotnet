@@ -98,6 +98,12 @@ public class CreateSpanEventBody : IDisposable
     public string? Id { get; set; }
 
     /// <summary>
+    ///     The environment of the observation. Used to differentiate between production, staging, development, etc.
+    /// </summary>
+    [JsonPropertyName("environment")]
+    public string? Environment { get; set; }
+
+    /// <summary>
     ///     Remove the last parent id from the trace
     /// </summary>
     public void Dispose()

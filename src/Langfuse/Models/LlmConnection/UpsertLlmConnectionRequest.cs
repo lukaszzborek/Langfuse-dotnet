@@ -49,4 +49,13 @@ public record UpsertLlmConnectionRequest
     /// </summary>
     [JsonPropertyName("extraHeaders")]
     public Dictionary<string, string>? ExtraHeaders { get; init; }
+
+    /// <summary>
+    ///     Adapter-specific configuration. Validation rules:
+    ///     - Bedrock: Required. Must be {"region": "aws-region"} (e.g., {"region":"us-east-1"})
+    ///     - VertexAI: Optional. If provided, must be {"location": "gcp-location"} (e.g., {"location":"us-central1"})
+    ///     - Other adapters: Not supported. Omit this field or set to null.
+    /// </summary>
+    [JsonPropertyName("config")]
+    public Dictionary<string, object>? Config { get; init; }
 }

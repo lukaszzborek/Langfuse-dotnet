@@ -49,6 +49,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
                     ForcePathStyle = false,
                     FileType = BlobStorageIntegrationFileType.Json,
                     ExportMode = BlobStorageExportMode.FullHistory,
+                    Prefix = "",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 }
@@ -131,6 +132,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
             ForcePathStyle = request.ForcePathStyle,
             FileType = request.FileType,
             ExportMode = request.ExportMode,
+            Prefix = "",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -226,6 +228,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
             ForcePathStyle = request.ForcePathStyle,
             FileType = request.FileType,
             ExportMode = request.ExportMode,
+            Prefix = "",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

@@ -298,7 +298,7 @@ public class OtelLangfuseTraceTests : IDisposable
     public void CreateGeneration_ReturnsOtelGeneration()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.ShouldNotBeNull();
         generation.ShouldBeOfType<OtelGeneration>();
@@ -320,7 +320,8 @@ public class OtelLangfuseTraceTests : IDisposable
     public void CreateGeneration_WithInput_SetsObservationInput()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4", input: new { prompt = "Hello" });
+        using var generation =
+            trace.CreateGeneration("test-generation", "gpt-4", "test-provider", new { prompt = "Hello" });
 
         var genActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-generation");
         genActivity.ShouldNotBeNull();
@@ -333,7 +334,7 @@ public class OtelLangfuseTraceTests : IDisposable
     public void CreateGeneration_SetsGenerationObservationType()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         var genActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-generation");
         genActivity.ShouldNotBeNull();
@@ -451,7 +452,7 @@ public class OtelLangfuseTraceTests : IDisposable
     public void CreateEmbedding_ReturnsOtelEmbedding()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada");
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", "test-provider");
 
         embedding.ShouldNotBeNull();
         embedding.ShouldBeOfType<OtelEmbedding>();
@@ -475,7 +476,8 @@ public class OtelLangfuseTraceTests : IDisposable
     public void CreateEmbedding_WithInput_SetsObservationInput()
     {
         using var trace = new OtelLangfuseTrace("test-trace");
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", input: "Text to embed");
+        using var embedding =
+            trace.CreateEmbedding("test-embedding", "text-embedding-ada", "test-provider", "Text to embed");
 
         var embedActivity = _capturedActivities.ToList().FirstOrDefault(a => a.DisplayName == "test-embedding");
         embedActivity.ShouldNotBeNull();

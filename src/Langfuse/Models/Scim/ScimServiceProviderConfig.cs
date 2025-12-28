@@ -8,7 +8,7 @@ public class ScimServiceProviderConfig
     public List<string> Schemas { get; set; } = new();
 
     [JsonPropertyName("documentationUri")]
-    public string? DocumentationUri { get; set; }
+    public string DocumentationUri { get; set; } = string.Empty;
 
     [JsonPropertyName("patch")]
     public ScimSupported Patch { get; set; } = new();
@@ -32,5 +32,5 @@ public class ScimServiceProviderConfig
     public List<ScimAuthenticationScheme> AuthenticationSchemes { get; set; } = new();
 
     [JsonPropertyName("meta")]
-    public ScimResourceMeta? Meta { get; set; }
+    public ScimResourceMeta Meta { get; set; } = new();
 }

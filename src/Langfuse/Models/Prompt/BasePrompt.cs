@@ -11,7 +11,7 @@ public abstract class BasePrompt
     ///     Name of the prompt template, used for identification and retrieval.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     ///     Version number of the prompt template. Enables versioning and A/B testing of different prompt iterations.
@@ -23,7 +23,7 @@ public abstract class BasePrompt
     ///     Configuration object containing model parameters, settings, and other metadata for the prompt.
     /// </summary>
     [JsonPropertyName("config")]
-    public object Config { get; set; }
+    public object? Config { get; set; }
 
     /// <summary>
     ///     Labels for categorizing and organizing prompts. Used for filtering and management in the UI.

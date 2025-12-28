@@ -77,4 +77,38 @@ public partial interface ILangfuseClient
     /// <exception cref="LangfuseApiException">Thrown when the annotation queue item is not found or deletion fails</exception>
     Task<DeleteAnnotationQueueItemResponse> DeleteItemAsync(string queueId, string itemId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Creates a new annotation queue
+    /// </summary>
+    /// <param name="request">Annotation queue creation request</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The created annotation queue</returns>
+    /// <exception cref="LangfuseApiException">Thrown when annotation queue creation fails</exception>
+    Task<AnnotationQueueModel> CreateAnnotationQueueAsync(CreateAnnotationQueueRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Creates an assignment for a user to an annotation queue
+    /// </summary>
+    /// <param name="queueId">Unique identifier of the annotation queue</param>
+    /// <param name="request">Assignment request containing user ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created assignment response</returns>
+    /// <exception cref="LangfuseApiException">Thrown when assignment creation fails</exception>
+    Task<CreateAnnotationQueueAssignmentResponse> CreateQueueAssignmentAsync(string queueId,
+        AnnotationQueueAssignmentRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes an assignment for a user from an annotation queue
+    /// </summary>
+    /// <param name="queueId">Unique identifier of the annotation queue</param>
+    /// <param name="request">Assignment request containing user ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Deletion response</returns>
+    /// <exception cref="LangfuseApiException">Thrown when assignment deletion fails</exception>
+    Task<DeleteAnnotationQueueAssignmentResponse> DeleteQueueAssignmentAsync(string queueId,
+        AnnotationQueueAssignmentRequest request,
+        CancellationToken cancellationToken = default);
 }

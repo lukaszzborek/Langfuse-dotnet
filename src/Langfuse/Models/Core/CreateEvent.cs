@@ -33,6 +33,12 @@ public class CreateEvent : IIngestionEvent
     public string Timestamp { get; set; }
 
     /// <summary>
+    ///     Optional metadata field used by Langfuse SDKs for debugging.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
+
+    /// <summary>
     ///     Creates a new event creation request with specified ID and timestamp.
     /// </summary>
     /// <param name="body">The event body containing event data, metadata, and hierarchy information</param>

@@ -6,6 +6,7 @@ using zborek.Langfuse;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.AnnotationQueue;
 using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Score;
 
 namespace Langfuse.Tests.Integration;
 
@@ -40,18 +41,114 @@ public class AnnotationQueueTests
         return new TraceTestHelper(client, _fixture);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    private async Task<string> CreateScoreConfigAsync(ILangfuseClient client)
+    {
+        var scoreConfig = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
+        {
+            Name = $"config-{Guid.NewGuid():N}"[..20],
+            DataType = ScoreConfigDataType.Numeric,
+            MinValue = 0,
+            MaxValue = 1
+        });
+        return scoreConfig.Id;
+    }
+
+    [Fact]
+    public async Task CreateAnnotationQueueAsync_CreatesQueue()
+    {
+        var client = CreateClient();
+        var queueName = $"test-queue-{Guid.NewGuid():N}"[..30];
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var request = new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = "Integration test queue",
+            ScoreConfigIds = [scoreConfigId]
+        };
+
+        var queue = await client.CreateAnnotationQueueAsync(request);
+
+        queue.ShouldNotBeNull();
+        queue.Id.ShouldNotBeNullOrEmpty();
+        queue.Name.ShouldBe(queueName);
+        queue.Description.ShouldBe("Integration test queue");
+    }
+
+    [Fact]
+    public async Task CreateAnnotationQueueAsync_WithScoreConfigs_CreatesQueue()
+    {
+        var client = CreateClient();
+        var queueName = $"test-queue-cfg-{Guid.NewGuid():N}"[..30];
+
+        // First create a score config to reference
+        var scoreConfig = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
+        {
+            Name = $"config-{Guid.NewGuid():N}"[..20],
+            DataType = ScoreConfigDataType.Numeric,
+            MinValue = 0,
+            MaxValue = 1
+        });
+
+        var request = new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = "Queue with score configs",
+            ScoreConfigIds = new[] { scoreConfig.Id }
+        };
+
+        var queue = await client.CreateAnnotationQueueAsync(request);
+
+        queue.ShouldNotBeNull();
+        queue.Id.ShouldNotBeNullOrEmpty();
+        queue.Name.ShouldBe(queueName);
+        queue.ScoreConfigIds.ShouldContain(scoreConfig.Id);
+    }
+
+    [Fact]
     public async Task ListQueuesAsync_ReturnsList()
     {
         var client = CreateClient();
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        // Create a queue first to ensure there's at least one
+        var queueName = $"list-test-{Guid.NewGuid():N}"[..30];
+        await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = "List test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
         var result = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 50 });
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
+        result.Data.Length.ShouldBeGreaterThanOrEqualTo(1);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
+    public async Task GetQueueAsync_ReturnsQueue()
+    {
+        var client = CreateClient();
+        var queueName = $"get-test-{Guid.NewGuid():N}"[..30];
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var createdQueue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = "Get test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var queue = await client.GetQueueAsync(createdQueue.Id);
+
+        queue.ShouldNotBeNull();
+        queue.Id.ShouldBe(createdQueue.Id);
+        queue.Name.ShouldBe(queueName);
+    }
+
+    [Fact]
     public async Task GetQueueAsync_NotFound_ThrowsException()
     {
         var client = CreateClient();
@@ -63,20 +160,20 @@ public class AnnotationQueueTests
         exception.StatusCode.ShouldBe(404);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
     public async Task CreateItemAsync_WithExistingQueue_AddsTraceToQueue()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
 
-        var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
-
-        if (queues.Data == null || queues.Data.Length == 0)
+        // Create a queue first
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
         {
-            throw new Exception("No queues found");
-        }
-
-        var queueId = queues.Data[0].Id;
+            Name = $"item-test-{Guid.NewGuid():N}"[..30],
+            Description = "Item test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
@@ -87,38 +184,38 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Trace
         };
 
-        var item = await client.CreateItemAsync(queueId, request);
+        var item = await client.CreateItemAsync(queue.Id, request);
 
         item.ShouldNotBeNull();
         item.ObjectId.ShouldBe(traceId);
         item.ObjectType.ShouldBe(AnnotationObjectType.Trace);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
     public async Task ListItemsAsync_WithExistingQueue_ReturnsItems()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
 
-        var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
-
-        if (queues.Data == null || queues.Data.Length == 0)
+        // Create a queue first
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
         {
-            throw new Exception("No queues found");
-        }
-
-        var queueId = queues.Data[0].Id;
+            Name = $"list-items-{Guid.NewGuid():N}"[..30],
+            Description = "List items test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        await client.CreateItemAsync(queueId, new CreateAnnotationQueueItemRequest
+        await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace
         });
 
-        var items = await client.ListItemsAsync(queueId, new AnnotationQueueItemListRequest { Page = 1, Limit = 50 });
+        var items = await client.ListItemsAsync(queue.Id, new AnnotationQueueItemListRequest { Page = 1, Limit = 50 });
 
         items.ShouldNotBeNull();
         items.Data.ShouldNotBeNull();
@@ -126,63 +223,63 @@ public class AnnotationQueueTests
         items.Data.ShouldContain(i => i.ObjectId == traceId && i.ObjectType == AnnotationObjectType.Trace);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
     public async Task GetItemAsync_WithExistingQueue_ReturnsItem()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
 
-        var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
-
-        if (queues.Data == null || queues.Data.Length == 0)
+        // Create a queue first
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
         {
-            throw new Exception("No queues found");
-        }
-
-        var queueId = queues.Data[0].Id;
+            Name = $"get-item-{Guid.NewGuid():N}"[..30],
+            Description = "Get item test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var createdItem = await client.CreateItemAsync(queueId, new CreateAnnotationQueueItemRequest
+        var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace
         });
 
-        var item = await client.GetItemAsync(queueId, createdItem.Id);
+        var item = await client.GetItemAsync(queue.Id, createdItem.Id);
 
         item.ShouldNotBeNull();
         item.Id.ShouldBe(createdItem.Id);
         item.ObjectId.ShouldBe(traceId);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
     public async Task UpdateItemAsync_WithExistingQueue_UpdatesStatus()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
 
-        var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
-
-        if (queues.Data.Length == 0)
+        // Create a queue first
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
         {
-            throw new Exception("No queues found");
-        }
-
-        var queueId = queues.Data[0].Id;
+            Name = $"update-item-{Guid.NewGuid():N}"[..30],
+            Description = "Update item test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var createdItem = await client.CreateItemAsync(queueId, new CreateAnnotationQueueItemRequest
+        var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace,
             Status = AnnotationQueueStatus.Pending
         });
 
-        var updatedItem = await client.UpdateItemAsync(queueId, createdItem.Id, new UpdateAnnotationQueueItemRequest
+        var updatedItem = await client.UpdateItemAsync(queue.Id, createdItem.Id, new UpdateAnnotationQueueItemRequest
         {
             Status = AnnotationQueueStatus.Completed
         });
@@ -191,74 +288,75 @@ public class AnnotationQueueTests
         updatedItem.Status.ShouldBe(AnnotationQueueStatus.Completed);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
     public async Task DeleteItemAsync_WithExistingQueue_RemovesItem()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
 
-        var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
-
-        if (queues.Data.Length == 0)
+        // Create a queue first
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
         {
-            throw new Exception("No queues found");
-        }
-
-        var queueId = queues.Data[0].Id;
+            Name = $"delete-item-{Guid.NewGuid():N}"[..30],
+            Description = "Delete item test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var createdItem = await client.CreateItemAsync(queueId, new CreateAnnotationQueueItemRequest
+        var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace
         });
 
-        var deleteResponse = await client.DeleteItemAsync(queueId, createdItem.Id);
+        var deleteResponse = await client.DeleteItemAsync(queue.Id, createdItem.Id);
 
         deleteResponse.ShouldNotBeNull();
 
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
-            await client.GetItemAsync(queueId, createdItem.Id));
+            await client.GetItemAsync(queue.Id, createdItem.Id));
         exception.StatusCode.ShouldBe(404);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
     public async Task GetItemAsync_NotFound_ThrowsException()
     {
         var client = CreateClient();
+        var scoreConfigId = await CreateScoreConfigAsync(client);
 
-        var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
-
-        if (queues.Data.Length == 0)
+        // Create a queue first
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
         {
-            throw new Exception("No queues found");
-        }
+            Name = $"not-found-{Guid.NewGuid():N}"[..30],
+            Description = "Not found test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
-        var queueId = queues.Data[0].Id;
         var nonExistentItemId = Guid.NewGuid().ToString();
 
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
-            await client.GetItemAsync(queueId, nonExistentItemId));
+            await client.GetItemAsync(queue.Id, nonExistentItemId));
 
         exception.StatusCode.ShouldBe(404);
     }
 
-    [Fact(Skip = "Queues are created via UI, so the list might be empty")]
+    [Fact]
     public async Task CreateItemAsync_WithObservation_AddsObservationToQueue()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
 
-        var queues = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 1 });
-
-        if (queues.Data.Length == 0)
+        // Create a queue first
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
         {
-            throw new Exception("No queues found");
-        }
-
-        var queueId = queues.Data[0].Id;
+            Name = $"obs-item-{Guid.NewGuid():N}"[..30],
+            Description = "Observation item test queue",
+            ScoreConfigIds = [scoreConfigId]
+        });
 
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
         await traceHelper.WaitForTraceAsync(traceId);
@@ -270,10 +368,180 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Observation
         };
 
-        var item = await client.CreateItemAsync(queueId, request);
+        var item = await client.CreateItemAsync(queue.Id, request);
 
         item.ShouldNotBeNull();
         item.ObjectId.ShouldBe(spanId);
         item.ObjectType.ShouldBe(AnnotationObjectType.Observation);
+    }
+
+    [Fact]
+    public async Task CreateAnnotationQueueAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var queueName = $"comprehensive-{Guid.NewGuid():N}"[..30];
+        var description = "Comprehensive test queue for field validation";
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var request = new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = description,
+            ScoreConfigIds = [scoreConfigId]
+        };
+
+        var queue = await client.CreateAnnotationQueueAsync(request);
+
+        queue.Id.ShouldNotBeNullOrEmpty();
+        queue.Name.ShouldBe(queueName);
+        queue.Description.ShouldBe(description);
+        queue.ScoreConfigIds.ShouldNotBeNull();
+        queue.ScoreConfigIds.Length.ShouldBe(1);
+        queue.ScoreConfigIds.ShouldContain(scoreConfigId);
+        queue.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        queue.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task GetQueueAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var queueName = $"get-comprehensive-{Guid.NewGuid():N}"[..30];
+        var description = "Queue for get field validation";
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var createdQueue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = description,
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var queue = await client.GetQueueAsync(createdQueue.Id);
+
+        queue.Id.ShouldBe(createdQueue.Id);
+        queue.Name.ShouldBe(queueName);
+        queue.Description.ShouldBe(description);
+        queue.ScoreConfigIds.ShouldNotBeNull();
+        queue.ScoreConfigIds.ShouldContain(scoreConfigId);
+        queue.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        queue.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task CreateItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = $"item-comprehensive-{Guid.NewGuid():N}"[..30],
+            Description = "Queue for item field validation",
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var request = new CreateAnnotationQueueItemRequest
+        {
+            ObjectId = traceId,
+            ObjectType = AnnotationObjectType.Trace,
+            Status = AnnotationQueueStatus.Pending
+        };
+
+        var item = await client.CreateItemAsync(queue.Id, request);
+
+        item.Id.ShouldNotBeNullOrEmpty();
+        item.QueueId.ShouldBe(queue.Id);
+        item.ObjectId.ShouldBe(traceId);
+        item.ObjectType.ShouldBe(AnnotationObjectType.Trace);
+        item.Status.ShouldBe(AnnotationQueueStatus.Pending);
+        item.CompletedAt.ShouldBeNull();
+        item.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        item.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task GetItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = $"get-item-comprehensive-{Guid.NewGuid():N}"[..30],
+            Description = "Queue for get item field validation",
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
+        {
+            ObjectId = traceId,
+            ObjectType = AnnotationObjectType.Trace,
+            Status = AnnotationQueueStatus.Pending
+        });
+
+        var item = await client.GetItemAsync(queue.Id, createdItem.Id);
+
+        item.Id.ShouldBe(createdItem.Id);
+        item.QueueId.ShouldBe(queue.Id);
+        item.ObjectId.ShouldBe(traceId);
+        item.ObjectType.ShouldBe(AnnotationObjectType.Trace);
+        item.Status.ShouldBe(AnnotationQueueStatus.Pending);
+        item.CompletedAt.ShouldBeNull();
+        item.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        item.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task UpdateItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = $"update-comprehensive-{Guid.NewGuid():N}"[..30],
+            Description = "Queue for update item field validation",
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
+        {
+            ObjectId = traceId,
+            ObjectType = AnnotationObjectType.Trace,
+            Status = AnnotationQueueStatus.Pending
+        });
+
+        var updatedItem = await client.UpdateItemAsync(queue.Id, createdItem.Id, new UpdateAnnotationQueueItemRequest
+        {
+            Status = AnnotationQueueStatus.Completed
+        });
+
+        updatedItem.Id.ShouldBe(createdItem.Id);
+        updatedItem.QueueId.ShouldBe(queue.Id);
+        updatedItem.ObjectId.ShouldBe(traceId);
+        updatedItem.ObjectType.ShouldBe(AnnotationObjectType.Trace);
+        updatedItem.Status.ShouldBe(AnnotationQueueStatus.Completed);
+        updatedItem.CompletedAt.ShouldNotBeNull();
+        updatedItem.CompletedAt.Value.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        updatedItem.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        updatedItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 }

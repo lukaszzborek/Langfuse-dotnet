@@ -8,7 +8,7 @@ internal class ChatMessageConverter : JsonConverter<ChatMessageWithPlaceholders>
 {
     private const string DefaultType = "chatmessage";
 
-    public override ChatMessageWithPlaceholders Read(ref Utf8JsonReader reader, Type typeToConvert,
+    public override ChatMessageWithPlaceholders? Read(ref Utf8JsonReader reader, Type typeToConvert,
         JsonSerializerOptions options)
     {
         using var doc = JsonDocument.ParseValue(ref reader);

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Langfuse.Tests.Integration.Fixtures;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.Score;
 using zborek.Langfuse.OpenTelemetry.Trace;
 
 namespace Langfuse.Tests.Integration.Helpers;
@@ -84,7 +85,7 @@ public class TraceTestHelper
     /// <summary>
     ///     Waits for a score to become available in the API with full data (handles eventual consistency)
     /// </summary>
-    public async Task<zborek.Langfuse.Models.Score.ScoreModel> WaitForScoreAsync(string scoreId, TimeSpan? timeout = null,
+    public async Task<ScoreModel> WaitForScoreAsync(string scoreId, TimeSpan? timeout = null,
         CancellationToken cancellationToken = default)
     {
         timeout ??= TimeSpan.FromSeconds(30);
@@ -157,8 +158,8 @@ public class TraceTestHelper
 
         using var trace = new OtelLangfuseTrace(
             traceName,
-            userId: userId,
-            sessionId: sessionId,
+            userId,
+            sessionId,
             tags: tags,
             input: input,
             isRoot: true);
@@ -169,7 +170,8 @@ public class TraceTestHelper
         }
 
         // Get the trace ID before disposing
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
 
         // Dispose trace (ends the activity)
         trace.Dispose();
@@ -193,8 +195,8 @@ public class TraceTestHelper
 
         using var trace = new OtelLangfuseTrace(
             actualTraceName,
-            userId: userId,
-            sessionId: sessionId,
+            userId,
+            sessionId,
             input: "test input",
             isRoot: true);
 
@@ -203,8 +205,10 @@ public class TraceTestHelper
         using var span = trace.CreateSpan(spanName ?? "test-span", input: "span input");
         span.SetOutput("span output");
 
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
-        var spanId = span.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Span activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var spanId = span.Activity?.SpanId.ToHexString() ??
+                     throw new InvalidOperationException("Span activity not created");
 
         // Dispose span first, then trace
         span.Dispose();
@@ -230,8 +234,8 @@ public class TraceTestHelper
 
         using var trace = new OtelLangfuseTrace(
             actualTraceName,
-            userId: userId,
-            sessionId: sessionId,
+            userId,
+            sessionId,
             input: "test input",
             isRoot: true);
 
@@ -240,12 +244,15 @@ public class TraceTestHelper
         using var generation = trace.CreateGeneration(
             generationName ?? "test-generation",
             model ?? "gpt-4",
-            input: "prompt text");
+            "test-provider",
+            "prompt text");
 
         generation.SetOutput("model response");
 
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
-        var generationId = generation.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Generation activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var generationId = generation.Activity?.SpanId.ToHexString() ??
+                           throw new InvalidOperationException("Generation activity not created");
 
         // Dispose generation first, then trace
         generation.Dispose();
@@ -270,8 +277,8 @@ public class TraceTestHelper
 
         using var trace = new OtelLangfuseTrace(
             actualTraceName,
-            userId: userId,
-            sessionId: sessionId,
+            userId,
+            sessionId,
             input: "test input",
             isRoot: true);
 
@@ -279,8 +286,10 @@ public class TraceTestHelper
 
         using var eventObs = trace.CreateEvent(eventName ?? "test-event", new { step = 1 }, new { status = "ok" });
 
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
-        var eventId = eventObs.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Event activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var eventId = eventObs.Activity?.SpanId.ToHexString() ??
+                      throw new InvalidOperationException("Event activity not created");
 
         // Dispose event first, then trace
         eventObs.Dispose();
@@ -304,8 +313,8 @@ public class TraceTestHelper
 
         using var trace = new OtelLangfuseTrace(
             actualTraceName,
-            userId: userId,
-            sessionId: sessionId,
+            userId,
+            sessionId,
             tags: new[] { "integration-test", "complex" },
             input: "complex test input",
             isRoot: true);
@@ -315,15 +324,19 @@ public class TraceTestHelper
         using var span = trace.CreateSpan("data-processing", input: "raw data");
         span.SetOutput("processed data");
 
-        using var generation = trace.CreateGeneration("llm-call", "gpt-4", input: "prompt");
+        using var generation = trace.CreateGeneration("llm-call", "gpt-4", "test-provider", "prompt");
         generation.SetOutput("response");
 
         using var eventObs = trace.CreateEvent("checkpoint", new { step = 1 }, new { status = "complete" });
 
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
-        var spanId = span.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Span activity not created");
-        var generationId = generation.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Generation activity not created");
-        var eventId = eventObs.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Event activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var spanId = span.Activity?.SpanId.ToHexString() ??
+                     throw new InvalidOperationException("Span activity not created");
+        var generationId = generation.Activity?.SpanId.ToHexString() ??
+                           throw new InvalidOperationException("Generation activity not created");
+        var eventId = eventObs.Activity?.SpanId.ToHexString() ??
+                      throw new InvalidOperationException("Event activity not created");
 
         // Dispose children first, then trace
         eventObs.Dispose();
@@ -364,8 +377,10 @@ public class TraceTestHelper
         span.SetOutput("span output");
         span.Skip();
 
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
-        var spanId = span.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Span activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var spanId = span.Activity?.SpanId.ToHexString() ??
+                     throw new InvalidOperationException("Span activity not created");
 
         span.Dispose();
         trace.Dispose();
@@ -396,13 +411,16 @@ public class TraceTestHelper
         using var generation = trace.CreateGeneration(
             generationName ?? "skipped-generation",
             model ?? "gpt-4",
-            input: "prompt text");
+            "test-provider",
+            "prompt text");
 
         generation.SetOutput("model response");
         generation.Skip();
 
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
-        var generationId = generation.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Generation activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var generationId = generation.Activity?.SpanId.ToHexString() ??
+                           throw new InvalidOperationException("Generation activity not created");
 
         generation.Dispose();
         trace.Dispose();
@@ -434,9 +452,12 @@ public class TraceTestHelper
         skippedSpan.SetOutput("skipped span output");
         skippedSpan.Skip();
 
-        var traceId = trace.TraceActivity?.TraceId.ToHexString() ?? throw new InvalidOperationException("Trace activity not created");
-        var activeSpanId = activeSpan.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Active span activity not created");
-        var skippedSpanId = skippedSpan.Activity?.SpanId.ToHexString() ?? throw new InvalidOperationException("Skipped span activity not created");
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var activeSpanId = activeSpan.Activity?.SpanId.ToHexString() ??
+                           throw new InvalidOperationException("Active span activity not created");
+        var skippedSpanId = skippedSpan.Activity?.SpanId.ToHexString() ??
+                            throw new InvalidOperationException("Skipped span activity not created");
 
         skippedSpan.Dispose();
         activeSpan.Dispose();

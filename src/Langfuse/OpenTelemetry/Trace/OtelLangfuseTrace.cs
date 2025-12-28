@@ -260,13 +260,13 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
     /// </summary>
     /// <param name="name">The generation name.</param>
     /// <param name="model">The model name (e.g., "gpt-4").</param>
-    /// <param name="provider">Optional provider name (e.g., "openai").</param>
+    /// <param name="provider">Provider name (e.g., "openai").</param>
     /// <param name="input">Optional input (messages or prompt).</param>
     /// <param name="configure">Optional action to configure the generation.</param>
     public OtelGeneration CreateGeneration(
         string name,
         string model,
-        string? provider = null,
+        string provider,
         object? input = null,
         Action<OtelGeneration>? configure = null)
     {
@@ -364,13 +364,13 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
     /// </summary>
     /// <param name="name">The embedding name.</param>
     /// <param name="model">The model name.</param>
-    /// <param name="provider">Optional provider name.</param>
+    /// <param name="provider">Provider name.</param>
     /// <param name="input">Optional input text.</param>
     /// <param name="configure">Optional action to configure the embedding.</param>
     public OtelEmbedding CreateEmbedding(
         string name,
         string model,
-        string? provider = null,
+        string provider,
         object? input = null,
         Action<OtelEmbedding>? configure = null)
     {

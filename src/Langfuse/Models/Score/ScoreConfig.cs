@@ -26,7 +26,7 @@ public class ScoreConfig
     ///     Data type defining how scores should be validated and interpreted (NUMERIC, CATEGORICAL, BOOLEAN).
     /// </summary>
     [JsonPropertyName("dataType")]
-    public ScoreDataType DataType { get; set; }
+    public ScoreConfigDataType DataType { get; set; }
 
     /// <summary>
     ///     Whether this score configuration is archived and no longer available for creating new scores.

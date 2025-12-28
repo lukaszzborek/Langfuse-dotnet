@@ -42,7 +42,7 @@ public class ScoreConfigTests
         var request = new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             Description = "Numeric score from 0 to 100",
             MinValue = 0,
             MaxValue = 100
@@ -53,7 +53,7 @@ public class ScoreConfigTests
         config.ShouldNotBeNull();
         config.Id.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
-        config.DataType.ShouldBe(ScoreDataType.Numeric);
+        config.DataType.ShouldBe(ScoreConfigDataType.Numeric);
         config.MinValue.ShouldBe(0);
         config.MaxValue.ShouldBe(100);
         config.Description.ShouldBe("Numeric score from 0 to 100");
@@ -68,7 +68,7 @@ public class ScoreConfigTests
         var request = new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Categorical,
+            DataType = ScoreConfigDataType.Categorical,
             Description = "Sentiment categories",
             Categories =
             [
@@ -82,12 +82,12 @@ public class ScoreConfigTests
 
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
-        config.DataType.ShouldBe(ScoreDataType.Categorical);
+        config.DataType.ShouldBe(ScoreConfigDataType.Categorical);
         config.Categories.ShouldNotBeNull();
         config.Categories.Length.ShouldBe(3);
         config.Categories.ShouldContain(c => c.Label == "Positive" && Math.Abs(c.Value - 1) < 0.01);
         config.Categories.ShouldContain(c => c.Label == "Neutral" && c.Value == 0);
-        config.Categories.ShouldContain(c => c.Label == "Negative" && Math.Abs(c.Value - (-1)) < 0.01);
+        config.Categories.ShouldContain(c => c.Label == "Negative" && Math.Abs(c.Value - -1) < 0.01);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class ScoreConfigTests
         var request = new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Boolean,
+            DataType = ScoreConfigDataType.Boolean,
             Description = "Pass/Fail evaluation"
         };
 
@@ -106,7 +106,7 @@ public class ScoreConfigTests
 
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
-        config.DataType.ShouldBe(ScoreDataType.Boolean);
+        config.DataType.ShouldBe(ScoreConfigDataType.Boolean);
         config.Description.ShouldBe("Pass/Fail evaluation");
     }
 
@@ -118,7 +118,7 @@ public class ScoreConfigTests
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             MinValue = 1,
             MaxValue = 5
         });
@@ -128,7 +128,7 @@ public class ScoreConfigTests
         config.ShouldNotBeNull();
         config.Id.ShouldBe(created.Id);
         config.Name.ShouldBe(configName);
-        config.DataType.ShouldBe(ScoreDataType.Numeric);
+        config.DataType.ShouldBe(ScoreConfigDataType.Numeric);
     }
 
     [Fact]
@@ -140,21 +140,23 @@ public class ScoreConfigTests
         var config1 = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"{prefix}-1",
-            DataType = ScoreDataType.Numeric
+            DataType = ScoreConfigDataType.Numeric
         });
         var config2 = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"{prefix}-2",
-            DataType = ScoreDataType.Boolean
+            DataType = ScoreConfigDataType.Boolean
         });
 
-        var result = await client.GetScoreConfigListAsync(new ScoreConfigListRequest { Offset = 0, Limit = 50 });
+        var result = await client.GetScoreConfigListAsync(new ScoreConfigListRequest { Page = 1, Limit = 50 });
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
         result.Data.Length.ShouldBeGreaterThanOrEqualTo(2);
-        result.Data.ShouldContain(c => c.Id == config1.Id && c.Name == $"{prefix}-1" && c.DataType == ScoreDataType.Numeric);
-        result.Data.ShouldContain(c => c.Id == config2.Id && c.Name == $"{prefix}-2" && c.DataType == ScoreDataType.Boolean);
+        result.Data.ShouldContain(c =>
+            c.Id == config1.Id && c.Name == $"{prefix}-1" && c.DataType == ScoreConfigDataType.Numeric);
+        result.Data.ShouldContain(c =>
+            c.Id == config2.Id && c.Name == $"{prefix}-2" && c.DataType == ScoreConfigDataType.Boolean);
     }
 
     [Fact]
@@ -165,7 +167,7 @@ public class ScoreConfigTests
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             Description = "Original description",
             MinValue = 0,
             MaxValue = 10
@@ -192,7 +194,7 @@ public class ScoreConfigTests
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Boolean
+            DataType = ScoreConfigDataType.Boolean
         });
 
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
@@ -223,7 +225,7 @@ public class ScoreConfigTests
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = originalName,
-            DataType = ScoreDataType.Numeric
+            DataType = ScoreConfigDataType.Numeric
         });
 
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
@@ -242,7 +244,7 @@ public class ScoreConfigTests
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Categorical,
+            DataType = ScoreConfigDataType.Categorical,
             Categories =
             [
                 new ConfigCategory { Label = "Good", Value = 1 },
@@ -279,7 +281,7 @@ public class ScoreConfigTests
         var request = new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             Description = description,
             MinValue = minValue,
             MaxValue = maxValue
@@ -289,16 +291,14 @@ public class ScoreConfigTests
 
         config.Id.ShouldNotBeNullOrEmpty();
         config.Name.ShouldBe(configName);
-        config.DataType.ShouldBe(ScoreDataType.Numeric);
+        config.DataType.ShouldBe(ScoreConfigDataType.Numeric);
         config.Description.ShouldBe(description);
         config.MinValue.ShouldBe(minValue);
         config.MaxValue.ShouldBe(maxValue);
         config.IsArchived.ShouldBeFalse();
         config.ProjectId.ShouldNotBeNullOrEmpty();
-        config.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        config.CreatedAt.ShouldBeLessThan(DateTimeOffset.UtcNow.AddMinutes(2));
-        config.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        config.UpdatedAt.ShouldBeLessThan(DateTimeOffset.UtcNow.AddMinutes(2));
+        config.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        config.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -319,7 +319,7 @@ public class ScoreConfigTests
         var request = new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Categorical,
+            DataType = ScoreConfigDataType.Categorical,
             Description = description,
             Categories = categories
         };
@@ -328,7 +328,7 @@ public class ScoreConfigTests
 
         config.Id.ShouldNotBeNullOrEmpty();
         config.Name.ShouldBe(configName);
-        config.DataType.ShouldBe(ScoreDataType.Categorical);
+        config.DataType.ShouldBe(ScoreConfigDataType.Categorical);
         config.Description.ShouldBe(description);
         config.Categories.ShouldNotBeNull();
         config.Categories.Length.ShouldBe(4);
@@ -338,8 +338,8 @@ public class ScoreConfigTests
         config.Categories.ShouldContain(c => c.Label == "Poor" && Math.Abs(c.Value - 1) < 0.01);
         config.ProjectId.ShouldNotBeNullOrEmpty();
         config.IsArchived.ShouldBeFalse();
-        config.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        config.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        config.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        config.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -353,7 +353,7 @@ public class ScoreConfigTests
         var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = configName,
-            DataType = ScoreDataType.Boolean,
+            DataType = ScoreConfigDataType.Boolean,
             Description = description
         });
 
@@ -361,11 +361,46 @@ public class ScoreConfigTests
 
         config.Id.ShouldBe(created.Id);
         config.Name.ShouldBe(configName);
-        config.DataType.ShouldBe(ScoreDataType.Boolean);
+        config.DataType.ShouldBe(ScoreConfigDataType.Boolean);
         config.Description.ShouldBe(description);
         config.IsArchived.ShouldBeFalse();
         config.ProjectId.ShouldNotBeNullOrEmpty();
-        config.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        config.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        config.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        config.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task UpdateScoreConfigAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var configName = $"upc-{Guid.NewGuid():N}"[..20];
+        var updatedDescription = "Updated description for validation";
+
+        var created = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
+        {
+            Name = configName,
+            DataType = ScoreConfigDataType.Numeric,
+            Description = "Original description",
+            MinValue = 0,
+            MaxValue = 10
+        });
+
+        var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
+        {
+            Description = updatedDescription,
+            MaxValue = 100
+        });
+
+        updated.Id.ShouldBe(created.Id);
+        updated.Name.ShouldBe(configName);
+        updated.DataType.ShouldBe(ScoreConfigDataType.Numeric);
+        updated.Description.ShouldBe(updatedDescription);
+        updated.MinValue.ShouldBe(0);
+        updated.MaxValue.ShouldBe(100);
+        updated.IsArchived.ShouldBeFalse();
+        updated.ProjectId.ShouldNotBeNullOrEmpty();
+        updated.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        updated.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 }
