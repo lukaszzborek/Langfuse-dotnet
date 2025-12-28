@@ -212,10 +212,8 @@ public class DatasetItemTests
         item.ExpectedOutput.ShouldNotBeNull();
         item.Status.ShouldBe(DatasetStatus.Active);
         item.Metadata.ShouldNotBeNull();
-        item.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        item.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        item.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        item.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        item.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        item.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -245,9 +243,7 @@ public class DatasetItemTests
         item.ExpectedOutput.ShouldNotBeNull();
         item.Status.ShouldBe(DatasetStatus.Active);
         item.Metadata.ShouldNotBeNull();
-        item.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        item.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        item.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        item.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        item.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        item.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 }

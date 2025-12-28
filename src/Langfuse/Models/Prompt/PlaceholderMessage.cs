@@ -16,5 +16,5 @@ public class PlaceholderMessage : ChatMessageWithPlaceholders
     ///     Name of the placeholder variable. Used to identify which value should be substituted during prompt resolution.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

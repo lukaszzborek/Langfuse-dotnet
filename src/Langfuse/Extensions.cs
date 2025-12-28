@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
-using zborek.Langfuse.OpenTelemetry;
 using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse;
@@ -19,7 +18,7 @@ public static class Extensions
     ///     Registers Langfuse services in an <see cref="IServiceCollection" />.
     /// </summary>
     /// <param name="services"></param>
-    /// <param name="configuration"></param>
+    /// <param name="configure"></param>
     /// <returns></returns>
     public static IServiceCollection AddLangfuse(this IServiceCollection services, Action<LangfuseConfig> configure)
     {
@@ -27,10 +26,10 @@ public static class Extensions
         configure(config);
 
         services.Configure(configure);
-        
+
         return ServiceCollection(services, config);
     }
-    
+
     /// <summary>
     ///     Registers Langfuse services in an <see cref="IServiceCollection" />.
     /// </summary>

@@ -17,11 +17,11 @@ public class ChatMessage : ChatMessageWithPlaceholders
     ///     message.
     /// </summary>
     [JsonPropertyName("role")]
-    public string Role { get; set; }
+    public string Role { get; set; } = string.Empty;
 
     /// <summary>
     ///     Content of the message. Can include text and placeholder variables for dynamic substitution.
     /// </summary>
     [JsonPropertyName("content")]
-    public string Content { get; set; }
+    public string Content { get; set; } = string.Empty;
 }

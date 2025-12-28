@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Langfuse.Tests.Integration.Fixtures;
+using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using zborek.Langfuse;
@@ -205,5 +207,76 @@ public class DatasetTests
         dataset.Metadata.ShouldNotBeNull();
         dataset.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         dataset.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task GetDatasetRunAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = new TraceTestHelper(client, _fixture);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+        var datasetName = $"run-validation-{Guid.NewGuid():N}";
+        var runName = $"run-{Guid.NewGuid():N}";
+        var runDescription = "Test run for field validation";
+
+        await client.CreateDatasetAsync(new CreateDatasetRequest { Name = datasetName });
+
+        var item = await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
+        {
+            DatasetName = datasetName,
+            Input = new { query = "Test query" },
+            ExpectedOutput = new { answer = "Test answer" }
+        });
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        await client.CreateDataSetRunAsync(new CreateDatasetRunItemRequest
+        {
+            DatasetItemId = item.Id,
+            RunName = runName,
+            TraceId = traceId,
+            RunDescription = runDescription
+        });
+
+        var run = await WaitForDataAsync(client, datasetName, runName);
+
+        run.Id.ShouldNotBeNullOrEmpty();
+        run.Name.ShouldBe(runName);
+        run.Description.ShouldBe(runDescription);
+        run.DatasetId.ShouldNotBeNullOrEmpty();
+        run.DatasetName.ShouldBe(datasetName);
+        run.DatasetRunItems.ShouldNotBeNull();
+        run.DatasetRunItems.Count.ShouldBeGreaterThanOrEqualTo(1);
+        run.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        run.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    public async Task<DatasetRunWithItems> WaitForDataAsync(ILangfuseClient client, string datasetName, string runName,
+        TimeSpan? timeout = null, CancellationToken cancellationToken = default)
+    {
+        timeout ??= TimeSpan.FromSeconds(30);
+        var stopwatch = Stopwatch.StartNew();
+
+        while (stopwatch.Elapsed < timeout)
+        {
+            try
+            {
+                var data = await client.GetDatasetRunAsync(datasetName, runName, cancellationToken);
+                if (data.DatasetRunItems.Count > 0)
+                {
+                    return data;
+                }
+            }
+            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
+            {
+                // Not found yet, wait and retry
+            }
+
+            await Task.Delay(500, cancellationToken);
+        }
+
+        throw new TimeoutException(
+            $"Timed out waiting for dataset run '{runName}' in dataset '{datasetName}' to have data.");
     }
 }

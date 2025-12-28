@@ -35,7 +35,7 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
         var diagnosticSpan = diagnostic.Location.SourceSpan;
 
         // Find the member access expression
-        var memberAccess = root.FindNode(diagnosticSpan)
+        var memberAccess = root!.FindNode(diagnosticSpan)
             .AncestorsAndSelf()
             .OfType<MemberAccessExpressionSyntax>()
             .FirstOrDefault();
@@ -153,7 +153,7 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
         var newMemberAccess = memberAccess.WithName(
             SyntaxFactory.IdentifierName(newMethodName));
 
-        var newRoot = root.ReplaceNode(memberAccess, newMemberAccess);
+        var newRoot = root!.ReplaceNode(memberAccess, newMemberAccess);
         return document.WithSyntaxRoot(newRoot);
     }
 
@@ -193,7 +193,7 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
                         localDeclaration.SemicolonToken
                             .WithTrailingTrivia(trailingTrivia)); // Preserve trailing trivia on semicolon
 
-                var newRootNode = root.ReplaceNode(localDeclaration, newLocalDeclaration);
+                var newRootNode = root!.ReplaceNode(localDeclaration, newLocalDeclaration);
                 return document.WithSyntaxRoot(newRootNode);
             }
         }
@@ -206,7 +206,7 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
             var methodName = (invocation.Expression as MemberAccessExpressionSyntax)?.Name.Identifier.Text ??
                              "disposable";
             var baseVariableName = GetVariableNameFromMethod(methodName);
-            var variableName = GenerateUniqueVariableName(semanticModel, statement.SpanStart, baseVariableName);
+            var variableName = GenerateUniqueVariableName(semanticModel!, statement.SpanStart, baseVariableName);
 
             // Create using declaration: using var variableName = invocation;
             // We need to preserve trivia properly - the invocation might have trivia attached to it
@@ -232,7 +232,7 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)
                     .WithTrailingTrivia(trailingTrivia)); // Preserve original trailing trivia
 
-            var newRoot = root.ReplaceNode(statement, usingDeclaration);
+            var newRoot = root!.ReplaceNode(statement, usingDeclaration);
             return document.WithSyntaxRoot(newRoot);
         }
 
@@ -240,7 +240,7 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
         var methodNameForVariable = (invocation.Expression as MemberAccessExpressionSyntax)?.Name.Identifier.Text ??
                                     "disposable";
         var baseVarName = GetVariableNameFromMethod(methodNameForVariable);
-        var varName = GenerateUniqueVariableName(semanticModel, statement.SpanStart, baseVarName);
+        var varName = GenerateUniqueVariableName(semanticModel!, statement.SpanStart, baseVarName);
 
         var usingStatement = SyntaxFactory.UsingStatement(
                 SyntaxFactory.VariableDeclaration(
@@ -256,7 +256,7 @@ public class AttributeOnlyLangfuseCodeFixProvider : CodeFixProvider
             .WithLeadingTrivia(statement.GetLeadingTrivia());
 
         // Insert the using statement before the current statement and preserve trivia
-        var newRootInsert = root.InsertNodesBefore(statement, new[] { usingStatement });
+        var newRootInsert = root!.InsertNodesBefore(statement, new[] { usingStatement });
         return document.WithSyntaxRoot(newRootInsert);
     }
 

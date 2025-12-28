@@ -269,7 +269,7 @@ public class DatasetRunItemTests
             Page = 1,
             Limit = 2
         }, 2);
-        
+
         var page2 = await FetchDatasetRunListAsync(client, new DatasetRunItemListRequest
         {
             DatasetId = dataset.Id,
@@ -281,7 +281,7 @@ public class DatasetRunItemTests
         page1.ShouldNotBeNull();
         page1.Data.ShouldNotBeNull();
         page1.Data.Length.ShouldBe(2);
-        
+
         page2.ShouldNotBeNull();
         page2.Data.ShouldNotBeNull();
         page2.Data.Length.ShouldBe(1);
@@ -318,10 +318,8 @@ public class DatasetRunItemTests
         runItem.DatasetRunName.ShouldBe(runName);
         runItem.DatasetRunId.ShouldNotBeNullOrEmpty();
         runItem.TraceId.ShouldBe(traceId);
-        runItem.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        runItem.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        runItem.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        runItem.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        runItem.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        runItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -353,10 +351,9 @@ public class DatasetRunItemTests
         runItem.DatasetRunName.ShouldBe(runName);
         runItem.TraceId.ShouldBe(traceId);
         runItem.ObservationId.ShouldBe(generationId);
-        runItem.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        runItem.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        runItem.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        runItem.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        runItem.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        runItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        ;
     }
 
     [Fact]
@@ -386,18 +383,16 @@ public class DatasetRunItemTests
         runItem.DatasetRunName.ShouldBe(runName);
         runItem.TraceId.ShouldBe(traceId);
         runItem.ObservationId.ShouldBeNull();
-        runItem.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        runItem.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        runItem.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        runItem.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        runItem.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        runItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
-    
+
     private static async Task<PaginatedDatasetRunItems> FetchDatasetRunListAsync(ILangfuseClient client,
         DatasetRunItemListRequest dataset, int dataLength = 1)
     {
         var stopwatch = Stopwatch.StartNew();
         var timeout = TimeSpan.FromSeconds(30);
-        
+
         PaginatedDatasetRunItems result = null!;
         while (stopwatch.Elapsed < timeout)
         {

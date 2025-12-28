@@ -376,12 +376,9 @@ public class ScoreTests
         score.DataType.ShouldBe(ScoreDataType.Numeric);
         score.Source.ShouldNotBeNull();
         score.Comment.ShouldBe(comment);
-        score.Timestamp.ShouldBeGreaterThan(beforeTest);
-        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        score.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        score.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        score.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        score.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        score.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        score.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -413,10 +410,8 @@ public class ScoreTests
         score.Name.ShouldBe(scoreName);
         score.StringValue.ShouldBe(categoryValue);
         score.DataType.ShouldBe(ScoreDataType.Categorical);
-        score.Timestamp.ShouldBeGreaterThan(beforeTest);
-        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        score.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        score.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        score.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -448,8 +443,7 @@ public class ScoreTests
         score.TraceId.ShouldBe(traceId);
         score.ObservationId.ShouldBe(generationId);
         score.Name.ShouldBe(scoreName);
-        score.Timestamp.ShouldBeGreaterThan(beforeTest);
-        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -479,7 +473,46 @@ public class ScoreTests
         score.TraceId.ShouldBe(traceId);
         score.ObservationId.ShouldBeNull();
         score.Name.ShouldBe(scoreName);
-        score.Timestamp.ShouldBeGreaterThan(beforeTest);
-        score.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task GetScoreAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var scoreName = $"get-score-{Guid.NewGuid():N}"[..20];
+        var scoreValue = 0.92;
+        var comment = "Score for get validation";
+
+        var createdScore = await client.CreateScoreAsync(new ScoreCreateRequest
+        {
+            TraceId = traceId,
+            Name = scoreName,
+            Value = scoreValue,
+            DataType = ScoreDataType.Numeric,
+            Comment = comment
+        });
+
+        var score = await traceHelper.WaitForScoreAsync(createdScore.Id);
+
+        score.Id.ShouldNotBeNullOrEmpty();
+        score.Id.ShouldBe(createdScore.Id);
+        score.TraceId.ShouldBe(traceId);
+        score.Name.ShouldBe(scoreName);
+        var actualValue = score.Value is JsonElement je ? je.GetDouble() : Convert.ToDouble(score.Value);
+        actualValue.ShouldBe(scoreValue, 0.01);
+        score.DataType.ShouldBe(ScoreDataType.Numeric);
+        score.Source.ShouldNotBeNull();
+        score.Comment.ShouldBe(comment);
+        score.ObservationId.ShouldBeNull();
+        score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        score.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        score.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 }

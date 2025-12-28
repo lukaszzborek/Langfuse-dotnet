@@ -240,7 +240,7 @@ public class AttributeOnlyLangfuseAnalyzer : DiagnosticAnalyzer
         }
 
         // Get the variable being assigned to
-        ISymbol targetSymbol = null;
+        ISymbol? targetSymbol = null;
         if (assignment != null)
         {
             var symbolInfo = semanticModel.GetSymbolInfo(assignment.Left);
@@ -248,8 +248,7 @@ public class AttributeOnlyLangfuseAnalyzer : DiagnosticAnalyzer
         }
         else
         {
-            var variableDeclarator = invocation.Parent?.Parent as VariableDeclaratorSyntax;
-            if (variableDeclarator != null)
+            if (invocation.Parent?.Parent is VariableDeclaratorSyntax variableDeclarator)
             {
                 targetSymbol = semanticModel.GetDeclaredSymbol(variableDeclarator);
             }

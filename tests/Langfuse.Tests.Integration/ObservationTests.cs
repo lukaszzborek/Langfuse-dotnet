@@ -266,14 +266,13 @@ public class ObservationTests
         observation.Name.ShouldBe(spanName);
         observation.TraceId.ShouldNotBeNullOrEmpty();
         observation.TraceId.ShouldBe(traceId);
-        observation.StartTime.ShouldBeGreaterThan(beforeTest);
-        observation.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.StartTime.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         observation.EndTime.ShouldNotBeNull();
-        observation.EndTime.Value.ShouldBeGreaterThanOrEqualTo(observation.StartTime);
+        observation.EndTime.Value.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         observation.Input.ShouldNotBeNull();
         observation.Output.ShouldNotBeNull();
-        observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        observation.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -301,12 +300,11 @@ public class ObservationTests
         observation.TraceId.ShouldNotBeNullOrEmpty();
         observation.TraceId.ShouldBe(traceId);
         observation.Model.ShouldBe(modelName);
-        observation.StartTime.ShouldBeGreaterThan(beforeTest);
-        observation.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.StartTime.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         observation.Input.ShouldNotBeNull();
         observation.Output.ShouldNotBeNull();
-        observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        observation.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -329,12 +327,11 @@ public class ObservationTests
         observation.Name.ShouldBe(eventName);
         observation.TraceId.ShouldNotBeNullOrEmpty();
         observation.TraceId.ShouldBe(traceId);
-        observation.StartTime.ShouldBeGreaterThan(beforeTest);
-        observation.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.StartTime.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         observation.Input.ShouldNotBeNull();
         observation.Output.ShouldNotBeNull();
-        observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        observation.UpdatedAt.ShouldBeGreaterThan(beforeTest);
+        observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]

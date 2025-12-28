@@ -374,4 +374,174 @@ public class AnnotationQueueTests
         item.ObjectId.ShouldBe(spanId);
         item.ObjectType.ShouldBe(AnnotationObjectType.Observation);
     }
+
+    [Fact]
+    public async Task CreateAnnotationQueueAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var queueName = $"comprehensive-{Guid.NewGuid():N}"[..30];
+        var description = "Comprehensive test queue for field validation";
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var request = new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = description,
+            ScoreConfigIds = [scoreConfigId]
+        };
+
+        var queue = await client.CreateAnnotationQueueAsync(request);
+
+        queue.Id.ShouldNotBeNullOrEmpty();
+        queue.Name.ShouldBe(queueName);
+        queue.Description.ShouldBe(description);
+        queue.ScoreConfigIds.ShouldNotBeNull();
+        queue.ScoreConfigIds.Length.ShouldBe(1);
+        queue.ScoreConfigIds.ShouldContain(scoreConfigId);
+        queue.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        queue.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task GetQueueAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var queueName = $"get-comprehensive-{Guid.NewGuid():N}"[..30];
+        var description = "Queue for get field validation";
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var createdQueue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = queueName,
+            Description = description,
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var queue = await client.GetQueueAsync(createdQueue.Id);
+
+        queue.Id.ShouldBe(createdQueue.Id);
+        queue.Name.ShouldBe(queueName);
+        queue.Description.ShouldBe(description);
+        queue.ScoreConfigIds.ShouldNotBeNull();
+        queue.ScoreConfigIds.ShouldContain(scoreConfigId);
+        queue.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        queue.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task CreateItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = $"item-comprehensive-{Guid.NewGuid():N}"[..30],
+            Description = "Queue for item field validation",
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var request = new CreateAnnotationQueueItemRequest
+        {
+            ObjectId = traceId,
+            ObjectType = AnnotationObjectType.Trace,
+            Status = AnnotationQueueStatus.Pending
+        };
+
+        var item = await client.CreateItemAsync(queue.Id, request);
+
+        item.Id.ShouldNotBeNullOrEmpty();
+        item.QueueId.ShouldBe(queue.Id);
+        item.ObjectId.ShouldBe(traceId);
+        item.ObjectType.ShouldBe(AnnotationObjectType.Trace);
+        item.Status.ShouldBe(AnnotationQueueStatus.Pending);
+        item.CompletedAt.ShouldBeNull();
+        item.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        item.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task GetItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = $"get-item-comprehensive-{Guid.NewGuid():N}"[..30],
+            Description = "Queue for get item field validation",
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
+        {
+            ObjectId = traceId,
+            ObjectType = AnnotationObjectType.Trace,
+            Status = AnnotationQueueStatus.Pending
+        });
+
+        var item = await client.GetItemAsync(queue.Id, createdItem.Id);
+
+        item.Id.ShouldBe(createdItem.Id);
+        item.QueueId.ShouldBe(queue.Id);
+        item.ObjectId.ShouldBe(traceId);
+        item.ObjectType.ShouldBe(AnnotationObjectType.Trace);
+        item.Status.ShouldBe(AnnotationQueueStatus.Pending);
+        item.CompletedAt.ShouldBeNull();
+        item.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        item.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
+
+    [Fact]
+    public async Task UpdateItemAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+        var beforeTest = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var scoreConfigId = await CreateScoreConfigAsync(client);
+
+        var queue = await client.CreateAnnotationQueueAsync(new CreateAnnotationQueueRequest
+        {
+            Name = $"update-comprehensive-{Guid.NewGuid():N}"[..30],
+            Description = "Queue for update item field validation",
+            ScoreConfigIds = [scoreConfigId]
+        });
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
+        {
+            ObjectId = traceId,
+            ObjectType = AnnotationObjectType.Trace,
+            Status = AnnotationQueueStatus.Pending
+        });
+
+        var updatedItem = await client.UpdateItemAsync(queue.Id, createdItem.Id, new UpdateAnnotationQueueItemRequest
+        {
+            Status = AnnotationQueueStatus.Completed
+        });
+
+        updatedItem.Id.ShouldBe(createdItem.Id);
+        updatedItem.QueueId.ShouldBe(queue.Id);
+        updatedItem.ObjectId.ShouldBe(traceId);
+        updatedItem.ObjectType.ShouldBe(AnnotationObjectType.Trace);
+        updatedItem.Status.ShouldBe(AnnotationQueueStatus.Completed);
+        updatedItem.CompletedAt.ShouldNotBeNull();
+        updatedItem.CompletedAt.Value.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        updatedItem.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        updatedItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+    }
 }

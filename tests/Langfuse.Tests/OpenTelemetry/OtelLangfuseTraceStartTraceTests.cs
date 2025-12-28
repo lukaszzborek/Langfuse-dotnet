@@ -157,7 +157,7 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace();
         trace.StartTrace("test-trace");
 
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "openai");
 
         generation.ShouldNotBeNull();
         generation.ShouldBeOfType<OtelGeneration>();
@@ -168,7 +168,7 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace();
 
-        using var generation = trace.CreateGeneration("test-generation", "gpt-4");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-4", "test-provider");
 
         generation.ShouldNotBeNull();
         generation.ShouldBeOfType<OtelGeneration>();
@@ -271,7 +271,7 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace();
         trace.StartTrace("test-trace");
 
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada");
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-embedding-ada", "test-provider");
 
         embedding.ShouldNotBeNull();
         embedding.ShouldBeOfType<OtelEmbedding>();
@@ -282,7 +282,7 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace();
 
-        using var embedding = trace.CreateEmbedding("test-embedding", "text-ada");
+        using var embedding = trace.CreateEmbedding("test-embedding", "text-ada", "test-provider");
 
         embedding.ShouldNotBeNull();
         embedding.ShouldBeOfType<OtelEmbedding>();

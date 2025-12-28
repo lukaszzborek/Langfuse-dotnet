@@ -17,5 +17,5 @@ public class TextPrompt : PromptModel
     ///     The text content of the prompt template, which may include placeholder variables for dynamic substitution.
     /// </summary>
     [JsonPropertyName("prompt")]
-    public string PromptText { get; set; }
+    public string PromptText { get; set; } = string.Empty;
 }

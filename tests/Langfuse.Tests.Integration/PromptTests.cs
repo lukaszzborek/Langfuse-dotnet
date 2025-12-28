@@ -352,7 +352,7 @@ public class PromptTests
         });
 
         result.ShouldNotBeNull();
-        
+
         var prompt = await client.GetPromptAsync(promptName);
 
         prompt.ShouldBeOfType<TextPrompt>();
@@ -365,7 +365,7 @@ public class PromptTests
         prompt.Labels.ShouldContain("production");
         prompt.Tags.ShouldContain("validation");
     }
-    
+
     [Fact]
     public async Task GetPromptAsync_TestLabel()
     {
@@ -385,7 +385,7 @@ public class PromptTests
 
         var exception = await Should.ThrowAsync<LangfuseApiException>(() => client.GetPromptAsync(promptName));
         exception.StatusCode.ShouldBe(404);
-        
+
         var prompt = await client.GetPromptAsync(promptName, label: "test");
 
         prompt.ShouldBeOfType<TextPrompt>();
@@ -397,6 +397,39 @@ public class PromptTests
         prompt.Config.ShouldNotBeNull();
         prompt.Labels.ShouldContain("test");
         prompt.Tags.ShouldContain("validation");
+    }
+
+    [Fact]
+    public async Task UpdatePromptVersionAsync_ValidatesAllResponseFields()
+    {
+        var client = CreateClient();
+        var promptName = $"update-validation-{Guid.NewGuid():N}";
+        var promptContent = "Test prompt for update validation";
+
+        await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = promptContent,
+            Config = new { temperature = 0.7 },
+            Labels = ["draft"],
+            Tags = ["test"]
+        });
+
+        var updated = await client.UpdatePromptVersionAsync(promptName, 1, new UpdatePromptVersionRequest
+        {
+            NewLabels = ["production", "active"]
+        });
+
+        updated.ShouldNotBeNull();
+        updated.Name.ShouldBe(promptName);
+        updated.Version.ShouldBe(1);
+        updated.Type.ShouldBe("text");
+        updated.Config.ShouldNotBeNull();
+        updated.Labels.ShouldNotBeNull();
+        updated.Labels.ShouldContain("production");
+        updated.Labels.ShouldContain("active");
+        updated.Tags.ShouldNotBeNull();
+        updated.Tags.ShouldContain("test");
     }
 
     #region Delete Prompt Tests
@@ -458,15 +491,15 @@ public class PromptTests
         });
 
         // Delete version 1
-        await client.DeletePromptAsync(promptName, version: 1);
+        await client.DeletePromptAsync(promptName, 1);
 
         // Version 1 should be deleted
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
-            await client.GetPromptAsync(promptName, version: 1));
+            await client.GetPromptAsync(promptName, 1));
         exception.StatusCode.ShouldBe(404);
 
         // Version 2 should still exist
-        var v2Prompt = await client.GetPromptAsync(promptName, version: 2);
+        var v2Prompt = await client.GetPromptAsync(promptName, 2);
         v2Prompt.ShouldNotBeNull();
         v2Prompt.Version.ShouldBe(2);
     }

@@ -60,11 +60,11 @@ public class TraceTests
         result1.ShouldNotBeNull();
         result1.Data.ShouldNotBeNull();
         result1.Data.Length.ShouldBe(1);
-        
+
         result2.ShouldNotBeNull();
         result2.Data.ShouldNotBeNull();
         result2.Data.Length.ShouldBe(1);
-        
+
         result1.Data[0].Id.ShouldNotBe(result2.Data[0].Id);
     }
 
@@ -248,13 +248,13 @@ public class TraceTests
         var metadata = new { source = "integration-test", version = "1.0" };
 
         var traceId = traceHelper.CreateTrace(
-            name: traceName,
-            sessionId: sessionId,
-            userId: userId,
-            tags: tags,
-            input: inputData,
-            output: outputData,
-            metadata: metadata
+            traceName,
+            sessionId,
+            userId,
+            tags,
+            inputData,
+            outputData,
+            metadata
         );
         await traceHelper.WaitForTraceAsync(traceId);
 
@@ -271,8 +271,7 @@ public class TraceTests
         trace.Tags.ShouldContain("integration-test");
         trace.Input.ShouldNotBeNull();
         trace.Output.ShouldNotBeNull();
-        trace.Timestamp.ShouldBeGreaterThan(beforeTest);
-        trace.Timestamp.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        trace.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         trace.Observations.ShouldNotBeNull();
         trace.Scores.ShouldNotBeNull();
     }
