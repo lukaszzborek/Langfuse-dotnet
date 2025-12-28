@@ -32,19 +32,19 @@ public class CreateModelRequest
     ///     Price per unit for input/prompt processing in USD. Used for automatic cost calculation in observations.
     /// </summary>
     [JsonPropertyName("inputPrice")]
-    public decimal? InputPrice { get; set; }
+    public double? InputPrice { get; set; }
 
     /// <summary>
     ///     Price per unit for output/completion generation in USD. Used for automatic cost calculation in observations.
     /// </summary>
     [JsonPropertyName("outputPrice")]
-    public decimal? OutputPrice { get; set; }
+    public double? OutputPrice { get; set; }
 
     /// <summary>
     ///     Total price per unit when input and output are billed together. Alternative to separate input/output pricing.
     /// </summary>
     [JsonPropertyName("totalPrice")]
-    public decimal? TotalPrice { get; set; }
+    public double? TotalPrice { get; set; }
 
     /// <summary>
     ///     Unit of measurement for model usage (tokens, characters, milliseconds, seconds, images, requests).
@@ -64,4 +64,11 @@ public class CreateModelRequest
     /// </summary>
     [JsonPropertyName("tokenizerConfig")]
     public TokenizerConfig? TokenizerConfig { get; set; }
+
+    /// <summary>
+    ///     Pricing tiers for the model. Enables tiered pricing based on usage thresholds.
+    ///     When using tiered pricing, the flat price fields (inputPrice, outputPrice, totalPrice) are ignored.
+    /// </summary>
+    [JsonPropertyName("pricingTiers")]
+    public List<PricingTierInput>? PricingTiers { get; set; }
 }

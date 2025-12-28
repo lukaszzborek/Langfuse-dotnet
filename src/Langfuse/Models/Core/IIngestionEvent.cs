@@ -24,4 +24,10 @@ public interface IIngestionEvent
     /// </summary>
     [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; }
+
+    /// <summary>
+    ///     Optional metadata field used by Langfuse SDKs for debugging.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
 }

@@ -102,4 +102,16 @@ public class ScoreListRequest
     /// </summary>
     [JsonPropertyName("sessionId")]
     public string? SessionId { get; set; }
+
+    /// <summary>
+    ///     Filter by dataset run ID
+    /// </summary>
+    [JsonPropertyName("datasetRunId")]
+    public string? DatasetRunId { get; set; }
+
+    /// <summary>
+    ///     Filter by trace ID
+    /// </summary>
+    [JsonPropertyName("traceId")]
+    public string? TraceId { get; set; }
 }

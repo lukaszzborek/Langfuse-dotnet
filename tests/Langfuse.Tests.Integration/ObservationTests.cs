@@ -58,7 +58,7 @@ public class ObservationTests
             Page = 1,
             Limit = 1
         });
-        
+
         var observations2 = await client.GetObservationListAsync(new ObservationListRequest
         {
             TraceId = result.TraceId,
@@ -69,11 +69,11 @@ public class ObservationTests
         observations1.ShouldNotBeNull();
         observations1.Data.ShouldNotBeNull();
         observations1.Data.Length.ShouldBe(1);
-        
+
         observations2.ShouldNotBeNull();
         observations2.Data.ShouldNotBeNull();
         observations2.Data.Length.ShouldBe(1);
-        
+
         observations1.Data[0].Id.ShouldNotBe(observations2.Data[0].Id);
     }
 
@@ -266,11 +266,10 @@ public class ObservationTests
         observation.Name.ShouldBe(spanName);
         observation.TraceId.ShouldNotBeNullOrEmpty();
         observation.TraceId.ShouldBe(traceId);
-        observation.StartTime.ShouldNotBeNull();
-        observation.StartTime.Value.ShouldBeGreaterThan(beforeTest);
-        observation.StartTime.Value.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.StartTime.ShouldBeGreaterThan(beforeTest);
+        observation.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
         observation.EndTime.ShouldNotBeNull();
-        observation.EndTime.Value.ShouldBeGreaterThanOrEqualTo(observation.StartTime.Value);
+        observation.EndTime.Value.ShouldBeGreaterThanOrEqualTo(observation.StartTime);
         observation.Input.ShouldNotBeNull();
         observation.Output.ShouldNotBeNull();
         observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
@@ -302,9 +301,8 @@ public class ObservationTests
         observation.TraceId.ShouldNotBeNullOrEmpty();
         observation.TraceId.ShouldBe(traceId);
         observation.Model.ShouldBe(modelName);
-        observation.StartTime.ShouldNotBeNull();
-        observation.StartTime.Value.ShouldBeGreaterThan(beforeTest);
-        observation.StartTime.Value.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.StartTime.ShouldBeGreaterThan(beforeTest);
+        observation.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
         observation.Input.ShouldNotBeNull();
         observation.Output.ShouldNotBeNull();
         observation.CreatedAt.ShouldBeGreaterThan(beforeTest);
@@ -331,9 +329,8 @@ public class ObservationTests
         observation.Name.ShouldBe(eventName);
         observation.TraceId.ShouldNotBeNullOrEmpty();
         observation.TraceId.ShouldBe(traceId);
-        observation.StartTime.ShouldNotBeNull();
-        observation.StartTime.Value.ShouldBeGreaterThan(beforeTest);
-        observation.StartTime.Value.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        observation.StartTime.ShouldBeGreaterThan(beforeTest);
+        observation.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
         observation.Input.ShouldNotBeNull();
         observation.Output.ShouldNotBeNull();
         observation.CreatedAt.ShouldBeGreaterThan(beforeTest);

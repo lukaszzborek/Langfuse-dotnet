@@ -33,6 +33,12 @@ public class CreateTraceEvent : IIngestionEvent
     public string Timestamp { get; set; }
 
     /// <summary>
+    ///     Optional metadata field used by Langfuse SDKs for debugging.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
+
+    /// <summary>
     ///     Creates a new trace creation event with specified ID and timestamp.
     /// </summary>
     /// <param name="body">The trace event body containing trace data and metadata</param>

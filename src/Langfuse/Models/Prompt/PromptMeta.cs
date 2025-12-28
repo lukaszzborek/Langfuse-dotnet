@@ -7,6 +7,12 @@ public class PromptMeta
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Indicates whether the prompt is a text or chat prompt.
+    /// </summary>
+    [JsonPropertyName("type")]
+    public PromptType Type { get; set; }
+
     [JsonPropertyName("versions")]
     public List<int> Versions { get; set; } = new();
 

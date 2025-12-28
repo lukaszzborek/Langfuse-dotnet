@@ -34,7 +34,7 @@ public class UpdateSpanEventBody
     /// <summary>
     ///     Additional metadata of the span. Can be any JSON object. Metadata is merged when being updated via the API.
     /// </summary>
-    [JsonPropertyName("endTime")]
+    [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
 
     /// <summary>
@@ -75,8 +75,14 @@ public class UpdateSpanEventBody
     public string? Version { get; set; }
 
     /// <summary>
-    ///     The id of the span can be set, otherwise a random id is generated. Spans are upserted on id.
+    ///     The id of the span. Required for update operations.
     /// </summary>
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
+
+    /// <summary>
+    ///     The environment of the observation. Used to differentiate between production, staging, development, etc.
+    /// </summary>
+    [JsonPropertyName("environment")]
+    public string? Environment { get; set; }
 }

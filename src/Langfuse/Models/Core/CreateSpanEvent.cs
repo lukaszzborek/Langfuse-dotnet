@@ -32,6 +32,12 @@ public class CreateSpanEvent : IIngestionEvent
     public string Timestamp { get; set; }
 
     /// <summary>
+    ///     Optional metadata field used by Langfuse SDKs for debugging.
+    /// </summary>
+    [JsonPropertyName("metadata")]
+    public object? Metadata { get; set; }
+
+    /// <summary>
     /// </summary>
     /// <param name="body">Span event body</param>
     /// <param name="id">Span event id</param>

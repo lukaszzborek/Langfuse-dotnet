@@ -26,12 +26,7 @@ public class SessionListRequest
     public DateTime? ToTimestamp { get; set; }
 
     /// <summary>
-    ///     Filter by environment
+    ///     Filter by environment(s)
     /// </summary>
-    public string? Environment { get; set; }
-
-    /// <summary>
-    ///     Filter by user ID
-    /// </summary>
-    public string? UserId { get; set; }
+    public string[]? Environment { get; set; }
 }

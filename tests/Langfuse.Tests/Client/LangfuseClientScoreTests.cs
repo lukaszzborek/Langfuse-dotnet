@@ -48,7 +48,7 @@ public class LangfuseClientScoreTests
             Name = "Updated Config",
             Description = "Updated Description",
             IsArchived = true,
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-123"
@@ -90,7 +90,7 @@ public class LangfuseClientScoreTests
             Name = "Partially Updated",
             Description = "Original Description",
             IsArchived = false,
-            DataType = ScoreDataType.Categorical,
+            DataType = ScoreConfigDataType.Categorical,
             CreatedAt = DateTimeOffset.UtcNow.AddDays(-7),
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-456"
@@ -140,7 +140,7 @@ public class LangfuseClientScoreTests
                 new ConfigCategory { Label = "Good", Value = 1 },
                 new ConfigCategory { Label = "Bad", Value = 0 }
             },
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-789"
@@ -179,7 +179,7 @@ public class LangfuseClientScoreTests
         {
             Id = configId,
             Name = "Serialization Test",
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             ProjectId = "project-test"
@@ -220,7 +220,7 @@ public class LangfuseClientScoreTests
             Name = "Deserialization Test",
             Description = "Some description",
             IsArchived = false,
-            DataType = ScoreDataType.Boolean,
+            DataType = ScoreConfigDataType.Boolean,
             MinValue = null,
             MaxValue = null,
             Categories = null,
@@ -240,7 +240,7 @@ public class LangfuseClientScoreTests
         result.Name.ShouldBe("Deserialization Test");
         result.Description.ShouldBe("Some description");
         result.IsArchived.ShouldBeFalse();
-        result.DataType.ShouldBe(ScoreDataType.Boolean);
+        result.DataType.ShouldBe(ScoreConfigDataType.Boolean);
         result.MinValue.ShouldBeNull();
         result.MaxValue.ShouldBeNull();
         result.Categories.ShouldBeNull();

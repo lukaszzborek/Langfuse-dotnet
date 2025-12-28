@@ -127,8 +127,14 @@ internal static class QueryStringHelper
         AddParameter(parameters, "limit", request.Limit);
         AddParameter(parameters, "fromTimestamp", request.FromTimestamp?.ToString("O"));
         AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
-        AddParameter(parameters, "environment", request.Environment);
-        AddParameter(parameters, "userId", request.UserId);
+
+        if (request.Environment != null)
+        {
+            foreach (var env in request.Environment)
+            {
+                AddParameter(parameters, "environment", env);
+            }
+        }
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
@@ -362,7 +368,7 @@ internal static class QueryStringHelper
         var parameters = new List<string>();
 
         AddParameter(parameters, "limit", request.Limit);
-        AddParameter(parameters, "offset", request.Offset);
+        AddParameter(parameters, "page", request.Page);
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }

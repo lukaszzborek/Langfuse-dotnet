@@ -21,7 +21,7 @@ public class CreateScoreConfigRequest
     /// </summary>
     [Required]
     [JsonPropertyName("dataType")]
-    public required ScoreDataType DataType { get; set; }
+    public required ScoreConfigDataType DataType { get; set; }
 
     /// <summary>
     ///     Description of the score configuration

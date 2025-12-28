@@ -46,7 +46,7 @@ public class AnnotationQueueTests
         var scoreConfig = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"config-{Guid.NewGuid():N}"[..20],
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             MinValue = 0,
             MaxValue = 1
         });
@@ -85,7 +85,7 @@ public class AnnotationQueueTests
         var scoreConfig = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"config-{Guid.NewGuid():N}"[..20],
-            DataType = ScoreDataType.Numeric,
+            DataType = ScoreConfigDataType.Numeric,
             MinValue = 0,
             MaxValue = 1
         });

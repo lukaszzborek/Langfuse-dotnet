@@ -50,10 +50,10 @@ public class BlobStorageIntegrationResponse
     public string? AccessKeyId { get; init; }
 
     /// <summary>
-    ///     Optional prefix path for exported files
+    ///     Prefix path for exported files
     /// </summary>
     [JsonPropertyName("prefix")]
-    public string? Prefix { get; init; }
+    public required string Prefix { get; init; }
 
     /// <summary>
     ///     How frequently exports occur

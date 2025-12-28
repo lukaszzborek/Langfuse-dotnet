@@ -43,8 +43,8 @@ public class ModelTests
         {
             ModelName = modelName,
             MatchPattern = $"(?i)^{modelName}$",
-            InputPrice = 0.001m,
-            OutputPrice = 0.002m,
+            InputPrice = 0.001,
+            OutputPrice = 0.002,
             Unit = ModelUsageUnit.Tokens
         };
 
@@ -53,8 +53,8 @@ public class ModelTests
         model.ShouldNotBeNull();
         model.Id.ShouldNotBeNull();
         model.ModelName.ShouldBe(modelName);
-        model.InputPrice.ShouldBe(0.001m);
-        model.OutputPrice.ShouldBe(0.002m);
+        model.InputPrice.ShouldBe(0.001);
+        model.OutputPrice.ShouldBe(0.002);
         model.Unit.ShouldBe(ModelUsageUnit.Tokens);
         model.IsLangfuseManaged.ShouldBeFalse();
     }
@@ -68,7 +68,7 @@ public class ModelTests
         {
             ModelName = modelName,
             MatchPattern = $"(?i)^{modelName}$",
-            InputPrice = 0.005m,
+            InputPrice = 0.005,
             Unit = ModelUsageUnit.Tokens
         });
 
@@ -77,7 +77,7 @@ public class ModelTests
         model.ShouldNotBeNull();
         model.Id.ShouldBe(created.Id);
         model.ModelName.ShouldBe(modelName);
-        model.InputPrice.ShouldBe(0.005m);
+        model.InputPrice.ShouldBe(0.005);
     }
 
     [Fact]
@@ -90,14 +90,14 @@ public class ModelTests
         {
             ModelName = $"{prefix}-1",
             MatchPattern = $"(?i)^{prefix}-1$",
-            InputPrice = 0.001m,
+            InputPrice = 0.001,
             Unit = ModelUsageUnit.Tokens
         });
         await client.CreateModelAsync(new CreateModelRequest
         {
             ModelName = $"{prefix}-2",
             MatchPattern = $"(?i)^{prefix}-2$",
-            InputPrice = 0.001m,
+            InputPrice = 0.001,
             Unit = ModelUsageUnit.Tokens
         });
 
@@ -107,11 +107,11 @@ public class ModelTests
         result1.ShouldNotBeNull();
         result1.Data.ShouldNotBeNull();
         result1.Data.Length.ShouldBe(1);
-        
+
         result2.ShouldNotBeNull();
         result2.Data.ShouldNotBeNull();
         result2.Data.Length.ShouldBe(1);
-        
+
         result1.Data[0].Id.ShouldNotBe(result2.Data[0].Id);
     }
 
@@ -125,7 +125,7 @@ public class ModelTests
             ModelName = modelName,
             MatchPattern = $"(?i)^{modelName}$",
             Unit = ModelUsageUnit.Tokens,
-            InputPrice = 0.001m
+            InputPrice = 0.001
         });
 
         await client.DeleteModelAsync(created.Id);
@@ -144,15 +144,15 @@ public class ModelTests
         {
             ModelName = modelName,
             MatchPattern = $"(?i)^{modelName}$",
-            InputPrice = 0.00001m,
-            OutputPrice = 0.00002m,
+            InputPrice = 0.00001,
+            OutputPrice = 0.00002,
             Unit = ModelUsageUnit.Tokens
         };
 
         var model = await client.CreateModelAsync(request);
 
-        model.InputPrice.ShouldBe(0.00001m);
-        model.OutputPrice.ShouldBe(0.00002m);
+        model.InputPrice.ShouldBe(0.00001);
+        model.OutputPrice.ShouldBe(0.00002);
     }
 
     [Fact]
@@ -167,7 +167,7 @@ public class ModelTests
             MatchPattern = $"(?i)^{modelName}$",
             StartDate = startDate,
             Unit = ModelUsageUnit.Tokens,
-            InputPrice = 0.001m
+            InputPrice = 0.001
         };
 
         var model = await client.CreateModelAsync(request);
@@ -205,8 +205,8 @@ public class ModelTests
         var client = CreateClient();
         var modelName = $"comprehensive-model-{Guid.NewGuid():N}";
         var matchPattern = $"(?i)^{modelName}$";
-        var inputPrice = 0.00001m;
-        var outputPrice = 0.00002m;
+        var inputPrice = 0.00001;
+        var outputPrice = 0.00002;
         var startDate = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc);
 
         var request = new CreateModelRequest
@@ -238,8 +238,8 @@ public class ModelTests
         var client = CreateClient();
         var modelName = $"get-comprehensive-model-{Guid.NewGuid():N}";
         var matchPattern = $"(?i)^{modelName}$";
-        var inputPrice = 0.005m;
-        var outputPrice = 0.01m;
+        var inputPrice = 0.005;
+        var outputPrice = 0.01;
 
         var created = await client.CreateModelAsync(new CreateModelRequest
         {

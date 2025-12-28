@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Core;
 
 /// <summary>
-///     Ingetion response
+///     Ingestion response
 /// </summary>
 public class IngestionResponse
 {
@@ -11,11 +11,11 @@ public class IngestionResponse
     ///     Ingestion successes
     /// </summary>
     [JsonPropertyName("successes")]
-    public IngestionSuccessResponse[]? Successes { get; set; } = [];
+    public IngestionSuccessResponse[] Successes { get; set; } = [];
 
     /// <summary>
     ///     Errors
     /// </summary>
     [JsonPropertyName("errors")]
-    public IngestionErrorResponse[]? Errors { get; set; }
+    public IngestionErrorResponse[] Errors { get; set; } = [];
 }

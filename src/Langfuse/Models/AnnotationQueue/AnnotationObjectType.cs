@@ -17,5 +17,10 @@ public enum AnnotationObjectType
     /// <summary>
     ///     Observation object (span or generation)
     /// </summary>
-    Observation
+    Observation,
+
+    /// <summary>
+    ///     Session object
+    /// </summary>
+    Session
 }

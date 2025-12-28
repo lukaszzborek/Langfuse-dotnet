@@ -48,9 +48,9 @@ public class ObservationListRequest
     public string? ParentObservationId { get; set; }
 
     /// <summary>
-    ///     Filter by environment
+    ///     Filter by environment(s)
     /// </summary>
-    public string? Environment { get; set; }
+    public string[]? Environment { get; set; }
 
     /// <summary>
     ///     Filter by observations starting from this time (inclusive)

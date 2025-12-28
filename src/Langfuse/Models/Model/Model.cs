@@ -43,19 +43,19 @@ public class Model
     ///     Price per unit for input/prompt processing in USD. Used for automatic cost calculation.
     /// </summary>
     [JsonPropertyName("inputPrice")]
-    public decimal? InputPrice { get; set; }
+    public double? InputPrice { get; set; }
 
     /// <summary>
     ///     Price per unit for output/completion generation in USD. Used for automatic cost calculation.
     /// </summary>
     [JsonPropertyName("outputPrice")]
-    public decimal? OutputPrice { get; set; }
+    public double? OutputPrice { get; set; }
 
     /// <summary>
     ///     Total price per unit when input and output are billed together. Alternative to separate input/output pricing.
     /// </summary>
     [JsonPropertyName("totalPrice")]
-    public decimal? TotalPrice { get; set; }
+    public double? TotalPrice { get; set; }
 
     /// <summary>
     ///     ID of the tokenizer to use for counting tokens. Links to specific tokenization logic for accurate usage tracking.
@@ -76,15 +76,22 @@ public class Model
     public bool IsLangfuseManaged { get; set; }
 
     /// <summary>
+    ///     Timestamp when the model was created.
+    /// </summary>
+    [JsonPropertyName("createdAt")]
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
     ///     Detailed pricing structure for different types of usage (input, output, caching, reasoning, etc.).
+    ///     Keys are usage types (e.g., "input", "output"), values are ModelPrice objects.
     /// </summary>
     [JsonPropertyName("prices")]
-    public ModelPrices? Prices { get; set; }
+    public Dictionary<string, ModelPrice> Prices { get; set; } = new();
 
     /// <summary>
     ///     Pricing tiers for the model. Enables tiered pricing based on usage thresholds.
     ///     When using tiered pricing, the flat price fields (inputPrice, outputPrice, totalPrice) are ignored.
     /// </summary>
     [JsonPropertyName("pricingTiers")]
-    public List<PricingTier>? PricingTiers { get; set; }
+    public List<PricingTier> PricingTiers { get; set; } = [];
 }

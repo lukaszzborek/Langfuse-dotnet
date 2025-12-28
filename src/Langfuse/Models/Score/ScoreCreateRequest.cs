@@ -83,4 +83,11 @@ public class ScoreCreateRequest
     /// </summary>
     [JsonPropertyName("configId")]
     public string? ConfigId { get; set; }
+
+    /// <summary>
+    ///     ID of the annotation queue referenced by the score. Indicates if score was initially created while processing
+    ///     annotation queue.
+    /// </summary>
+    [JsonPropertyName("queueId")]
+    public string? QueueId { get; set; }
 }
