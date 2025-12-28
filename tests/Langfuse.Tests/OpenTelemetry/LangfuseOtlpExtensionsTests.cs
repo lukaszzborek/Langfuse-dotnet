@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using OpenTelemetry;
-using OpenTelemetry.Trace;
+using Shouldly;
 using zborek.Langfuse.OpenTelemetry;
 
 namespace zborek.Langfuse.Tests.OpenTelemetry;
@@ -23,7 +23,7 @@ public class LangfuseOtlpExtensionsTests
         });
 
         // Assert
-        Assert.NotNull(result);
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class LangfuseOtlpExtensionsTests
         var result = builder.AddLangfuseExporter(configuration);
 
         // Assert
-        Assert.NotNull(result);
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class LangfuseOtlpExtensionsTests
         });
 
         // Assert
-        Assert.NotNull(result);
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class LangfuseOtlpExtensionsTests
         });
 
         // Assert
-        Assert.NotNull(result);
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class LangfuseOtlpExtensionsTests
         });
 
         // Assert
-        Assert.NotNull(result);
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class LangfuseOtlpExtensionsTests
         });
 
         // Assert
-        Assert.NotNull(result);
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class LangfuseOtlpExtensionsTests
             .AddSource("TestSource");
 
         // Assert
-        Assert.NotNull(result);
+        result.ShouldNotBeNull();
     }
 
     [Fact]
@@ -156,10 +156,10 @@ public class LangfuseOtlpExtensionsTests
         var builder = Sdk.CreateTracerProviderBuilder();
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
-        Assert.Contains("Public Key", exception.Message);
+        var exception = Should.Throw<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
+        exception.Message.ShouldContain("Public Key");
     }
-    
+
     [Fact]
     public void AddLangfuseExporter_WithoutSecretKey_ThrowsForMissingSecretKey()
     {
@@ -176,8 +176,8 @@ public class LangfuseOtlpExtensionsTests
         var builder = Sdk.CreateTracerProviderBuilder();
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
-        Assert.Contains("Secret Key", exception.Message);
+        var exception = Should.Throw<ArgumentException>(() => builder.AddLangfuseExporter(configuration));
+        exception.Message.ShouldContain("Secret Key");
     }
 
     [Fact]
@@ -195,9 +195,9 @@ public class LangfuseOtlpExtensionsTests
         );
 
         // Assert
-        Assert.Equal(expectedEncoded, actualEncoded);
+        actualEncoded.ShouldBe(expectedEncoded);
         // Verify it follows Basic Auth format
-        Assert.Equal("dGVzdC1wdWJsaWM6dGVzdC1zZWNyZXQ=", actualEncoded);
+        actualEncoded.ShouldBe("dGVzdC1wdWJsaWM6dGVzdC1zZWNyZXQ=");
     }
 
     [Fact]
@@ -211,7 +211,7 @@ public class LangfuseOtlpExtensionsTests
         var fullEndpoint = $"{baseEndpoint.TrimEnd('/')}{expectedPath}";
 
         // Assert
-        Assert.Equal("https://cloud.langfuse.com/api/public/otel", fullEndpoint);
+        fullEndpoint.ShouldBe("https://cloud.langfuse.com/api/public/otel");
     }
 
     [Fact]
@@ -225,6 +225,6 @@ public class LangfuseOtlpExtensionsTests
         var fullEndpoint = $"{baseEndpoint.TrimEnd('/')}{expectedPath}";
 
         // Assert
-        Assert.Equal("https://cloud.langfuse.com/api/public/otel", fullEndpoint);
+        fullEndpoint.ShouldBe("https://cloud.langfuse.com/api/public/otel");
     }
 }

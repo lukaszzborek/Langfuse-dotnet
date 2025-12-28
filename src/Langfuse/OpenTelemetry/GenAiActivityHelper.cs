@@ -81,7 +81,8 @@ public static class GenAiActivityHelper
 
         if (config.StopSequences != null && config.StopSequences.Length > 0)
         {
-            activity.SetTag(GenAiAttributes.RequestStopSequences, JsonSerializer.Serialize(config.StopSequences, JsonOptions));
+            activity.SetTag(GenAiAttributes.RequestStopSequences,
+                JsonSerializer.Serialize(config.StopSequences, JsonOptions));
         }
 
         if (!string.IsNullOrEmpty(config.OutputType))
@@ -206,7 +207,7 @@ public static class GenAiActivityHelper
         {
             return null;
         }
-
+        
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEmbedding);
 
         activity.SetTag(GenAiAttributes.OperationName, "embeddings");
@@ -220,7 +221,8 @@ public static class GenAiActivityHelper
 
         if (config.EncodingFormats != null && config.EncodingFormats.Length > 0)
         {
-            activity.SetTag(GenAiAttributes.RequestEncodingFormats, JsonSerializer.Serialize(config.EncodingFormats, JsonOptions));
+            activity.SetTag(GenAiAttributes.RequestEncodingFormats,
+                JsonSerializer.Serialize(config.EncodingFormats, JsonOptions));
         }
 
         if (!string.IsNullOrEmpty(config.ServerAddress))
@@ -440,7 +442,7 @@ public static class GenAiActivityHelper
             return;
         }
 
-        var json = input is string s ? s : JsonSerializer.Serialize(input, JsonOptions);
+        var json = input is string ? input : JsonSerializer.Serialize(input, JsonOptions);
         activity.SetTag(LangfuseAttributes.ObservationInput, json);
     }
 
@@ -454,7 +456,7 @@ public static class GenAiActivityHelper
             return;
         }
 
-        var json = output is string s ? s : JsonSerializer.Serialize(output, JsonOptions);
+        var json = output is string ? output : JsonSerializer.Serialize(output, JsonOptions);
         activity.SetTag(LangfuseAttributes.ObservationOutput, json);
     }
 
@@ -579,7 +581,8 @@ public static class GenAiActivityHelper
 
         if (response.FinishReasons != null && response.FinishReasons.Length > 0)
         {
-            activity.SetTag(GenAiAttributes.ResponseFinishReasons, JsonSerializer.Serialize(response.FinishReasons, JsonOptions));
+            activity.SetTag(GenAiAttributes.ResponseFinishReasons,
+                JsonSerializer.Serialize(response.FinishReasons, JsonOptions));
         }
 
         if (response.InputTokens.HasValue)
@@ -617,12 +620,14 @@ public static class GenAiActivityHelper
                 costDetails["total"] = response.TotalCost.Value;
             }
 
-            activity.SetTag(LangfuseAttributes.ObservationCostDetails, JsonSerializer.Serialize(costDetails, JsonOptions));
+            activity.SetTag(LangfuseAttributes.ObservationCostDetails,
+                JsonSerializer.Serialize(costDetails, JsonOptions));
         }
 
         if (response.CompletionStartTime.HasValue)
         {
-            activity.SetTag(LangfuseAttributes.ObservationCompletionStartTime, response.CompletionStartTime.Value.ToString("O"));
+            activity.SetTag(LangfuseAttributes.ObservationCompletionStartTime,
+                response.CompletionStartTime.Value.ToString("O"));
         }
 
         if (response.OutputMessages != null && response.OutputMessages.Count > 0)
@@ -678,8 +683,7 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
-        activity.SetTag(GenAiAttributes.ContentPrompt, json);
-        activity.SetTag(LangfuseAttributes.ObservationInput, json);
+        activity.SetTag(GenAiAttributes.Prompt, json);
     }
 
     /// <summary>
@@ -728,8 +732,7 @@ public static class GenAiActivityHelper
         }
 
         var json = JsonSerializer.Serialize(messageList, JsonOptions);
-        activity.SetTag(GenAiAttributes.ContentCompletion, json);
-        activity.SetTag(LangfuseAttributes.ObservationOutput, json);
+        activity.SetTag(GenAiAttributes.Completion, json);
     }
 
     /// <summary>
@@ -778,9 +781,22 @@ public static class GenAiActivityHelper
     public static Activity? CreateTraceActivity(
         ActivitySource activitySource,
         string traceName,
-        TraceConfig config)
+        TraceConfig config,
+        bool isRoot = false)
     {
-        var activity = activitySource.StartActivity(traceName);
+        Activity? activity;
+        if (isRoot)
+        {
+            var newContext = new ActivityContext(
+                ActivityTraceId.CreateRandom(),
+                default,
+                ActivityTraceFlags.Recorded);
+            activity = activitySource.StartActivity(traceName, ActivityKind.Internal, newContext);
+        }
+        else
+        {
+            activity = activitySource.StartActivity(traceName);
+        }
 
         if (activity == null)
         {
@@ -864,21 +880,21 @@ public static class GenAiActivityHelper
 
     /// <summary>
     ///     Creates and configures a general span activity within a trace for tracking operations.
+    ///     Parent is determined automatically via Activity.Current.
     /// </summary>
     public static Activity? CreateSpanActivity(
         ActivitySource activitySource,
         string spanName,
-        SpanConfig config,
-        Activity? parentActivity = null)
+        SpanConfig config)
     {
-        var activity = parentActivity == null
-            ? activitySource.StartActivity(spanName)
-            : activitySource.StartActivity(spanName, ActivityKind.Internal, parentActivity.Context);
+        var activity = activitySource.StartActivity(spanName);
 
         if (activity == null)
         {
             return null;
         }
+
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeSpan);
 
         if (!string.IsNullOrEmpty(config.SpanType))
         {
@@ -899,39 +915,5 @@ public static class GenAiActivityHelper
         }
 
         return activity;
-    }
-
-    /// <summary>
-    ///     Sets trace-level attributes on an existing trace activity for cross-span propagation.
-    /// </summary>
-    public static void SetTraceAttributes(Activity traceActivity, TraceAttributesConfig config)
-    {
-        if (!string.IsNullOrEmpty(config.UserId))
-        {
-            traceActivity.SetTag(LangfuseAttributes.UserId, config.UserId);
-        }
-
-        if (!string.IsNullOrEmpty(config.SessionId))
-        {
-            traceActivity.SetTag(LangfuseAttributes.SessionId, config.SessionId);
-        }
-
-        if (!string.IsNullOrEmpty(config.Environment))
-        {
-            traceActivity.SetTag(LangfuseAttributes.Environment, config.Environment);
-        }
-
-        if (config.Tags != null && config.Tags.Count > 0)
-        {
-            traceActivity.SetTag(LangfuseAttributes.TraceTags, JsonSerializer.Serialize(config.Tags, JsonOptions));
-        }
-
-        if (config.Metadata != null && config.Metadata.Count > 0)
-        {
-            foreach (KeyValuePair<string, object> kvp in config.Metadata)
-            {
-                traceActivity.SetTag($"{LangfuseAttributes.TraceMetadataPrefix}{kvp.Key}", kvp.Value);
-            }
-        }
     }
 }

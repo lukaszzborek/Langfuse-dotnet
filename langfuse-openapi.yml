@@ -56,35 +56,35 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     post:
       description: Create an annotation queue
       operationId: annotationQueues_createQueue
       tags:
         - AnnotationQueues
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -96,29 +96,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -149,29 +149,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/annotation-queues/{queueId}/items:
     get:
       description: Get items for a specific annotation queue
@@ -217,29 +217,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     post:
       description: Add an item to an annotation queue
       operationId: annotationQueues_createQueueItem
@@ -263,29 +263,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -322,29 +322,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     patch:
       description: Update an annotation queue item
       operationId: annotationQueues_updateQueueItem
@@ -374,29 +374,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -432,29 +432,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/annotation-queues/{queueId}/assignments:
     post:
       description: Create an assignment for a user to an annotation queue
@@ -479,29 +479,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -531,29 +531,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -568,7 +568,7 @@ paths:
       operationId: blobStorageIntegrations_getBlobStorageIntegrations
       tags:
         - BlobStorageIntegrations
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -580,29 +580,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     put:
       description: >-
         Create or update a blob storage integration for a specific project
@@ -611,7 +611,7 @@ paths:
       operationId: blobStorageIntegrations_upsertBlobStorageIntegration
       tags:
         - BlobStorageIntegrations
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -623,29 +623,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -677,29 +677,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/comments:
     post:
       description: >-
@@ -708,7 +708,7 @@ paths:
       operationId: comments_create
       tags:
         - Comments
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -720,29 +720,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -807,29 +807,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/comments/{commentId}:
     get:
       description: Get a comment by id
@@ -854,36 +854,36 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/dataset-items:
     post:
       description: Create a dataset item
       operationId: datasetItems_create
       tags:
         - DatasetItems
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -895,29 +895,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -973,29 +973,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/dataset-items/{id}:
     get:
       description: Get a dataset item
@@ -1019,29 +1019,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     delete:
       description: >-
         Delete a dataset item and all its run items. This action is
@@ -1066,36 +1066,36 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/dataset-run-items:
     post:
       description: Create a dataset run item
       operationId: datasetRunItems_create
       tags:
         - DatasetRunItems
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -1107,29 +1107,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1177,29 +1177,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/v2/datasets:
     get:
       description: Get all datasets
@@ -1232,35 +1232,35 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     post:
       description: Create a dataset
       operationId: datasets_create
       tags:
         - Datasets
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -1272,29 +1272,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1324,29 +1324,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/datasets/{datasetName}/runs/{runName}:
     get:
       description: Get a dataset run and its items
@@ -1375,29 +1375,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     delete:
       description: Delete a dataset run and all its run items. This action is irreversible.
       operationId: datasets_deleteRun
@@ -1425,29 +1425,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/datasets/{datasetName}/runs:
     get:
       description: Get dataset runs
@@ -1485,36 +1485,36 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/health:
     get:
       description: Check health of API and database
       operationId: health_health
       tags:
         - Health
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -1526,27 +1526,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '503':
           description: ''
   /api/public/ingestion:
@@ -1555,8 +1555,8 @@ paths:
         **Legacy endpoint for batch ingestion for Langfuse Observability.**
 
 
-        -> Please use the OpenTelemetry endpoint (`/api/public/otel`). Learn
-        more: https://langfuse.com/integrations/native/opentelemetry
+        -> Please use the OpenTelemetry endpoint (`/api/public/otel/v1/traces`).
+        Learn more: https://langfuse.com/integrations/native/opentelemetry
 
 
         Within each batch, there can be multiple events.
@@ -1591,7 +1591,7 @@ paths:
       operationId: ingestion_batch
       tags:
         - Ingestion
-      parameters: []
+      parameters: [ ]
       responses:
         '207':
           description: ''
@@ -1605,46 +1605,46 @@ paths:
                     successes:
                       - id: abcdef-1234-5678-90ab
                         status: 201
-                    errors: []
+                    errors: [ ]
                 Example2:
                   value:
                     successes:
                       - id: abcdef-1234-5678-90ab
                         status: 201
-                    errors: []
+                    errors: [ ]
                 Example3:
                   value:
                     successes:
                       - id: abcdef-1234-5678-90ab
                         status: 201
-                    errors: []
+                    errors: [ ]
         '400':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1744,29 +1744,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     put:
       description: >-
         Create or update an LLM connection. The connection is upserted on
@@ -1774,7 +1774,7 @@ paths:
       operationId: llmConnections_upsert
       tags:
         - LlmConnections
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -1786,29 +1786,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1839,29 +1839,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     patch:
       description: Patch a media record
       operationId: media_patch
@@ -1881,29 +1881,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1916,7 +1916,7 @@ paths:
       operationId: media_getUploadUrl
       tags:
         - Media
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -1928,29 +1928,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1959,7 +1959,12 @@ paths:
               $ref: '#/components/schemas/GetMediaUploadUrlRequest'
   /api/public/metrics:
     get:
-      description: Get metrics from the Langfuse project using a query object
+      description: >-
+        Get metrics from the Langfuse project using a query object.
+
+
+        For more details, see the [Metrics API
+        documentation](https://langfuse.com/docs/metrics/features/metrics-api).
       operationId: metrics_metrics
       tags:
         - Metrics
@@ -2026,36 +2031,36 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/models:
     post:
       description: Create a model
       operationId: models_create
       tags:
         - Models
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -2067,29 +2072,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2127,29 +2132,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/models/{id}:
     get:
       description: Get a model
@@ -2173,29 +2178,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     delete:
       description: >-
         Delete a model. Cannot delete models managed by Langfuse. You can create
@@ -2217,29 +2222,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/observations/{observationId}:
     get:
       description: Get a observation
@@ -2266,29 +2271,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/observations:
     get:
       description: Get a list of observations
@@ -2389,6 +2394,163 @@ paths:
           schema:
             type: string
             nullable: true
+        - name: filter
+          in: query
+          description: >-
+            JSON string containing an array of filter conditions. When provided,
+            this takes precedence over query parameter filters (userId, name,
+            type, level, environment, fromStartTime, ...).
+
+
+            ## Filter Structure
+
+            Each filter condition has the following structure:
+
+            ```json
+
+            [
+              {
+                "type": string,           // Required. One of: "datetime", "string", "number", "stringOptions", "categoryOptions", "arrayOptions", "stringObject", "numberObject", "boolean", "null"
+                "column": string,         // Required. Column to filter on (see available columns below)
+                "operator": string,       // Required. Operator based on type:
+                                          // - datetime: ">", "<", ">=", "<="
+                                          // - string: "=", "contains", "does not contain", "starts with", "ends with"
+                                          // - stringOptions: "any of", "none of"
+                                          // - categoryOptions: "any of", "none of"
+                                          // - arrayOptions: "any of", "none of", "all of"
+                                          // - number: "=", ">", "<", ">=", "<="
+                                          // - stringObject: "=", "contains", "does not contain", "starts with", "ends with"
+                                          // - numberObject: "=", ">", "<", ">=", "<="
+                                          // - boolean: "=", "<>"
+                                          // - null: "is null", "is not null"
+                "value": any,             // Required (except for null type). Value to compare against. Type depends on filter type
+                "key": string             // Required only for stringObject, numberObject, and categoryOptions types when filtering on nested fields like metadata
+              }
+            ]
+
+            ```
+
+
+            ## Available Columns
+
+
+            ### Core Observation Fields
+
+            - `id` (string) - Observation ID
+
+            - `type` (string) - Observation type (SPAN, GENERATION, EVENT)
+
+            - `name` (string) - Observation name
+
+            - `traceId` (string) - Associated trace ID
+
+            - `startTime` (datetime) - Observation start time
+
+            - `endTime` (datetime) - Observation end time
+
+            - `environment` (string) - Environment tag
+
+            - `level` (string) - Log level (DEBUG, DEFAULT, WARNING, ERROR)
+
+            - `statusMessage` (string) - Status message
+
+            - `version` (string) - Version tag
+
+
+            ### Performance Metrics
+
+            - `latency` (number) - Latency in seconds (calculated: end_time -
+            start_time)
+
+            - `timeToFirstToken` (number) - Time to first token in seconds
+
+            - `tokensPerSecond` (number) - Output tokens per second
+
+
+            ### Token Usage
+
+            - `inputTokens` (number) - Number of input tokens
+
+            - `outputTokens` (number) - Number of output tokens
+
+            - `totalTokens` (number) - Total tokens (alias: `tokens`)
+
+
+            ### Cost Metrics
+
+            - `inputCost` (number) - Input cost in USD
+
+            - `outputCost` (number) - Output cost in USD
+
+            - `totalCost` (number) - Total cost in USD
+
+
+            ### Model Information
+
+            - `model` (string) - Provided model name
+
+            - `promptName` (string) - Associated prompt name
+
+            - `promptVersion` (number) - Associated prompt version
+
+
+            ### Structured Data
+
+            - `metadata` (stringObject/numberObject/categoryOptions) - Metadata
+            key-value pairs. Use `key` parameter to filter on specific metadata
+            keys.
+
+
+            ### Scores (requires join with scores table)
+
+            - `scores_avg` (number) - Average of numeric scores (alias:
+            `scores`)
+
+            - `score_categories` (categoryOptions) - Categorical score values
+
+
+            ### Associated Trace Fields (requires join with traces table)
+
+            - `userId` (string) - User ID from associated trace
+
+            - `traceName` (string) - Name from associated trace
+
+            - `traceEnvironment` (string) - Environment from associated trace
+
+            - `traceTags` (arrayOptions) - Tags from associated trace
+
+
+            ## Filter Examples
+
+            ```json
+
+            [
+              {
+                "type": "string",
+                "column": "type",
+                "operator": "=",
+                "value": "GENERATION"
+              },
+              {
+                "type": "number",
+                "column": "latency",
+                "operator": ">=",
+                "value": 2.5
+              },
+              {
+                "type": "stringObject",
+                "column": "metadata",
+                "key": "environment",
+                "operator": "=",
+                "value": "production"
+              }
+            ]
+
+            ```
+          required: false
+          schema:
+            type: string
+            nullable: true
       responses:
         '200':
           description: ''
@@ -2400,29 +2562,148 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
+  /api/public/otel/v1/traces:
+    post:
+      description: >-
+        **OpenTelemetry Traces Ingestion Endpoint**
+
+
+        This endpoint implements the OTLP/HTTP specification for trace
+        ingestion, providing native OpenTelemetry integration for Langfuse
+        Observability.
+
+
+        **Supported Formats:**
+
+        - Binary Protobuf: `Content-Type: application/x-protobuf`
+
+        - JSON Protobuf: `Content-Type: application/json`
+
+        - Supports gzip compression via `Content-Encoding: gzip` header
+
+
+        **Specification Compliance:**
+
+        - Conforms to [OTLP/HTTP Trace
+        Export](https://opentelemetry.io/docs/specs/otlp/#otlphttp)
+
+        - Implements `ExportTraceServiceRequest` message format
+
+
+        **Documentation:**
+
+        - Integration guide:
+        https://langfuse.com/integrations/native/opentelemetry
+
+        - Data model: https://langfuse.com/docs/observability/data-model
+      operationId: opentelemetry_exportTraces
+      tags:
+        - Opentelemetry
+      parameters: [ ]
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtelTraceResponse'
+              examples:
+                BasicTraceExport:
+                  value: { }
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '405':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+      security:
+        - BasicAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resourceSpans:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/OtelResourceSpan'
+                  description: >-
+                    Array of resource spans containing trace data as defined in
+                    the OTLP specification
+              required:
+                - resourceSpans
+            examples:
+              BasicTraceExport:
+                value:
+                  resourceSpans:
+                    - resource:
+                        attributes:
+                          - key: service.name
+                            value:
+                              stringValue: my-service
+                          - key: service.version
+                            value:
+                              stringValue: 1.0.0
+                      scopeSpans:
+                        - scope:
+                            name: langfuse-sdk
+                            version: 2.60.3
+                          spans:
+                            - traceId: 0123456789abcdef0123456789abcdef
+                              spanId: 0123456789abcdef
+                              name: my-operation
+                              kind: 1
+                              startTimeUnixNano: '1747872000000000000'
+                              endTimeUnixNano: '1747872001000000000'
+                              attributes:
+                                - key: langfuse.observation.type
+                                  value:
+                                    stringValue: generation
+                              status: { }
   /api/public/organizations/memberships:
     get:
       description: >-
@@ -2431,7 +2712,7 @@ paths:
       operationId: organizations_getOrganizationMemberships
       tags:
         - Organizations
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -2443,29 +2724,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     put:
       description: >-
         Create or update a membership for the organization associated with the
@@ -2473,7 +2754,7 @@ paths:
       operationId: organizations_updateOrganizationMembership
       tags:
         - Organizations
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -2485,29 +2766,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2521,7 +2802,7 @@ paths:
       operationId: organizations_deleteOrganizationMembership
       tags:
         - Organizations
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -2533,29 +2814,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2587,29 +2868,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     put:
       description: >-
         Create or update a membership for a specific project (requires
@@ -2635,29 +2916,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2689,29 +2970,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2726,7 +3007,7 @@ paths:
       operationId: organizations_getOrganizationProjects
       tags:
         - Organizations
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -2738,36 +3019,79 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
+  /api/public/organizations/apiKeys:
+    get:
+      description: >-
+        Get all API keys for the organization associated with the API key
+        (requires organization-scoped API key)
+      operationId: organizations_getOrganizationApiKeys
+      tags:
+        - Organizations
+      parameters: [ ]
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationApiKeysResponse'
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+        '405':
+          description: ''
+          content:
+            application/json:
+              schema: { }
+      security:
+        - BasicAuth: [ ]
   /api/public/projects:
     get:
       description: Get Project associated with API key
       operationId: projects_get
       tags:
         - Projects
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -2779,35 +3103,35 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     post:
       description: Create a new project (requires organization-scoped API key)
       operationId: projects_create
       tags:
         - Projects
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -2819,29 +3143,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2888,29 +3212,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2958,29 +3282,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/projects/{projectId}/apiKeys:
     get:
       description: Get all API keys for a project (requires organization-scoped API key)
@@ -3004,29 +3328,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     post:
       description: >-
         Create a new API key for a project (requires organization-scoped API
@@ -3051,29 +3375,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -3085,6 +3409,18 @@ paths:
                   type: string
                   nullable: true
                   description: Optional note for the API key
+                publicKey:
+                  type: string
+                  nullable: true
+                  description: >-
+                    Optional predefined public key. Must start with 'pk-lf-'. If
+                    provided, secretKey must also be provided.
+                secretKey:
+                  type: string
+                  nullable: true
+                  description: >-
+                    Optional predefined secret key. Must start with 'sk-lf-'. If
+                    provided, publicKey must also be provided.
   /api/public/projects/{projectId}/apiKeys/{apiKeyId}:
     delete:
       description: Delete an API key for a project (requires organization-scoped API key)
@@ -3113,29 +3449,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/v2/prompts/{name}/versions/{version}:
     patch:
       description: Update labels for a specific prompt version
@@ -3166,29 +3502,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -3246,29 +3582,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/v2/prompts:
     get:
       description: Get a list of prompt names with versions and labels
@@ -3339,35 +3675,35 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     post:
       description: Create a new version for the prompt with the given `name`
       operationId: prompts_create
       tags:
         - Prompts
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -3379,29 +3715,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -3416,7 +3752,7 @@ paths:
       operationId: scim_getServiceProviderConfig
       tags:
         - Scim
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -3428,36 +3764,36 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/scim/ResourceTypes:
     get:
       description: Get SCIM Resource Types (requires organization-scoped API key)
       operationId: scim_getResourceTypes
       tags:
         - Scim
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -3469,36 +3805,36 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/scim/Schemas:
     get:
       description: Get SCIM Schemas (requires organization-scoped API key)
       operationId: scim_getSchemas
       tags:
         - Scim
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -3510,29 +3846,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/scim/Users:
     get:
       description: List users in the organization (requires organization-scoped API key)
@@ -3572,29 +3908,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     post:
       description: >-
         Create a new user in the organization (requires organization-scoped API
@@ -3602,7 +3938,7 @@ paths:
       operationId: scim_createUser
       tags:
         - Scim
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -3614,29 +3950,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -3690,29 +4026,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     delete:
       description: >-
         Remove a user from the organization (requires organization-scoped API
@@ -3738,29 +4074,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/score-configs:
     post:
       description: >-
@@ -3769,7 +4105,7 @@ paths:
       operationId: scoreConfigs_create
       tags:
         - ScoreConfigs
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -3781,29 +4117,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -3843,29 +4179,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/score-configs/{configId}:
     get:
       description: Get a score config
@@ -3890,29 +4226,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     patch:
       description: Update a score config
       operationId: scoreConfigs_update
@@ -3936,29 +4272,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -4112,29 +4448,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/v2/scores/{scoreId}:
     get:
       description: Get a score (supports both trace and session scores)
@@ -4159,36 +4495,36 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/scores:
     post:
       description: Create a score (supports both trace and session scores)
       operationId: score_create
       tags:
         - Score
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -4200,29 +4536,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -4249,29 +4585,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/sessions:
     get:
       description: Get sessions
@@ -4337,29 +4673,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/sessions/{sessionId}:
     get:
       description: >-
@@ -4387,29 +4723,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/traces/{traceId}:
     get:
       description: Get a specific trace
@@ -4434,29 +4770,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     delete:
       description: Delete a specific trace
       operationId: trace_delete
@@ -4480,29 +4816,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
   /api/public/traces:
     get:
       description: Get list of traces
@@ -4625,9 +4961,12 @@ paths:
           in: query
           description: >-
             JSON string containing an array of filter conditions. When provided,
-            this takes precedence over legacy filter parameters (userId, name,
+            this takes precedence over query parameter filters (userId, name,
             sessionId, tags, version, release, environment, fromTimestamp,
             toTimestamp).
+
+
+            ## Filter Structure
 
             Each filter condition has the following structure:
 
@@ -4636,7 +4975,7 @@ paths:
             [
               {
                 "type": string,           // Required. One of: "datetime", "string", "number", "stringOptions", "categoryOptions", "arrayOptions", "stringObject", "numberObject", "boolean", "null"
-                "column": string,         // Required. Column to filter on
+                "column": string,         // Required. Column to filter on (see available columns below)
                 "operator": string,       // Required. Operator based on type:
                                           // - datetime: ">", "<", ">=", "<="
                                           // - string: "=", "contains", "does not contain", "starts with", "ends with"
@@ -4654,6 +4993,135 @@ paths:
             ]
 
             ```
+
+
+            ## Available Columns
+
+
+            ### Core Trace Fields
+
+            - `id` (string) - Trace ID
+
+            - `name` (string) - Trace name
+
+            - `timestamp` (datetime) - Trace timestamp
+
+            - `userId` (string) - User ID
+
+            - `sessionId` (string) - Session ID
+
+            - `environment` (string) - Environment tag
+
+            - `version` (string) - Version tag
+
+            - `release` (string) - Release tag
+
+            - `tags` (arrayOptions) - Array of tags
+
+            - `bookmarked` (boolean) - Bookmark status
+
+
+            ### Structured Data
+
+            - `metadata` (stringObject/numberObject/categoryOptions) - Metadata
+            key-value pairs. Use `key` parameter to filter on specific metadata
+            keys.
+
+
+            ### Aggregated Metrics (from observations)
+
+            These metrics are aggregated from all observations within the trace:
+
+            - `latency` (number) - Latency in seconds (time from first
+            observation start to last observation end)
+
+            - `inputTokens` (number) - Total input tokens across all
+            observations
+
+            - `outputTokens` (number) - Total output tokens across all
+            observations
+
+            - `totalTokens` (number) - Total tokens (alias: `tokens`)
+
+            - `inputCost` (number) - Total input cost in USD
+
+            - `outputCost` (number) - Total output cost in USD
+
+            - `totalCost` (number) - Total cost in USD
+
+
+            ### Observation Level Aggregations
+
+            These fields aggregate observation levels within the trace:
+
+            - `level` (string) - Highest severity level (ERROR > WARNING >
+            DEFAULT > DEBUG)
+
+            - `warningCount` (number) - Count of WARNING level observations
+
+            - `errorCount` (number) - Count of ERROR level observations
+
+            - `defaultCount` (number) - Count of DEFAULT level observations
+
+            - `debugCount` (number) - Count of DEBUG level observations
+
+
+            ### Scores (requires join with scores table)
+
+            - `scores_avg` (number) - Average of numeric scores (alias:
+            `scores`)
+
+            - `score_categories` (categoryOptions) - Categorical score values
+
+
+            ## Filter Examples
+
+            ```json
+
+            [
+              {
+                "type": "datetime",
+                "column": "timestamp",
+                "operator": ">=",
+                "value": "2024-01-01T00:00:00Z"
+              },
+              {
+                "type": "string",
+                "column": "userId",
+                "operator": "=",
+                "value": "user-123"
+              },
+              {
+                "type": "number",
+                "column": "totalCost",
+                "operator": ">=",
+                "value": 0.01
+              },
+              {
+                "type": "arrayOptions",
+                "column": "tags",
+                "operator": "all of",
+                "value": ["production", "critical"]
+              },
+              {
+                "type": "stringObject",
+                "column": "metadata",
+                "key": "customer_tier",
+                "operator": "=",
+                "value": "enterprise"
+              }
+            ]
+
+            ```
+
+
+            ## Performance Notes
+
+            - Filtering on `userId`, `sessionId`, or `metadata` may enable skip
+            indexes for better query performance
+
+            - Score filters require a join with the scores table and may impact
+            query performance
           required: false
           schema:
             type: string
@@ -4669,35 +5137,35 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
     delete:
       description: Delete multiple traces
       operationId: trace_deleteMultiple
       tags:
         - Trace
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           description: ''
@@ -4709,29 +5177,29 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '401':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '403':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '404':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
         '405':
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: { }
       security:
-        - BasicAuth: []
+        - BasicAuth: [ ]
       requestBody:
         required: true
         content:
@@ -4760,6 +5228,7 @@ components:
       enum:
         - TRACE
         - OBSERVATION
+        - SESSION
     AnnotationQueue:
       title: AnnotationQueue
       type: object
@@ -5117,7 +5586,7 @@ components:
           type: string
           description: >-
             The content of the comment. May include markdown. Currently limited
-            to 3000 characters.
+            to 5000 characters.
         authorUserId:
           type: string
           nullable: true
@@ -5624,8 +6093,8 @@ components:
           type: string
           nullable: true
           description: >-
-            Reference an annotation queue on a score. Populated if the score was
-            initially created in an annotation queue.
+            The annotation queue referenced by the score. Indicates if score was
+            initially created while processing annotation queue.
         environment:
           type: string
           nullable: true
@@ -5779,8 +6248,8 @@ components:
           type: string
           nullable: true
           description: >-
-            Reference an annotation queue on a score. Populated if the score was
-            initially created in an annotation queue.
+            The annotation queue referenced by the score. Indicates if score was
+            initially created while processing annotation queue.
         environment:
           type: string
           nullable: true
@@ -5936,6 +6405,12 @@ components:
           nullable: true
         metadata:
           nullable: true
+        inputSchema:
+          nullable: true
+          description: JSON Schema for validating dataset item inputs
+        expectedOutputSchema:
+          nullable: true
+          description: JSON Schema for validating dataset item expected outputs
         projectId:
           type: string
         createdAt:
@@ -6325,6 +6800,17 @@ components:
           nullable: true
         metadata:
           nullable: true
+        inputSchema:
+          nullable: true
+          description: >-
+            JSON Schema for validating dataset item inputs. When set, all new
+            and existing dataset items will be validated against this schema.
+        expectedOutputSchema:
+          nullable: true
+          description: >-
+            JSON Schema for validating dataset item expected outputs. When set,
+            all new and existing dataset items will be validated against this
+            schema.
       required:
         - name
     PaginatedDatasetRuns:
@@ -6763,7 +7249,7 @@ components:
       title: SDKLogBody
       type: object
       properties:
-        log: {}
+        log: { }
       required:
         - log
     ScoreBody:
@@ -6791,6 +7277,12 @@ components:
         environment:
           type: string
           nullable: true
+        queueId:
+          type: string
+          nullable: true
+          description: >-
+            The annotation queue referenced by the score. Indicates if score was
+            initially created while processing annotation queue.
         value:
           $ref: '#/components/schemas/CreateScoreValue'
           description: >-
@@ -7407,6 +7899,147 @@ components:
       required:
         - data
         - meta
+    OtelResourceSpan:
+      title: OtelResourceSpan
+      type: object
+      description: >-
+        Represents a collection of spans from a single resource as per OTLP
+        specification
+      properties:
+        resource:
+          $ref: '#/components/schemas/OtelResource'
+          nullable: true
+          description: Resource information
+        scopeSpans:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtelScopeSpan'
+          nullable: true
+          description: Array of scope spans
+    OtelResource:
+      title: OtelResource
+      type: object
+      description: Resource attributes identifying the source of telemetry
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtelAttribute'
+          nullable: true
+          description: Resource attributes like service.name, service.version, etc.
+    OtelScopeSpan:
+      title: OtelScopeSpan
+      type: object
+      description: Collection of spans from a single instrumentation scope
+      properties:
+        scope:
+          $ref: '#/components/schemas/OtelScope'
+          nullable: true
+          description: Instrumentation scope information
+        spans:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtelSpan'
+          nullable: true
+          description: Array of spans
+    OtelScope:
+      title: OtelScope
+      type: object
+      description: Instrumentation scope information
+      properties:
+        name:
+          type: string
+          nullable: true
+          description: Instrumentation scope name
+        version:
+          type: string
+          nullable: true
+          description: Instrumentation scope version
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtelAttribute'
+          nullable: true
+          description: Additional scope attributes
+    OtelSpan:
+      title: OtelSpan
+      type: object
+      description: Individual span representing a unit of work or operation
+      properties:
+        traceId:
+          nullable: true
+          description: Trace ID (16 bytes, hex-encoded string in JSON or Buffer in binary)
+        spanId:
+          nullable: true
+          description: Span ID (8 bytes, hex-encoded string in JSON or Buffer in binary)
+        parentSpanId:
+          nullable: true
+          description: Parent span ID if this is a child span
+        name:
+          type: string
+          nullable: true
+          description: Span name describing the operation
+        kind:
+          type: integer
+          nullable: true
+          description: Span kind (1=INTERNAL, 2=SERVER, 3=CLIENT, 4=PRODUCER, 5=CONSUMER)
+        startTimeUnixNano:
+          nullable: true
+          description: Start time in nanoseconds since Unix epoch
+        endTimeUnixNano:
+          nullable: true
+          description: End time in nanoseconds since Unix epoch
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtelAttribute'
+          nullable: true
+          description: >-
+            Span attributes including Langfuse-specific attributes
+            (langfuse.observation.*)
+        status:
+          nullable: true
+          description: Span status object
+    OtelAttribute:
+      title: OtelAttribute
+      type: object
+      description: Key-value attribute pair for resources, scopes, or spans
+      properties:
+        key:
+          type: string
+          nullable: true
+          description: Attribute key (e.g., "service.name", "langfuse.observation.type")
+        value:
+          $ref: '#/components/schemas/OtelAttributeValue'
+          nullable: true
+          description: Attribute value
+    OtelAttributeValue:
+      title: OtelAttributeValue
+      type: object
+      description: Attribute value wrapper supporting different value types
+      properties:
+        stringValue:
+          type: string
+          nullable: true
+          description: String value
+        intValue:
+          type: integer
+          nullable: true
+          description: Integer value
+        doubleValue:
+          type: number
+          format: double
+          nullable: true
+          description: Double value
+        boolValue:
+          type: boolean
+          nullable: true
+          description: Boolean value
+    OtelTraceResponse:
+      title: OtelTraceResponse
+      type: object
+      description: Response from trace export request. Empty object indicates success.
+      properties: { }
     MembershipRole:
       title: MembershipRole
       type: string
@@ -7505,6 +8138,45 @@ components:
             $ref: '#/components/schemas/OrganizationProject'
       required:
         - projects
+    OrganizationApiKey:
+      title: OrganizationApiKey
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastUsedAt:
+          type: string
+          format: date-time
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        publicKey:
+          type: string
+        displaySecretKey:
+          type: string
+      required:
+        - id
+        - createdAt
+        - publicKey
+        - displaySecretKey
+    OrganizationApiKeysResponse:
+      title: OrganizationApiKeysResponse
+      type: object
+      properties:
+        apiKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationApiKey'
+      required:
+        - apiKeys
     Projects:
       title: Projects
       type: object
@@ -7642,6 +8314,9 @@ components:
       properties:
         name:
           type: string
+        type:
+          $ref: '#/components/schemas/PromptType'
+          description: Indicates whether the prompt is a text or chat prompt.
         versions:
           type: array
           items:
@@ -7663,6 +8338,7 @@ components:
             filters (if any are provided)
       required:
         - name
+        - type
         - versions
         - labels
         - tags
@@ -7778,6 +8454,12 @@ components:
             - $ref: '#/components/schemas/TextPrompt'
           required:
             - type
+    PromptType:
+      title: PromptType
+      type: string
+      enum:
+        - chat
+        - text
     BasePrompt:
       title: BasePrompt
       type: object
@@ -7786,7 +8468,7 @@ components:
           type: string
         version:
           type: integer
-        config: {}
+        config: { }
         labels:
           type: array
           items:
@@ -8077,7 +8759,7 @@ components:
           type: string
         attributes:
           type: array
-          items: {}
+          items: { }
         meta:
           $ref: '#/components/schemas/ResourceMeta'
       required:
@@ -8176,7 +8858,7 @@ components:
       title: EmptyResponse
       type: object
       description: Empty response for 204 No Content responses
-      properties: {}
+      properties: { }
     ScoreConfigs:
       title: ScoreConfigs
       type: object
@@ -8407,6 +9089,12 @@ components:
             The environment of the score. Can be any lowercase alphanumeric
             string with hyphens and underscores that does not start with
             'langfuse'.
+        queueId:
+          type: string
+          nullable: true
+          description: >-
+            The annotation queue referenced by the score. Indicates if score was
+            initially created while processing annotation queue.
         dataType:
           $ref: '#/components/schemas/ScoreDataType'
           nullable: true

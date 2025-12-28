@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Shouldly;
 using zborek.Langfuse.Models.LlmConnection;
 
 namespace zborek.Langfuse.Tests.Models;
@@ -18,10 +19,10 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(testData);
 
-        Assert.Contains("\"anthropic\"", json);
-        Assert.Contains("\"openai\"", json);
-        Assert.Contains("\"azure\"", json);
-        Assert.Contains("\"bedrock\"", json);
+        json.ShouldContain("\"anthropic\"");
+        json.ShouldContain("\"openai\"");
+        json.ShouldContain("\"azure\"");
+        json.ShouldContain("\"bedrock\"");
     }
 
     [Fact]
@@ -35,8 +36,8 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(testData);
 
-        Assert.Contains("\"google-vertex-ai\"", json);
-        Assert.Contains("\"google-ai-studio\"", json);
+        json.ShouldContain("\"google-vertex-ai\"");
+        json.ShouldContain("\"google-ai-studio\"");
     }
 
     [Fact]
@@ -52,10 +53,10 @@ public class LlmConnectionTests
         var result3 = JsonSerializer.Deserialize<TestAdapterWrapper>(json3);
         var result4 = JsonSerializer.Deserialize<TestAdapterWrapper>(json4);
 
-        Assert.Equal(LlmAdapter.Anthropic, result1!.Adapter);
-        Assert.Equal(LlmAdapter.OpenAi, result2!.Adapter);
-        Assert.Equal(LlmAdapter.Azure, result3!.Adapter);
-        Assert.Equal(LlmAdapter.Bedrock, result4!.Adapter);
+        result1!.Adapter.ShouldBe(LlmAdapter.Anthropic);
+        result2!.Adapter.ShouldBe(LlmAdapter.OpenAi);
+        result3!.Adapter.ShouldBe(LlmAdapter.Azure);
+        result4!.Adapter.ShouldBe(LlmAdapter.Bedrock);
     }
 
     [Fact]
@@ -67,8 +68,8 @@ public class LlmConnectionTests
         var result1 = JsonSerializer.Deserialize<TestAdapterWrapper>(json1);
         var result2 = JsonSerializer.Deserialize<TestAdapterWrapper>(json2);
 
-        Assert.Equal(LlmAdapter.GoogleVertexAi, result1!.Adapter);
-        Assert.Equal(LlmAdapter.GoogleAiStudio, result2!.Adapter);
+        result1!.Adapter.ShouldBe(LlmAdapter.GoogleVertexAi);
+        result2!.Adapter.ShouldBe(LlmAdapter.GoogleAiStudio);
     }
 
     [Fact]
@@ -91,21 +92,21 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"provider\"", json);
-        Assert.Contains("\"my-openai-gateway\"", json);
-        Assert.Contains("\"adapter\"", json);
-        Assert.Contains("\"openai\"", json);
-        Assert.Contains("\"secretKey\"", json);
-        Assert.Contains("\"sk-test123456\"", json);
-        Assert.Contains("\"baseURL\"", json);
-        Assert.Contains("\"https://api.mygateway.com\"", json);
-        Assert.Contains("\"customModels\"", json);
-        Assert.Contains("\"gpt-4-custom\"", json);
-        Assert.Contains("\"gpt-3.5-custom\"", json);
-        Assert.Contains("\"withDefaultModels\"", json);
-        Assert.Contains("\"extraHeaders\"", json);
-        Assert.Contains("\"X-Custom-Header\"", json);
-        Assert.Contains("\"value1\"", json);
+        json.ShouldContain("\"provider\"");
+        json.ShouldContain("\"my-openai-gateway\"");
+        json.ShouldContain("\"adapter\"");
+        json.ShouldContain("\"openai\"");
+        json.ShouldContain("\"secretKey\"");
+        json.ShouldContain("\"sk-test123456\"");
+        json.ShouldContain("\"baseURL\"");
+        json.ShouldContain("\"https://api.mygateway.com\"");
+        json.ShouldContain("\"customModels\"");
+        json.ShouldContain("\"gpt-4-custom\"");
+        json.ShouldContain("\"gpt-3.5-custom\"");
+        json.ShouldContain("\"withDefaultModels\"");
+        json.ShouldContain("\"extraHeaders\"");
+        json.ShouldContain("\"X-Custom-Header\"");
+        json.ShouldContain("\"value1\"");
     }
 
     [Fact]
@@ -124,13 +125,13 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"provider\":\"my-provider\"", json);
-        Assert.Contains("\"adapter\":\"anthropic\"", json);
-        Assert.Contains("\"secretKey\":\"sk-ant-api03-test\"", json);
-        Assert.Contains("\"baseURL\":null", json);
-        Assert.Contains("\"customModels\":null", json);
-        Assert.Contains("\"withDefaultModels\":null", json);
-        Assert.Contains("\"extraHeaders\":null", json);
+        json.ShouldContain("\"provider\":\"my-provider\"");
+        json.ShouldContain("\"adapter\":\"anthropic\"");
+        json.ShouldContain("\"secretKey\":\"sk-ant-api03-test\"");
+        json.ShouldContain("\"baseURL\":null");
+        json.ShouldContain("\"customModels\":null");
+        json.ShouldContain("\"withDefaultModels\":null");
+        json.ShouldContain("\"extraHeaders\":null");
     }
 
     [Fact]
@@ -151,21 +152,21 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<LlmConnection>(json);
 
-        Assert.NotNull(response);
-        Assert.Equal("conn-123", response.Id);
-        Assert.Equal("openai-prod", response.Provider);
-        Assert.Equal(LlmAdapter.OpenAi, response.Adapter);
-        Assert.Equal("sk-...3456", response.DisplaySecretKey);
-        Assert.Equal("https://api.openai.com", response.BaseURL);
-        Assert.Equal(2, response.CustomModels.Length);
-        Assert.Contains("gpt-4-turbo", response.CustomModels);
-        Assert.Contains("gpt-4-vision", response.CustomModels);
-        Assert.True(response.WithDefaultModels);
-        Assert.Equal(2, response.ExtraHeaderKeys.Length);
-        Assert.Contains("X-Custom-Header", response.ExtraHeaderKeys);
-        Assert.Contains("X-Rate-Limit", response.ExtraHeaderKeys);
-        Assert.Equal(new DateTime(2024, 10, 1, 10, 0, 0, DateTimeKind.Utc), response.CreatedAt);
-        Assert.Equal(new DateTime(2024, 10, 12, 15, 30, 0, DateTimeKind.Utc), response.UpdatedAt);
+        response.ShouldNotBeNull();
+        response.Id.ShouldBe("conn-123");
+        response.Provider.ShouldBe("openai-prod");
+        response.Adapter.ShouldBe(LlmAdapter.OpenAi);
+        response.DisplaySecretKey.ShouldBe("sk-...3456");
+        response.BaseURL.ShouldBe("https://api.openai.com");
+        response.CustomModels.Length.ShouldBe(2);
+        response.CustomModels.ShouldContain("gpt-4-turbo");
+        response.CustomModels.ShouldContain("gpt-4-vision");
+        response.WithDefaultModels.ShouldBeTrue();
+        response.ExtraHeaderKeys.Length.ShouldBe(2);
+        response.ExtraHeaderKeys.ShouldContain("X-Custom-Header");
+        response.ExtraHeaderKeys.ShouldContain("X-Rate-Limit");
+        response.CreatedAt.ShouldBe(new DateTime(2024, 10, 1, 10, 0, 0, DateTimeKind.Utc));
+        response.UpdatedAt.ShouldBe(new DateTime(2024, 10, 12, 15, 30, 0, DateTimeKind.Utc));
     }
 
     [Fact]
@@ -220,29 +221,29 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<PaginatedLlmConnections>(json);
 
-        Assert.NotNull(response);
-        Assert.NotNull(response.Data);
-        Assert.Equal(3, response.Data.Length);
+        response.ShouldNotBeNull();
+        response.Data.ShouldNotBeNull();
+        response.Data.Length.ShouldBe(3);
 
-        Assert.Equal("conn-1", response.Data[0].Id);
-        Assert.Equal("openai", response.Data[0].Provider);
-        Assert.Equal(LlmAdapter.OpenAi, response.Data[0].Adapter);
+        response.Data[0].Id.ShouldBe("conn-1");
+        response.Data[0].Provider.ShouldBe("openai");
+        response.Data[0].Adapter.ShouldBe(LlmAdapter.OpenAi);
 
-        Assert.Equal("conn-2", response.Data[1].Id);
-        Assert.Equal("anthropic", response.Data[1].Provider);
-        Assert.Equal(LlmAdapter.Anthropic, response.Data[1].Adapter);
-        Assert.Single(response.Data[1].CustomModels);
+        response.Data[1].Id.ShouldBe("conn-2");
+        response.Data[1].Provider.ShouldBe("anthropic");
+        response.Data[1].Adapter.ShouldBe(LlmAdapter.Anthropic);
+        response.Data[1].CustomModels.ShouldHaveSingleItem();
 
-        Assert.Equal("conn-3", response.Data[2].Id);
-        Assert.Equal("google-vertex", response.Data[2].Provider);
-        Assert.Equal(LlmAdapter.GoogleVertexAi, response.Data[2].Adapter);
-        Assert.Equal(2, response.Data[2].CustomModels.Length);
+        response.Data[2].Id.ShouldBe("conn-3");
+        response.Data[2].Provider.ShouldBe("google-vertex");
+        response.Data[2].Adapter.ShouldBe(LlmAdapter.GoogleVertexAi);
+        response.Data[2].CustomModels.Length.ShouldBe(2);
 
-        Assert.NotNull(response.Meta);
-        Assert.Equal(1, response.Meta.Page);
-        Assert.Equal(50, response.Meta.Limit);
-        Assert.Equal(3, response.Meta.TotalItems);
-        Assert.Equal(1, response.Meta.TotalPages);
+        response.Meta.ShouldNotBeNull();
+        response.Meta.Page.ShouldBe(1);
+        response.Meta.Limit.ShouldBe(50);
+        response.Meta.TotalItems.ShouldBe(3);
+        response.Meta.TotalPages.ShouldBe(1);
     }
 
     [Fact]
@@ -251,7 +252,7 @@ public class LlmConnectionTests
         var connectionType = typeof(LlmConnection);
         var secretKeyProperty = connectionType.GetProperty("SecretKey");
 
-        Assert.Null(secretKeyProperty);
+        secretKeyProperty.ShouldBeNull();
     }
 
     [Fact]
@@ -260,8 +261,8 @@ public class LlmConnectionTests
         var connectionType = typeof(LlmConnection);
         var displaySecretKeyProperty = connectionType.GetProperty("DisplaySecretKey");
 
-        Assert.NotNull(displaySecretKeyProperty);
-        Assert.Equal(typeof(string), displaySecretKeyProperty.PropertyType);
+        displaySecretKeyProperty.ShouldNotBeNull();
+        displaySecretKeyProperty.PropertyType.ShouldBe(typeof(string));
     }
 
     [Fact]
@@ -270,8 +271,8 @@ public class LlmConnectionTests
         var requestType = typeof(UpsertLlmConnectionRequest);
         var secretKeyProperty = requestType.GetProperty("SecretKey");
 
-        Assert.NotNull(secretKeyProperty);
-        Assert.Equal(typeof(string), secretKeyProperty.PropertyType);
+        secretKeyProperty.ShouldNotBeNull();
+        secretKeyProperty.PropertyType.ShouldBe(typeof(string));
     }
 
     [Fact]
@@ -280,7 +281,7 @@ public class LlmConnectionTests
         var requestType = typeof(UpsertLlmConnectionRequest);
         var displaySecretKeyProperty = requestType.GetProperty("DisplaySecretKey");
 
-        Assert.Null(displaySecretKeyProperty);
+        displaySecretKeyProperty.ShouldBeNull();
     }
 
     [Fact]
@@ -301,12 +302,12 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<LlmConnection>(json);
 
-        Assert.NotNull(response);
-        Assert.Equal("conn-minimal", response.Id);
-        Assert.Null(response.BaseURL);
-        Assert.Empty(response.CustomModels);
-        Assert.False(response.WithDefaultModels);
-        Assert.Empty(response.ExtraHeaderKeys);
+        response.ShouldNotBeNull();
+        response.Id.ShouldBe("conn-minimal");
+        response.BaseURL.ShouldBeNull();
+        response.CustomModels.ShouldBeEmpty();
+        response.WithDefaultModels.ShouldBeFalse();
+        response.ExtraHeaderKeys.ShouldBeEmpty();
     }
 
     [Fact]
@@ -325,9 +326,9 @@ public class LlmConnectionTests
         };
 
         var requestJson = JsonSerializer.Serialize(request);
-        Assert.Contains("\"extraHeaders\"", requestJson);
-        Assert.Contains("\"X-Header-1\"", requestJson);
-        Assert.Contains("\"value1\"", requestJson);
+        requestJson.ShouldContain("\"extraHeaders\"");
+        requestJson.ShouldContain("\"X-Header-1\"");
+        requestJson.ShouldContain("\"value1\"");
 
         var responseJson = @"{
             ""id"": ""conn-test"",
@@ -342,10 +343,10 @@ public class LlmConnectionTests
         }";
 
         var response = JsonSerializer.Deserialize<LlmConnection>(responseJson);
-        Assert.NotNull(response);
-        Assert.Equal(2, response.ExtraHeaderKeys.Length);
-        Assert.Contains("X-Header-1", response.ExtraHeaderKeys);
-        Assert.Contains("X-Header-2", response.ExtraHeaderKeys);
+        response.ShouldNotBeNull();
+        response.ExtraHeaderKeys.Length.ShouldBe(2);
+        response.ExtraHeaderKeys.ShouldContain("X-Header-1");
+        response.ExtraHeaderKeys.ShouldContain("X-Header-2");
     }
 
     [Fact]
@@ -363,12 +364,12 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(allAdapters);
 
-        Assert.Contains("\"anthropic\"", json);
-        Assert.Contains("\"openai\"", json);
-        Assert.Contains("\"azure\"", json);
-        Assert.Contains("\"bedrock\"", json);
-        Assert.Contains("\"google-vertex-ai\"", json);
-        Assert.Contains("\"google-ai-studio\"", json);
+        json.ShouldContain("\"anthropic\"");
+        json.ShouldContain("\"openai\"");
+        json.ShouldContain("\"azure\"");
+        json.ShouldContain("\"bedrock\"");
+        json.ShouldContain("\"google-vertex-ai\"");
+        json.ShouldContain("\"google-ai-studio\"");
     }
 
     [Theory]
@@ -383,7 +384,7 @@ public class LlmConnectionTests
         var wrapper = new TestAdapterWrapper { Adapter = adapter };
         var json = JsonSerializer.Serialize(wrapper);
 
-        Assert.Contains($"\"{expectedJson}\"", json);
+        json.ShouldContain($"\"{expectedJson}\"");
     }
 
     [Theory]
@@ -398,8 +399,8 @@ public class LlmConnectionTests
         var json = $"{{\"Adapter\":\"{jsonValue}\"}}";
         var result = JsonSerializer.Deserialize<TestAdapterWrapper>(json);
 
-        Assert.NotNull(result);
-        Assert.Equal(expectedAdapter, result.Adapter);
+        result.ShouldNotBeNull();
+        result.Adapter.ShouldBe(expectedAdapter);
     }
 
     [Fact]
@@ -415,7 +416,7 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"customModels\":[]", json);
+        json.ShouldContain("\"customModels\":[]");
     }
 
     [Fact]
@@ -432,9 +433,9 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"customModels\"", json);
-        Assert.Contains("\"claude-custom\"", json);
-        Assert.Contains("\"withDefaultModels\":true", json);
+        json.ShouldContain("\"customModels\"");
+        json.ShouldContain("\"claude-custom\"");
+        json.ShouldContain("\"withDefaultModels\":true");
     }
 
     [Fact]
@@ -450,7 +451,7 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"extraHeaders\":{}", json);
+        json.ShouldContain("\"extraHeaders\":{}");
     }
 
     [Fact]
@@ -470,8 +471,8 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<LlmConnection>(json);
 
-        Assert.NotNull(response);
-        Assert.Empty(response.ExtraHeaderKeys);
+        response.ShouldNotBeNull();
+        response.ExtraHeaderKeys.ShouldBeEmpty();
     }
 
     [Fact]
@@ -487,7 +488,7 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"baseURL\":null", json);
+        json.ShouldContain("\"baseURL\":null");
     }
 
     [Fact]
@@ -503,7 +504,7 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"baseURL\":\"https://custom.openai.azure.com\"", json);
+        json.ShouldContain("\"baseURL\":\"https://custom.openai.azure.com\"");
     }
 
     [Fact]
@@ -524,8 +525,8 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<LlmConnection>(json);
 
-        Assert.NotNull(response);
-        Assert.Null(response.BaseURL);
+        response.ShouldNotBeNull();
+        response.BaseURL.ShouldBeNull();
     }
 
     [Fact]
@@ -545,9 +546,9 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<LlmConnection>(json);
 
-        Assert.NotNull(response);
-        Assert.Equal("sk-ant-***def", response.DisplaySecretKey);
-        Assert.Contains("***", response.DisplaySecretKey);
+        response.ShouldNotBeNull();
+        response.DisplaySecretKey.ShouldBe("sk-ant-***def");
+        response.DisplaySecretKey.ShouldContain("***");
     }
 
     [Fact]
@@ -565,11 +566,11 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<PaginatedLlmConnections>(json);
 
-        Assert.NotNull(response);
-        Assert.NotNull(response.Data);
-        Assert.Empty(response.Data);
-        Assert.Equal(0, response.Meta.TotalItems);
-        Assert.Equal(0, response.Meta.TotalPages);
+        response.ShouldNotBeNull();
+        response.Data.ShouldNotBeNull();
+        response.Data.ShouldBeEmpty();
+        response.Meta.TotalItems.ShouldBe(0);
+        response.Meta.TotalPages.ShouldBe(0);
     }
 
     [Fact]
@@ -585,11 +586,11 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"customModels\"", json);
-        Assert.Contains("\"gpt-4-turbo\"", json);
-        Assert.Contains("\"gpt-4-vision\"", json);
-        Assert.Contains("\"gpt-4-32k\"", json);
-        Assert.Contains("\"gpt-3.5-turbo-16k\"", json);
+        json.ShouldContain("\"customModels\"");
+        json.ShouldContain("\"gpt-4-turbo\"");
+        json.ShouldContain("\"gpt-4-vision\"");
+        json.ShouldContain("\"gpt-4-32k\"");
+        json.ShouldContain("\"gpt-3.5-turbo-16k\"");
     }
 
     [Fact]
@@ -611,11 +612,11 @@ public class LlmConnectionTests
 
         var json = JsonSerializer.Serialize(request);
 
-        Assert.Contains("\"extraHeaders\"", json);
-        Assert.Contains("\"X-API-Version\"", json);
-        Assert.Contains("\"X-Custom-Auth\"", json);
-        Assert.Contains("\"X-Request-ID\"", json);
-        Assert.Contains("\"X-Client-Name\"", json);
+        json.ShouldContain("\"extraHeaders\"");
+        json.ShouldContain("\"X-API-Version\"");
+        json.ShouldContain("\"X-Custom-Auth\"");
+        json.ShouldContain("\"X-Request-ID\"");
+        json.ShouldContain("\"X-Client-Name\"");
     }
 
     [Fact]
@@ -635,12 +636,12 @@ public class LlmConnectionTests
 
         var response = JsonSerializer.Deserialize<LlmConnection>(json);
 
-        Assert.NotNull(response);
-        Assert.Equal(4, response.ExtraHeaderKeys.Length);
-        Assert.Contains("X-Header-1", response.ExtraHeaderKeys);
-        Assert.Contains("X-Header-2", response.ExtraHeaderKeys);
-        Assert.Contains("X-Header-3", response.ExtraHeaderKeys);
-        Assert.Contains("X-Header-4", response.ExtraHeaderKeys);
+        response.ShouldNotBeNull();
+        response.ExtraHeaderKeys.Length.ShouldBe(4);
+        response.ExtraHeaderKeys.ShouldContain("X-Header-1");
+        response.ExtraHeaderKeys.ShouldContain("X-Header-2");
+        response.ExtraHeaderKeys.ShouldContain("X-Header-3");
+        response.ExtraHeaderKeys.ShouldContain("X-Header-4");
     }
 
     private class TestAdapterWrapper

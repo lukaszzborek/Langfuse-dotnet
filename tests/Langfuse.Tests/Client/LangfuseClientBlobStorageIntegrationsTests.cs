@@ -5,6 +5,7 @@ using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Shouldly;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.BlobStorageIntegration;
@@ -60,15 +61,15 @@ public class LangfuseClientBlobStorageIntegrationsTests
         var result = await _client.GetBlobStorageIntegrationsAsync();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Single(result.Data);
-        Assert.Equal("int-1", result.Data[0].Id);
-        Assert.Equal(BlobStorageIntegrationType.S3, result.Data[0].Type);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldHaveSingleItem();
+        result.Data[0].Id.ShouldBe("int-1");
+        result.Data[0].Type.ShouldBe(BlobStorageIntegrationType.S3);
 
         // Verify correct endpoint was called
-        Assert.Equal(HttpMethod.Get, _httpHandler.LastRequest?.Method);
-        Assert.Contains("/api/public/integrations/blob-storage", _httpHandler.LastRequest?.RequestUri?.ToString());
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
+        _httpHandler.LastRequest?.RequestUri?.ToString().ShouldContain("/api/public/integrations/blob-storage");
     }
 
     [Fact]
@@ -86,9 +87,9 @@ public class LangfuseClientBlobStorageIntegrationsTests
         var result = await _client.GetBlobStorageIntegrationsAsync();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result.Data);
-        Assert.Empty(result.Data);
+        result.ShouldNotBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldBeEmpty();
     }
 
     [Fact]
@@ -98,7 +99,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.Unauthorized, "Unauthorized");
 
         // Act & Assert
-        await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetBlobStorageIntegrationsAsync());
+        await Should.ThrowAsync<LangfuseApiException>(async () => await _client.GetBlobStorageIntegrationsAsync());
     }
 
     [Fact]
@@ -140,27 +141,27 @@ public class LangfuseClientBlobStorageIntegrationsTests
         var result = await _client.UpsertBlobStorageIntegrationAsync(request);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal("int-new", result.Id);
-        Assert.Equal(request.ProjectId, result.ProjectId);
-        Assert.Equal(request.Type, result.Type);
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("int-new");
+        result.ProjectId.ShouldBe(request.ProjectId);
+        result.Type.ShouldBe(request.Type);
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Put, _httpHandler.LastRequest?.Method);
-        Assert.Contains("/api/public/integrations/blob-storage", _httpHandler.LastRequest?.RequestUri?.ToString());
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Put);
+        _httpHandler.LastRequest?.RequestUri?.ToString().ShouldContain("/api/public/integrations/blob-storage");
 
         // Verify request body was serialized
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"projectId\"", requestBody);
-        Assert.Contains("proj-123", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"projectId\"");
+        requestBody.ShouldContain("proj-123");
     }
 
     [Fact]
     public async Task UpsertBlobStorageIntegrationAsync_NullRequest_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
             await _client.UpsertBlobStorageIntegrationAsync(null!));
     }
 
@@ -185,10 +186,10 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await Should.ThrowAsync<LangfuseApiException>(async () =>
                 await _client.UpsertBlobStorageIntegrationAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.Forbidden, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -236,13 +237,13 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
-        Assert.NotNull(requestBody);
-        Assert.Contains("\"projectId\"", requestBody);
-        Assert.Contains("\"S3_COMPATIBLE\"", requestBody);
-        Assert.Contains("\"endpoint\"", requestBody);
-        Assert.Contains("\"accessKeyId\"", requestBody);
-        Assert.Contains("\"secretAccessKey\"", requestBody);
-        Assert.Contains("\"exportStartDate\"", requestBody);
+        requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"projectId\"");
+        requestBody.ShouldContain("\"S3_COMPATIBLE\"");
+        requestBody.ShouldContain("\"endpoint\"");
+        requestBody.ShouldContain("\"accessKeyId\"");
+        requestBody.ShouldContain("\"secretAccessKey\"");
+        requestBody.ShouldContain("\"exportStartDate\"");
     }
 
     [Fact]
@@ -261,13 +262,13 @@ public class LangfuseClientBlobStorageIntegrationsTests
         var result = await _client.DeleteBlobStorageIntegrationAsync(integrationId);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Contains("deleted successfully", result.Message);
+        result.ShouldNotBeNull();
+        result.Message.ShouldContain("deleted successfully");
 
         // Verify correct endpoint and method
-        Assert.Equal(HttpMethod.Delete, _httpHandler.LastRequest?.Method);
-        Assert.Contains($"/api/public/integrations/blob-storage/{integrationId}",
-            _httpHandler.LastRequest?.RequestUri?.ToString());
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
+        _httpHandler.LastRequest?.RequestUri?.ToString()
+            .ShouldContain($"/api/public/integrations/blob-storage/{integrationId}");
     }
 
     [Fact]
@@ -287,22 +288,22 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        Assert.NotNull(requestUri);
-        Assert.Contains("int-123%2Fspecial", requestUri); // "/" should be URL encoded as %2F
+        requestUri.ShouldNotBeNull();
+        requestUri.ShouldContain("int-123%2Fspecial"); // "/" should be URL encoded as %2F
     }
 
     [Fact]
     public async Task DeleteBlobStorageIntegrationAsync_NullId_ThrowsArgumentException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.DeleteBlobStorageIntegrationAsync(null!));
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.DeleteBlobStorageIntegrationAsync(null!));
     }
 
     [Fact]
     public async Task DeleteBlobStorageIntegrationAsync_EmptyId_ThrowsArgumentException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.DeleteBlobStorageIntegrationAsync(string.Empty));
     }
 
@@ -310,7 +311,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
     public async Task DeleteBlobStorageIntegrationAsync_WhitespaceId_ThrowsArgumentException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () => await _client.DeleteBlobStorageIntegrationAsync("   "));
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.DeleteBlobStorageIntegrationAsync("   "));
     }
 
     [Fact]
@@ -320,10 +321,10 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.NotFound, "Integration not found");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await _client.DeleteBlobStorageIntegrationAsync("non-existent-id"));
 
-        Assert.Equal((int)HttpStatusCode.NotFound, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -334,9 +335,9 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () => await _client.GetBlobStorageIntegrationsAsync());
+            await Should.ThrowAsync<LangfuseApiException>(async () => await _client.GetBlobStorageIntegrationsAsync());
 
-        Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -360,10 +361,10 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await Should.ThrowAsync<LangfuseApiException>(async () =>
                 await _client.UpsertBlobStorageIntegrationAsync(request));
 
-        Assert.Equal((int)HttpStatusCode.UnprocessableEntity, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -374,10 +375,10 @@ public class LangfuseClientBlobStorageIntegrationsTests
 
         // Act & Assert
         var exception =
-            await Assert.ThrowsAsync<LangfuseApiException>(async () =>
+            await Should.ThrowAsync<LangfuseApiException>(async () =>
                 await _client.DeleteBlobStorageIntegrationAsync("int-123"));
 
-        Assert.Equal((int)HttpStatusCode.InternalServerError, exception.StatusCode);
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.InternalServerError);
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler

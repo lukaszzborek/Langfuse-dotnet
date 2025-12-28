@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
 
 namespace zborek.Langfuse.Models.Prompt;
 
@@ -6,9 +7,7 @@ namespace zborek.Langfuse.Models.Prompt;
 ///     Abstract base class for prompt templates with polymorphic type discrimination.
 ///     Supports both chat-based and text-based prompt formats for different AI model interfaces.
 /// </summary>
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-[JsonDerivedType(typeof(ChatPrompt), "chat")]
-[JsonDerivedType(typeof(TextPrompt), "text")]
+[JsonConverter(typeof(PromptModelConverter))]
 public abstract class PromptModel : BasePrompt
 {
     /// <summary>

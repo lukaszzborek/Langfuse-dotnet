@@ -41,16 +41,13 @@ public partial interface ILangfuseClient
     Task<DeleteTraceResponse> DeleteTraceAsync(string traceId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Deletes multiple traces based on filter criteria
+    ///     Deletes multiple traces by their IDs
     /// </summary>
-    /// <param name="request">
-    ///     Filter criteria for selecting traces to delete, including date ranges, user filters, and metadata
-    ///     criteria
-    /// </param>
+    /// <param name="request">Request containing the array of trace IDs to delete</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Response containing the deletion status and count of deleted traces</returns>
+    /// <returns>Response containing the deletion status</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
     /// <remarks>This action permanently deletes traces and all their nested observations (spans, generations, events)</remarks>
-    Task<DeleteTraceResponse> DeleteTraceManyAsync(TraceListRequest? request = null,
+    Task<DeleteTraceResponse> DeleteTraceManyAsync(DeleteTraceManyRequest request,
         CancellationToken cancellationToken = default);
 }

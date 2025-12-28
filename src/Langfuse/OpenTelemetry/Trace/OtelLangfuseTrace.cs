@@ -1,13 +1,15 @@
 using System.Diagnostics;
+using OpenTelemetry;
 using zborek.Langfuse.OpenTelemetry.Models;
 
 namespace zborek.Langfuse.OpenTelemetry.Trace;
 
 /// <summary>
-///     OpenTelemetry-based Langfuse trace that manages activities and parent-child relationships.
-///     Similar to LangfuseTrace but uses OpenTelemetry activities instead of direct ingestion.
+///     OpenTelemetry-based Langfuse trace that manages activities using Activity.Current for parent-child relationships.
+///     Context propagation is handled via Baggage and ActivityListener.
+///     Can be registered as scoped service and used with StartTrace() for lazy initialization.
 /// </summary>
-public class OtelLangfuseTrace : IDisposable
+public class OtelLangfuseTrace : IOtelLangfuseTrace
 {
     /// <summary>
     ///     The ActivitySource name used by Langfuse traces.
@@ -17,60 +19,133 @@ public class OtelLangfuseTrace : IDisposable
     private static readonly ActivitySource DefaultActivitySource = new(ActivitySourceName);
 
     private readonly ActivitySource _activitySource;
-    private readonly Stack<Activity> _activityStack = new();
     private bool _disposed;
+    private bool _started;
 
     /// <summary>
     ///     The root trace activity.
     /// </summary>
-    public Activity? TraceActivity { get; }
+    public Activity? TraceActivity { get; private set; }
 
     /// <summary>
-    ///     The current active activity (top of the stack).
+    ///     Gets whether a trace is currently active.
     /// </summary>
-    public Activity? CurrentActivity => _activityStack.Count > 0 ? _activityStack.Peek() : TraceActivity;
+    public bool HasActiveTrace => _started && TraceActivity != null;
 
     /// <summary>
-    ///     Input collected from child observations (propagated to trace).
+    ///     Creates a new OtelLangfuseTrace without starting a trace.
+    ///     Use StartTrace() to begin tracing.
     /// </summary>
-    public object? CollectedInput { get; private set; }
-
-    /// <summary>
-    ///     Output collected from child observations (propagated to trace).
-    /// </summary>
-    public object? CollectedOutput { get; private set; }
-
-    /// <summary>
-    ///     Creates a new OpenTelemetry-based Langfuse trace using the default ActivitySource.
-    /// </summary>
-    /// <param name="traceName">The name of the trace.</param>
-    /// <param name="config">Optional trace configuration.</param>
-    public OtelLangfuseTrace(string traceName, TraceConfig? config = null)
-        : this(DefaultActivitySource, traceName, config)
+    public OtelLangfuseTrace()
+        : this(DefaultActivitySource)
     {
     }
 
     /// <summary>
-    ///     Creates a new OpenTelemetry-based Langfuse trace with a custom ActivitySource.
+    ///     Creates a new OtelLangfuseTrace with a custom ActivitySource without starting a trace.
+    ///     Use StartTrace() to begin tracing.
     /// </summary>
-    /// <param name="activitySource">The activity source to use for creating activities.</param>
-    /// <param name="traceName">The name of the trace.</param>
-    /// <param name="config">Optional trace configuration.</param>
-    public OtelLangfuseTrace(ActivitySource activitySource, string traceName, TraceConfig? config = null)
+    public OtelLangfuseTrace(ActivitySource activitySource)
     {
         _activitySource = activitySource;
-        config ??= new TraceConfig();
-
-        TraceActivity = GenAiActivityHelper.CreateTraceActivity(activitySource, traceName, config);
-
-        if (TraceActivity != null)
-        {
-            _activityStack.Push(TraceActivity);
-        }
     }
 
     /// <summary>
-    ///     Disposes the trace and all activities.
+    ///     Creates a new OtelLangfuseTrace and immediately starts the trace.
+    ///     Convenience constructor for immediate trace creation.
+    /// </summary>
+    /// <param name="traceName">The name of the trace.</param>
+    /// <param name="userId">Optional user ID for the trace.</param>
+    /// <param name="sessionId">Optional session ID for the trace.</param>
+    /// <param name="version">Optional version string.</param>
+    /// <param name="release">Optional release string.</param>
+    /// <param name="tags">Optional tags for the trace.</param>
+    /// <param name="input">Optional input for the trace.</param>
+    /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
+    public OtelLangfuseTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null,
+        bool isRoot = false)
+        : this(DefaultActivitySource)
+    {
+        StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot);
+    }
+
+    /// <summary>
+    ///     Creates a new OtelLangfuseTrace with a custom ActivitySource and immediately starts the trace.
+    /// </summary>
+    public OtelLangfuseTrace(
+        ActivitySource activitySource,
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null,
+        bool isRoot = false)
+        : this(activitySource)
+    {
+        StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot);
+    }
+
+    /// <summary>
+    ///     Starts the trace with the specified parameters.
+    /// </summary>
+    /// <param name="traceName">The name of the trace.</param>
+    /// <param name="userId">Optional user ID for the trace.</param>
+    /// <param name="sessionId">Optional session ID for the trace.</param>
+    /// <param name="version">Optional version string.</param>
+    /// <param name="release">Optional release string.</param>
+    /// <param name="tags">Optional tags for the trace.</param>
+    /// <param name="input">Optional input for the trace.</param>
+    /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
+    /// <returns>This trace instance for fluent API.</returns>
+    public IOtelLangfuseTrace StartTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null,
+        bool isRoot = false)
+    {
+        if (_started)
+        {
+            throw new InvalidOperationException(
+                "A trace is already active. Only one trace per instance is allowed.");
+        }
+
+        // Set context in Baggage for auto-enrichment by ActivityListener
+        SetBaggageContext(userId, sessionId, version, release, tags);
+
+        var config = new TraceConfig
+        {
+            UserId = userId,
+            SessionId = sessionId,
+            Version = version,
+            Tags = tags?.ToList()
+        };
+
+        TraceActivity = GenAiActivityHelper.CreateTraceActivity(_activitySource, traceName, config, isRoot);
+
+        if (input != null && TraceActivity != null)
+        {
+            GenAiActivityHelper.SetTraceInput(TraceActivity, input);
+        }
+
+        _started = true;
+        return this;
+    }
+
+    /// <summary>
+    ///     Disposes the trace activity and clears Baggage context.
     /// </summary>
     public void Dispose()
     {
@@ -80,13 +155,10 @@ public class OtelLangfuseTrace : IDisposable
         }
 
         _disposed = true;
-
-        while (_activityStack.Count > 0)
-        {
-            var activity = _activityStack.Pop();
-            activity.Dispose();
-        }
-
+        _started = false;
+        ClearBaggageContext();
+        TraceActivity?.Dispose();
+        TraceActivity = null;
         GC.SuppressFinalize(this);
     }
 
@@ -95,7 +167,13 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetTraceName(string name)
     {
-        TraceActivity?.SetTag(LangfuseAttributes.TraceName, name);
+        if (TraceActivity is null)
+        {
+            return;
+        }
+
+        TraceActivity.SetTag(LangfuseAttributes.TraceName, name);
+        TraceActivity.DisplayName = name;
     }
 
     /// <summary>
@@ -103,8 +181,12 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetInput(object input)
     {
+        if (TraceActivity is null)
+        {
+            return;
+        }
+
         GenAiActivityHelper.SetTraceInput(TraceActivity, input);
-        CollectedInput ??= input;
     }
 
     /// <summary>
@@ -112,177 +194,305 @@ public class OtelLangfuseTrace : IDisposable
     /// </summary>
     public void SetOutput(object output)
     {
-        GenAiActivityHelper.SetTraceOutput(TraceActivity, output);
-        CollectedOutput = output;
-    }
-
-    /// <summary>
-    ///     Creates a generation (LLM call) observation.
-    /// </summary>
-    public OtelGeneration CreateGeneration(string name, GenAiChatCompletionConfig config)
-    {
-        var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, name, config);
-        return new OtelGeneration(this, activity, false);
-    }
-
-    /// <summary>
-    ///     Creates a scoped generation that becomes the parent for subsequent observations.
-    /// </summary>
-    public OtelGeneration CreateGenerationScoped(string name, GenAiChatCompletionConfig config)
-    {
-        var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, name, config);
-        var generation = new OtelGeneration(this, activity, true);
-
-        if (activity != null)
+        if (TraceActivity is null)
         {
-            _activityStack.Push(activity);
+            return;
         }
 
-        return generation;
+        GenAiActivityHelper.SetTraceOutput(TraceActivity, output);
+    }
+
+    /// <summary>
+    ///     Marks the entire trace as skipped. Skipped traces and all their observations
+    ///     will not be exported to Langfuse.
+    /// </summary>
+    public void Skip()
+    {
+        if (TraceActivity is null)
+        {
+            return;
+        }
+
+        TraceActivity.IsAllDataRequested = false;
+        TraceActivity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
     }
 
     /// <summary>
     ///     Creates a span observation.
     /// </summary>
-    public OtelSpan CreateSpan(string name, SpanConfig? config = null)
+    /// <param name="name">The span name.</param>
+    /// <param name="type">Optional span type (e.g., "workflow", "retrieval").</param>
+    /// <param name="description">Optional description.</param>
+    /// <param name="input">Optional input data.</param>
+    /// <param name="configure">Optional action to configure the span.</param>
+    public OtelSpan CreateSpan(
+        string name,
+        string? type = null,
+        string? description = null,
+        object? input = null,
+        Action<OtelSpan>? configure = null)
     {
-        config ??= new SpanConfig();
-        var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, name, config, CurrentActivity);
-        return new OtelSpan(this, activity, false);
+        if (!HasActiveTrace)
+        {
+            return new OtelSpan(null);
+        }
+
+        var config = new SpanConfig
+        {
+            SpanType = type,
+            Description = description
+        };
+
+        var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, name, config);
+        var span = new OtelSpan(activity);
+
+        if (input != null)
+        {
+            span.SetInput(input);
+        }
+
+        configure?.Invoke(span);
+        return span;
     }
 
     /// <summary>
-    ///     Creates a scoped span that becomes the parent for subsequent observations.
+    ///     Creates a generation (LLM call) observation.
     /// </summary>
-    public OtelSpan CreateSpanScoped(string name, SpanConfig? config = null)
+    /// <param name="name">The generation name.</param>
+    /// <param name="model">The model name (e.g., "gpt-4").</param>
+    /// <param name="provider">Optional provider name (e.g., "openai").</param>
+    /// <param name="input">Optional input (messages or prompt).</param>
+    /// <param name="configure">Optional action to configure the generation.</param>
+    public OtelGeneration CreateGeneration(
+        string name,
+        string model,
+        string? provider = null,
+        object? input = null,
+        Action<OtelGeneration>? configure = null)
     {
-        config ??= new SpanConfig();
-        var activity = GenAiActivityHelper.CreateSpanActivity(_activitySource, name, config, CurrentActivity);
-        var span = new OtelSpan(this, activity, true);
-
-        if (activity != null)
+        if (!HasActiveTrace)
         {
-            _activityStack.Push(activity);
+            return new OtelGeneration(null);
         }
 
-        return span;
+        var config = new GenAiChatCompletionConfig
+        {
+            Model = model,
+            Provider = provider
+        };
+
+        var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, name, config);
+        var generation = new OtelGeneration(activity);
+
+        if (input != null)
+        {
+            generation.SetInput(input);
+        }
+
+        configure?.Invoke(generation);
+        return generation;
     }
 
     /// <summary>
     ///     Creates a tool call observation.
     /// </summary>
-    public OtelToolCall CreateToolCall(string name, string toolName, string? toolDescription = null,
-        string toolType = "function", string? toolCallId = null)
+    /// <param name="name">The observation name.</param>
+    /// <param name="toolName">The tool name.</param>
+    /// <param name="toolDescription">Optional tool description.</param>
+    /// <param name="toolType">Tool type (default: "function").</param>
+    /// <param name="input">Optional input arguments.</param>
+    /// <param name="configure">Optional action to configure the tool call.</param>
+    public OtelToolCall CreateToolCall(
+        string name,
+        string toolName,
+        string? toolDescription = null,
+        string toolType = "function",
+        object? input = null,
+        Action<OtelToolCall>? configure = null)
     {
-        var activity =
-            GenAiActivityHelper.CreateToolCallActivity(_activitySource, name, toolName, toolDescription, toolType,
-                toolCallId);
-        return new OtelToolCall(this, activity, false);
-    }
-
-    /// <summary>
-    ///     Creates a scoped tool call that becomes the parent for subsequent observations.
-    /// </summary>
-    public OtelToolCall CreateToolCallScoped(string name, string toolName, string? toolDescription = null,
-        string toolType = "function", string? toolCallId = null)
-    {
-        var activity =
-            GenAiActivityHelper.CreateToolCallActivity(_activitySource, name, toolName, toolDescription, toolType,
-                toolCallId);
-        var toolCall = new OtelToolCall(this, activity, true);
-
-        if (activity != null)
+        if (!HasActiveTrace)
         {
-            _activityStack.Push(activity);
+            return new OtelToolCall(null);
         }
 
+        var activity = GenAiActivityHelper.CreateToolCallActivity(
+            _activitySource, name, toolName, toolDescription, toolType);
+        var toolCall = new OtelToolCall(activity);
+
+        if (input != null)
+        {
+            toolCall.SetArguments(input);
+        }
+
+        configure?.Invoke(toolCall);
         return toolCall;
     }
 
     /// <summary>
     ///     Creates an event observation.
     /// </summary>
+    /// <param name="name">The event name.</param>
+    /// <param name="input">Optional input data.</param>
+    /// <param name="output">Optional output data.</param>
     public OtelEvent CreateEvent(string name, object? input = null, object? output = null)
     {
+        if (!HasActiveTrace)
+        {
+            return new OtelEvent(null);
+        }
+
         var activity = _activitySource.StartActivity(name);
         activity?.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEvent);
 
+        var otelEvent = new OtelEvent(activity);
+
         if (input != null)
         {
-            GenAiActivityHelper.SetObservationInput(activity, input);
+            otelEvent.SetInput(input);
         }
 
         if (output != null)
         {
-            GenAiActivityHelper.SetObservationOutput(activity, output);
+            otelEvent.SetOutput(output);
         }
 
-        return new OtelEvent(this, activity);
+        return otelEvent;
     }
 
     /// <summary>
-    ///     Creates an embeddings observation.
+    ///     Creates an embedding observation.
     /// </summary>
-    public OtelEmbedding CreateEmbedding(string name, GenAiEmbeddingsConfig config)
+    /// <param name="name">The embedding name.</param>
+    /// <param name="model">The model name.</param>
+    /// <param name="provider">Optional provider name.</param>
+    /// <param name="input">Optional input text.</param>
+    /// <param name="configure">Optional action to configure the embedding.</param>
+    public OtelEmbedding CreateEmbedding(
+        string name,
+        string model,
+        string? provider = null,
+        object? input = null,
+        Action<OtelEmbedding>? configure = null)
     {
+        if (!HasActiveTrace)
+        {
+            return new OtelEmbedding(null);
+        }
+
+        var config = new GenAiEmbeddingsConfig
+        {
+            Model = model,
+            Provider = provider
+        };
+
         var activity = GenAiActivityHelper.CreateEmbeddingsActivity(_activitySource, name, config);
-        return new OtelEmbedding(this, activity, false);
+        var embedding = new OtelEmbedding(activity);
+
+        if (input != null)
+        {
+            embedding.SetInput(input);
+        }
+
+        configure?.Invoke(embedding);
+        return embedding;
     }
 
     /// <summary>
     ///     Creates an agent observation.
     /// </summary>
-    public OtelAgent CreateAgent(string name, GenAiAgentConfig config)
+    /// <param name="name">The agent name.</param>
+    /// <param name="agentId">The agent ID.</param>
+    /// <param name="description">Optional agent description.</param>
+    /// <param name="input">Optional input data.</param>
+    /// <param name="configure">Optional action to configure the agent.</param>
+    public OtelAgent CreateAgent(
+        string name,
+        string agentId,
+        string? description = null,
+        object? input = null,
+        Action<OtelAgent>? configure = null)
     {
-        var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, name, config);
-        return new OtelAgent(this, activity, false);
-    }
-
-    /// <summary>
-    ///     Creates a scoped agent that becomes the parent for subsequent observations.
-    /// </summary>
-    public OtelAgent CreateAgentScoped(string name, GenAiAgentConfig config)
-    {
-        var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, name, config);
-        var agent = new OtelAgent(this, activity, true);
-
-        if (activity != null)
+        if (!HasActiveTrace)
         {
-            _activityStack.Push(activity);
+            return new OtelAgent(null);
         }
 
+        var config = new GenAiAgentConfig
+        {
+            Id = agentId,
+            Name = name,
+            Description = description
+        };
+
+        var activity = GenAiActivityHelper.CreateAgentActivity(_activitySource, name, config);
+        var agent = new OtelAgent(activity);
+
+        if (input != null)
+        {
+            agent.SetInput(input);
+        }
+
+        configure?.Invoke(agent);
         return agent;
     }
 
     /// <summary>
-    ///     Called by child observations to propagate input to the trace.
+    ///     Creates a detached trace that is NOT managed by this instance.
+    ///     Useful for parallel operations or background tasks.
     /// </summary>
-    internal void PropagateInput(object input)
+    public static OtelLangfuseTrace CreateDetachedTrace(
+        string traceName,
+        string? userId = null,
+        string? sessionId = null,
+        string? version = null,
+        string? release = null,
+        IEnumerable<string>? tags = null,
+        object? input = null)
     {
-        if (CollectedInput == null)
+        var trace = new OtelLangfuseTrace();
+        trace.StartTrace(traceName, userId, sessionId, version, release, tags, input, true);
+        return trace;
+    }
+
+    private static void SetBaggageContext(
+        string? userId,
+        string? sessionId,
+        string? version,
+        string? release,
+        IEnumerable<string>? tags)
+    {
+        if (!string.IsNullOrEmpty(userId))
         {
-            CollectedInput = input;
-            GenAiActivityHelper.SetTraceInput(TraceActivity, input);
+            Baggage.SetBaggage(LangfuseBaggageKeys.UserId, userId);
+        }
+
+        if (!string.IsNullOrEmpty(sessionId))
+        {
+            Baggage.SetBaggage(LangfuseBaggageKeys.SessionId, sessionId);
+        }
+
+        if (!string.IsNullOrEmpty(version))
+        {
+            Baggage.SetBaggage(LangfuseBaggageKeys.Version, version);
+        }
+
+        if (!string.IsNullOrEmpty(release))
+        {
+            Baggage.SetBaggage(LangfuseBaggageKeys.Release, release);
+        }
+
+        if (tags != null)
+        {
+            Baggage.SetBaggage(LangfuseBaggageKeys.Tags, string.Join(",", tags));
         }
     }
 
-    /// <summary>
-    ///     Called by child observations to propagate output to the trace.
-    /// </summary>
-    internal void PropagateOutput(object output)
+    private static void ClearBaggageContext()
     {
-        CollectedOutput = output;
-        GenAiActivityHelper.SetTraceOutput(TraceActivity, output);
-    }
-
-    /// <summary>
-    ///     Pops the current activity from the stack (called when a scoped observation ends).
-    /// </summary>
-    internal void PopActivity()
-    {
-        if (_activityStack.Count > 1) // Keep root activity
-        {
-            _activityStack.Pop();
-        }
+        Baggage.RemoveBaggage(LangfuseBaggageKeys.UserId);
+        Baggage.RemoveBaggage(LangfuseBaggageKeys.SessionId);
+        Baggage.RemoveBaggage(LangfuseBaggageKeys.Version);
+        Baggage.RemoveBaggage(LangfuseBaggageKeys.Release);
+        Baggage.RemoveBaggage(LangfuseBaggageKeys.Tags);
     }
 }

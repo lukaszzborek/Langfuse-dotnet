@@ -8,6 +8,12 @@ namespace zborek.Langfuse.OpenTelemetry;
 public class LangfuseOtlpExporterOptions
 {
     /// <summary>
+    ///     Enables the Langfuse exporter. When set to false, no data will be exported to Langfuse.
+    ///     Default is true.
+    /// </summary>
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
     ///     Langfuse endpoint URL. Default is https://cloud.langfuse.com
     /// </summary>
     public string Endpoint { get; set; } = "https://cloud.langfuse.com";

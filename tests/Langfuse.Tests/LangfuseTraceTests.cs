@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
+using Shouldly;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Services;
@@ -27,13 +28,13 @@ public class LangfuseTraceTests
         var trace = new LangfuseTrace(_timeProvider, _langfuseClient);
 
         // Assert
-        Assert.NotEqual(Guid.Empty, trace.TraceId);
-        Assert.NotNull(trace.Trace);
-        Assert.Equal(_fixedDateTime, trace.Trace.Body.Timestamp);
-        Assert.Equal(trace.TraceId.ToString(), trace.Trace.Body.Id);
-        Assert.Empty(trace.Events);
-        Assert.Empty(trace.Spans);
-        Assert.Empty(trace.Generations);
+        trace.TraceId.ShouldNotBe(Guid.Empty);
+        trace.Trace.ShouldNotBeNull();
+        trace.Trace.Body.Timestamp.ShouldBe(_fixedDateTime);
+        trace.Trace.Body.Id.ShouldBe(trace.TraceId.ToString());
+        trace.Events.ShouldBeEmpty();
+        trace.Spans.ShouldBeEmpty();
+        trace.Generations.ShouldBeEmpty();
     }
 
     [Fact]
@@ -42,18 +43,18 @@ public class LangfuseTraceTests
         // Arrange
         var traceName = "TestTrace";
 
-        // Act  
+        // Act
         var trace = new LangfuseTrace(traceName, _timeProvider);
 
         // Assert
-        Assert.NotEqual(Guid.Empty, trace.TraceId);
-        Assert.NotNull(trace.Trace);
-        Assert.Equal(_fixedDateTime, trace.Trace.Body.Timestamp);
-        Assert.Equal(trace.TraceId.ToString(), trace.Trace.Body.Id);
-        Assert.Equal(traceName, trace.Trace.Body.Name);
-        Assert.Empty(trace.Events);
-        Assert.Empty(trace.Spans);
-        Assert.Empty(trace.Generations);
+        trace.TraceId.ShouldNotBe(Guid.Empty);
+        trace.Trace.ShouldNotBeNull();
+        trace.Trace.Body.Timestamp.ShouldBe(_fixedDateTime);
+        trace.Trace.Body.Id.ShouldBe(trace.TraceId.ToString());
+        trace.Trace.Body.Name.ShouldBe(traceName);
+        trace.Events.ShouldBeEmpty();
+        trace.Spans.ShouldBeEmpty();
+        trace.Generations.ShouldBeEmpty();
     }
 
     [Fact]
@@ -67,7 +68,7 @@ public class LangfuseTraceTests
         trace.SetTraceName(traceName);
 
         // Assert
-        Assert.Equal(traceName, trace.Trace.Body.Name);
+        trace.Trace.Body.Name.ShouldBe(traceName);
     }
 
     [Fact]
@@ -83,13 +84,13 @@ public class LangfuseTraceTests
         var eventBody = trace.CreateEvent(eventName, input, output);
 
         // Assert
-        Assert.Single(trace.Events);
-        Assert.Equal(eventName, eventBody.Name);
-        Assert.Equal(input, eventBody.Input);
-        Assert.Equal(output, eventBody.Output);
-        Assert.Equal(_fixedDateTime, eventBody.StartTime);
-        Assert.Equal(trace.TraceId.ToString(), eventBody.TraceId);
-        Assert.Equal(trace.TraceId.ToString(), eventBody.ParentObservationId);
+        trace.Events.ShouldHaveSingleItem();
+        eventBody.Name.ShouldBe(eventName);
+        eventBody.Input.ShouldBe(input);
+        eventBody.Output.ShouldBe(output);
+        eventBody.StartTime.ShouldBe(_fixedDateTime);
+        eventBody.TraceId.ShouldBe(trace.TraceId.ToString());
+        eventBody.ParentObservationId.ShouldBe(trace.TraceId.ToString());
     }
 
     [Fact]
@@ -104,8 +105,8 @@ public class LangfuseTraceTests
         var eventBody = trace.CreateEvent(eventName, eventDate: customDate);
 
         // Assert
-        Assert.Single(trace.Events);
-        Assert.Equal(customDate, eventBody.StartTime);
+        trace.Events.ShouldHaveSingleItem();
+        eventBody.StartTime.ShouldBe(customDate);
     }
 
     [Fact]
@@ -121,13 +122,13 @@ public class LangfuseTraceTests
         var spanBody = trace.CreateSpan(spanName, metadata, input);
 
         // Assert
-        Assert.Single(trace.Spans);
-        Assert.Equal(spanName, spanBody.Name);
-        Assert.Equal(metadata, spanBody.Metadata);
-        Assert.Equal(input, spanBody.Input);
-        Assert.Equal(_fixedDateTime, spanBody.StartTime);
-        Assert.Equal(trace.TraceId.ToString(), spanBody.TraceId);
-        Assert.Equal(trace.TraceId.ToString(), spanBody.ParentObservationId);
+        trace.Spans.ShouldHaveSingleItem();
+        spanBody.Name.ShouldBe(spanName);
+        spanBody.Metadata.ShouldBe(metadata);
+        spanBody.Input.ShouldBe(input);
+        spanBody.StartTime.ShouldBe(_fixedDateTime);
+        spanBody.TraceId.ShouldBe(trace.TraceId.ToString());
+        spanBody.ParentObservationId.ShouldBe(trace.TraceId.ToString());
     }
 
     [Fact]
@@ -142,8 +143,8 @@ public class LangfuseTraceTests
         var spanBody = trace.CreateSpan(spanName, startDate: customDate);
 
         // Assert
-        Assert.Single(trace.Spans);
-        Assert.Equal(customDate, spanBody.StartTime);
+        trace.Spans.ShouldHaveSingleItem();
+        spanBody.StartTime.ShouldBe(customDate);
     }
 
     [Fact]
@@ -159,13 +160,13 @@ public class LangfuseTraceTests
         var generationBody = trace.CreateGeneration(generationName, input, output);
 
         // Assert
-        Assert.Single(trace.Generations);
-        Assert.Equal(generationName, generationBody.Name);
-        Assert.Equal(input, generationBody.Input);
-        Assert.Equal(output, generationBody.Output);
-        Assert.Equal(_fixedDateTime, generationBody.StartTime);
-        Assert.Equal(trace.TraceId.ToString(), generationBody.TraceId);
-        Assert.Equal(trace.TraceId.ToString(), generationBody.ParentObservationId);
+        trace.Generations.ShouldHaveSingleItem();
+        generationBody.Name.ShouldBe(generationName);
+        generationBody.Input.ShouldBe(input);
+        generationBody.Output.ShouldBe(output);
+        generationBody.StartTime.ShouldBe(_fixedDateTime);
+        generationBody.TraceId.ShouldBe(trace.TraceId.ToString());
+        generationBody.ParentObservationId.ShouldBe(trace.TraceId.ToString());
     }
 
     [Fact]
@@ -180,8 +181,8 @@ public class LangfuseTraceTests
         var generationBody = trace.CreateGeneration(generationName, eventDate: customDate);
 
         // Assert
-        Assert.Single(trace.Generations);
-        Assert.Equal(customDate, generationBody.StartTime);
+        trace.Generations.ShouldHaveSingleItem();
+        generationBody.StartTime.ShouldBe(customDate);
     }
 
     [Fact]
@@ -197,11 +198,11 @@ public class LangfuseTraceTests
         List<IIngestionEvent> events = trace.GetEvents();
 
         // Assert
-        Assert.Equal(4, events.Count); // 1 trace + 1 event + 1 span + 1 generation
-        Assert.Contains(events, e => e.Type == "trace-create");
-        Assert.Contains(events, e => e.Type == "event-create");
-        Assert.Contains(events, e => e.Type == "span-create");
-        Assert.Contains(events, e => e.Type == "generation-create");
+        events.Count.ShouldBe(4); // 1 trace + 1 event + 1 span + 1 generation
+        events.ShouldContain(e => e.Type == "trace-create");
+        events.ShouldContain(e => e.Type == "event-create");
+        events.ShouldContain(e => e.Type == "span-create");
+        events.ShouldContain(e => e.Type == "generation-create");
     }
 
     [Fact]
@@ -230,9 +231,9 @@ public class LangfuseTraceTests
         var generationBody = trace.CreateGeneration("GrandchildGeneration");
 
         // Assert
-        Assert.Equal(trace.TraceId.ToString(), spanBody.ParentObservationId);
-        Assert.Equal(trace.TraceId.ToString(), eventBody.ParentObservationId);
-        Assert.Equal(trace.TraceId.ToString(), generationBody.ParentObservationId);
+        spanBody.ParentObservationId.ShouldBe(trace.TraceId.ToString());
+        eventBody.ParentObservationId.ShouldBe(trace.TraceId.ToString());
+        generationBody.ParentObservationId.ShouldBe(trace.TraceId.ToString());
     }
 
     [Fact]
@@ -247,12 +248,12 @@ public class LangfuseTraceTests
         {
             // Inside the using block, the span should be the parent
             var childEvent = trace.CreateEvent("ChildEvent");
-            Assert.Equal(span.Id, childEvent.ParentObservationId);
+            childEvent.ParentObservationId.ShouldBe(span.Id);
         }
 
         // After the using block, the span should be disposed and parent ID should be back to trace ID
         var afterEvent = trace.CreateEvent("AfterEvent");
-        Assert.Equal(initialParentId, afterEvent.ParentObservationId);
+        afterEvent.ParentObservationId.ShouldBe(initialParentId);
     }
 
     [Fact]
@@ -267,12 +268,12 @@ public class LangfuseTraceTests
         {
             // Inside the using block, the event should be the parent
             var childEvent = trace.CreateEvent("ChildEvent");
-            Assert.Equal(eventBody.Id, childEvent.ParentObservationId);
+            childEvent.ParentObservationId.ShouldBe(eventBody.Id);
         }
 
         // After the using block, the event should be disposed and parent ID should be back to trace ID
         var afterEvent = trace.CreateEvent("AfterEvent");
-        Assert.Equal(initialParentId, afterEvent.ParentObservationId);
+        afterEvent.ParentObservationId.ShouldBe(initialParentId);
     }
 
     [Fact]
@@ -287,12 +288,12 @@ public class LangfuseTraceTests
         {
             // Inside the using block, the generation should be the parent
             var childEvent = trace.CreateEvent("ChildEvent");
-            Assert.Equal(generation.Id, childEvent.ParentObservationId);
+            childEvent.ParentObservationId.ShouldBe(generation.Id);
         }
 
         // After the using block, the generation should be disposed and parent ID should be back to trace ID
         var afterEvent = trace.CreateEvent("AfterEvent");
-        Assert.Equal(initialParentId, afterEvent.ParentObservationId);
+        afterEvent.ParentObservationId.ShouldBe(initialParentId);
     }
 
     [Fact]
@@ -345,16 +346,16 @@ public class LangfuseTraceTests
         afterSpanEvent = trace.CreateEvent("AfterSpanEvent");
 
         // Assert - verify all parent-child relationships at the end
-        Assert.Equal(spanId, eventInSpan.ParentObservationId);
-        Assert.Equal(nestedGenerationId, eventInGeneration.ParentObservationId);
-        Assert.Equal(nestedGenerationId, deeplyNestedEventParentId);
-        Assert.Equal(deeplyNestedEventId, deepEvent.ParentObservationId);
-        Assert.Equal(nestedGenerationId, afterDeepEvent.ParentObservationId);
-        Assert.Equal(spanId, afterGenerationEvent.ParentObservationId);
-        Assert.Equal(traceId, afterSpanEvent.ParentObservationId);
+        eventInSpan.ParentObservationId.ShouldBe(spanId);
+        eventInGeneration.ParentObservationId.ShouldBe(nestedGenerationId);
+        deeplyNestedEventParentId.ShouldBe(nestedGenerationId);
+        deepEvent.ParentObservationId.ShouldBe(deeplyNestedEventId);
+        afterDeepEvent.ParentObservationId.ShouldBe(nestedGenerationId);
+        afterGenerationEvent.ParentObservationId.ShouldBe(spanId);
+        afterSpanEvent.ParentObservationId.ShouldBe(traceId);
 
         // Verify the correct number of events were created
-        //Assert.Equal(8, trace.GetEvents().Count); // 1 trace + 7 events
+        //trace.GetEvents().Count.ShouldBe(8); // 1 trace + 7 events
     }
 
     [Fact]
@@ -368,7 +369,7 @@ public class LangfuseTraceTests
         using (var span = trace.CreateSpan("TestSpan"))
         {
             // Simulate some work
-            Assert.Null(span.EndTime);
+            span.EndTime.ShouldBeNull();
 
             // Set output before the span is disposed
             span.SetOutput(output);
@@ -376,9 +377,9 @@ public class LangfuseTraceTests
 
         // Assert
         var createdSpan = trace.Spans[0];
-        Assert.Equal("TestSpan", createdSpan.Body.Name);
-        Assert.NotNull(createdSpan.Body.EndTime);
-        Assert.Equal(output, createdSpan.Body.Output);
+        createdSpan.Body.Name.ShouldBe("TestSpan");
+        createdSpan.Body.EndTime.ShouldNotBeNull();
+        createdSpan.Body.Output.ShouldBe(output);
     }
 
     [Fact]
@@ -397,9 +398,9 @@ public class LangfuseTraceTests
         }
 
         // Assert
-        Assert.Equal(5, trace.GetEvents().Count); // 1 trace + 1 parent span + 3 children
-        Assert.Contains(trace.Events, e => e.Body.Name == "ChildEvent");
-        Assert.Contains(trace.Spans, s => s.Body.Name == "ChildSpan");
-        Assert.Contains(trace.Generations, g => g.Body.Name == "ChildGeneration");
+        trace.GetEvents().Count.ShouldBe(5); // 1 trace + 1 parent span + 3 children
+        trace.Events.ShouldContain(e => e.Body.Name == "ChildEvent");
+        trace.Spans.ShouldContain(s => s.Body.Name == "ChildSpan");
+        trace.Generations.ShouldContain(g => g.Body.Name == "ChildGeneration");
     }
 }

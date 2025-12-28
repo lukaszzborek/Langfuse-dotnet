@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using zborek.Langfuse.OpenTelemetry.Models;
 
 namespace zborek.Langfuse.OpenTelemetry.Trace;
@@ -8,16 +8,21 @@ namespace zborek.Langfuse.OpenTelemetry.Trace;
 /// </summary>
 public abstract class OtelObservation : IDisposable
 {
-    protected readonly Activity? Activity;
-    protected readonly bool Scoped;
-    protected readonly OtelLangfuseTrace Trace;
     private bool _disposed;
 
-    protected OtelObservation(OtelLangfuseTrace trace, Activity? activity, bool scoped)
+    /// <summary>
+    ///     The underlying Activity for this observation.
+    /// </summary>
+    public Activity? Activity { get; }
+
+    /// <summary>
+    ///     Gets whether this observation has an active underlying Activity.
+    /// </summary>
+    public bool HasActivity => Activity != null;
+
+    protected OtelObservation(Activity? activity)
     {
-        Trace = trace;
         Activity = activity;
-        Scoped = scoped;
     }
 
     public void Dispose()
@@ -33,21 +38,19 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
-    ///     Sets input for this observation. Also propagates to trace if this is the first input.
+    ///     Sets input for this observation.
     /// </summary>
     public void SetInput(object input)
     {
         GenAiActivityHelper.SetObservationInput(Activity, input);
-        Trace.PropagateInput(input);
     }
 
     /// <summary>
-    ///     Sets output for this observation. Also propagates to trace.
+    ///     Sets output for this observation.
     /// </summary>
     public void SetOutput(object output)
     {
         GenAiActivityHelper.SetObservationOutput(Activity, output);
-        Trace.PropagateOutput(output);
     }
 
     /// <summary>
@@ -67,15 +70,50 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
-    ///     Ends the observation.
+    ///     Set a custom tag to the underlying activity.
+    /// </summary>
+    public void SetTag(string key, object? value)
+    {
+        Activity?.SetTag(key, value);
+    }
+
+    /// <summary>
+    ///     Marks this observation as skipped. Skipped observations will not be exported to Langfuse.
+    ///     Use this when an operation turns out to be unnecessary (e.g., record already exists)
+    ///     and you don't want to send the observation data.
+    /// </summary>
+    public void Skip()
+    {
+        if (Activity == null)
+        {
+            return;
+        }
+
+        Activity.IsAllDataRequested = false;
+        Activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
+    }
+
+    /// <summary>
+    ///     Gets whether this observation has been marked as skipped.
+    /// </summary>
+    public bool IsSkipped
+    {
+        get
+        {
+            if (Activity == null)
+            {
+                return false;
+            }
+
+            return !Activity.IsAllDataRequested || !Activity.Recorded;
+        }
+    }
+
+    /// <summary>
+    ///     Ends the observation and disposes the activity.
     /// </summary>
     public virtual void EndObservation()
     {
-        if (Scoped)
-        {
-            Trace.PopActivity();
-        }
-
         Activity?.Dispose();
     }
 }

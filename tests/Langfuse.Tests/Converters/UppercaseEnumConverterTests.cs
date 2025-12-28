@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Shouldly;
 using zborek.Langfuse.Models.Comment;
 using zborek.Langfuse.Models.Score;
 
@@ -13,7 +14,7 @@ public class UppercaseEnumConverterTests
 
         var json = JsonSerializer.Serialize(testObject);
 
-        Assert.Contains("\"API\"", json);
+        json.ShouldContain("\"API\"");
     }
 
     [Fact]
@@ -23,7 +24,7 @@ public class UppercaseEnumConverterTests
 
         var result = JsonSerializer.Deserialize<TestClass>(json);
 
-        Assert.Equal(ScoreSource.Annotation, result.Source);
+        result.Source.ShouldBe(ScoreSource.Annotation);
     }
 
     [Fact]
@@ -53,7 +54,7 @@ public class UppercaseEnumConverterTests
         {
             var result = JsonSerializer.Deserialize<TestComment>(testCases[i]);
 
-            Assert.Equal(expectedResults[i], result.ObjectType);
+            result.ObjectType.ShouldBe(expectedResults[i]);
         }
     }
 
@@ -66,8 +67,8 @@ public class UppercaseEnumConverterTests
         var testObject = new { ScoreSource = scoreSource, CommentType = commentType };
         var json = JsonSerializer.Serialize(testObject);
 
-        Assert.Contains("\"EVAL\"", json);
-        Assert.Contains("\"SESSION\"", json);
+        json.ShouldContain("\"EVAL\"");
+        json.ShouldContain("\"SESSION\"");
     }
 
     private class TestClass

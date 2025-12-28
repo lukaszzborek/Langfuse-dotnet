@@ -14,7 +14,7 @@ public class MetricsFilter
     public string Column { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Operator, e.g. "=", ">", "<", "contains"
+    ///     Operator, e.g. "=", "&gt;", "&lt;", "contains"
     /// </summary>
     [JsonPropertyName("operator")]
     public string Operator { get; set; } = string.Empty;

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Shouldly;
 using zborek.Langfuse.Models.Trace;
 using zborek.Langfuse.Services;
 
@@ -23,10 +24,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"string\"", json);
-        Assert.Contains("\"column\":\"userId\"", json);
-        Assert.Contains("\"operator\":\"=\"", json);
-        Assert.Contains("\"value\":\"user123\"", json);
+        json.ShouldContain("\"type\":\"string\"");
+        json.ShouldContain("\"column\":\"userId\"");
+        json.ShouldContain("\"operator\":\"=\"");
+        json.ShouldContain("\"value\":\"user123\"");
     }
 
     [Fact]
@@ -41,10 +42,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"datetime\"", json);
-        Assert.Contains("\"column\":\"timestamp\"", json);
-        Assert.Contains("\"operator\"", json);
-        Assert.Contains("\"value\":\"2024-10-12", json);
+        json.ShouldContain("\"type\":\"datetime\"");
+        json.ShouldContain("\"column\":\"timestamp\"");
+        json.ShouldContain("\"operator\"");
+        json.ShouldContain("\"value\":\"2024-10-12");
     }
 
     [Fact]
@@ -59,10 +60,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"number\"", json);
-        Assert.Contains("\"column\":\"score\"", json);
-        Assert.Contains("\"operator\"", json);
-        Assert.Contains("\"value\":0.85", json);
+        json.ShouldContain("\"type\":\"number\"");
+        json.ShouldContain("\"column\":\"score\"");
+        json.ShouldContain("\"operator\"");
+        json.ShouldContain("\"value\":0.85");
     }
 
     [Fact]
@@ -77,10 +78,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"stringOptions\"", json);
-        Assert.Contains("\"column\":\"status\"", json);
-        Assert.Contains("\"operator\":\"any of\"", json);
-        Assert.Contains("\"value\":[\"active\",\"pending\"]", json);
+        json.ShouldContain("\"type\":\"stringOptions\"");
+        json.ShouldContain("\"column\":\"status\"");
+        json.ShouldContain("\"operator\":\"any of\"");
+        json.ShouldContain("\"value\":[\"active\",\"pending\"]");
     }
 
     [Fact]
@@ -95,10 +96,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"categoryOptions\"", json);
-        Assert.Contains("\"column\":\"category\"", json);
-        Assert.Contains("\"operator\":\"none of\"", json);
-        Assert.Contains("\"value\":[\"spam\",\"test\"]", json);
+        json.ShouldContain("\"type\":\"categoryOptions\"");
+        json.ShouldContain("\"column\":\"category\"");
+        json.ShouldContain("\"operator\":\"none of\"");
+        json.ShouldContain("\"value\":[\"spam\",\"test\"]");
     }
 
     [Fact]
@@ -113,10 +114,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"arrayOptions\"", json);
-        Assert.Contains("\"column\":\"tags\"", json);
-        Assert.Contains("\"operator\":\"all of\"", json);
-        Assert.Contains("\"value\":[\"production\",\"critical\"]", json);
+        json.ShouldContain("\"type\":\"arrayOptions\"");
+        json.ShouldContain("\"column\":\"tags\"");
+        json.ShouldContain("\"operator\":\"all of\"");
+        json.ShouldContain("\"value\":[\"production\",\"critical\"]");
     }
 
     [Fact]
@@ -132,11 +133,11 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"stringObject\"", json);
-        Assert.Contains("\"column\":\"metadata\"", json);
-        Assert.Contains("\"operator\":\"contains\"", json);
-        Assert.Contains("\"value\":\"important\"", json);
-        Assert.Contains("\"key\":\"description\"", json);
+        json.ShouldContain("\"type\":\"stringObject\"");
+        json.ShouldContain("\"column\":\"metadata\"");
+        json.ShouldContain("\"operator\":\"contains\"");
+        json.ShouldContain("\"value\":\"important\"");
+        json.ShouldContain("\"key\":\"description\"");
     }
 
     [Fact]
@@ -152,11 +153,11 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"numberObject\"", json);
-        Assert.Contains("\"column\":\"metrics\"", json);
-        Assert.Contains("\"operator\"", json);
-        Assert.Contains("\"value\":100.5", json);
-        Assert.Contains("\"key\":\"latency\"", json);
+        json.ShouldContain("\"type\":\"numberObject\"");
+        json.ShouldContain("\"column\":\"metrics\"");
+        json.ShouldContain("\"operator\"");
+        json.ShouldContain("\"value\":100.5");
+        json.ShouldContain("\"key\":\"latency\"");
     }
 
     [Fact]
@@ -171,10 +172,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"boolean\"", json);
-        Assert.Contains("\"column\":\"public\"", json);
-        Assert.Contains("\"operator\":\"=\"", json);
-        Assert.Contains("\"value\":true", json);
+        json.ShouldContain("\"type\":\"boolean\"");
+        json.ShouldContain("\"column\":\"public\"");
+        json.ShouldContain("\"operator\":\"=\"");
+        json.ShouldContain("\"value\":true");
     }
 
     [Fact]
@@ -189,10 +190,10 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"null\"", json);
-        Assert.Contains("\"column\":\"endTime\"", json);
-        Assert.Contains("\"operator\":\"is null\"", json);
-        Assert.Contains("\"value\":null", json);
+        json.ShouldContain("\"type\":\"null\"");
+        json.ShouldContain("\"column\":\"endTime\"");
+        json.ShouldContain("\"operator\":\"is null\"");
+        json.ShouldContain("\"value\":null");
     }
 
     [Fact]
@@ -225,12 +226,12 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(filter.Conditions, JsonOptions);
 
-        Assert.Contains("\"type\":\"string\"", json);
-        Assert.Contains("\"type\":\"datetime\"", json);
-        Assert.Contains("\"type\":\"number\"", json);
-        Assert.Contains("\"userId\"", json);
-        Assert.Contains("\"timestamp\"", json);
-        Assert.Contains("\"score\"", json);
+        json.ShouldContain("\"type\":\"string\"");
+        json.ShouldContain("\"type\":\"datetime\"");
+        json.ShouldContain("\"type\":\"number\"");
+        json.ShouldContain("\"userId\"");
+        json.ShouldContain("\"timestamp\"");
+        json.ShouldContain("\"score\"");
     }
 
     [Fact]
@@ -245,12 +246,12 @@ public class TraceFilterTests
 
         var condition = JsonSerializer.Deserialize<TraceFilterCondition>(json, JsonOptions);
 
-        Assert.NotNull(condition);
-        Assert.IsType<StringFilterCondition>(condition);
+        condition.ShouldNotBeNull();
+        condition.ShouldBeOfType<StringFilterCondition>();
         var stringCondition = (StringFilterCondition)condition;
-        Assert.Equal("name", stringCondition.Column);
-        Assert.Equal("contains", stringCondition.Operator);
-        Assert.Equal("test", stringCondition.Value);
+        stringCondition.Column.ShouldBe("name");
+        stringCondition.Operator.ShouldBe("contains");
+        stringCondition.Value.ShouldBe("test");
     }
 
     [Fact]
@@ -265,12 +266,12 @@ public class TraceFilterTests
 
         var condition = JsonSerializer.Deserialize<TraceFilterCondition>(json, JsonOptions);
 
-        Assert.NotNull(condition);
-        Assert.IsType<DateTimeFilterCondition>(condition);
+        condition.ShouldNotBeNull();
+        condition.ShouldBeOfType<DateTimeFilterCondition>();
         var dateTimeCondition = (DateTimeFilterCondition)condition;
-        Assert.Equal("createdAt", dateTimeCondition.Column);
-        Assert.Equal("<=", dateTimeCondition.Operator);
-        Assert.Equal(new DateTime(2024, 10, 12, 10, 30, 0, DateTimeKind.Utc), dateTimeCondition.Value);
+        dateTimeCondition.Column.ShouldBe("createdAt");
+        dateTimeCondition.Operator.ShouldBe("<=");
+        dateTimeCondition.Value.ShouldBe(new DateTime(2024, 10, 12, 10, 30, 0, DateTimeKind.Utc));
     }
 
     [Fact]
@@ -293,10 +294,10 @@ public class TraceFilterTests
 
         TraceFilterCondition[]? conditions = JsonSerializer.Deserialize<TraceFilterCondition[]>(json, JsonOptions);
 
-        Assert.NotNull(conditions);
-        Assert.Equal(2, conditions.Length);
-        Assert.IsType<StringFilterCondition>(conditions[0]);
-        Assert.IsType<NumberFilterCondition>(conditions[1]);
+        conditions.ShouldNotBeNull();
+        conditions.Length.ShouldBe(2);
+        conditions[0].ShouldBeOfType<StringFilterCondition>();
+        conditions[1].ShouldBeOfType<NumberFilterCondition>();
     }
 
     [Fact]
@@ -322,10 +323,10 @@ public class TraceFilterTests
 
         var queryString = QueryStringHelper.BuildQueryString(request);
 
-        Assert.Contains("page=1", queryString);
-        Assert.Contains("limit=50", queryString);
-        Assert.Contains("filter=", queryString);
-        Assert.Contains("%22type%22%3A%22string%22", queryString); // URL-encoded "type":"string"
+        queryString.ShouldContain("page=1");
+        queryString.ShouldContain("limit=50");
+        queryString.ShouldContain("filter=");
+        queryString.ShouldContain("%22type%22%3A%22string%22"); // URL-encoded "type":"string"
     }
 
     [Fact]
@@ -342,7 +343,7 @@ public class TraceFilterTests
 
         var queryString = QueryStringHelper.BuildQueryString(request);
 
-        Assert.DoesNotContain("filter=", queryString);
+        queryString.ShouldNotContain("filter=");
     }
 
     [Fact]
@@ -356,7 +357,7 @@ public class TraceFilterTests
 
         var queryString = QueryStringHelper.BuildQueryString(request);
 
-        Assert.DoesNotContain("filter=", queryString);
+        queryString.ShouldNotContain("filter=");
     }
 
     [Fact]
@@ -391,11 +392,11 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(filter.Conditions, JsonOptions);
 
-        Assert.Contains("\"type\":\"stringObject\"", json);
-        Assert.Contains("\"type\":\"numberObject\"", json);
-        Assert.Contains("\"type\":\"boolean\"", json);
-        Assert.Contains("\"key\":\"environment\"", json);
-        Assert.Contains("\"key\":\"requestCount\"", json);
+        json.ShouldContain("\"type\":\"stringObject\"");
+        json.ShouldContain("\"type\":\"numberObject\"");
+        json.ShouldContain("\"type\":\"boolean\"");
+        json.ShouldContain("\"key\":\"environment\"");
+        json.ShouldContain("\"key\":\"requestCount\"");
     }
 
     [Fact]
@@ -413,7 +414,7 @@ public class TraceFilterTests
             };
 
             var json = JsonSerializer.Serialize(condition, JsonOptions);
-            Assert.Contains($"\"operator\":\"{op}\"", json);
+            json.ShouldContain($"\"operator\":\"{op}\"");
         }
     }
 
@@ -433,7 +434,7 @@ public class TraceFilterTests
 
             var json = JsonSerializer.Serialize(condition, JsonOptions);
             // Just verify operator field exists (< and > are escaped in JSON)
-            Assert.Contains("\"operator\"", json);
+            json.ShouldContain("\"operator\"");
         }
     }
 
@@ -453,7 +454,7 @@ public class TraceFilterTests
 
             var json = JsonSerializer.Serialize(condition, JsonOptions);
             // Just verify operator field exists (< and > are escaped in JSON)
-            Assert.Contains("\"operator\"", json);
+            json.ShouldContain("\"operator\"");
         }
     }
 
@@ -470,7 +471,7 @@ public class TraceFilterTests
         };
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
-        Assert.Contains("\"operator\":\"all of\"", json);
+        json.ShouldContain("\"operator\":\"all of\"");
     }
 
     [Fact]
@@ -488,7 +489,7 @@ public class TraceFilterTests
             };
 
             var json = JsonSerializer.Serialize(condition, JsonOptions);
-            Assert.Contains($"\"operator\":\"{op}\"", json);
+            json.ShouldContain($"\"operator\":\"{op}\"");
         }
     }
 
@@ -506,11 +507,11 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(conditions, JsonOptions);
 
-        Assert.Contains("\"type\":\"string\"", json);
-        Assert.Contains("\"type\":\"number\"", json);
-        Assert.Contains("\"type\":\"datetime\"", json);
-        Assert.Contains("\"type\":\"boolean\"", json);
-        Assert.Contains("\"type\":\"null\"", json);
+        json.ShouldContain("\"type\":\"string\"");
+        json.ShouldContain("\"type\":\"number\"");
+        json.ShouldContain("\"type\":\"datetime\"");
+        json.ShouldContain("\"type\":\"boolean\"");
+        json.ShouldContain("\"type\":\"null\"");
     }
 
     [Fact]
@@ -518,8 +519,8 @@ public class TraceFilterTests
     {
         var filter = new TraceFilter();
 
-        Assert.NotNull(filter.Conditions);
-        Assert.Empty(filter.Conditions);
+        filter.Conditions.ShouldNotBeNull();
+        filter.Conditions.ShouldBeEmpty();
     }
 
     [Fact]
@@ -535,8 +536,8 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"stringObject\"", json);
-        Assert.Contains("\"value\":\"test\"", json);
+        json.ShouldContain("\"type\":\"stringObject\"");
+        json.ShouldContain("\"value\":\"test\"");
         // Key should not be included when null (due to DefaultIgnoreCondition)
     }
 
@@ -553,8 +554,8 @@ public class TraceFilterTests
 
         var json = JsonSerializer.Serialize(condition, JsonOptions);
 
-        Assert.Contains("\"type\":\"numberObject\"", json);
-        Assert.Contains("\"value\":123", json);
+        json.ShouldContain("\"type\":\"numberObject\"");
+        json.ShouldContain("\"value\":123");
         // Key should not be included when null
     }
 }

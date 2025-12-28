@@ -40,11 +40,21 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
-    public async Task<DeleteTraceResponse> DeleteTraceManyAsync(TraceListRequest? request = null,
+    public async Task<DeleteTraceResponse> DeleteTraceManyAsync(DeleteTraceManyRequest request,
         CancellationToken cancellationToken = default)
     {
-        var queryString = QueryStringHelper.BuildQueryString(request);
-        var endpoint = $"/api/public/traces{queryString}";
-        return await DeleteAsync<DeleteTraceResponse>(endpoint, "Delete Multiple Traces", cancellationToken);
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        if (request.TraceIds == null || request.TraceIds.Length == 0)
+        {
+            throw new ArgumentException("At least one trace ID must be provided", nameof(request));
+        }
+
+        const string endpoint = "/api/public/traces";
+        return await DeleteWithBodyAsync<DeleteTraceResponse>(endpoint, request,
+            "Delete Multiple Traces", cancellationToken);
     }
 }
