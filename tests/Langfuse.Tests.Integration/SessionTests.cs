@@ -156,15 +156,10 @@ public class SessionTests
         var session = await client.GetSessionAsync(sessionId);
 
         session.Id.ShouldBe(sessionId);
-        session.StartTime.ShouldBeGreaterThan(beforeTest);
-        session.StartTime.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        if (session.UserId != null)
-        {
-            session.UserId.ShouldBe(userId);
-        }
-        if (session.Traces != null)
-        {
-            session.Traces.Length.ShouldBeGreaterThanOrEqualTo(2);
-        }
+        session.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        session.Environment.ShouldBe("default");
+        session.ProjectId.ShouldBe("test-project");
+        session.Traces.ShouldNotBeNull();
+        session.Traces.Length.ShouldBe(2);
     }
 }

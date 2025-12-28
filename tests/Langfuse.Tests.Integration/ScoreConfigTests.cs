@@ -85,9 +85,9 @@ public class ScoreConfigTests
         config.DataType.ShouldBe(ScoreDataType.Categorical);
         config.Categories.ShouldNotBeNull();
         config.Categories.Length.ShouldBe(3);
-        config.Categories.ShouldContain(c => c.Label == "Positive" && c.Value == 1);
+        config.Categories.ShouldContain(c => c.Label == "Positive" && Math.Abs(c.Value - 1) < 0.01);
         config.Categories.ShouldContain(c => c.Label == "Neutral" && c.Value == 0);
-        config.Categories.ShouldContain(c => c.Label == "Negative" && c.Value == -1);
+        config.Categories.ShouldContain(c => c.Label == "Negative" && Math.Abs(c.Value - (-1)) < 0.01);
     }
 
     [Fact]
@@ -137,12 +137,12 @@ public class ScoreConfigTests
         var client = CreateClient();
         var prefix = $"lc-{Guid.NewGuid():N}"[..15];
 
-        await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
+        var config1 = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"{prefix}-1",
             DataType = ScoreDataType.Numeric
         });
-        await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
+        var config2 = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"{prefix}-2",
             DataType = ScoreDataType.Boolean
@@ -152,8 +152,9 @@ public class ScoreConfigTests
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        (result.Data.Length >= 2).ShouldBeTrue();
-        result.Data.ShouldContain(c => c.Name.StartsWith(prefix));
+        result.Data.Length.ShouldBeGreaterThanOrEqualTo(2);
+        result.Data.ShouldContain(c => c.Id == config1.Id && c.Name == $"{prefix}-1" && c.DataType == ScoreDataType.Numeric);
+        result.Data.ShouldContain(c => c.Id == config2.Id && c.Name == $"{prefix}-2" && c.DataType == ScoreDataType.Boolean);
     }
 
     [Fact]
@@ -331,10 +332,10 @@ public class ScoreConfigTests
         config.Description.ShouldBe(description);
         config.Categories.ShouldNotBeNull();
         config.Categories.Length.ShouldBe(4);
-        config.Categories.ShouldContain(c => c.Label == "Excellent" && c.Value == 4);
-        config.Categories.ShouldContain(c => c.Label == "Good" && c.Value == 3);
-        config.Categories.ShouldContain(c => c.Label == "Fair" && c.Value == 2);
-        config.Categories.ShouldContain(c => c.Label == "Poor" && c.Value == 1);
+        config.Categories.ShouldContain(c => c.Label == "Excellent" && Math.Abs(c.Value - 4) < 0.01);
+        config.Categories.ShouldContain(c => c.Label == "Good" && Math.Abs(c.Value - 3) < 0.01);
+        config.Categories.ShouldContain(c => c.Label == "Fair" && Math.Abs(c.Value - 2) < 0.01);
+        config.Categories.ShouldContain(c => c.Label == "Poor" && Math.Abs(c.Value - 1) < 0.01);
         config.ProjectId.ShouldNotBeNullOrEmpty();
         config.IsArchived.ShouldBeFalse();
         config.CreatedAt.ShouldBeGreaterThan(beforeTest);

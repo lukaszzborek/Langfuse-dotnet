@@ -136,7 +136,7 @@ public class OtelDataService
         }
 
         // Step 3: Create event for results
-        var resultsEvent = _trace.CreateEvent("documents-retrieved",
+        _trace.CreateEvent("documents-retrieved",
             new { query },
             new { count = 3, source = "vector-db" });
 

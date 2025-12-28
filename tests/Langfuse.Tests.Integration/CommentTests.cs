@@ -134,14 +134,14 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        await client.CreateCommentAsync(new CreateCommentRequest
+        var comment1 = await client.CreateCommentAsync(new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
             ObjectId = traceId,
             Content = "First comment"
         });
-        await client.CreateCommentAsync(new CreateCommentRequest
+        var comment2 = await client.CreateCommentAsync(new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
@@ -159,7 +159,9 @@ public class CommentTests
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        (result.Data.Length >= 2).ShouldBeTrue();
+        result.Data.Length.ShouldBe(2);
+        result.Data.ShouldContain(c => c.Id == comment1.Id && c.Content == "First comment");
+        result.Data.ShouldContain(c => c.Id == comment2.Id && c.Content == "Second comment");
     }
 
     [Fact]

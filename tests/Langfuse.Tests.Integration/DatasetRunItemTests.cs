@@ -136,30 +136,19 @@ public class DatasetRunItemTests
             TraceId = traceId
         });
 
-        var stopwatch = Stopwatch.StartNew();
-        var timeout = TimeSpan.FromSeconds(30);
-        PaginatedDatasetRunItems? result = null;
-
-        while (stopwatch.Elapsed < timeout)
+        var request = new DatasetRunItemListRequest
         {
-            result = await client.GetDatasetRunListAsync(new DatasetRunItemListRequest
-            {
-                DatasetId = dataset.Id,
-                RunName = runName,
-                Page = 1,
-                Limit = 50
-            });
+            DatasetId = dataset.Id,
+            RunName = runName,
+            Page = 1,
+            Limit = 50
+        };
 
-            if (result.Data.Length >= 1)
-            {
-                break;
-            }
-
-            await Task.Delay(500);
-        }
+        var result = await FetchDatasetRunListAsync(client, request);
 
         result.ShouldNotBeNull();
-        (result.Data.Length >= 1).ShouldBeTrue();
+        result.Data.Length.ShouldBe(1);
+        result.Data.ShouldContain(r => r.TraceId == traceId && r.DatasetItemId == itemId);
     }
 
     [Fact]
@@ -273,15 +262,15 @@ public class DatasetRunItemTests
             });
         }
 
-        var page1 = await client.GetDatasetRunListAsync(new DatasetRunItemListRequest
+        var page1 = await FetchDatasetRunListAsync(client, new DatasetRunItemListRequest
         {
             DatasetId = dataset.Id,
             RunName = runName,
             Page = 1,
             Limit = 2
-        });
-
-        var page2 = await client.GetDatasetRunListAsync(new DatasetRunItemListRequest
+        }, 2);
+        
+        var page2 = await FetchDatasetRunListAsync(client, new DatasetRunItemListRequest
         {
             DatasetId = dataset.Id,
             RunName = runName,
@@ -291,7 +280,11 @@ public class DatasetRunItemTests
 
         page1.ShouldNotBeNull();
         page1.Data.ShouldNotBeNull();
-        (page1.Data.Length <= 2).ShouldBeTrue();
+        page1.Data.Length.ShouldBe(2);
+        
+        page2.ShouldNotBeNull();
+        page2.Data.ShouldNotBeNull();
+        page2.Data.Length.ShouldBe(1);
     }
 
     [Fact]
@@ -397,5 +390,27 @@ public class DatasetRunItemTests
         runItem.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
         runItem.UpdatedAt.ShouldBeGreaterThan(beforeTest);
         runItem.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+    }
+    
+    private static async Task<PaginatedDatasetRunItems> FetchDatasetRunListAsync(ILangfuseClient client,
+        DatasetRunItemListRequest dataset, int dataLength = 1)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var timeout = TimeSpan.FromSeconds(30);
+        
+        PaginatedDatasetRunItems result = null!;
+        while (stopwatch.Elapsed < timeout)
+        {
+            result = await client.GetDatasetRunListAsync(dataset);
+
+            if (result.Data.Length >= dataLength)
+            {
+                break;
+            }
+
+            await Task.Delay(500);
+        }
+
+        return result;
     }
 }

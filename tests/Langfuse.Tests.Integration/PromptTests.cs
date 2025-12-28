@@ -165,12 +165,12 @@ public class PromptTests
         var client = CreateClient();
         var prefix = $"list-prompt-{Guid.NewGuid():N}";
 
-        await client.CreatePromptAsync(new CreateTextPromptRequest
+        var prompt1 = await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = $"{prefix}-1",
             Prompt = "Prompt 1"
         });
-        await client.CreatePromptAsync(new CreateTextPromptRequest
+        var prompt2 = await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = $"{prefix}-2",
             Prompt = "Prompt 2"
@@ -180,7 +180,9 @@ public class PromptTests
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        (result.Data.Length >= 2).ShouldBeTrue();
+        result.Data.Length.ShouldBeGreaterThanOrEqualTo(2);
+        result.Data.ShouldContain(p => p.Name == $"{prefix}-1");
+        result.Data.ShouldContain(p => p.Name == $"{prefix}-2");
     }
 
     [Fact]
@@ -286,9 +288,10 @@ public class PromptTests
         textPrompt.PromptText.ShouldBe(promptContent);
         prompt.Config.ShouldNotBeNull();
         prompt.Labels.ShouldNotBeNull();
-        prompt.Labels.Count.ShouldBe(2);
+        prompt.Labels.Count.ShouldBe(3);
         prompt.Labels.ShouldContain("production");
         prompt.Labels.ShouldContain("active");
+        prompt.Labels.ShouldContain("latest");
         prompt.Tags.ShouldNotBeNull();
         prompt.Tags.Count.ShouldBe(2);
         prompt.Tags.ShouldContain("integration-test");
@@ -335,11 +338,43 @@ public class PromptTests
     public async Task GetPromptAsync_ValidatesAllResponseFields()
     {
         var client = CreateClient();
-        var promptName = $"get-comprehensive-{Guid.NewGuid():N}";
+        var promptName = $"get-{Guid.NewGuid():N}";
         var promptContent = "Test prompt for get validation with {{placeholder}}";
         var config = new { temperature = 0.8 };
 
-        await client.CreatePromptAsync(new CreateTextPromptRequest
+        var result = await client.CreatePromptAsync(new CreateTextPromptRequest
+        {
+            Name = promptName,
+            Prompt = promptContent,
+            Config = config,
+            Labels = ["production"],
+            Tags = ["validation"]
+        });
+
+        result.ShouldNotBeNull();
+        
+        var prompt = await client.GetPromptAsync(promptName);
+
+        prompt.ShouldBeOfType<TextPrompt>();
+        var textPrompt = (TextPrompt)prompt;
+        prompt.Name.ShouldBe(promptName);
+        prompt.Version.ShouldBe(1);
+        prompt.Type.ShouldBe("text");
+        textPrompt.PromptText.ShouldBe(promptContent);
+        prompt.Config.ShouldNotBeNull();
+        prompt.Labels.ShouldContain("production");
+        prompt.Tags.ShouldContain("validation");
+    }
+    
+    [Fact]
+    public async Task GetPromptAsync_TestLabel()
+    {
+        var client = CreateClient();
+        var promptName = $"get-{Guid.NewGuid():N}";
+        var promptContent = "Test prompt for get validation with {{placeholder}}";
+        var config = new { temperature = 0.8 };
+
+        var result = await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
             Prompt = promptContent,
@@ -348,7 +383,10 @@ public class PromptTests
             Tags = ["validation"]
         });
 
-        var prompt = await client.GetPromptAsync(promptName);
+        var exception = await Should.ThrowAsync<LangfuseApiException>(() => client.GetPromptAsync(promptName));
+        exception.StatusCode.ShouldBe(404);
+        
+        var prompt = await client.GetPromptAsync(promptName, label: "test");
 
         prompt.ShouldBeOfType<TextPrompt>();
         var textPrompt = (TextPrompt)prompt;

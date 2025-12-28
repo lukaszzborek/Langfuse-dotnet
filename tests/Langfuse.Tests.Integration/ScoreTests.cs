@@ -191,6 +191,7 @@ public class ScoreTests
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
+        var prefix = $"list-score-{Guid.NewGuid():N}"[..20];
 
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
@@ -198,14 +199,14 @@ public class ScoreTests
         var score1 = await client.CreateScoreAsync(new ScoreCreateRequest
         {
             TraceId = traceId,
-            Name = "score-1",
+            Name = $"{prefix}-1",
             Value = 0.5,
             DataType = ScoreDataType.Numeric
         });
         var score2 = await client.CreateScoreAsync(new ScoreCreateRequest
         {
             TraceId = traceId,
-            Name = "score-2",
+            Name = $"{prefix}-2",
             Value = 0.7,
             DataType = ScoreDataType.Numeric
         });
@@ -213,11 +214,18 @@ public class ScoreTests
         await traceHelper.WaitForScoreAsync(score1.Id);
         await traceHelper.WaitForScoreAsync(score2.Id);
 
-        var result = await client.GetScoreListAsync(new ScoreListRequest { Page = 1, Limit = 50 });
+        var result = await client.GetScoreListAsync(new ScoreListRequest
+        {
+            ScoreIds = $"{score1.Id},{score2.Id}",
+            Page = 1,
+            Limit = 50
+        });
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        (result.Data.Length >= 2).ShouldBeTrue();
+        result.Data.Length.ShouldBe(2);
+        result.Data.ShouldContain(s => s.Id == score1.Id && s.Name == $"{prefix}-1");
+        result.Data.ShouldContain(s => s.Id == score2.Id && s.Name == $"{prefix}-2");
     }
 
     [Fact]

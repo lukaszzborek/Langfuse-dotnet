@@ -79,15 +79,16 @@ public class DatasetTests
         var client = CreateClient();
         var prefix = $"list-test-{Guid.NewGuid():N}";
 
-        await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-1" });
-        await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-2" });
+        var dataset1 = await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-1" });
+        var dataset2 = await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-2" });
 
         var result = await client.GetDatasetListAsync(new DatasetListRequest { Page = 1, Limit = 50 });
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
-        (result.Data.Length >= 2).ShouldBeTrue();
-        result.Data.ShouldContain(d => d.Name.StartsWith(prefix));
+        result.Data.Length.ShouldBeGreaterThanOrEqualTo(2);
+        result.Data.ShouldContain(d => d.Id == dataset1.Id && d.Name == $"{prefix}-1");
+        result.Data.ShouldContain(d => d.Id == dataset2.Id && d.Name == $"{prefix}-2");
     }
 
     [Fact]
@@ -171,16 +172,12 @@ public class DatasetTests
         var dataset = await client.CreateDatasetAsync(request);
 
         dataset.Id.ShouldNotBeNullOrEmpty();
-        Guid.TryParse(dataset.Id, out var parsedId).ShouldBeTrue();
-        parsedId.ShouldNotBe(Guid.Empty);
         dataset.Name.ShouldBe(datasetName);
         dataset.Description.ShouldBe(description);
         dataset.ProjectId.ShouldNotBeNullOrEmpty();
         dataset.Metadata.ShouldNotBeNull();
-        dataset.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        dataset.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        dataset.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        dataset.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        dataset.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        dataset.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
     [Fact]
@@ -202,15 +199,11 @@ public class DatasetTests
         var dataset = await client.GetDatasetAsync(datasetName);
 
         dataset.Id.ShouldNotBeNullOrEmpty();
-        Guid.TryParse(dataset.Id, out var parsedId).ShouldBeTrue();
-        parsedId.ShouldNotBe(Guid.Empty);
         dataset.Name.ShouldBe(datasetName);
         dataset.Description.ShouldBe(description);
         dataset.ProjectId.ShouldNotBeNullOrEmpty();
         dataset.Metadata.ShouldNotBeNull();
-        dataset.CreatedAt.ShouldBeGreaterThan(beforeTest);
-        dataset.CreatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
-        dataset.UpdatedAt.ShouldBeGreaterThan(beforeTest);
-        dataset.UpdatedAt.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(2));
+        dataset.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        dataset.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 }

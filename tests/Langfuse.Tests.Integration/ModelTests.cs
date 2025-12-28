@@ -84,13 +84,35 @@ public class ModelTests
     public async Task GetModelListAsync_ReturnsPaginatedList()
     {
         var client = CreateClient();
+        var prefix = $"list-model-{Guid.NewGuid():N}";
 
-        var result = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 100 });
+        await client.CreateModelAsync(new CreateModelRequest
+        {
+            ModelName = $"{prefix}-1",
+            MatchPattern = $"(?i)^{prefix}-1$",
+            InputPrice = 0.001m,
+            Unit = ModelUsageUnit.Tokens
+        });
+        await client.CreateModelAsync(new CreateModelRequest
+        {
+            ModelName = $"{prefix}-2",
+            MatchPattern = $"(?i)^{prefix}-2$",
+            InputPrice = 0.001m,
+            Unit = ModelUsageUnit.Tokens
+        });
 
-        result.ShouldNotBeNull();
-        result.Data.ShouldNotBeNull();
-        (result.Data.Length >= 2).ShouldBeTrue();
-        (result.Meta.TotalItems >= result.Data.Length).ShouldBeTrue();
+        var result1 = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 1 });
+        var result2 = await client.GetModelListAsync(new ModelListRequest { Page = 2, Limit = 1 });
+
+        result1.ShouldNotBeNull();
+        result1.Data.ShouldNotBeNull();
+        result1.Data.Length.ShouldBe(1);
+        
+        result2.ShouldNotBeNull();
+        result2.Data.ShouldNotBeNull();
+        result2.Data.Length.ShouldBe(1);
+        
+        result1.Data[0].Id.ShouldNotBe(result2.Data[0].Id);
     }
 
     [Fact]

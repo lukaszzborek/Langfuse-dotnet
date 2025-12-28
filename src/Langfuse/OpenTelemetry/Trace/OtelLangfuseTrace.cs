@@ -125,7 +125,6 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         // Set context in Baggage for auto-enrichment by ActivityListener
         SetBaggageContext(userId, sessionId, version, release, tags);
 
-        // Create trace config for the helper
         var config = new TraceConfig
         {
             UserId = userId,

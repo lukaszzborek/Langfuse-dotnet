@@ -122,7 +122,8 @@ public class AnnotationQueueTests
 
         items.ShouldNotBeNull();
         items.Data.ShouldNotBeNull();
-        (items.Data.Length >= 1).ShouldBeTrue();
+        items.Data.Length.ShouldBeGreaterThanOrEqualTo(1);
+        items.Data.ShouldContain(i => i.ObjectId == traceId && i.ObjectType == AnnotationObjectType.Trace);
     }
 
     [Fact(Skip = "Queues are created via UI, so the list might be empty")]

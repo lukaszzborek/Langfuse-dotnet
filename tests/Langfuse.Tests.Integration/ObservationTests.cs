@@ -49,12 +49,32 @@ public class ObservationTests
         var result = traceHelper.CreateComplexTrace();
         await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
+        await traceHelper.WaitForObservationAsync(result.GenerationId);
+        await traceHelper.WaitForObservationAsync(result.EventId);
 
-        var observations = await client.GetObservationListAsync(new ObservationListRequest { Page = 1, Limit = 50 });
+        var observations1 = await client.GetObservationListAsync(new ObservationListRequest
+        {
+            TraceId = result.TraceId,
+            Page = 1,
+            Limit = 1
+        });
+        
+        var observations2 = await client.GetObservationListAsync(new ObservationListRequest
+        {
+            TraceId = result.TraceId,
+            Page = 2,
+            Limit = 1
+        });
 
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
-        (observations.Data.Length >= 1).ShouldBeTrue();
+        observations1.ShouldNotBeNull();
+        observations1.Data.ShouldNotBeNull();
+        observations1.Data.Length.ShouldBe(1);
+        
+        observations2.ShouldNotBeNull();
+        observations2.Data.ShouldNotBeNull();
+        observations2.Data.Length.ShouldBe(1);
+        
+        observations1.Data[0].Id.ShouldNotBe(observations2.Data[0].Id);
     }
 
     [Fact]
@@ -132,6 +152,8 @@ public class ObservationTests
         var result = traceHelper.CreateComplexTrace();
         await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
+        await traceHelper.WaitForObservationAsync(result.GenerationId);
+        await traceHelper.WaitForObservationAsync(result.EventId);
 
         var observations = await client.GetObservationListAsync(new ObservationListRequest
         {
@@ -142,8 +164,11 @@ public class ObservationTests
 
         observations.ShouldNotBeNull();
         observations.Data.ShouldNotBeNull();
-        (observations.Data.Length >= 3).ShouldBeTrue(); // span, generation, event
+        observations.Data.Length.ShouldBe(4);
         observations.Data.ShouldAllBe(o => o.TraceId == result.TraceId);
+        observations.Data.ShouldContain(o => o.Id == result.SpanId && o.Type == "SPAN");
+        observations.Data.ShouldContain(o => o.Id == result.GenerationId && o.Type == "GENERATION");
+        observations.Data.ShouldContain(o => o.Id == result.EventId && o.Type == "EVENT");
     }
 
     [Fact]

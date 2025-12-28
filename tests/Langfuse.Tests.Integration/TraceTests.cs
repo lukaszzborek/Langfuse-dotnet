@@ -54,11 +54,18 @@ public class TraceTests
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);
 
-        var result = await client.GetTraceListAsync(new TraceListRequest { Page = 1, Limit = 50 });
+        var result1 = await client.GetTraceListAsync(new TraceListRequest { Page = 1, Limit = 1 });
+        var result2 = await client.GetTraceListAsync(new TraceListRequest { Page = 2, Limit = 1 });
 
-        result.ShouldNotBeNull();
-        result.Data.ShouldNotBeNull();
-        (result.Data.Length >= 2).ShouldBeTrue();
+        result1.ShouldNotBeNull();
+        result1.Data.ShouldNotBeNull();
+        result1.Data.Length.ShouldBe(1);
+        
+        result2.ShouldNotBeNull();
+        result2.Data.ShouldNotBeNull();
+        result2.Data.Length.ShouldBe(1);
+        
+        result1.Data[0].Id.ShouldNotBe(result2.Data[0].Id);
     }
 
     [Fact]
