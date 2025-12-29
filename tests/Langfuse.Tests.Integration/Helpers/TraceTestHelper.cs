@@ -3,6 +3,7 @@ using Langfuse.Tests.Integration.Fixtures;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Score;
+using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
 
 namespace Langfuse.Tests.Integration.Helpers;
@@ -469,6 +470,272 @@ public class TraceTestHelper
     }
 
     /// <summary>
+    ///     Creates a trace with an embedding observation using OpenTelemetry
+    /// </summary>
+    public (string TraceId, string EmbeddingId) CreateTraceWithEmbedding(
+        string? traceName = null,
+        string? embeddingName = null,
+        string? model = null,
+        string? provider = null,
+        object? input = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        using var embedding = trace.CreateEmbedding(
+            embeddingName ?? "test-embedding",
+            model ?? "text-embedding-3-small",
+            provider ?? "openai",
+            input ?? "Text to embed");
+
+        embedding.SetResponse(new GenAiResponse { InputTokens = 15 });
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var embeddingId = embedding.Activity?.SpanId.ToHexString() ??
+                          throw new InvalidOperationException("Embedding activity not created");
+
+        embedding.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return (traceId, embeddingId);
+    }
+
+    /// <summary>
+    ///     Creates a trace with a tool call observation using OpenTelemetry
+    /// </summary>
+    public (string TraceId, string ToolCallId) CreateTraceWithToolCall(
+        string? traceName = null,
+        string? toolCallName = null,
+        string? toolName = null,
+        string? toolDescription = null,
+        object? input = null,
+        object? result = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        using var toolCall = trace.CreateToolCall(
+            toolCallName ?? "test-tool-call",
+            toolName ?? "get_weather",
+            toolDescription ?? "Gets current weather",
+            input: input ?? new { location = "NYC" });
+
+        toolCall.SetResult(result ?? new { temperature = 72, unit = "F" });
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var toolCallId = toolCall.Activity?.SpanId.ToHexString() ??
+                         throw new InvalidOperationException("Tool call activity not created");
+
+        toolCall.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return (traceId, toolCallId);
+    }
+
+    /// <summary>
+    ///     Creates a trace with an agent observation using OpenTelemetry
+    /// </summary>
+    public (string TraceId, string AgentId) CreateTraceWithAgent(
+        string? traceName = null,
+        string? agentName = null,
+        string? agentId = null,
+        string? description = null,
+        object? input = null,
+        object? output = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        using var agent = trace.CreateAgent(
+            agentName ?? "test-agent",
+            agentId ?? "agent-123",
+            description ?? "A test agent",
+            input ?? "Agent input");
+
+        agent.SetOutput(output ?? "Agent output");
+
+        var traceIdStr = trace.TraceActivity?.TraceId.ToHexString() ??
+                         throw new InvalidOperationException("Trace activity not created");
+        var agentSpanId = agent.Activity?.SpanId.ToHexString() ??
+                          throw new InvalidOperationException("Agent activity not created");
+
+        agent.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return (traceIdStr, agentSpanId);
+    }
+
+    /// <summary>
+    ///     Creates a trace with a generation that has token usage metadata
+    /// </summary>
+    public (string TraceId, string GenerationId) CreateTraceWithTokenUsage(
+        string? traceName = null,
+        string? generationName = null,
+        string? model = null,
+        int inputTokens = 100,
+        int outputTokens = 50)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        using var generation = trace.CreateGeneration(
+            generationName ?? "test-generation",
+            model ?? "gpt-4",
+            "openai",
+            "prompt text");
+
+        generation.SetResponse(new GenAiResponse
+        {
+            Model = model ?? "gpt-4",
+            InputTokens = inputTokens,
+            OutputTokens = outputTokens,
+            FinishReasons = ["stop"],
+            Completion = "Generated response"
+        });
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var generationId = generation.Activity?.SpanId.ToHexString() ??
+                           throw new InvalidOperationException("Generation activity not created");
+
+        generation.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return (traceId, generationId);
+    }
+
+    /// <summary>
+    ///     Creates a trace with a nested hierarchy: trace -> span -> generation
+    /// </summary>
+    public NestedHierarchyResult CreateNestedHierarchy(
+        string? traceName = null,
+        string? userId = null,
+        string? sessionId = null,
+        string[]? tags = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            userId,
+            sessionId,
+            tags: tags,
+            input: "trace input",
+            isRoot: true);
+
+        trace.SetOutput("trace output");
+
+        // First level: span
+        using var span = trace.CreateSpan("parent-span", input: "span input");
+        span.SetOutput("span output");
+
+        // Second level: generation inside span
+        using var generation = trace.CreateGeneration("child-generation", "gpt-4", "openai", "prompt");
+        generation.SetMetadata("test", "test-value");
+        generation.SetResponse(new GenAiResponse
+        {
+            Model = "gpt-4",
+            InputTokens = 50,
+            OutputTokens = 25,
+            Completion = "response"
+        });
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+        var spanId = span.Activity?.SpanId.ToHexString() ??
+                     throw new InvalidOperationException("Span activity not created");
+        var generationId = generation.Activity?.SpanId.ToHexString() ??
+                           throw new InvalidOperationException("Generation activity not created");
+
+        // Get parent observation IDs for hierarchy verification
+        var traceSpanId = trace.TraceActivity?.SpanId.ToHexString();
+        var spanParentId = span.Activity?.ParentSpanId.ToHexString();
+        var generationParentId = generation.Activity?.ParentSpanId.ToHexString();
+
+        generation.Dispose();
+        span.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return new NestedHierarchyResult
+        {
+            TraceId = traceId,
+            TraceSpanId = traceSpanId!,
+            SpanId = spanId,
+            SpanParentSpanId = spanParentId!,
+            GenerationId = generationId,
+            GenerationParentSpanId = generationParentId!
+        };
+    }
+
+    /// <summary>
+    ///     Creates a trace and skips the entire trace (nothing should be exported)
+    /// </summary>
+    public string CreateSkippedTrace(string? traceName = null)
+    {
+        var actualTraceName = traceName ?? $"test-trace-{Guid.NewGuid():N}";
+
+        using var trace = new OtelLangfuseTrace(
+            actualTraceName,
+            input: "test input",
+            isRoot: true);
+
+        trace.SetOutput("test output");
+
+        // Add some observations before skipping
+        using var span = trace.CreateSpan("child-span", input: "span input");
+        span.SetOutput("span output");
+
+        var traceId = trace.TraceActivity?.TraceId.ToHexString() ??
+                      throw new InvalidOperationException("Trace activity not created");
+
+        // Skip the entire trace
+        trace.Skip();
+
+        span.Dispose();
+        trace.Dispose();
+
+        _fixture.FlushTraces();
+
+        return traceId;
+    }
+
+    /// <summary>
     ///     Checks if an observation exists in Langfuse (returns true if found, false if 404)
     /// </summary>
     public async Task<bool> ObservationExistsAsync(string observationId, TimeSpan? timeout = null,
@@ -508,4 +775,17 @@ public class TraceWithObservations
     public required string SpanId { get; init; }
     public required string GenerationId { get; init; }
     public required string EventId { get; init; }
+}
+
+/// <summary>
+///     Result object containing IDs and parent relationships from a nested hierarchy
+/// </summary>
+public class NestedHierarchyResult
+{
+    public required string TraceId { get; init; }
+    public required string TraceSpanId { get; init; }
+    public required string SpanId { get; init; }
+    public required string SpanParentSpanId { get; init; }
+    public required string GenerationId { get; init; }
+    public required string GenerationParentSpanId { get; init; }
 }
