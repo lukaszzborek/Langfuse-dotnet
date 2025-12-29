@@ -466,7 +466,7 @@ public class OpenTelemetryTests
             using var tracerProvider = Sdk.CreateTracerProviderBuilder()
                 .AddLangfuseExporter(options =>
                 {
-                    options.Endpoint = _fixture.LangfuseBaseUrl;
+                    options.Url = _fixture.LangfuseBaseUrl;
                     options.PublicKey = _fixture.PublicKey;
                     options.SecretKey = _fixture.SecretKey;
                     options.OnlyGenAiActivities = true;
@@ -485,7 +485,7 @@ public class OpenTelemetryTests
             using var tracerProvider = Sdk.CreateTracerProviderBuilder()
                 .AddLangfuseExporter(options =>
                 {
-                    options.Enabled = false;
+                    options.EnableOpenTelemetryExporter = false;
                     // No credentials needed when disabled
                 })
                 .Build();

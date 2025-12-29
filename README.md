@@ -4,7 +4,9 @@
  <img src="https://img.shields.io/nuget/v/zborek.LangfuseDotnet" alt="NuGet">
 </a>
 
-A .NET client library for [Langfuse](https://langfuse.com) - an open-source observability and analytics platform for LLM applications. This library uses **OpenTelemetry** to track, monitor, and analyze your AI application performance and behavior with [Gen AI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
+A .NET client library for [Langfuse](https://langfuse.com) - an open-source observability and analytics platform for LLM
+applications. This library uses **OpenTelemetry** to track, monitor, and analyze your AI application performance and
+behavior with [Gen AI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
 
 ## Features
 
@@ -35,7 +37,7 @@ Add Langfuse configuration to your `appsettings.json`:
   "Langfuse": {
     "PublicKey": "YOUR_PUBLIC_KEY",
     "SecretKey": "YOUR_SECRET_KEY",
-    "Endpoint": "https://cloud.langfuse.com"
+    "Url": "https://cloud.langfuse.com"
   }
 }
 ```
@@ -68,7 +70,7 @@ builder.Services.AddOpenTelemetry()
         {
             options.PublicKey = "pk-...";
             options.SecretKey = "sk-...";
-            options.Endpoint = "https://cloud.langfuse.com";
+            options.Url = "https://cloud.langfuse.com";
         });
     });
 ```
@@ -177,14 +179,14 @@ using (var generation = trace.CreateGeneration("generate-response",
 
 ## Observation Types
 
-| Type | Method | Description |
-|------|--------|-------------|
-| **Span** | `CreateSpan()` | Logical operation or workflow step |
+| Type           | Method               | Description                            |
+|----------------|----------------------|----------------------------------------|
+| **Span**       | `CreateSpan()`       | Logical operation or workflow step     |
 | **Generation** | `CreateGeneration()` | LLM API call with model/token tracking |
-| **Embedding** | `CreateEmbedding()` | Vector embedding operation |
-| **ToolCall** | `CreateToolCall()` | Function/tool invocation |
-| **Agent** | `CreateAgent()` | Agent loop iteration |
-| **Event** | `CreateEvent()` | Discrete point-in-time event |
+| **Embedding**  | `CreateEmbedding()`  | Vector embedding operation             |
+| **ToolCall**   | `CreateToolCall()`   | Function/tool invocation               |
+| **Agent**      | `CreateAgent()`      | Agent loop iteration                   |
+| **Event**      | `CreateEvent()`      | Discrete point-in-time event           |
 
 ### Tool Call Example
 
@@ -284,45 +286,45 @@ public class MyService
 
 ### Available API Domains
 
-| Domain | Description |
-|--------|-------------|
-| **Datasets** | Create and manage test datasets and runs |
-| **Prompts** | Version control and retrieve prompt templates |
-| **Scores** | Create and query evaluation scores |
-| **Score Configs** | Define score schemas and metadata |
-| **Traces** | Query and manage traces |
-| **Observations** | Query spans, generations, and events |
-| **Sessions** | Group traces into user sessions |
-| **Comments** | Add comments to traces and observations |
-| **Models** | Query supported LLM models and pricing |
-| **Media** | Upload and manage media assets |
-| **Annotation Queues** | Manage annotation workflows |
-| **Health** | API health checks |
+| Domain                | Description                                   |
+|-----------------------|-----------------------------------------------|
+| **Datasets**          | Create and manage test datasets and runs      |
+| **Prompts**           | Version control and retrieve prompt templates |
+| **Scores**            | Create and query evaluation scores            |
+| **Score Configs**     | Define score schemas and metadata             |
+| **Traces**            | Query and manage traces                       |
+| **Observations**      | Query spans, generations, and events          |
+| **Sessions**          | Group traces into user sessions               |
+| **Comments**          | Add comments to traces and observations       |
+| **Models**            | Query supported LLM models and pricing        |
+| **Media**             | Upload and manage media assets                |
+| **Annotation Queues** | Manage annotation workflows                   |
+| **Health**            | API health checks                             |
 
 ### API Client Configuration Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `Url` | `https://cloud.langfuse.com` | Langfuse API endpoint |
-| `PublicKey` | - | Langfuse public API key |
-| `SecretKey` | - | Langfuse secret API key |
-| `DefaultTimeout` | `30s` | HTTP request timeout |
-| `DefaultPageSize` | `50` | Default pagination size |
-| `EnableRetry` | `true` | Auto-retry on failure |
-| `MaxRetryAttempts` | `3` | Maximum retry attempts |
-| `RetryDelay` | `1s` | Base delay between retries |
+| Option             | Default                      | Description                |
+|--------------------|------------------------------|----------------------------|
+| `Url`              | `https://cloud.langfuse.com` | Langfuse API endpoint      |
+| `PublicKey`        | -                            | Langfuse public API key    |
+| `SecretKey`        | -                            | Langfuse secret API key    |
+| `DefaultTimeout`   | `30s`                        | HTTP request timeout       |
+| `DefaultPageSize`  | `50`                         | Default pagination size    |
+| `EnableRetry`      | `true`                       | Auto-retry on failure      |
+| `MaxRetryAttempts` | `3`                          | Maximum retry attempts     |
+| `RetryDelay`       | `1s`                         | Base delay between retries |
 
 ## OpenTelemetry Exporter Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `Enabled` | `true` | Enable/disable the exporter |
-| `Endpoint` | `https://cloud.langfuse.com` | Langfuse API endpoint |
-| `PublicKey` | - | Langfuse public API key |
-| `SecretKey` | - | Langfuse secret API key |
-| `TimeoutMilliseconds` | `10000` | Export timeout |
-| `OnlyGenAiActivities` | `true` | Filter to only export Gen AI activities |
-| `ActivityFilter` | `null` | Custom filter function for activities |
+| Option                        | Default                      | Description                             |
+|-------------------------------|------------------------------|-----------------------------------------|
+| `EnableOpenTelemetryExporter` | `true`                       | Enable/disable the exporter             |
+| `Url`                         | `https://cloud.langfuse.com` | Langfuse API endpoint                   |
+| `PublicKey`                   | -                            | Langfuse public API key                 |
+| `SecretKey`                   | -                            | Langfuse secret API key                 |
+| `TimeoutMilliseconds`         | `10000`                      | Export timeout                          |
+| `OnlyGenAiActivities`         | `true`                       | Filter to only export Gen AI activities |
+| `ActivityFilter`              | `null`                       | Custom filter function for activities   |
 
 ## Testing
 
@@ -335,6 +337,7 @@ services.AddLangfuseTracingNoOp();
 ## Complete Example
 
 See the `Examples/Langfuse.Example.OpenTelemetry` directory for a complete working example showing:
+
 - Integration with OpenAI
 - RAG pipeline with nested spans
 - Agent workflows with tool calls
