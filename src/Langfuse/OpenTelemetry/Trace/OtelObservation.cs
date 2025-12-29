@@ -20,11 +20,32 @@ public abstract class OtelObservation : IDisposable
     /// </summary>
     public bool HasActivity => Activity != null;
 
+    /// <summary>
+    ///     Gets whether this observation has been marked as skipped.
+    /// </summary>
+    public bool IsSkipped
+    {
+        get
+        {
+            if (Activity == null)
+            {
+                return false;
+            }
+
+            return !Activity.IsAllDataRequested || !Activity.Recorded;
+        }
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="OtelObservation" /> class.
+    /// </summary>
+    /// <param name="activity">The underlying Activity for this observation.</param>
     protected OtelObservation(Activity? activity)
     {
         Activity = activity;
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         if (_disposed)
@@ -91,22 +112,6 @@ public abstract class OtelObservation : IDisposable
 
         Activity.IsAllDataRequested = false;
         Activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
-    }
-
-    /// <summary>
-    ///     Gets whether this observation has been marked as skipped.
-    /// </summary>
-    public bool IsSkipped
-    {
-        get
-        {
-            if (Activity == null)
-            {
-                return false;
-            }
-
-            return !Activity.IsAllDataRequested || !Activity.Recorded;
-        }
     }
 
     /// <summary>

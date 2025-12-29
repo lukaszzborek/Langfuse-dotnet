@@ -87,7 +87,7 @@ public interface IOtelLangfuseTrace : IDisposable
     OtelGeneration CreateGeneration(
         string name,
         string model,
-        string? provider = null,
+        string provider,
         object? input = null,
         Action<OtelGeneration>? configure = null);
 
@@ -127,7 +127,7 @@ public interface IOtelLangfuseTrace : IDisposable
     OtelEmbedding CreateEmbedding(
         string name,
         string model,
-        string? provider = null,
+        string provider,
         object? input = null,
         Action<OtelEmbedding>? configure = null);
 

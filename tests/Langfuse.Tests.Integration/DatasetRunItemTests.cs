@@ -353,7 +353,6 @@ public class DatasetRunItemTests
         runItem.ObservationId.ShouldBe(generationId);
         runItem.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         runItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        ;
     }
 
     [Fact]

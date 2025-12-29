@@ -55,7 +55,7 @@ public static class Extensions
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<LangfuseTrace>();
         services.AddScoped<AuthorizationDelegatingHandler>();
-        services.AddSingleton(sp => Channel.CreateUnbounded<IIngestionEvent>());
+        services.AddSingleton(Channel.CreateUnbounded<IIngestionEvent>());
 
         services.AddHttpClient<ILangfuseClient, LangfuseClient>(x => { x.BaseAddress = new Uri(config.Url); })
             .AddHttpMessageHandler<AuthorizationDelegatingHandler>();

@@ -36,13 +36,15 @@ internal partial class LangfuseClient : ILangfuseClient
         _logger = logger;
     }
 
-    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
+    [Obsolete(
+        "This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync(IIngestionEvent ingestionEvent, CancellationToken cancellationToken = default)
     {
         await IngestInternalAsync(ingestionEvent, cancellationToken);
     }
 
-    [Obsolete("This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
+    [Obsolete(
+        "This method uses the legacy ingestion endpoint. Please use the OpenTelemetry endpoint instead. Learn more: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default)
     {
         List<IIngestionEvent> events = langfuseTrace.GetEvents();
@@ -126,8 +128,8 @@ internal partial class LangfuseClient : ILangfuseClient
             {
                 var batchIngestionRequest = new IngestionRequest { Batch = currentBatch.ToArray() };
                 var lastResponse = await IngestInternalAsync(batchIngestionRequest);
-                successResponses.AddRange(lastResponse?.Successes ?? []);
-                errorResponses.AddRange(lastResponse?.Errors ?? []);
+                successResponses.AddRange(lastResponse.Successes ?? []);
+                errorResponses.AddRange(lastResponse.Errors ?? []);
             }
 
             // Start new batch with the overflow event
@@ -140,8 +142,8 @@ internal partial class LangfuseClient : ILangfuseClient
         {
             var finalBatchRequest = new IngestionRequest { Batch = currentBatch.ToArray() };
             var lastResponse = await IngestInternalAsync(finalBatchRequest);
-            successResponses.AddRange(lastResponse?.Successes ?? []);
-            errorResponses.AddRange(lastResponse?.Errors ?? []);
+            successResponses.AddRange(lastResponse.Successes ?? []);
+            errorResponses.AddRange(lastResponse.Errors ?? []);
         }
 
         return new IngestionResponse
@@ -524,6 +526,7 @@ internal partial class LangfuseClient : ILangfuseClient
         var errorContent = await response.Content.ReadAsStringAsync();
         var statusCode = (int)response.StatusCode;
 
-        throw new LangfuseApiException(statusCode, $"API request failed with status code {statusCode} and response body : {errorContent}", errorContent);
+        throw new LangfuseApiException(statusCode,
+            $"API request failed with status code {statusCode} and response body : {errorContent}", errorContent);
     }
 }

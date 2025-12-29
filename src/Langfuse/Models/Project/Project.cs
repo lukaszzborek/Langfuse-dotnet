@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using zborek.Langfuse.Models.Organization;
 
 namespace zborek.Langfuse.Models.Project;
 
