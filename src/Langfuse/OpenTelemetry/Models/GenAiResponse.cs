@@ -10,7 +10,6 @@ public class GenAiResponse
     public string[]? FinishReasons { get; init; }
     public int? InputTokens { get; init; }
     public int? OutputTokens { get; init; }
-    public int? TotalTokens { get; init; }
     public decimal? InputCost { get; init; }
     public decimal? OutputCost { get; init; }
     public decimal? TotalCost { get; init; }
@@ -21,6 +20,7 @@ public class GenAiResponse
     ///     Sets a single assistant message as the output.
     /// </summary>
     public string? Completion { get; init; }
+
     public DateTimeOffset? CompletionStartTime { get; init; }
     public Dictionary<string, int>? UsageDetails { get; init; }
     public Dictionary<string, decimal>? CostDetails { get; init; }

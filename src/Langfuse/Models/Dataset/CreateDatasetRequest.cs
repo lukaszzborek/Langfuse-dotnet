@@ -2,14 +2,26 @@ using System.Text.Json.Serialization;
 
 namespace zborek.Langfuse.Models.Dataset;
 
+/// <summary>
+///     Request to create a new dataset.
+/// </summary>
 public class CreateDatasetRequest
 {
+    /// <summary>
+    ///     Name of the dataset.
+    /// </summary>
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Description of the dataset.
+    /// </summary>
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
+    /// <summary>
+    ///     Additional metadata for the dataset.
+    /// </summary>
     [JsonPropertyName("metadata")]
     public object? Metadata { get; set; }
 
