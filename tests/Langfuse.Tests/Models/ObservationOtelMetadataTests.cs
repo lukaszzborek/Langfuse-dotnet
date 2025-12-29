@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Shouldly;
 using zborek.Langfuse.Models.Observation;
 
@@ -416,10 +417,59 @@ public class ObservationModelMetadataTests
         otelMetadata.GetResourceAttribute("service.name").ShouldBe("my-service");
         otelMetadata.Scope!.Name.ShouldBe("Langfuse");
     }
+    
+    [Fact]
+    public void Should_Deserialize_Full_Observation_With_Custom_Metadata()
+    {
+        var observationJson = """
+                              {
+                                  "id": "obs-123",
+                                  "type": "GENERATION",
+                                  "name": "test-generation",
+                                  "metadata": {
+                                      "customField": "customValue",
+                                      "number": 42,
+                                      "attributes": {
+                                          "langfuse.user.id": "user-from-json",
+                                          "langfuse.session.id": "session-from-json"
+                                      },
+                                      "resourceAttributes": {
+                                          "service.name": "my-service"
+                                      },
+                                      "scope": {
+                                          "name": "Langfuse"
+                                      }
+                                  }
+                              }
+                              """;
+
+        var observation = JsonSerializer.Deserialize<ObservationModel>(observationJson);
+
+        observation.ShouldNotBeNull();
+        observation.Id.ShouldBe("obs-123");
+
+        var otelMetadata = observation.GetMetadataAs<CustomFields>();
+        otelMetadata.ShouldNotBeNull();
+        otelMetadata.UserId.ShouldBe("user-from-json");
+        otelMetadata.SessionId.ShouldBe("session-from-json");
+        otelMetadata.GetResourceAttribute("service.name").ShouldBe("my-service");
+        otelMetadata.Scope!.Name.ShouldBe("Langfuse");
+        otelMetadata.CustomField.ShouldBe("customValue");
+        otelMetadata.Number.ShouldBe(42);
+    }
 
     private class CustomMetadata
     {
         public string? CustomField { get; set; }
+        public int Number { get; set; }
+    }
+
+    private class CustomFields : ObservationOtelMetadata
+    {
+        [JsonPropertyName("customField")]
+        public string? CustomField { get; set; }
+        
+        [JsonPropertyName("number")]
         public int Number { get; set; }
     }
 }
