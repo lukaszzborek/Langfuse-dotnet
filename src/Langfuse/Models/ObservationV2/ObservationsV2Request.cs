@@ -77,7 +77,7 @@ public class ObservationsV2Request
     ///     Optional filter for observations where the environment is one of the provided values.
     /// </summary>
     [JsonPropertyName("environment")]
-    public List<string>? Environment { get; set; }
+    public List<string> Environment { get; set; } = [];
 
     /// <summary>
     ///     Retrieve only observations with a start_time on or after this datetime (ISO 8601).
