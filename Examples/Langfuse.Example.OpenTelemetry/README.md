@@ -16,7 +16,7 @@ This example demonstrates how to use the Langfuse OTLP exporter with OpenTelemet
    ```json
    {
      "Langfuse": {
-       "Endpoint": "https://cloud.langfuse.com",
+       "Url": "https://cloud.langfuse.com",
        "PublicKey": "your-public-key-here",
        "SecretKey": "your-secret-key-here",
        "TimeoutMilliseconds": 10000
@@ -125,7 +125,7 @@ services.AddOpenTelemetry()
     {
         tracing.AddLangfuseExporter(options =>
         {
-            options.Endpoint = "https://cloud.langfuse.com";
+            options.Url = "https://cloud.langfuse.com";
             options.PublicKey = "your-public-key";
             options.SecretKey = "your-secret-key";
             options.TimeoutMilliseconds = 10000;

@@ -57,7 +57,7 @@ public static class LangfuseOtlpExtensions
     {
         builder.AddSource(OtelLangfuseTrace.ActivitySourceName);
 
-        if (!langfuseOptions.Enabled)
+        if (!langfuseOptions.EnableOpenTelemetryExporter)
         {
             return builder;
         }
@@ -99,7 +99,7 @@ public static class LangfuseOtlpExtensions
 
     private static OtlpTraceExporter CreateOtlpExporter(LangfuseOtlpExporterOptions langfuseOptions)
     {
-        if (string.IsNullOrEmpty(langfuseOptions.Endpoint))
+        if (string.IsNullOrEmpty(langfuseOptions.Url))
         {
             throw new ArgumentException("Langfuse Endpoint must be provided in LangfuseOtlpExporterOptions");
         }
@@ -116,7 +116,7 @@ public static class LangfuseOtlpExtensions
 
         var otlpOptions = new OtlpExporterOptions();
 
-        var endpoint = langfuseOptions.Endpoint.TrimEnd('/');
+        var endpoint = langfuseOptions.Url.TrimEnd('/');
         otlpOptions.Endpoint = new Uri($"{endpoint}/{langfuseOptions.OpenTelemetryEndpoint}");
         otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
         otlpOptions.TimeoutMilliseconds = langfuseOptions.TimeoutMilliseconds;

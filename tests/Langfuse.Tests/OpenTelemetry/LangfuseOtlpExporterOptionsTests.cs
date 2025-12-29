@@ -13,7 +13,7 @@ public class LangfuseOtlpExporterOptionsTests
         var options = new LangfuseOtlpExporterOptions();
 
         // Assert
-        options.Endpoint.ShouldBe("https://cloud.langfuse.com");
+        options.Url.ShouldBe("https://cloud.langfuse.com");
         options.PublicKey.ShouldBe(string.Empty);
         options.SecretKey.ShouldBe(string.Empty);
         options.Headers.ShouldNotBeNull();
@@ -29,10 +29,10 @@ public class LangfuseOtlpExporterOptionsTests
         var customEndpoint = "https://custom.langfuse.com";
 
         // Act
-        options.Endpoint = customEndpoint;
+        options.Url = customEndpoint;
 
         // Assert
-        options.Endpoint.ShouldBe(customEndpoint);
+        options.Url.ShouldBe(customEndpoint);
     }
 
     [Fact]
@@ -118,7 +118,8 @@ public class LangfuseOtlpExporterOptionsTests
         // Arrange
         var configurationData = new Dictionary<string, string>
         {
-            { "LangfuseOtlp:Endpoint", "https://test.langfuse.com" },
+            { "LangfuseOtlp:EnableOpenTelemetryExporter", "false" },
+            { "LangfuseOtlp:Url", "https://test.langfuse.com" },
             { "LangfuseOtlp:PublicKey", "pk-test-key" },
             { "LangfuseOtlp:SecretKey", "sk-test-key" },
             { "LangfuseOtlp:TimeoutMilliseconds", "15000" },
@@ -134,7 +135,40 @@ public class LangfuseOtlpExporterOptionsTests
         configuration.GetSection("LangfuseOtlp").Bind(options);
 
         // Assert
-        options.Endpoint.ShouldBe("https://test.langfuse.com");
+        options.EnableOpenTelemetryExporter.ShouldBe(false);
+        options.Url.ShouldBe("https://test.langfuse.com");
+        options.PublicKey.ShouldBe("pk-test-key");
+        options.SecretKey.ShouldBe("sk-test-key");
+        options.TimeoutMilliseconds.ShouldBe(15000);
+        options.Headers.ShouldHaveSingleItem();
+        options.Headers["X-Custom"].ShouldBe("CustomValue");
+    }
+
+    [Fact]
+    public void Configuration_CanBindToOptions_EnabledExporter()
+    {
+        // Arrange
+        var configurationData = new Dictionary<string, string>
+        {
+            { "LangfuseOtlp:EnableOpenTelemetryExporter", "true" },
+            { "LangfuseOtlp:Url", "https://test.langfuse.com" },
+            { "LangfuseOtlp:PublicKey", "pk-test-key" },
+            { "LangfuseOtlp:SecretKey", "sk-test-key" },
+            { "LangfuseOtlp:TimeoutMilliseconds", "15000" },
+            { "LangfuseOtlp:Headers:X-Custom", "CustomValue" }
+        };
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configurationData!)
+            .Build();
+
+        // Act
+        var options = new LangfuseOtlpExporterOptions();
+        configuration.GetSection("LangfuseOtlp").Bind(options);
+
+        // Assert
+        options.EnableOpenTelemetryExporter.ShouldBe(true);
+        options.Url.ShouldBe("https://test.langfuse.com");
         options.PublicKey.ShouldBe("pk-test-key");
         options.SecretKey.ShouldBe("sk-test-key");
         options.TimeoutMilliseconds.ShouldBe(15000);
@@ -160,7 +194,7 @@ public class LangfuseOtlpExporterOptionsTests
         configuration.GetSection("LangfuseOtlp").Bind(options);
 
         // Assert
-        options.Endpoint.ShouldBe("https://cloud.langfuse.com");
+        options.Url.ShouldBe("https://cloud.langfuse.com");
         options.PublicKey.ShouldBe("pk-test-key");
         options.SecretKey.ShouldBe(string.Empty);
         options.TimeoutMilliseconds.ShouldBe(10000);
@@ -173,7 +207,7 @@ public class LangfuseOtlpExporterOptionsTests
         // Arrange & Act
         var options = new LangfuseOtlpExporterOptions
         {
-            Endpoint = "https://custom.langfuse.com",
+            Url = "https://custom.langfuse.com",
             PublicKey = "pk-custom-key",
             SecretKey = "sk-custom-key",
             TimeoutMilliseconds = 20000,
@@ -185,7 +219,7 @@ public class LangfuseOtlpExporterOptionsTests
         };
 
         // Assert
-        options.Endpoint.ShouldBe("https://custom.langfuse.com");
+        options.Url.ShouldBe("https://custom.langfuse.com");
         options.PublicKey.ShouldBe("pk-custom-key");
         options.SecretKey.ShouldBe("sk-custom-key");
         options.TimeoutMilliseconds.ShouldBe(20000);

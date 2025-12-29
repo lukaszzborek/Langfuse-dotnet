@@ -45,7 +45,6 @@ public class LangfuseTestFixture : IAsyncLifetime
     private INetwork? _network;
     private PostgreSqlContainer? _postgresContainer;
     private RedisContainer? _redisContainer;
-    private TracerProvider? _tracerProvider;
 
     /// <summary>
     ///     Gets the Langfuse API base URL for testing.
@@ -70,15 +69,7 @@ public class LangfuseTestFixture : IAsyncLifetime
     /// <summary>
     ///     Gets the TracerProvider for OpenTelemetry-based tracing.
     /// </summary>
-    public TracerProvider? TracerProvider => _tracerProvider;
-
-    /// <summary>
-    ///     Flushes all pending OpenTelemetry exports to ensure data is sent to Langfuse.
-    /// </summary>
-    public void FlushTraces()
-    {
-        _tracerProvider?.ForceFlush();
-    }
+    public TracerProvider? TracerProvider { get; private set; }
 
     public async Task InitializeAsync()
     {
@@ -99,26 +90,10 @@ public class LangfuseTestFixture : IAsyncLifetime
         ConfigureOpenTelemetry();
     }
 
-    private void ConfigureOpenTelemetry()
-    {
-        // Register the Langfuse ActivityListener for automatic context enrichment
-        LangfuseOtlpExtensions.UseLangfuseActivityListener();
-
-        _tracerProvider = Sdk.CreateTracerProviderBuilder()
-            .AddLangfuseExporter(options =>
-            {
-                options.Endpoint = LangfuseBaseUrl;
-                options.PublicKey = PublicKey;
-                options.SecretKey = SecretKey;
-                options.OnlyGenAiActivities = true;
-            })
-            .Build();
-    }
-
     public async Task DisposeAsync()
     {
         // Dispose TracerProvider first to flush any pending exports
-        _tracerProvider?.Dispose();
+        TracerProvider?.Dispose();
 
         // Dispose containers in reverse order of dependencies
         if (_langfuseWebContainer is not null)
@@ -155,6 +130,30 @@ public class LangfuseTestFixture : IAsyncLifetime
         {
             await _network.DeleteAsync();
         }
+    }
+
+    /// <summary>
+    ///     Flushes all pending OpenTelemetry exports to ensure data is sent to Langfuse.
+    /// </summary>
+    public void FlushTraces()
+    {
+        TracerProvider?.ForceFlush();
+    }
+
+    private void ConfigureOpenTelemetry()
+    {
+        // Register the Langfuse ActivityListener for automatic context enrichment
+        LangfuseOtlpExtensions.UseLangfuseActivityListener();
+
+        TracerProvider = Sdk.CreateTracerProviderBuilder()
+            .AddLangfuseExporter(options =>
+            {
+                options.Url = LangfuseBaseUrl;
+                options.PublicKey = PublicKey;
+                options.SecretKey = SecretKey;
+                options.OnlyGenAiActivities = true;
+            })
+            .Build();
     }
 
     private async Task StartInfrastructureContainersAsync()
