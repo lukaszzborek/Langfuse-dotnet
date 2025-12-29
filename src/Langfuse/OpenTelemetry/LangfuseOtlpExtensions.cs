@@ -101,7 +101,7 @@ public static class LangfuseOtlpExtensions
     {
         if (string.IsNullOrEmpty(langfuseOptions.Url))
         {
-            throw new ArgumentException("Langfuse Endpoint must be provided in LangfuseOtlpExporterOptions");
+            throw new ArgumentException("Langfuse Url must be provided in LangfuseOtlpExporterOptions");
         }
 
         if (string.IsNullOrEmpty(langfuseOptions.PublicKey))
