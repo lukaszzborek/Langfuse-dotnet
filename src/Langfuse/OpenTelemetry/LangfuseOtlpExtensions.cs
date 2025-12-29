@@ -160,7 +160,7 @@ public static class LangfuseOtlpExtensions
 
             ActivitySource.AddActivityListener(new ActivityListener
             {
-                ShouldListenTo = _ => true,
+                ShouldListenTo = source => source.Name == OtelLangfuseTrace.ActivitySourceName,
                 Sample = (ref ActivityCreationOptions<ActivityContext> options) =>
                     options.Source.Name == OtelLangfuseTrace.ActivitySourceName
                         ? ActivitySamplingResult.AllDataAndRecorded
@@ -173,31 +173,31 @@ public static class LangfuseOtlpExtensions
                     }
 
                     // Auto-enrich from Baggage
-                    var userId = Baggage.GetBaggage(LangfuseBaggageKeys.UserId);
+                    var userId = Baggage.GetBaggage(LangfuseAttributes.UserId);
                     if (!string.IsNullOrEmpty(userId))
                     {
                         activity.SetTag(LangfuseAttributes.UserId, userId);
                     }
 
-                    var sessionId = Baggage.GetBaggage(LangfuseBaggageKeys.SessionId);
+                    var sessionId = Baggage.GetBaggage(LangfuseAttributes.SessionId);
                     if (!string.IsNullOrEmpty(sessionId))
                     {
                         activity.SetTag(LangfuseAttributes.SessionId, sessionId);
                     }
 
-                    var version = Baggage.GetBaggage(LangfuseBaggageKeys.Version);
+                    var version = Baggage.GetBaggage(LangfuseAttributes.Version);
                     if (!string.IsNullOrEmpty(version))
                     {
                         activity.SetTag(LangfuseAttributes.Version, version);
                     }
 
-                    var release = Baggage.GetBaggage(LangfuseBaggageKeys.Release);
+                    var release = Baggage.GetBaggage(LangfuseAttributes.Release);
                     if (!string.IsNullOrEmpty(release))
                     {
                         activity.SetTag(LangfuseAttributes.Release, release);
                     }
 
-                    var tags = Baggage.GetBaggage(LangfuseBaggageKeys.Tags);
+                    var tags = Baggage.GetBaggage(LangfuseAttributes.TraceTags);
                     if (!string.IsNullOrEmpty(tags))
                     {
                         // Serialize as JSON array to match GenAiActivityHelper format

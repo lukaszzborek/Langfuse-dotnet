@@ -51,7 +51,7 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace", "user-123");
 
         trace.TraceActivity?.GetTagItem(LangfuseAttributes.UserId).ShouldBe("user-123");
-        Baggage.GetBaggage(LangfuseBaggageKeys.UserId).ShouldBe("user-123");
+        Baggage.GetBaggage(LangfuseAttributes.UserId).ShouldBe("user-123");
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace", sessionId: "session-456");
 
         trace.TraceActivity?.GetTagItem(LangfuseAttributes.SessionId).ShouldBe("session-456");
-        Baggage.GetBaggage(LangfuseBaggageKeys.SessionId).ShouldBe("session-456");
+        Baggage.GetBaggage(LangfuseAttributes.SessionId).ShouldBe("session-456");
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class OtelLangfuseTraceTests : IDisposable
         using var trace = new OtelLangfuseTrace("test-trace", version: "1.0.0");
 
         trace.TraceActivity?.GetTagItem(LangfuseAttributes.Version).ShouldBe("1.0.0");
-        Baggage.GetBaggage(LangfuseBaggageKeys.Version).ShouldBe("1.0.0");
+        Baggage.GetBaggage(LangfuseAttributes.Version).ShouldBe("1.0.0");
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class OtelLangfuseTraceTests : IDisposable
     {
         using var trace = new OtelLangfuseTrace("test-trace", release: "prod-1");
 
-        Baggage.GetBaggage(LangfuseBaggageKeys.Release).ShouldBe("prod-1");
+        Baggage.GetBaggage(LangfuseAttributes.Release).ShouldBe("prod-1");
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class OtelLangfuseTraceTests : IDisposable
         tagsJson.ShouldContain("tag1");
         tagsJson.ShouldContain("tag2");
 
-        var baggageTags = Baggage.GetBaggage(LangfuseBaggageKeys.Tags);
+        var baggageTags = Baggage.GetBaggage(LangfuseAttributes.TraceTags);
         baggageTags.ShouldNotBeNull();
         baggageTags.ShouldContain("tag1");
         baggageTags.ShouldContain("tag2");
@@ -155,15 +155,15 @@ public class OtelLangfuseTraceTests : IDisposable
             "prod-1",
             ["tag1"]);
 
-        Baggage.GetBaggage(LangfuseBaggageKeys.UserId).ShouldNotBeNull();
+        Baggage.GetBaggage(LangfuseAttributes.UserId).ShouldNotBeNull();
 
         trace.Dispose();
 
-        Baggage.GetBaggage(LangfuseBaggageKeys.UserId).ShouldBeNull();
-        Baggage.GetBaggage(LangfuseBaggageKeys.SessionId).ShouldBeNull();
-        Baggage.GetBaggage(LangfuseBaggageKeys.Version).ShouldBeNull();
-        Baggage.GetBaggage(LangfuseBaggageKeys.Release).ShouldBeNull();
-        Baggage.GetBaggage(LangfuseBaggageKeys.Tags).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseAttributes.UserId).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseAttributes.SessionId).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseAttributes.Version).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseAttributes.Release).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseAttributes.TraceTags).ShouldBeNull();
     }
 
     [Fact]

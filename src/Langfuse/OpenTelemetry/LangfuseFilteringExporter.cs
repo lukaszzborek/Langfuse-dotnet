@@ -77,7 +77,7 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
 
     private static bool IsGenAiActivity(Activity activity)
     {
-        foreach (KeyValuePair<string, string?> tag in activity.Tags)
+        foreach (var tag in activity.EnumerateTagObjects())
         {
             foreach (var prefix in GenAiAttributePrefixes)
             {
