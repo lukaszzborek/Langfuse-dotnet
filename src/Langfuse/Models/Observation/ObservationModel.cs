@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using zborek.Langfuse.Models.Core;
 
@@ -200,4 +201,56 @@ public class ObservationModel
     /// </summary>
     [JsonPropertyName("updatedAt")]
     public DateTime UpdatedAt { get; set; }
+
+    /// <summary>
+    ///     Parses the metadata as an OpenTelemetry-structured metadata object.
+    ///     Returns null if metadata is null or cannot be parsed as OTEL metadata.
+    /// </summary>
+    /// <returns>The parsed OTEL metadata, or null.</returns>
+    public ObservationOtelMetadata? GetOtelMetadata()
+    {
+        return GetMetadataAs<ObservationOtelMetadata>();
+    }
+
+    /// <summary>
+    ///     Parses the metadata as the specified type.
+    ///     Handles both JsonElement (from deserialization) and already-typed objects.
+    /// </summary>
+    /// <typeparam name="T">The type to deserialize the metadata to.</typeparam>
+    /// <returns>The parsed metadata, or default if metadata is null or cannot be parsed.</returns>
+    public T? GetMetadataAs<T>() where T : class
+    {
+        if (Metadata is null)
+        {
+            return null;
+        }
+
+        if (Metadata is T typed)
+        {
+            return typed;
+        }
+
+        if (Metadata is JsonElement jsonElement)
+        {
+            try
+            {
+                return jsonElement.Deserialize<T>();
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        // Try to serialize and deserialize for other object types
+        try
+        {
+            var json = JsonSerializer.Serialize(Metadata);
+            return JsonSerializer.Deserialize<T>(json);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
 }

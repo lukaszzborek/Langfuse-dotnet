@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Langfuse.Tests.Integration.Fixtures;
 using Langfuse.Tests.Integration.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,7 +94,7 @@ public class OpenTelemetryTests
 
         observation.ShouldNotBeNull();
         observation.Id.ShouldBe(toolCallId);
-        observation.Name.ShouldBe(toolCallName);
+        observation.Name.ShouldBe("get_weather");
         observation.Input.ShouldNotBeNull();
         observation.Output.ShouldNotBeNull();
     }
@@ -218,6 +217,13 @@ public class OpenTelemetryTests
         foreach (var observation in observations.Data)
         {
             observation.TraceId.ShouldBe(result.TraceId);
+            var otelMetadata = observation.GetOtelMetadata();
+            otelMetadata.ShouldNotBeNull();
+            otelMetadata.UserId.ShouldBe(userId);
+            otelMetadata.SessionId.ShouldBe(sessionId);
+            otelMetadata.Tags.ShouldNotBeNull();
+            otelMetadata.Tags.ShouldContain("baggage-tag1");
+            otelMetadata.Tags.ShouldContain("baggage-tag2");
         }
 
         // Verify the trace has the correct baggage-propagated attributes

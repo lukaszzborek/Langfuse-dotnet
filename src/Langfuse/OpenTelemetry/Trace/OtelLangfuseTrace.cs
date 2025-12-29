@@ -463,36 +463,36 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
     {
         if (!string.IsNullOrEmpty(userId))
         {
-            Baggage.SetBaggage(LangfuseBaggageKeys.UserId, userId);
+            Baggage.SetBaggage(LangfuseAttributes.UserId, userId);
         }
 
         if (!string.IsNullOrEmpty(sessionId))
         {
-            Baggage.SetBaggage(LangfuseBaggageKeys.SessionId, sessionId);
+            Baggage.SetBaggage(LangfuseAttributes.SessionId, sessionId);
         }
 
         if (!string.IsNullOrEmpty(version))
         {
-            Baggage.SetBaggage(LangfuseBaggageKeys.Version, version);
+            Baggage.SetBaggage(LangfuseAttributes.Version, version);
         }
 
         if (!string.IsNullOrEmpty(release))
         {
-            Baggage.SetBaggage(LangfuseBaggageKeys.Release, release);
+            Baggage.SetBaggage(LangfuseAttributes.Release, release);
         }
 
         if (tags != null)
         {
-            Baggage.SetBaggage(LangfuseBaggageKeys.Tags, string.Join(",", tags));
+            Baggage.SetBaggage(LangfuseAttributes.TraceTags, string.Join(",", tags));
         }
     }
 
     private static void ClearBaggageContext()
     {
-        Baggage.RemoveBaggage(LangfuseBaggageKeys.UserId);
-        Baggage.RemoveBaggage(LangfuseBaggageKeys.SessionId);
-        Baggage.RemoveBaggage(LangfuseBaggageKeys.Version);
-        Baggage.RemoveBaggage(LangfuseBaggageKeys.Release);
-        Baggage.RemoveBaggage(LangfuseBaggageKeys.Tags);
+        Baggage.RemoveBaggage(LangfuseAttributes.UserId);
+        Baggage.RemoveBaggage(LangfuseAttributes.SessionId);
+        Baggage.RemoveBaggage(LangfuseAttributes.Version);
+        Baggage.RemoveBaggage(LangfuseAttributes.Release);
+        Baggage.RemoveBaggage(LangfuseAttributes.TraceTags);
     }
 }
