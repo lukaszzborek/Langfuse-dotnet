@@ -55,7 +55,6 @@ public static class LangfuseOtlpExtensions
         TracerProviderBuilder builder,
         LangfuseOtlpExporterOptions langfuseOptions)
     {
-        // Automatically add the Langfuse ActivitySource (even when disabled, for consistent tracing)
         builder.AddSource(OtelLangfuseTrace.ActivitySourceName);
 
         if (!langfuseOptions.Enabled)
@@ -63,6 +62,7 @@ public static class LangfuseOtlpExtensions
             return builder;
         }
 
+        UseLangfuseActivityListener();
         var otlpExporter = CreateOtlpExporter(langfuseOptions);
 
         BaseExporter<Activity> exporter = langfuseOptions.OnlyGenAiActivities || langfuseOptions.ActivityFilter != null
@@ -81,9 +81,6 @@ public static class LangfuseOtlpExtensions
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddLangfuseTracing(this IServiceCollection services)
     {
-        // Register the ActivityListener for automatic Baggage propagation
-        UseLangfuseActivityListener();
-
         services.TryAddScoped<IOtelLangfuseTrace, OtelLangfuseTrace>();
         return services;
     }
