@@ -18,7 +18,7 @@ env:
 
 defaults:
   run:
-    shell: pwsh
+    shell: bash
 
 jobs:
   run_test:
@@ -82,10 +82,6 @@ jobs:
 
       - name: Publish NuGet package
         run: |
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-              dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-          }
-
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.snupkg)) {
-              dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-          }
+          for file in ${{ env.NuGetDirectory }}/*.nupkg ${{ env.NuGetDirectory }}/*.snupkg; do
+            dotnet nuget push "$file" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          done
