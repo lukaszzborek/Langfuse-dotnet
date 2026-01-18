@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <Version>0.5.2-beta.5</Version>
+        <Version>0.5.2</Version>
         <PackageId>zborek.LangfuseDotnet</PackageId>
         <RepositoryUrl>https://github.com/lukaszzborek/Langfuse-dotnet</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
