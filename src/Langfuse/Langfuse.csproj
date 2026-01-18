@@ -15,9 +15,10 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <Version>0.5.1</Version>
+        <Version>0.5.2-beta.1</Version>
         <PackageId>zborek.LangfuseDotnet</PackageId>
         <RepositoryUrl>https://github.com/lukaszzborek/Langfuse-dotnet</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
         <Authors>lukaszzborek</Authors>
         <Description>Langfuse client for .net</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -26,6 +27,10 @@
         <Title>LangfuseDotnet</Title>
         <PackageProjectUrl>https://github.com/lukaszzborek/Langfuse-dotnet</PackageProjectUrl>
         <PackageTags>langfuse;llm;ai</PackageTags>
+
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
