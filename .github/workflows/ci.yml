@@ -82,6 +82,7 @@ jobs:
 
       - name: Publish NuGet package
         run: |
-          for file in ${{ env.NuGetDirectory }}/*.nupkg ${{ env.NuGetDirectory }}/*.snupkg; do
+          for file in ${{ env.NuGetDirectory }}/*.nupkg; do 
+            [ -f "$file" ] || continue
             dotnet nuget push "$file" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           done
