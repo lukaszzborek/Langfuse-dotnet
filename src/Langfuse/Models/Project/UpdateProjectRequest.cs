@@ -23,5 +23,5 @@ public class UpdateProjectRequest
     ///     Number of days to retain data. Must be 0 or at least 3 days.
     /// </summary>
     [JsonPropertyName("retention")]
-    public int Retention { get; set; }
+    public int? Retention { get; set; }
 }

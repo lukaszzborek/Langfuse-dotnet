@@ -114,4 +114,22 @@ public class ScoreListRequest
     /// </summary>
     [JsonPropertyName("traceId")]
     public string? TraceId { get; set; }
+
+    /// <summary>
+    ///     Comma-separated list of observation IDs to filter by
+    /// </summary>
+    [JsonPropertyName("observationId")]
+    public string? ObservationId { get; set; }
+
+    /// <summary>
+    ///     Comma-separated list of field groups to include in the response (e.g., "score", "trace")
+    /// </summary>
+    [JsonPropertyName("fields")]
+    public string? Fields { get; set; }
+
+    /// <summary>
+    ///     JSON stringified filter array for advanced filtering
+    /// </summary>
+    [JsonPropertyName("filter")]
+    public string? Filter { get; set; }
 }

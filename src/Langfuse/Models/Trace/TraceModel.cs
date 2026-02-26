@@ -73,18 +73,18 @@ public class TraceModel
     ///     Tags associated with the trace. Array of strings used for categorization and filtering in the UI.
     /// </summary>
     [JsonPropertyName("tags")]
-    public string[]? Tags { get; set; }
+    public string[] Tags { get; set; } = [];
 
     /// <summary>
     ///     Public flag indicating if trace is visible publicly. Public traces are accessible via URL without login.
     /// </summary>
     [JsonPropertyName("public")]
-    public bool? Public { get; set; }
+    public bool Public { get; set; }
 
     /// <summary>
     ///     Environment from which this trace originated. Must be lowercase alphanumeric with hyphens/underscores, not starting
     ///     with 'langfuse'.
     /// </summary>
     [JsonPropertyName("environment")]
-    public string? Environment { get; set; }
+    public string Environment { get; set; } = string.Empty;
 }

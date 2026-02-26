@@ -159,8 +159,7 @@ public class LangfuseTestFixture : IAsyncLifetime
     private async Task StartInfrastructureContainersAsync()
     {
         // PostgreSQL
-        _postgresContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:18")
+        _postgresContainer = new PostgreSqlBuilder("postgres:18")
             .WithNetwork(_network)
             .WithNetworkAliases("postgres")
             .WithUsername(PostgresUser)
@@ -169,8 +168,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .Build();
 
         // ClickHouse
-        _clickHouseContainer = new ClickHouseBuilder()
-            .WithImage("clickhouse/clickhouse-server:latest")
+        _clickHouseContainer = new ClickHouseBuilder("clickhouse/clickhouse-server:latest")
             .WithNetwork(_network)
             .WithNetworkAliases("clickhouse")
             .WithUsername(ClickHouseUser)
@@ -178,16 +176,14 @@ public class LangfuseTestFixture : IAsyncLifetime
             .Build();
 
         // Redis
-        _redisContainer = new RedisBuilder()
-            .WithImage("redis:latest")
+        _redisContainer = new RedisBuilder("redis:latest")
             .WithNetwork(_network)
             .WithNetworkAliases("redis")
             .WithCommand("--requirepass", RedisPassword, "--maxmemory-policy", "noeviction")
             .Build();
 
         // MinIO
-        _minioContainer = new MinioBuilder()
-            .WithImage("cgr.dev/chainguard/minio")
+        _minioContainer = new MinioBuilder("cgr.dev/chainguard/minio")
             .WithNetwork(_network)
             .WithNetworkAliases("minio")
             .WithUsername(MinioUser)
@@ -225,8 +221,7 @@ public class LangfuseTestFixture : IAsyncLifetime
         Dictionary<string, string> langfuseEnvVars = GetLangfuseEnvironmentVariables();
 
         // Langfuse Worker
-        _langfuseWorkerContainer = new ContainerBuilder()
-            .WithImage("docker.io/langfuse/langfuse-worker:3")
+        _langfuseWorkerContainer = new ContainerBuilder("docker.io/langfuse/langfuse-worker:3")
             .WithNetwork(_network)
             .WithNetworkAliases("langfuse-worker")
             .WithPortBinding(3030, true)
@@ -249,8 +244,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             ["LANGFUSE_INIT_USER_PASSWORD"] = "testpassword123"
         };
 
-        _langfuseWebContainer = new ContainerBuilder()
-            .WithImage("docker.io/langfuse/langfuse:3")
+        _langfuseWebContainer = new ContainerBuilder("docker.io/langfuse/langfuse:3")
             .WithNetwork(_network)
             .WithNetworkAliases("langfuse-web")
             .WithPortBinding(3000, true)

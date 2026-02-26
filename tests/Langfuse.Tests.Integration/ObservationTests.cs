@@ -273,6 +273,10 @@ public class ObservationTests
         observation.Output.ShouldNotBeNull();
         observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+
+        observation.Environment.ShouldNotBeNull();
+        observation.UsageDetails.ShouldNotBeNull();
+        observation.CostDetails.ShouldNotBeNull();
     }
 
     [Fact]
@@ -305,6 +309,10 @@ public class ObservationTests
         observation.Output.ShouldNotBeNull();
         observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+
+        observation.Environment.ShouldNotBeNull();
+        observation.UsageDetails.ShouldNotBeNull();
+        observation.CostDetails.ShouldNotBeNull();
     }
 
     [Fact]

@@ -514,5 +514,7 @@ public class ScoreTests
         score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         score.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         score.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+
+        score.Environment.ShouldNotBeNull();
     }
 }

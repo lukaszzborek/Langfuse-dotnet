@@ -43,4 +43,10 @@ public class CreateDatasetRunItemRequest
     /// </summary>
     [JsonPropertyName("traceId")]
     public string? TraceId { get; set; }
+
+    /// <summary>
+    ///     Version of the dataset to use for this run item.
+    /// </summary>
+    [JsonPropertyName("datasetVersion")]
+    public DateTime? DatasetVersion { get; set; }
 }

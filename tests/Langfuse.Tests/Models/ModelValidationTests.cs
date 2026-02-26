@@ -6,9 +6,13 @@ using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Dataset;
 using zborek.Langfuse.Models.Model;
 using zborek.Langfuse.Models.Observation;
+using zborek.Langfuse.Models.ObservationV2;
 using zborek.Langfuse.Models.Organization;
+using zborek.Langfuse.Models.Project;
 using zborek.Langfuse.Models.Prompt;
 using zborek.Langfuse.Models.Score;
+using zborek.Langfuse.Models.Session;
+using zborek.Langfuse.Models.Trace;
 
 namespace zborek.Langfuse.Tests.Models;
 
@@ -23,6 +27,170 @@ public class ModelValidationTests
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
+    #region CreateGenerationEventBody Tests
+
+    [Fact]
+    public void CreateGenerationEventBody_Should_Serialize_With_UsageDetails()
+    {
+        // Arrange
+        var body = new CreateGenerationEventBody
+        {
+            Id = "gen-123",
+            TraceId = "trace-123",
+            Name = "Generation",
+            Model = "gpt-4",
+            Environment = "production",
+            UsageDetails = new Dictionary<string, int>
+            {
+                ["input_tokens"] = 100,
+                ["output_tokens"] = 50
+            }
+        };
+
+        // Act
+        var json = JsonSerializer.Serialize(body, JsonOptions);
+
+        // Assert
+        json.ShouldContain("\"environment\":\"production\"");
+        json.ShouldContain("\"usageDetails\":");
+        json.ShouldContain("\"input_tokens\":100");
+        json.ShouldContain("\"output_tokens\":50");
+    }
+
+    #endregion
+
+    #region ObservationModel Tests
+
+    [Fact]
+    public void ObservationModel_Should_Deserialize_With_AllNewProperties()
+    {
+        // Arrange
+        var json = """
+                   {
+                     "id": "obs-123",
+                     "type": "GENERATION",
+                     "startTime": "2024-01-15T10:00:00Z",
+                     "level": "DEFAULT",
+                     "traceId": "trace-456",
+                     "completionStartTime": "2024-01-15T10:00:01Z",
+                     "usageDetails": {"input_tokens": 100, "output_tokens": 50},
+                     "costDetails": {"input": 0.01, "output": 0.02},
+                     "promptId": "prompt-abc",
+                     "promptName": "My Prompt",
+                     "promptVersion": 3,
+                     "modelId": "model-xyz",
+                     "inputPrice": 0.001,
+                     "outputPrice": 0.002,
+                     "totalPrice": 0.003,
+                     "latency": 1.5,
+                     "timeToFirstToken": 0.2,
+                     "environment": "production",
+                     "createdAt": "2024-01-15T10:00:00Z",
+                     "updatedAt": "2024-01-15T10:00:02Z"
+                   }
+                   """;
+
+        // Act
+        var result = JsonSerializer.Deserialize<ObservationModel>(json, JsonOptions);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Id.ShouldBe("obs-123");
+        result.TraceId.ShouldBe("trace-456");
+        result.CompletionStartTime.ShouldNotBeNull();
+        result.UsageDetails.ShouldNotBeNull();
+        result.UsageDetails!["input_tokens"].ShouldBe(100);
+        result.CostDetails.ShouldNotBeNull();
+        result.CostDetails!["input"].ShouldBe(0.01);
+        result.PromptId.ShouldBe("prompt-abc");
+        result.PromptName.ShouldBe("My Prompt");
+        result.PromptVersion.ShouldBe(3);
+        result.ModelId.ShouldBe("model-xyz");
+        result.InputPrice.ShouldBe(0.001);
+        result.OutputPrice.ShouldBe(0.002);
+        result.TotalPrice.ShouldBe(0.003);
+        result.Latency.ShouldBe(1.5);
+        result.TimeToFirstToken.ShouldBe(0.2);
+        result.Environment.ShouldBe("production");
+    }
+
+    #endregion
+
+    #region IIngestionEvent Metadata Tests
+
+    [Fact]
+    public void CreateScoreEvent_Should_Have_Metadata_Property()
+    {
+        // Arrange
+        var body = new CreateScoreEventBody
+        {
+            Id = "score-id",
+            TraceId = "trace-id",
+            Name = "test",
+            Value = 1.0
+        };
+        var evt = new CreateScoreEvent(body, "2024-01-15T10:00:00Z")
+        {
+            Metadata = new { debug = true }
+        };
+
+        // Act
+        var json = JsonSerializer.Serialize(evt, JsonOptions);
+
+        // Assert
+        json.ShouldContain("\"metadata\":");
+        json.ShouldContain("\"debug\":true");
+    }
+
+    #endregion
+
+    #region SessionModel Default Values Tests
+
+    [Fact]
+    public void SessionModel_DefaultValues_EnvironmentIsEmptyString()
+    {
+        var session = new SessionModel();
+
+        session.Environment.ShouldNotBeNull();
+        session.Environment.ShouldBe(string.Empty);
+    }
+
+    #endregion
+
+    #region ScoreModel Default Values Tests
+
+    [Fact]
+    public void ScoreModel_DefaultValues_EnvironmentIsEmptyString()
+    {
+        var score = new ScoreModel();
+
+        score.Environment.ShouldNotBeNull();
+        score.Environment.ShouldBe(string.Empty);
+    }
+
+    #endregion
+
+    #region Model TokenizerConfig Default Tests
+
+    [Fact]
+    public void Model_DefaultValues_TokenizerConfigIsNotNull()
+    {
+        var model = new Model();
+
+        model.TokenizerConfig.ShouldNotBeNull();
+    }
+
+    #endregion
+
+    #region Test Classes
+
+    private class TestAnnotationObject
+    {
+        public AnnotationObjectType ObjectType { get; set; }
+    }
+
+    #endregion
 
     #region CreateApiKeyRequest Tests
 
@@ -92,7 +260,7 @@ public class ModelValidationTests
                    """;
 
         // Act
-        var result = JsonSerializer.Deserialize<zborek.Langfuse.Models.Model.Model>(json, JsonOptions);
+        var result = JsonSerializer.Deserialize<Model>(json, JsonOptions);
 
         // Assert
         result.ShouldNotBeNull();
@@ -188,95 +356,6 @@ public class ModelValidationTests
 
     #endregion
 
-    #region CreateGenerationEventBody Tests
-
-    [Fact]
-    public void CreateGenerationEventBody_Should_Serialize_With_UsageDetails()
-    {
-        // Arrange
-        var body = new CreateGenerationEventBody
-        {
-            Id = "gen-123",
-            TraceId = "trace-123",
-            Name = "Generation",
-            Model = "gpt-4",
-            Environment = "production",
-            UsageDetails = new Dictionary<string, int>
-            {
-                ["input_tokens"] = 100,
-                ["output_tokens"] = 50
-            }
-        };
-
-        // Act
-        var json = JsonSerializer.Serialize(body, JsonOptions);
-
-        // Assert
-        json.ShouldContain("\"environment\":\"production\"");
-        json.ShouldContain("\"usageDetails\":");
-        json.ShouldContain("\"input_tokens\":100");
-        json.ShouldContain("\"output_tokens\":50");
-    }
-
-    #endregion
-
-    #region ObservationModel Tests
-
-    [Fact]
-    public void ObservationModel_Should_Deserialize_With_AllNewProperties()
-    {
-        // Arrange
-        var json = """
-                   {
-                     "id": "obs-123",
-                     "type": "GENERATION",
-                     "startTime": "2024-01-15T10:00:00Z",
-                     "level": "DEFAULT",
-                     "traceId": "trace-456",
-                     "completionStartTime": "2024-01-15T10:00:01Z",
-                     "usageDetails": {"input_tokens": 100, "output_tokens": 50},
-                     "costDetails": {"input": 0.01, "output": 0.02},
-                     "promptId": "prompt-abc",
-                     "promptName": "My Prompt",
-                     "promptVersion": 3,
-                     "modelId": "model-xyz",
-                     "inputPrice": 0.001,
-                     "outputPrice": 0.002,
-                     "totalPrice": 0.003,
-                     "latency": 1.5,
-                     "timeToFirstToken": 0.2,
-                     "environment": "production",
-                     "createdAt": "2024-01-15T10:00:00Z",
-                     "updatedAt": "2024-01-15T10:00:02Z"
-                   }
-                   """;
-
-        // Act
-        var result = JsonSerializer.Deserialize<ObservationModel>(json, JsonOptions);
-
-        // Assert
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe("obs-123");
-        result.TraceId.ShouldBe("trace-456");
-        result.CompletionStartTime.ShouldNotBeNull();
-        result.UsageDetails.ShouldNotBeNull();
-        result.UsageDetails!["input_tokens"].ShouldBe(100);
-        result.CostDetails.ShouldNotBeNull();
-        result.CostDetails!["input"].ShouldBe(0.01);
-        result.PromptId.ShouldBe("prompt-abc");
-        result.PromptName.ShouldBe("My Prompt");
-        result.PromptVersion.ShouldBe(3);
-        result.ModelId.ShouldBe("model-xyz");
-        result.InputPrice.ShouldBe(0.001);
-        result.OutputPrice.ShouldBe(0.002);
-        result.TotalPrice.ShouldBe(0.003);
-        result.Latency.ShouldBe(1.5);
-        result.TimeToFirstToken.ShouldBe(0.2);
-        result.Environment.ShouldBe("production");
-    }
-
-    #endregion
-
     #region Usage Tests
 
     [Fact]
@@ -288,7 +367,7 @@ public class ModelValidationTests
             Input = 100,
             Output = 50,
             Total = 150,
-            Unit = ModelUsageUnit.Tokens,
+            Unit = "TOKENS",
             InputCost = 0.01,
             OutputCost = 0.02,
             TotalCost = 0.03
@@ -331,7 +410,7 @@ public class ModelValidationTests
         result.Input.ShouldBe(200);
         result.Output.ShouldBe(100);
         result.Total.ShouldBe(300);
-        result.Unit.ShouldBe(ModelUsageUnit.Tokens);
+        result.Unit.ShouldBe("TOKENS");
         result.InputCost.ShouldBe(0.05);
         result.OutputCost.ShouldBe(0.10);
         result.TotalCost.ShouldBe(0.15);
@@ -556,39 +635,361 @@ public class ModelValidationTests
 
     #endregion
 
-    #region IIngestionEvent Metadata Tests
+    #region TraceModel Default Values Tests
 
     [Fact]
-    public void CreateScoreEvent_Should_Have_Metadata_Property()
+    public void TraceModel_DefaultValues_TagsIsEmptyArray()
     {
-        // Arrange
-        var body = new CreateScoreEventBody
-        {
-            Id = "score-id",
-            TraceId = "trace-id",
-            Name = "test",
-            Value = 1.0
-        };
-        var evt = new CreateScoreEvent(body, "2024-01-15T10:00:00Z")
-        {
-            Metadata = new { debug = true }
-        };
+        var trace = new TraceModel();
 
-        // Act
-        var json = JsonSerializer.Serialize(evt, JsonOptions);
+        trace.Tags.ShouldNotBeNull();
+        trace.Tags.ShouldBeEmpty();
+    }
 
-        // Assert
-        json.ShouldContain("\"metadata\":");
-        json.ShouldContain("\"debug\":true");
+    [Fact]
+    public void TraceModel_DefaultValues_PublicIsFalse()
+    {
+        var trace = new TraceModel();
+
+        trace.Public.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void TraceModel_DefaultValues_EnvironmentIsEmptyString()
+    {
+        var trace = new TraceModel();
+
+        trace.Environment.ShouldNotBeNull();
+        trace.Environment.ShouldBe(string.Empty);
+    }
+
+    [Fact]
+    public void TraceModel_Should_Deserialize_NonNullableFields()
+    {
+        var json = """
+                   {
+                     "id": "trace-123",
+                     "tags": ["tag1", "tag2"],
+                     "public": true,
+                     "environment": "production"
+                   }
+                   """;
+
+        var result = JsonSerializer.Deserialize<TraceModel>(json, JsonOptions);
+
+        result.ShouldNotBeNull();
+        result.Tags.Length.ShouldBe(2);
+        result.Tags.ShouldContain("tag1");
+        result.Public.ShouldBeTrue();
+        result.Environment.ShouldBe("production");
     }
 
     #endregion
 
-    #region Test Classes
+    #region TraceWithDetails Latency/TotalCost Tests
 
-    private class TestAnnotationObject
+    [Fact]
+    public void TraceWithDetails_Should_Deserialize_Latency_And_TotalCost()
     {
-        public AnnotationObjectType ObjectType { get; set; }
+        var json = """
+                   {
+                     "id": "trace-123",
+                     "tags": [],
+                     "public": false,
+                     "environment": "default",
+                     "latency": 1.234,
+                     "totalCost": 0.0056
+                   }
+                   """;
+
+        var result = JsonSerializer.Deserialize<TraceWithDetails>(json, JsonOptions);
+
+        result.ShouldNotBeNull();
+        result.Latency.ShouldBe(1.234);
+        result.TotalCost.ShouldBe(0.0056);
+    }
+
+    [Fact]
+    public void TraceWithDetails_Should_Deserialize_NullLatency_And_TotalCost()
+    {
+        var json = """
+                   {
+                     "id": "trace-123",
+                     "tags": [],
+                     "public": false,
+                     "environment": "default",
+                     "latency": null,
+                     "totalCost": null
+                   }
+                   """;
+
+        var result = JsonSerializer.Deserialize<TraceWithDetails>(json, JsonOptions);
+
+        result.ShouldNotBeNull();
+        result.Latency.ShouldBeNull();
+        result.TotalCost.ShouldBeNull();
+    }
+
+    [Fact]
+    public void TraceWithDetails_Should_Serialize_Latency_And_TotalCost()
+    {
+        var trace = new TraceWithDetails
+        {
+            Id = "trace-123",
+            Latency = 2.5,
+            TotalCost = 0.01
+        };
+
+        var json = JsonSerializer.Serialize(trace, JsonOptions);
+
+        json.ShouldContain("\"latency\":2.5");
+        json.ShouldContain("\"totalCost\":0.01");
+    }
+
+    #endregion
+
+    #region ObservationModel Default Values Tests
+
+    [Fact]
+    public void ObservationModel_DefaultValues_UsageDetailsIsEmptyDictionary()
+    {
+        var observation = new ObservationModel();
+
+        observation.UsageDetails.ShouldNotBeNull();
+        observation.UsageDetails.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void ObservationModel_DefaultValues_CostDetailsIsEmptyDictionary()
+    {
+        var observation = new ObservationModel();
+
+        observation.CostDetails.ShouldNotBeNull();
+        observation.CostDetails.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void ObservationModel_DefaultValues_EnvironmentIsEmptyString()
+    {
+        var observation = new ObservationModel();
+
+        observation.Environment.ShouldNotBeNull();
+        observation.Environment.ShouldBe(string.Empty);
+    }
+
+    #endregion
+
+    #region Usage Non-Nullable Tests
+
+    [Fact]
+    public void Usage_DefaultValues_InputOutputTotalAreZero()
+    {
+        var usage = new Usage();
+
+        usage.Input.ShouldBe(0);
+        usage.Output.ShouldBe(0);
+        usage.Total.ShouldBe(0);
+    }
+
+    [Fact]
+    public void Usage_Unit_IsStringType()
+    {
+        var usage = new Usage { Unit = "TOKENS" };
+
+        usage.Unit.ShouldBe("TOKENS");
+    }
+
+    [Fact]
+    public void Usage_Unit_CanBeNull()
+    {
+        var usage = new Usage { Unit = null };
+
+        usage.Unit.ShouldBeNull();
+    }
+
+    [Fact]
+    public void Usage_NullUnit_OmittedInSerialization()
+    {
+        var usage = new Usage
+        {
+            Input = 10,
+            Output = 5,
+            Total = 15,
+            Unit = null
+        };
+
+        var json = JsonSerializer.Serialize(usage, JsonOptions);
+
+        json.ShouldNotContain("\"unit\"");
+    }
+
+    #endregion
+
+    #region UpdateProjectRequest Retention Nullable Tests
+
+    [Fact]
+    public void UpdateProjectRequest_Retention_IsNullable()
+    {
+        var request = new UpdateProjectRequest { Name = "test", Retention = null };
+
+        request.Retention.ShouldBeNull();
+    }
+
+    [Fact]
+    public void UpdateProjectRequest_NullRetention_OmittedInSerialization()
+    {
+        var request = new UpdateProjectRequest { Name = "test", Retention = null };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldNotContain("\"retention\"");
+    }
+
+    [Fact]
+    public void UpdateProjectRequest_Should_Serialize_Retention_WhenSet()
+    {
+        var request = new UpdateProjectRequest { Name = "test", Retention = 30 };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldContain("\"retention\":30");
+    }
+
+    [Fact]
+    public void UpdateProjectRequest_Should_Deserialize_NullRetention()
+    {
+        var json = """{"name": "test"}""";
+
+        var result = JsonSerializer.Deserialize<UpdateProjectRequest>(json, JsonOptions);
+
+        result.ShouldNotBeNull();
+        result.Retention.ShouldBeNull();
+    }
+
+    #endregion
+
+    #region DatasetItemListRequest Version Tests
+
+    [Fact]
+    public void DatasetItemListRequest_Should_Serialize_Version()
+    {
+        var date = new DateTime(2024, 6, 15, 10, 0, 0, DateTimeKind.Utc);
+        var request = new DatasetItemListRequest { Version = date };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldContain("\"version\":");
+        json.ShouldContain("2024-06-15");
+    }
+
+    [Fact]
+    public void DatasetItemListRequest_NullVersion_OmittedInSerialization()
+    {
+        var request = new DatasetItemListRequest { DatasetName = "test" };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldNotContain("\"version\"");
+    }
+
+    #endregion
+
+    #region CreateDatasetRunItemRequest DatasetVersion Tests
+
+    [Fact]
+    public void CreateDatasetRunItemRequest_Should_Serialize_DatasetVersion()
+    {
+        var date = new DateTime(2024, 6, 15, 10, 0, 0, DateTimeKind.Utc);
+        var request = new CreateDatasetRunItemRequest
+        {
+            DatasetItemId = "item-1",
+            DatasetVersion = date
+        };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldContain("\"datasetVersion\":");
+        json.ShouldContain("2024-06-15");
+    }
+
+    [Fact]
+    public void CreateDatasetRunItemRequest_NullDatasetVersion_OmittedInSerialization()
+    {
+        var request = new CreateDatasetRunItemRequest { DatasetItemId = "item-1" };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldNotContain("\"datasetVersion\"");
+    }
+
+    #endregion
+
+    #region ObservationsV2Request Tests
+
+    [Fact]
+    public void ObservationsV2Request_Should_Serialize_ExpandMetadata()
+    {
+        var request = new ObservationsV2Request { ExpandMetadata = "otel" };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldContain("\"expandMetadata\":\"otel\"");
+    }
+
+    [Fact]
+    public void ObservationsV2Request_ParseIoAsJson_HasObsoleteAttribute()
+    {
+        var property = typeof(ObservationsV2Request).GetProperty(nameof(ObservationsV2Request.ParseIoAsJson));
+
+        property.ShouldNotBeNull();
+        var obsoleteAttr = property.GetCustomAttributes(typeof(ObsoleteAttribute), false);
+        obsoleteAttr.ShouldNotBeEmpty();
+    }
+
+    #endregion
+
+    #region ScoreListRequest New Parameters Tests
+
+    [Fact]
+    public void ScoreListRequest_Should_Serialize_ObservationId()
+    {
+        var request = new ScoreListRequest { ObservationId = "obs-1,obs-2" };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldContain("\"observationId\":\"obs-1,obs-2\"");
+    }
+
+    [Fact]
+    public void ScoreListRequest_Should_Serialize_Fields()
+    {
+        var request = new ScoreListRequest { Fields = "score,trace" };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldContain("\"fields\":\"score,trace\"");
+    }
+
+    [Fact]
+    public void ScoreListRequest_Should_Serialize_Filter()
+    {
+        var request = new ScoreListRequest { Filter = "[{\"type\":\"string\",\"column\":\"name\"}]" };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldContain("\"filter\":");
+    }
+
+    [Fact]
+    public void ScoreListRequest_NullNewParams_OmittedInSerialization()
+    {
+        var request = new ScoreListRequest { Page = 1 };
+
+        var json = JsonSerializer.Serialize(request, JsonOptions);
+
+        json.ShouldNotContain("\"observationId\"");
+        json.ShouldNotContain("\"fields\"");
+        json.ShouldNotContain("\"filter\"");
     }
 
     #endregion

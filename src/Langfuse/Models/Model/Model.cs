@@ -67,7 +67,7 @@ public class Model
     ///     Configuration settings for the tokenizer, including overhead tokens and model-specific parameters.
     /// </summary>
     [JsonPropertyName("tokenizerConfig")]
-    public TokenizerConfig? TokenizerConfig { get; set; }
+    public TokenizerConfig TokenizerConfig { get; set; } = new();
 
     /// <summary>
     ///     Whether this model is managed by Langfuse (predefined) or custom-defined by the user.

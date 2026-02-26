@@ -122,13 +122,13 @@ public class ObservationModel
     ///     values are counts.
     /// </summary>
     [JsonPropertyName("usageDetails")]
-    public Dictionary<string, int>? UsageDetails { get; set; }
+    public Dictionary<string, int> UsageDetails { get; set; } = new();
 
     /// <summary>
     ///     Detailed cost information by type. Keys are cost types, values are costs in USD.
     /// </summary>
     [JsonPropertyName("costDetails")]
-    public Dictionary<string, double>? CostDetails { get; set; }
+    public Dictionary<string, double> CostDetails { get; set; } = new();
 
     /// <summary>
     ///     ID of the prompt used for this observation.
@@ -188,7 +188,7 @@ public class ObservationModel
     ///     The environment of the observation (e.g., production, staging, development).
     /// </summary>
     [JsonPropertyName("environment")]
-    public string? Environment { get; set; }
+    public string Environment { get; set; } = string.Empty;
 
     /// <summary>
     ///     Creation timestamp

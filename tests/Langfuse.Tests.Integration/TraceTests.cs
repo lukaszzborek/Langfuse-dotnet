@@ -274,5 +274,26 @@ public class TraceTests
         trace.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
         trace.Observations.ShouldNotBeNull();
         trace.Scores.ShouldNotBeNull();
+
+        trace.Public.ShouldBeFalse();
+        trace.Environment.ShouldNotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GetTraceAsync_ReturnsNonNullableFieldsWithDefaults()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var traceId = traceHelper.CreateTrace($"defaults-test-{Guid.NewGuid():N}");
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var trace = await client.GetTraceAsync(traceId);
+
+        trace.Tags.ShouldNotBeNull();
+        trace.Public.ShouldBeFalse();
+        trace.Environment.ShouldNotBeNull();
+        _ = trace.Latency;
+        _ = trace.TotalCost;
     }
 }

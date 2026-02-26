@@ -124,5 +124,5 @@ public class ScoreModel
     ///     The environment of the score (e.g., production, staging, development).
     /// </summary>
     [JsonPropertyName("environment")]
-    public string? Environment { get; set; }
+    public string Environment { get; set; } = string.Empty;
 }
