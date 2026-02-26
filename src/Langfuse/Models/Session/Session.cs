@@ -15,7 +15,7 @@ public class SessionModel
     /// </summary>
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
-    
+
     /// <summary>
     ///     Timestamp when the session was created/started
     /// </summary>
@@ -27,16 +27,16 @@ public class SessionModel
     /// </summary>
     [JsonPropertyName("projectId")]
     public string ProjectId { get; set; } = string.Empty;
-    
+
     /// <summary>
     ///     Traces associated with this session (when fetching session details)
     /// </summary>
     [JsonPropertyName("traces")]
     public TraceModel[]? Traces { get; set; }
-    
+
     /// <summary>
     ///     Environment from which this session originated. Helps categorize sessions by deployment environment.
     /// </summary>
     [JsonPropertyName("environment")]
-    public string? Environment { get; set; }
+    public string Environment { get; set; } = string.Empty;
 }

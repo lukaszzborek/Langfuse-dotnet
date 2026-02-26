@@ -37,4 +37,16 @@ public class TraceWithDetails : TraceModel
     /// </summary>
     [JsonPropertyName("usage")]
     public TraceUsage? Usage { get; set; }
+
+    /// <summary>
+    ///     Latency of the trace in seconds.
+    /// </summary>
+    [JsonPropertyName("latency")]
+    public double? Latency { get; set; }
+
+    /// <summary>
+    ///     Total cost of the trace in USD.
+    /// </summary>
+    [JsonPropertyName("totalCost")]
+    public double? TotalCost { get; set; }
 }

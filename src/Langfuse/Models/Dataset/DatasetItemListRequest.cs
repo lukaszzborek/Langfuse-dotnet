@@ -36,4 +36,10 @@ public class DatasetItemListRequest
     /// </summary>
     [JsonPropertyName("limit")]
     public int? Limit { get; set; }
+
+    /// <summary>
+    ///     Filter by dataset item version.
+    /// </summary>
+    [JsonPropertyName("version")]
+    public DateTime? Version { get; set; }
 }

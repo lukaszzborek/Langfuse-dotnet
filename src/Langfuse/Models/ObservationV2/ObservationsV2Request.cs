@@ -34,8 +34,16 @@ public class ObservationsV2Request
     ///     Set to true to parse input/output fields as JSON, or false to return raw strings.
     ///     Defaults to false if not provided.
     /// </summary>
+    [Obsolete(
+        "Deprecated. Setting this to true will return a 400 error. Input/output fields are always returned as raw strings.")]
     [JsonPropertyName("parseIoAsJson")]
     public bool? ParseIoAsJson { get; set; }
+
+    /// <summary>
+    ///     Comma-separated list of metadata groups to expand in the response.
+    /// </summary>
+    [JsonPropertyName("expandMetadata")]
+    public string? ExpandMetadata { get; set; }
 
     /// <summary>
     ///     Filter by observation name.

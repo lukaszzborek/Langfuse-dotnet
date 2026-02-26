@@ -168,6 +168,9 @@ internal static class QueryStringHelper
         AddParameter(parameters, "queueId", request.QueueId);
         AddParameter(parameters, "dataType", request.DataType?.ToString().ToUpperInvariant());
         AddParameter(parameters, "sessionId", request.SessionId);
+        AddParameter(parameters, "observationId", request.ObservationId);
+        AddParameter(parameters, "fields", request.Fields);
+        AddParameter(parameters, "filter", request.Filter);
 
         // Handle traceTags array parameter
         if (request.TraceTags != null && request.TraceTags.Length > 0)
@@ -327,6 +330,7 @@ internal static class QueryStringHelper
         AddParameter(parameters, "sourceObservationId", request.SourceObservationId);
         AddParameter(parameters, "page", request.Page);
         AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "version", request.Version?.ToString("O"));
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
@@ -431,7 +435,9 @@ internal static class QueryStringHelper
         AddParameter(parameters, "fields", request.Fields);
         AddParameter(parameters, "limit", request.Limit);
         AddParameter(parameters, "cursor", request.Cursor);
+#pragma warning disable CS0618 // Type or member is obsolete
         AddParameter(parameters, "parseIoAsJson", request.ParseIoAsJson);
+#pragma warning restore CS0618
         AddParameter(parameters, "name", request.Name);
         AddParameter(parameters, "userId", request.UserId);
         AddParameter(parameters, "type", request.Type);
@@ -442,6 +448,7 @@ internal static class QueryStringHelper
         AddParameter(parameters, "toStartTime", request.ToStartTime?.ToString("O"));
         AddParameter(parameters, "version", request.Version);
         AddParameter(parameters, "filter", request.Filter);
+        AddParameter(parameters, "expandMetadata", request.ExpandMetadata);
 
         // Handle environment array parameter
         if (request.Environment is { Count: > 0 })
