@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Langfuse.Example.OpenTeleme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Langfuse.Tests.Integration", "tests\Langfuse.Tests.Integration\Langfuse.Tests.Integration.csproj", "{423D2628-96E1-4DD2-8C07-3AFF41EFF41F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Langfuse.Example.AgentFramework", "Examples\Langfuse.Example.AgentFramework\Langfuse.Example.AgentFramework.csproj", "{9AC3ACEF-2880-4601-B488-D5D91899B188}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{423D2628-96E1-4DD2-8C07-3AFF41EFF41F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{423D2628-96E1-4DD2-8C07-3AFF41EFF41F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{423D2628-96E1-4DD2-8C07-3AFF41EFF41F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AC3ACEF-2880-4601-B488-D5D91899B188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AC3ACEF-2880-4601-B488-D5D91899B188}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AC3ACEF-2880-4601-B488-D5D91899B188}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AC3ACEF-2880-4601-B488-D5D91899B188}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{41EBB996-8352-45BC-A6E5-421EDE89A230} = {2389C654-7A08-4A58-A24D-ED2411466AE2}
@@ -77,5 +83,6 @@ Global
 		{61B4DF0C-1136-4EEE-8874-55F2A4D2A600} = {639577CA-C00B-426A-854F-39DE9F0076D3}
 		{B95CA807-7264-4FC3-9EA1-453EE9D51C25} = {517F8C03-52A4-403F-86FF-F66F863467CB}
 		{423D2628-96E1-4DD2-8C07-3AFF41EFF41F} = {639577CA-C00B-426A-854F-39DE9F0076D3}
+		{9AC3ACEF-2880-4601-B488-D5D91899B188} = {517F8C03-52A4-403F-86FF-F66F863467CB}
 	EndGlobalSection
 EndGlobal

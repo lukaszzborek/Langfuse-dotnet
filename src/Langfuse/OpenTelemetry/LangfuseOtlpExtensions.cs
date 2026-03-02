@@ -51,6 +51,30 @@ public static class LangfuseOtlpExtensions
         return AddLangfuseExporterInternal(builder, langfuseOptions);
     }
 
+    /// <summary>
+    ///     Adds common .NET AI activity sources to the tracing pipeline.
+    ///     Includes sources for Microsoft Semantic Kernel, Microsoft.Extensions.AI,
+    ///     and Microsoft.Extensions.Agents frameworks.
+    /// </summary>
+    /// <param name="builder">The TracerProviderBuilder to configure</param>
+    /// <param name="additionalSources">Additional activity source names to register</param>
+    /// <returns>The TracerProviderBuilder for method chaining</returns>
+    public static TracerProviderBuilder AddLangfuseDefaultAiSources(
+        this TracerProviderBuilder builder,
+        params string[] additionalSources)
+    {
+        builder.AddSource("Microsoft.SemanticKernel*");
+        builder.AddSource("*Microsoft.Extensions.AI");
+        builder.AddSource("*Microsoft.Extensions.Agents*");
+
+        foreach (var source in additionalSources)
+        {
+            builder.AddSource(source);
+        }
+
+        return builder;
+    }
+
     private static TracerProviderBuilder AddLangfuseExporterInternal(
         TracerProviderBuilder builder,
         LangfuseOtlpExporterOptions langfuseOptions)
