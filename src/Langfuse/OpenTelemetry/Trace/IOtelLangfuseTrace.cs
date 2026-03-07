@@ -62,6 +62,51 @@ public interface IOtelLangfuseTrace : IDisposable
     void Skip();
 
     /// <summary>
+    ///     Sets the trace ID.
+    /// </summary>
+    void SetTraceId(string traceId);
+
+    /// <summary>
+    ///     Sets the user ID on the trace.
+    /// </summary>
+    void SetUserId(string userId);
+
+    /// <summary>
+    ///     Sets the session ID on the trace.
+    /// </summary>
+    void SetSessionId(string sessionId);
+
+    /// <summary>
+    ///     Sets the environment on the trace.
+    /// </summary>
+    void SetEnvironment(string environment);
+
+    /// <summary>
+    ///     Sets the release on the trace.
+    /// </summary>
+    void SetRelease(string release);
+
+    /// <summary>
+    ///     Sets the version on the trace.
+    /// </summary>
+    void SetVersion(string version);
+
+    /// <summary>
+    ///     Sets whether the trace is public.
+    /// </summary>
+    void SetPublic(bool isPublic);
+
+    /// <summary>
+    ///     Sets trace metadata.
+    /// </summary>
+    void SetMetadata(string key, object value);
+
+    /// <summary>
+    ///     Sets trace tags.
+    /// </summary>
+    void SetTags(IEnumerable<string> tags);
+
+    /// <summary>
     ///     Creates a span observation.
     /// </summary>
     /// <param name="name">The span name.</param>

@@ -54,6 +54,51 @@ public sealed class NullOtelLangfuseTrace : IOtelLangfuseTrace
     }
 
     /// <inheritdoc />
+    public void SetTraceId(string traceId)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetUserId(string userId)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetSessionId(string sessionId)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetEnvironment(string environment)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetRelease(string release)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetVersion(string version)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetPublic(bool isPublic)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetMetadata(string key, object value)
+    {
+    }
+
+    /// <inheritdoc />
+    public void SetTags(IEnumerable<string> tags)
+    {
+    }
+
+    /// <inheritdoc />
     public OtelSpan CreateSpan(
         string name,
         string? type = null,

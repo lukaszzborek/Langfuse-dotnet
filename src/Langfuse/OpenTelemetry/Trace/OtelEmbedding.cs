@@ -35,4 +35,20 @@ public class OtelEmbedding : OtelObservation
     {
         Activity?.SetTag(GenAiAttributes.EmbeddingsDimensionCount, dimensions);
     }
+
+    /// <summary>
+    ///     Sets the usage details for this embedding.
+    /// </summary>
+    public void SetUsageDetails(Dictionary<string, long> usageDetails)
+    {
+        GenAiActivityHelper.SetUsageDetails(Activity, usageDetails);
+    }
+
+    /// <summary>
+    ///     Sets the cost details for this embedding.
+    /// </summary>
+    public void SetCostDetails(Dictionary<string, decimal> costDetails)
+    {
+        GenAiActivityHelper.SetCostDetails(Activity, costDetails);
+    }
 }

@@ -207,7 +207,7 @@ public static class GenAiActivityHelper
         {
             return null;
         }
-        
+
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEmbedding);
 
         activity.SetTag(GenAiAttributes.OperationName, "embeddings");
@@ -915,5 +915,276 @@ public static class GenAiActivityHelper
         }
 
         return activity;
+    }
+
+    /// <summary>
+    ///     Sets the request model on an activity.
+    /// </summary>
+    public static void SetRequestModel(Activity? activity, string model)
+    {
+        activity?.SetTag(GenAiAttributes.RequestModel, model);
+    }
+
+    /// <summary>
+    ///     Sets the provider name on an activity.
+    /// </summary>
+    public static void SetProvider(Activity? activity, string provider)
+    {
+        activity?.SetTag(GenAiAttributes.ProviderName, provider);
+    }
+
+    /// <summary>
+    ///     Sets the temperature parameter on an activity.
+    /// </summary>
+    public static void SetTemperature(Activity? activity, double temperature)
+    {
+        activity?.SetTag(GenAiAttributes.RequestTemperature, temperature);
+    }
+
+    /// <summary>
+    ///     Sets the top_p parameter on an activity.
+    /// </summary>
+    public static void SetTopP(Activity? activity, double topP)
+    {
+        activity?.SetTag(GenAiAttributes.RequestTopP, topP);
+    }
+
+    /// <summary>
+    ///     Sets the top_k parameter on an activity.
+    /// </summary>
+    public static void SetTopK(Activity? activity, double topK)
+    {
+        activity?.SetTag(GenAiAttributes.RequestTopK, topK);
+    }
+
+    /// <summary>
+    ///     Sets the max tokens parameter on an activity.
+    /// </summary>
+    public static void SetMaxTokens(Activity? activity, int maxTokens)
+    {
+        activity?.SetTag(GenAiAttributes.RequestMaxTokens, maxTokens);
+    }
+
+    /// <summary>
+    ///     Sets the frequency penalty parameter on an activity.
+    /// </summary>
+    public static void SetFrequencyPenalty(Activity? activity, double frequencyPenalty)
+    {
+        activity?.SetTag(GenAiAttributes.RequestFrequencyPenalty, frequencyPenalty);
+    }
+
+    /// <summary>
+    ///     Sets the presence penalty parameter on an activity.
+    /// </summary>
+    public static void SetPresencePenalty(Activity? activity, double presencePenalty)
+    {
+        activity?.SetTag(GenAiAttributes.RequestPresencePenalty, presencePenalty);
+    }
+
+    /// <summary>
+    ///     Sets the choice count (n) parameter on an activity.
+    /// </summary>
+    public static void SetChoiceCount(Activity? activity, int choiceCount)
+    {
+        activity?.SetTag(GenAiAttributes.RequestChoiceCount, choiceCount);
+    }
+
+    /// <summary>
+    ///     Sets the seed parameter on an activity.
+    /// </summary>
+    public static void SetSeed(Activity? activity, int seed)
+    {
+        activity?.SetTag(GenAiAttributes.RequestSeed, seed);
+    }
+
+    /// <summary>
+    ///     Sets the stop sequences on an activity.
+    /// </summary>
+    public static void SetStopSequences(Activity? activity, string[] stopSequences)
+    {
+        if (activity == null || stopSequences.Length == 0)
+        {
+            return;
+        }
+
+        activity.SetTag(GenAiAttributes.RequestStopSequences,
+            JsonSerializer.Serialize(stopSequences, JsonOptions));
+    }
+
+    /// <summary>
+    ///     Sets the output type on an activity.
+    /// </summary>
+    public static void SetOutputType(Activity? activity, string outputType)
+    {
+        activity?.SetTag(GenAiAttributes.OutputType, outputType);
+    }
+
+    /// <summary>
+    ///     Sets the conversation ID on an activity.
+    /// </summary>
+    public static void SetConversationId(Activity? activity, string conversationId)
+    {
+        activity?.SetTag(GenAiAttributes.ConversationId, conversationId);
+    }
+
+    /// <summary>
+    ///     Sets the system instructions on an activity.
+    /// </summary>
+    public static void SetSystemInstructions(Activity? activity, string systemInstructions)
+    {
+        activity?.SetTag(GenAiAttributes.SystemInstructions, systemInstructions);
+    }
+
+    /// <summary>
+    ///     Sets the tool definitions on an activity.
+    /// </summary>
+    public static void SetToolDefinitions(Activity? activity, List<GenAiToolDefinition> tools)
+    {
+        if (activity == null || tools.Count == 0)
+        {
+            return;
+        }
+
+        activity.SetTag(GenAiAttributes.ToolDefinitions,
+            JsonSerializer.Serialize(tools, JsonOptions));
+    }
+
+    /// <summary>
+    ///     Sets the tool definitions on an activity from a raw JSON string.
+    /// </summary>
+    public static void SetToolDefinitions(Activity? activity, string toolDefinitionsJson)
+    {
+        if (activity == null || string.IsNullOrEmpty(toolDefinitionsJson))
+        {
+            return;
+        }
+
+        activity.SetTag(GenAiAttributes.ToolDefinitions, toolDefinitionsJson);
+    }
+
+    /// <summary>
+    ///     Sets the server address on an activity.
+    /// </summary>
+    public static void SetServerAddress(Activity? activity, string serverAddress)
+    {
+        activity?.SetTag(GenAiAttributes.ServerAddress, serverAddress);
+    }
+
+    /// <summary>
+    ///     Sets the server port on an activity.
+    /// </summary>
+    public static void SetServerPort(Activity? activity, int serverPort)
+    {
+        activity?.SetTag(GenAiAttributes.ServerPort, serverPort);
+    }
+
+    /// <summary>
+    ///     Sets the trace name on an activity.
+    /// </summary>
+    public static void SetTraceName(Activity? activity, string name)
+    {
+        activity?.SetTag(LangfuseAttributes.TraceName, name);
+    }
+
+    /// <summary>
+    ///     Sets the trace ID on an activity.
+    /// </summary>
+    public static void SetTraceId(Activity? activity, string traceId)
+    {
+        activity?.SetTag(LangfuseAttributes.TraceId, traceId);
+    }
+
+    /// <summary>
+    ///     Sets the user ID on an activity.
+    /// </summary>
+    public static void SetUserId(Activity? activity, string userId)
+    {
+        activity?.SetTag(LangfuseAttributes.UserId, userId);
+    }
+
+    /// <summary>
+    ///     Sets the session ID on an activity.
+    /// </summary>
+    public static void SetSessionId(Activity? activity, string sessionId)
+    {
+        activity?.SetTag(LangfuseAttributes.SessionId, sessionId);
+    }
+
+    /// <summary>
+    ///     Sets the environment on an activity.
+    /// </summary>
+    public static void SetEnvironment(Activity? activity, string environment)
+    {
+        activity?.SetTag(LangfuseAttributes.Environment, environment);
+    }
+
+    /// <summary>
+    ///     Sets the release on an activity.
+    /// </summary>
+    public static void SetRelease(Activity? activity, string release)
+    {
+        activity?.SetTag(LangfuseAttributes.Release, release);
+    }
+
+    /// <summary>
+    ///     Sets the version on an activity.
+    /// </summary>
+    public static void SetVersion(Activity? activity, string version)
+    {
+        activity?.SetTag(LangfuseAttributes.Version, version);
+    }
+
+    /// <summary>
+    ///     Sets whether the trace is public.
+    /// </summary>
+    public static void SetTracePublic(Activity? activity, bool isPublic)
+    {
+        activity?.SetTag(LangfuseAttributes.TracePublic, isPublic);
+    }
+
+    /// <summary>
+    ///     Sets trace metadata on an activity.
+    /// </summary>
+    public static void SetTraceMetadata(Activity? activity, string key, object value)
+    {
+        activity?.SetTag($"{LangfuseAttributes.TraceMetadataPrefix}{key}", value);
+    }
+
+    // ── Observation-level setters ──────────────────────────────────────
+
+    /// <summary>
+    ///     Sets the observation status message on an activity.
+    /// </summary>
+    public static void SetObservationStatusMessage(Activity? activity, string statusMessage)
+    {
+        activity?.SetTag(LangfuseAttributes.ObservationStatusMessage, statusMessage);
+    }
+
+    /// <summary>
+    ///     Sets the usage details on an activity.
+    /// </summary>
+    public static void SetUsageDetails(Activity? activity, Dictionary<string, long> usageDetails)
+    {
+        if (activity == null || usageDetails.Count == 0)
+        {
+            return;
+        }
+
+        activity.SetTag(LangfuseAttributes.ObservationUsageDetails,
+            JsonSerializer.Serialize(usageDetails, JsonOptions));
+    }
+
+    /// <summary>
+    ///     Sets the cost details on an activity.
+    /// </summary>
+    public static void SetCostDetails(Activity? activity, Dictionary<string, decimal> costDetails)
+    {
+        if (activity == null || costDetails.Count == 0)
+        {
+            return;
+        }
+
+        activity.SetTag(LangfuseAttributes.ObservationCostDetails,
+            JsonSerializer.Serialize(costDetails, JsonOptions));
     }
 }

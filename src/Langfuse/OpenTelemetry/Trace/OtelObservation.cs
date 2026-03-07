@@ -115,6 +115,14 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
+    ///     Sets the status message for this observation.
+    /// </summary>
+    public void SetStatusMessage(string statusMessage)
+    {
+        GenAiActivityHelper.SetObservationStatusMessage(Activity, statusMessage);
+    }
+
+    /// <summary>
     ///     Ends the observation and disposes the activity.
     /// </summary>
     public virtual void EndObservation()

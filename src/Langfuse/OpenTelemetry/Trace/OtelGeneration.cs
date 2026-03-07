@@ -105,6 +105,118 @@ public class OtelGeneration : OtelObservation
     /// </summary>
     public void SetPresencePenalty(double presencePenalty)
     {
-        Activity?.SetTag(GenAiAttributes.RequestPresencePenalty, presencePenalty);
+        GenAiActivityHelper.SetPresencePenalty(Activity, presencePenalty);
+    }
+
+    /// <summary>
+    ///     Sets the request model for this generation.
+    /// </summary>
+    public void SetRequestModel(string model)
+    {
+        GenAiActivityHelper.SetRequestModel(Activity, model);
+    }
+
+    /// <summary>
+    ///     Sets the provider for this generation.
+    /// </summary>
+    public void SetProvider(string provider)
+    {
+        GenAiActivityHelper.SetProvider(Activity, provider);
+    }
+
+    /// <summary>
+    ///     Sets the choice count (n) for this generation request.
+    /// </summary>
+    public void SetChoiceCount(int choiceCount)
+    {
+        GenAiActivityHelper.SetChoiceCount(Activity, choiceCount);
+    }
+
+    /// <summary>
+    ///     Sets the seed for this generation request.
+    /// </summary>
+    public void SetSeed(int seed)
+    {
+        GenAiActivityHelper.SetSeed(Activity, seed);
+    }
+
+    /// <summary>
+    ///     Sets the stop sequences for this generation request.
+    /// </summary>
+    public void SetStopSequences(string[] stopSequences)
+    {
+        GenAiActivityHelper.SetStopSequences(Activity, stopSequences);
+    }
+
+    /// <summary>
+    ///     Sets the output type for this generation request.
+    /// </summary>
+    public void SetOutputType(string outputType)
+    {
+        GenAiActivityHelper.SetOutputType(Activity, outputType);
+    }
+
+    /// <summary>
+    ///     Sets the conversation ID for this generation.
+    /// </summary>
+    public void SetConversationId(string conversationId)
+    {
+        GenAiActivityHelper.SetConversationId(Activity, conversationId);
+    }
+
+    /// <summary>
+    ///     Sets the system instructions for this generation.
+    /// </summary>
+    public void SetSystemInstructions(string systemInstructions)
+    {
+        GenAiActivityHelper.SetSystemInstructions(Activity, systemInstructions);
+    }
+
+    /// <summary>
+    ///     Sets the tool definitions for this generation.
+    /// </summary>
+    public void SetToolDefinitions(List<GenAiToolDefinition> tools)
+    {
+        GenAiActivityHelper.SetToolDefinitions(Activity, tools);
+    }
+
+    /// <summary>
+    ///     Sets the tool definitions for this generation from a raw JSON string.
+    /// </summary>
+    public void SetToolDefinitions(string toolDefinitionsJson)
+    {
+        GenAiActivityHelper.SetToolDefinitions(Activity, toolDefinitionsJson);
+    }
+
+    /// <summary>
+    ///     Sets the server address for this generation.
+    /// </summary>
+    public void SetServerAddress(string serverAddress)
+    {
+        GenAiActivityHelper.SetServerAddress(Activity, serverAddress);
+    }
+
+    /// <summary>
+    ///     Sets the server port for this generation.
+    /// </summary>
+    public void SetServerPort(int serverPort)
+    {
+        GenAiActivityHelper.SetServerPort(Activity, serverPort);
+    }
+
+    /// <summary>
+    ///     Sets the usage details for this generation.
+    /// </summary>
+    public void SetUsageDetails(Dictionary<string, long> usageDetails)
+    {
+        GenAiActivityHelper.SetUsageDetails(Activity, usageDetails);
+    }
+
+    /// <summary>
+    ///     Sets the cost details for this generation.
+    /// </summary>
+    public void SetCostDetails(Dictionary<string, decimal> costDetails)
+    {
+        GenAiActivityHelper.SetCostDetails(Activity, costDetails);
     }
 }

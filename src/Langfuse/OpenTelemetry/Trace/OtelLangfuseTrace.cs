@@ -218,6 +218,78 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
     }
 
     /// <summary>
+    ///     Sets the trace ID.
+    /// </summary>
+    public void SetTraceId(string traceId)
+    {
+        GenAiActivityHelper.SetTraceId(TraceActivity, traceId);
+    }
+
+    /// <summary>
+    ///     Sets the user ID on the trace.
+    /// </summary>
+    public void SetUserId(string userId)
+    {
+        GenAiActivityHelper.SetUserId(TraceActivity, userId);
+    }
+
+    /// <summary>
+    ///     Sets the session ID on the trace.
+    /// </summary>
+    public void SetSessionId(string sessionId)
+    {
+        GenAiActivityHelper.SetSessionId(TraceActivity, sessionId);
+    }
+
+    /// <summary>
+    ///     Sets the environment on the trace.
+    /// </summary>
+    public void SetEnvironment(string environment)
+    {
+        GenAiActivityHelper.SetEnvironment(TraceActivity, environment);
+    }
+
+    /// <summary>
+    ///     Sets the release on the trace.
+    /// </summary>
+    public void SetRelease(string release)
+    {
+        GenAiActivityHelper.SetRelease(TraceActivity, release);
+    }
+
+    /// <summary>
+    ///     Sets the version on the trace.
+    /// </summary>
+    public void SetVersion(string version)
+    {
+        GenAiActivityHelper.SetVersion(TraceActivity, version);
+    }
+
+    /// <summary>
+    ///     Sets whether the trace is public.
+    /// </summary>
+    public void SetPublic(bool isPublic)
+    {
+        GenAiActivityHelper.SetTracePublic(TraceActivity, isPublic);
+    }
+
+    /// <summary>
+    ///     Sets trace metadata.
+    /// </summary>
+    public void SetMetadata(string key, object value)
+    {
+        GenAiActivityHelper.SetTraceMetadata(TraceActivity, key, value);
+    }
+
+    /// <summary>
+    ///     Sets trace tags.
+    /// </summary>
+    public void SetTags(IEnumerable<string> tags)
+    {
+        GenAiActivityHelper.SetTraceTags(TraceActivity, tags);
+    }
+
+    /// <summary>
     ///     Creates a span observation.
     /// </summary>
     /// <param name="name">The span name.</param>

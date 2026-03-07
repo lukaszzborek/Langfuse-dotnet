@@ -404,3 +404,4 @@ appsettings.Development.json
 
 # OpenAPI split files (generated)
 openapi-split/
+.env
