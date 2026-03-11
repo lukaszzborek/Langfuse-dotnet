@@ -31,6 +31,16 @@ public class GenAiResponse
     public int? OutputTokens { get; init; }
 
     /// <summary>
+    ///     The number of input tokens that were cached and served from a provider-managed cache.
+    /// </summary>
+    public int? CacheReadInputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of input tokens written to a provider-managed cache.
+    /// </summary>
+    public int? CacheCreationInputTokens { get; init; }
+
+    /// <summary>
     ///     The cost for processing the input tokens.
     /// </summary>
     public decimal? InputCost { get; init; }

@@ -213,6 +213,22 @@ public class OtelGeneration : OtelObservation
     }
 
     /// <summary>
+    ///     Sets the number of cached input tokens read from a provider-managed cache.
+    /// </summary>
+    public void SetCacheReadInputTokens(int cacheReadInputTokens)
+    {
+        GenAiActivityHelper.SetCacheReadInputTokens(Activity, cacheReadInputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the number of input tokens written to a provider-managed cache.
+    /// </summary>
+    public void SetCacheCreationInputTokens(int cacheCreationInputTokens)
+    {
+        GenAiActivityHelper.SetCacheCreationInputTokens(Activity, cacheCreationInputTokens);
+    }
+
+    /// <summary>
     ///     Sets the cost details for this generation.
     /// </summary>
     public void SetCostDetails(Dictionary<string, decimal> costDetails)
