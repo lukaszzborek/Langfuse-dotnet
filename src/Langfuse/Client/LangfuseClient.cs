@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -175,30 +176,39 @@ internal partial class LangfuseClient : ILangfuseClient
             var response = await httpOperation();
             await EnsureSuccessStatusCodeAsync(response);
 
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
+                        operationName, endpoint, responseContent);
+                }
+                
+                var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
+                if (result == null)
+                {
+                    throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
+                        $"Failed to deserialize {operationName} response");
+                }
+                
+                return result;
+            }
+            
+            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
 
-            if (result == null)
+            if (responseResult == null)
             {
                 throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                     $"Failed to deserialize {operationName} response");
             }
 
-            if (_logger.IsEnabled(LogLevel.Debug))
-            {
-                _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
-                    operationName, endpoint, responseContent);
-            }
-
-            return result;
+            return responseResult;
         }
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
             throw;
         }
         catch (Exception ex)
@@ -321,10 +331,6 @@ internal partial class LangfuseClient : ILangfuseClient
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
             throw;
         }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error during {Operation} request to {Endpoint}", operationName, endpoint);
@@ -361,10 +367,6 @@ internal partial class LangfuseClient : ILangfuseClient
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
             throw;
         }
-        catch (LangfuseApiException)
-        {
-            throw;
-        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error during {Operation} request to {Endpoint}", operationName, endpoint);
@@ -391,31 +393,35 @@ internal partial class LangfuseClient : ILangfuseClient
         {
             var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
             await EnsureSuccessStatusCodeAsync(response);
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-
             if (_logger.IsEnabled(LogLevel.Debug))
             {
+                var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
                 _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
                     operationName, endpoint, responseContent);
+                
+                var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
+                if (result == null)
+                {
+                    throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
+                        $"Failed to deserialize {operationName} response");
+                }
+                
+                return result;
             }
 
-            var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
-            if (result == null)
+            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+            if (responseResult == null)
             {
                 throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                     $"Failed to deserialize {operationName} response");
             }
-
-            return result;
+            
+            return responseResult;
         }
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
             throw;
         }
         catch (Exception ex)
@@ -452,31 +458,36 @@ internal partial class LangfuseClient : ILangfuseClient
                 throw new LangfuseApiException((int)response.StatusCode,
                     $"Failed to {operationName.ToLower()}: {errorContent}");
             }
-
-            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-
             if (_logger.IsEnabled(LogLevel.Debug))
             {
+                var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
                 _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
                     operationName, endpoint, responseContent);
+                
+                var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
+                if (result == null)
+                {
+                    throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
+                        $"Failed to deserialize {operationName} response");
+                }
+                
+                return result;
             }
-
-            var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
-            if (result == null)
+            
+            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+            
+            if (responseResult == null)
             {
                 throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                     $"Failed to deserialize {operationName} response");
             }
-
-            return result;
+            
+            return responseResult;
         }
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
-            throw;
-        }
-        catch (LangfuseApiException)
-        {
             throw;
         }
         catch (Exception ex)
