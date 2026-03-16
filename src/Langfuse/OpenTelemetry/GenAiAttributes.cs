@@ -58,7 +58,7 @@ public static class GenAiAttributes
     /// <summary>
     ///     The number of completions to generate (n parameter).
     /// </summary>
-    public const string RequestChoiceCount = "gen_ai.request.choice_count";
+    public const string RequestChoiceCount = "gen_ai.request.choice.count";
 
     /// <summary>
     ///     The seed for deterministic generation.
@@ -103,6 +103,16 @@ public static class GenAiAttributes
     ///     Number of tokens in the generated output/completion.
     /// </summary>
     public const string UsageOutputTokens = "gen_ai.usage.output_tokens";
+
+    /// <summary>
+    ///     The number of input tokens that were cached and used for the request.
+    /// </summary>
+    public const string UsageCacheReadInputTokens = "gen_ai.usage.cache_read.input_tokens";
+
+    /// <summary>
+    ///     The number of input tokens written to a provider-managed cache.
+    /// </summary>
+    public const string UsageCacheCreationInputTokens = "gen_ai.usage.cache_creation.input_tokens";
 
     // Content attributes (Official OTel semantic conventions)
 
@@ -213,9 +223,40 @@ public static class GenAiAttributes
     public const string AgentDescription = "gen_ai.agent.description";
 
     /// <summary>
+    ///     The version of the agent.
+    /// </summary>
+    public const string AgentVersion = "gen_ai.agent.version";
+
+    /// <summary>
     ///     Identifier for an external data source used by the agent.
     /// </summary>
     public const string DataSourceId = "gen_ai.data_source.id";
+
+    // Prompt attributes
+
+    /// <summary>
+    ///     The name of the prompt template used.
+    /// </summary>
+    public const string PromptName = "gen_ai.prompt.name";
+
+    // Retrieval attributes
+
+    /// <summary>
+    ///     The documents retrieved for RAG or similar retrieval-augmented operations.
+    /// </summary>
+    public const string RetrievalDocuments = "gen_ai.retrieval.documents";
+
+    /// <summary>
+    ///     The text of the query used for retrieval.
+    /// </summary>
+    public const string RetrievalQueryText = "gen_ai.retrieval.query.text";
+
+    // Token attributes
+
+    /// <summary>
+    ///     The type of token being counted (e.g., "input", "output").
+    /// </summary>
+    public const string TokenType = "gen_ai.token.type";
 
     // Evaluation attributes
 

@@ -595,6 +595,16 @@ public static class GenAiActivityHelper
             activity.SetTag(GenAiAttributes.UsageOutputTokens, response.OutputTokens.Value);
         }
 
+        if (response.CacheReadInputTokens.HasValue)
+        {
+            activity.SetTag(GenAiAttributes.UsageCacheReadInputTokens, response.CacheReadInputTokens.Value);
+        }
+
+        if (response.CacheCreationInputTokens.HasValue)
+        {
+            activity.SetTag(GenAiAttributes.UsageCacheCreationInputTokens, response.CacheCreationInputTokens.Value);
+        }
+
         if (response.UsageDetails != null && response.UsageDetails.Count > 0)
         {
             activity.SetTag(LangfuseAttributes.ObservationUsageDetails,
@@ -1172,6 +1182,22 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationUsageDetails,
             JsonSerializer.Serialize(usageDetails, JsonOptions));
+    }
+
+    /// <summary>
+    ///     Sets the number of cached input tokens read from a provider-managed cache.
+    /// </summary>
+    public static void SetCacheReadInputTokens(Activity? activity, int cacheReadInputTokens)
+    {
+        activity?.SetTag(GenAiAttributes.UsageCacheReadInputTokens, cacheReadInputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the number of input tokens written to a provider-managed cache.
+    /// </summary>
+    public static void SetCacheCreationInputTokens(Activity? activity, int cacheCreationInputTokens)
+    {
+        activity?.SetTag(GenAiAttributes.UsageCacheCreationInputTokens, cacheCreationInputTokens);
     }
 
     /// <summary>

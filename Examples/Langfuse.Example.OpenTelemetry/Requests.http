@@ -14,7 +14,7 @@ Content-Type: application/json
 }
 
 ### Text Completion
-POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/text-completion
+POST {{url}}/text-completion
 Content-Type: application/json
 
 {
@@ -25,7 +25,7 @@ Content-Type: application/json
 }
 
 ### Embeddings
-POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/embeddings
+POST {{url}}/embeddings
 Content-Type: application/json
 
 {
@@ -34,7 +34,7 @@ Content-Type: application/json
 }
 
 ### Function Calling
-POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/function-calling
+POST {{url}}/function-calling
 Content-Type: application/json
 
 {
@@ -45,7 +45,7 @@ Content-Type: application/json
 }
 
 ### Multi-turn Conversation
-POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/conversation
+POST {{url}}/conversation
 Content-Type: application/json
 
 {
@@ -55,11 +55,11 @@ Content-Type: application/json
 }
 
 ### Run All Examples
-POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/run-all-examples
+POST {{url}}/run-all-examples
 Content-Type: application/json
 
 ### Chat Completion with Claude
-POST {{Langfuse.Example.OpenTelemetry_HostAddress}}/chat-completion
+POST {{url}}/chat-completion
 Content-Type: application/json
 
 {
