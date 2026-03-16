@@ -16,7 +16,7 @@ behavior with [Gen AI semantic conventions](https://opentelemetry.io/docs/specs/
 - Filtering to export only Gen AI activities (excludes infrastructure noise)
 - Full Langfuse API client for datasets, prompts, scores, and more
 - Integration with dependency injection
-- Support for both .NET 8.0 and 9.0
+- Support for .NET 8.0, .NET 9.0, and .NET 10.0
 
 ## Installation
 
@@ -286,20 +286,30 @@ public class MyService
 
 ### Available API Domains
 
-| Domain                | Description                                   |
-|-----------------------|-----------------------------------------------|
-| **Datasets**          | Create and manage test datasets and runs      |
-| **Prompts**           | Version control and retrieve prompt templates |
-| **Scores**            | Create and query evaluation scores            |
-| **Score Configs**     | Define score schemas and metadata             |
-| **Traces**            | Query and manage traces                       |
-| **Observations**      | Query spans, generations, and events          |
-| **Sessions**          | Group traces into user sessions               |
-| **Comments**          | Add comments to traces and observations       |
-| **Models**            | Query supported LLM models and pricing        |
-| **Media**             | Upload and manage media assets                |
-| **Annotation Queues** | Manage annotation workflows                   |
-| **Health**            | API health checks                             |
+| Domain                         | Description                                        |
+|--------------------------------|----------------------------------------------------|
+| **Datasets**                   | Create and manage test datasets and runs           |
+| **Dataset Items**              | Create, query, and delete dataset items            |
+| **Dataset Run Items**          | Create dataset runs and list run items             |
+| **Prompts**                    | Version control and retrieve prompt templates      |
+| **Scores**                     | Create and query evaluation scores                 |
+| **Score Configs**              | Define score schemas and metadata                  |
+| **Traces**                     | Query and manage traces                            |
+| **Observations**               | Query spans, generations, and events               |
+| **Observations V2**            | Query observations with updated API                |
+| **Sessions**                   | Group traces into user sessions                    |
+| **Comments**                   | Add comments to traces and observations            |
+| **Models**                     | Query supported LLM models and pricing             |
+| **Media**                      | Upload and manage media assets                     |
+| **Metrics**                    | Query project metrics                              |
+| **Metrics V2**                 | Query metrics with updated API                     |
+| **Annotation Queues**          | Manage annotation workflows                        |
+| **Blob Storage Integrations**  | Configure external blob storage integrations       |
+| **LLM Connections**            | Manage LLM provider connections                    |
+| **Project**                    | Manage projects and API keys                       |
+| **Organization**               | Manage organization memberships and permissions    |
+| **SCIM**                       | SCIM provisioning for users and groups             |
+| **Health**                     | API health checks                                  |
 
 ### API Client Configuration Options
 
