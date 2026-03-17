@@ -211,6 +211,10 @@ internal partial class LangfuseClient : ILangfuseClient
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
             throw;
         }
+        catch (LangfuseApiException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error during {Operation} request to {Endpoint}", operationName, endpoint);
