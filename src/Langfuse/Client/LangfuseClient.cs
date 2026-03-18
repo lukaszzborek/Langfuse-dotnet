@@ -180,11 +180,8 @@ internal partial class LangfuseClient : ILangfuseClient
             {
                 var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
                 
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
-                        operationName, endpoint, responseContent);
-                }
+                _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
+                    operationName, endpoint, responseContent);
                 
                 var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
                 if (result == null)
@@ -196,7 +193,7 @@ internal partial class LangfuseClient : ILangfuseClient
                 return result;
             }
             
-            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
 
             if (responseResult == null)
             {
@@ -422,7 +419,7 @@ internal partial class LangfuseClient : ILangfuseClient
                 return result;
             }
 
-            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
             if (responseResult == null)
             {
                 throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
@@ -491,7 +488,7 @@ internal partial class LangfuseClient : ILangfuseClient
                 return result;
             }
             
-            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+            var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
             
             if (responseResult == null)
             {
@@ -506,7 +503,7 @@ internal partial class LangfuseClient : ILangfuseClient
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
             throw;
         }
-        catch (LangfuseApiException)        
+        catch (LangfuseApiException)
         {
             throw;
         }
