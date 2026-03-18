@@ -335,6 +335,10 @@ internal partial class LangfuseClient : ILangfuseClient
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
             throw;
         }
+        catch (LangfuseApiException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error during {Operation} request to {Endpoint}", operationName, endpoint);
@@ -371,6 +375,10 @@ internal partial class LangfuseClient : ILangfuseClient
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
             throw;
         }
+        catch (LangfuseApiException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error during {Operation} request to {Endpoint}", operationName, endpoint);
@@ -403,14 +411,14 @@ internal partial class LangfuseClient : ILangfuseClient
 
                 _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
                     operationName, endpoint, responseContent);
-                
+
                 var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
                 if (result == null)
                 {
                     throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                         $"Failed to deserialize {operationName} response");
                 }
-                
+
                 return result;
             }
 
@@ -420,12 +428,16 @@ internal partial class LangfuseClient : ILangfuseClient
                 throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                     $"Failed to deserialize {operationName} response");
             }
-            
+
             return responseResult;
         }
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
+            throw;
+        }
+        catch (LangfuseApiException)
+        {
             throw;
         }
         catch (Exception ex)
@@ -492,6 +504,10 @@ internal partial class LangfuseClient : ILangfuseClient
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning("Request for {Operation} to {Endpoint} was cancelled", operationName, endpoint);
+            throw;
+        }
+        catch (LangfuseApiException)        
+        {
             throw;
         }
         catch (Exception ex)
