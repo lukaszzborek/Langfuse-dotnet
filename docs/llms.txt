@@ -1,0 +1,29 @@
+# LangfuseDotnet
+
+> A .NET SDK (v0.8.0) for Langfuse LLM observability. Uses OpenTelemetry with
+> Gen AI semantic conventions to trace LLM calls, embeddings, tool calls, and
+> agent workflows. Also provides a full HTTP client for the Langfuse REST API.
+> Targets .NET 8.0, 9.0, and 10.0. NuGet: zborek.LangfuseDotnet
+
+## Quick Start
+- [Installation & DI Setup](llms-full.txt#installation): Register via AddLangfuseExporter and AddLangfuseTracing
+- [Configuration](llms-full.txt#configuration-reference): appsettings.json or programmatic setup for both OTel exporter and API client
+
+## Tracing (OpenTelemetry)
+- [IOtelLangfuseTrace](llms-full.txt#iotellangfusetrace--scoped-trace-service-di): Scoped trace service — StartTrace, CreateGeneration, CreateSpan, CreateToolCall, CreateEmbedding, CreateAgent, CreateEvent
+- [OtelLangfuseTrace Direct](llms-full.txt#otellangfusetrace--direct-instantiation-no-di): Direct instantiation without DI, including detached traces for parallel work
+- [Observation Types](llms-full.txt#observation-types): OtelSpan, OtelGeneration, OtelEmbedding, OtelToolCall, OtelAgent, OtelEvent
+- [Generation Parameters](llms-full.txt#otelgeneration--llm-calls): SetTemperature, SetMaxTokens, SetInputMessages, SetResponse, SetUsageDetails, SetCostDetails
+- [Skip Pattern](llms-full.txt#skip-pattern): Skip individual observations or entire traces (e.g. cache hits)
+
+## API Client
+- [ILangfuseClient](llms-full.txt#ilangfuseclient--rest-api): Full Langfuse REST API — 22 domain areas
+- [Prompts](llms-full.txt#prompts): GetPromptAsync, CreatePromptAsync — version-controlled prompt templates
+- [Datasets](llms-full.txt#datasets): CRUD for datasets, dataset items, and dataset run items
+- [Scores](llms-full.txt#scores): CreateScoreAsync, GetScoreListAsync — evaluation scoring
+- [Traces & Observations](llms-full.txt#traces): Query and manage traces and observations
+- [Sessions](llms-full.txt#sessions): Group traces into user sessions
+- [All API Domains](llms-full.txt#annotation-queues): Comments, Models, Media, Metrics, AnnotationQueues, Organization, Project, SCIM, Health, BlobStorage, LlmConnections
+
+## Testing
+- [No-Op Implementation](llms-full.txt#testing): AddLangfuseTracingNoOp() for unit tests
