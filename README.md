@@ -1,8 +1,6 @@
 # LangfuseDotnet
 
-<a href="https://www.nuget.org/packages/zborek.LangfuseDotnet/">
- <img src="https://img.shields.io/nuget/v/zborek.LangfuseDotnet" alt="NuGet">
-</a>
+[![Nuget](https://img.shields.io/nuget/v/zborek.LangfuseDotnet)](https://www.nuget.org/packages/zborek.LangfuseDotnet)
 
 A .NET client library for [Langfuse](https://langfuse.com) - an open-source observability and analytics platform for LLM
 applications. This library uses **OpenTelemetry** to track, monitor, and analyze your AI application performance and
@@ -374,6 +372,10 @@ Contributions are welcome! Please open an issue or submit a pull request.
 ## License
 
 This project is licensed under the MIT License.
+
+## Documentation for AI Coding Assistants
+
+This library's documentation is available via [Context7](https://context7.com/) for use with AI coding tools like Cursor, Claude Code, and Windsurf. Structured docs are also available in the [`docs/`](docs/llms.md) directory.
 
 ## Additional Resources
 
