@@ -1,0 +1,701 @@
+# LangfuseDotnet
+
+> .NET SDK (v0.8.0) for Langfuse LLM observability. OpenTelemetry-based tracing
+> with Gen AI semantic conventions plus full Langfuse REST API client.
+> NuGet: zborek.LangfuseDotnet | Targets: net8.0, net9.0, net10.0 | License: MIT
+> GitHub: https://github.com/lukaszzborek/Langfuse-dotnet
+
+---
+
+## Installation
+
+```
+dotnet add package zborek.LangfuseDotnet
+```
+
+## Setup — OpenTelemetry Tracing
+
+Register the exporter and trace service:
+
+```csharp
+using zborek.Langfuse.OpenTelemetry;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing.AddLangfuseExporter(builder.Configuration.GetSection("Langfuse"));
+    });
+
+// Register IOtelLangfuseTrace for dependency injection
+builder.Services.AddLangfuseTracing();
+```
+
+Or configure programmatically:
+
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing.AddLangfuseExporter(options =>
+        {
+            options.PublicKey = "pk-...";
+            options.SecretKey = "sk-...";
+            options.Url = "https://cloud.langfuse.com";
+        });
+    });
+```
+
+appsettings.json:
+
+```json
+{
+  "Langfuse": {
+    "PublicKey": "YOUR_PUBLIC_KEY",
+    "SecretKey": "YOUR_SECRET_KEY",
+    "Url": "https://cloud.langfuse.com"
+  }
+}
+```
+
+## Setup — API Client (optional, for REST API access)
+
+```csharp
+using zborek.Langfuse;
+
+builder.Services.AddLangfuse(builder.Configuration);
+```
+
+Or configure programmatically:
+
+```csharp
+builder.Services.AddLangfuse(config =>
+{
+    config.Url = "https://cloud.langfuse.com";
+    config.PublicKey = "pk-...";
+    config.SecretKey = "sk-...";
+});
+```
+
+## DI Extension Methods Summary
+
+```
+AddLangfuseExporter(TracerProviderBuilder, Action<LangfuseOtlpExporterOptions>) — Configure OTLP exporter programmatically
+AddLangfuseExporter(TracerProviderBuilder, IConfiguration) — Configure OTLP exporter from IConfiguration
+AddLangfuseDefaultAiSources(TracerProviderBuilder, params string[]) — Add default AI activity sources (SemanticKernel, Extensions.AI, Agents)
+UseLangfuseActivityListener() — Register ActivityListener for context enrichment (idempotent, thread-safe)
+AddLangfuseTracing(IServiceCollection) — Register scoped IOtelLangfuseTrace
+AddLangfuseTracingNoOp(IServiceCollection) — Register no-op trace implementation for testing
+AddLangfuse(IServiceCollection, IConfiguration) — Register ILangfuseClient with IConfiguration
+AddLangfuse(IServiceCollection, Action<LangfuseConfig>) — Register ILangfuseClient with lambda
+```
+
+---
+
+## IOtelLangfuseTrace — Scoped Trace Service (DI)
+
+Inject `IOtelLangfuseTrace` (scoped, one per request). This is the primary tracing interface.
+
+### Full Example
+
+```csharp
+public class MyService
+{
+    private readonly IOtelLangfuseTrace _trace;
+
+    public MyService(IOtelLangfuseTrace trace)
+    {
+        _trace = trace;
+    }
+
+    public async Task<string> ProcessAsync(string prompt)
+    {
+        _trace.StartTrace("my-workflow", userId: "user-123", sessionId: "session-456");
+
+        using var generation = _trace.CreateGeneration("openai-chat",
+            model: "gpt-4",
+            provider: "openai",
+            input: new { prompt },
+            configure: g =>
+            {
+                g.SetTemperature(0.7);
+                g.SetMaxTokens(500);
+            });
+
+        var result = await CallLLMAsync(prompt);
+
+        generation.SetResponse(new GenAiResponse
+        {
+            Model = "gpt-4",
+            InputTokens = 50,
+            OutputTokens = 100,
+            FinishReasons = ["stop"],
+            Completion = result
+        });
+
+        _trace.SetOutput(new { result });
+        return result;
+    }
+}
+```
+
+### Properties
+
+```
+TraceActivity → Activity?   // underlying OTel Activity
+HasActiveTrace → bool       // whether trace is active
+```
+
+### Trace Lifecycle Methods
+
+```
+StartTrace(name, traceId?, userId?, sessionId?, environment?, tags?, input?, isPublic?) → IOtelLangfuseTrace
+SetTraceName(string)
+SetInput(object)
+SetOutput(object)
+SetTraceId(string)
+SetUserId(string)
+SetSessionId(string)
+SetEnvironment(string)
+SetRelease(string)
+SetVersion(string)
+SetPublic(bool)
+SetMetadata(string key, object value)
+SetTags(IEnumerable<string>)
+Skip()  // don't export this trace
+```
+
+### Observation Creation Methods
+
+```
+CreateSpan(name, type?, description?, input?, configure?) → OtelSpan
+CreateGeneration(name, model, provider, input?, configure?) → OtelGeneration
+CreateEmbedding(name, model, provider, input?, configure?) → OtelEmbedding
+CreateToolCall(name, toolName, toolDescription?, provider, input?, configure?) → OtelToolCall
+CreateAgent(name, agentId, description?, input?, configure?) → OtelAgent
+CreateEvent(name, input?, output?) → OtelEvent
+```
+
+---
+
+## OtelLangfuseTrace — Direct Instantiation (no DI)
+
+Create traces directly without dependency injection:
+
+```csharp
+using var trace = new OtelLangfuseTrace("customer-support",
+    userId: "user-123",
+    sessionId: "session-456",
+    tags: ["support", "billing"],
+    input: new { source = "web-chat" });
+
+using (var span = trace.CreateSpan("document-retrieval",
+           type: "retrieval",
+           description: "Retrieve relevant documents"))
+{
+    using var embedding = trace.CreateEmbedding("query-embedding",
+        model: "text-embedding-3-small",
+        provider: "openai",
+        input: query);
+
+    embedding.SetResponse(new GenAiResponse { InputTokens = 15 });
+    span.SetOutput(new { documents = new[] { "doc1.pdf", "doc2.pdf" } });
+}
+```
+
+### Constructors
+
+```
+OtelLangfuseTrace() — default, lazy trace initialization
+OtelLangfuseTrace(ActivitySource) — with custom ActivitySource
+OtelLangfuseTrace(name, userId?, sessionId?, environment?, release?, tags?, input?, isPublic?) — immediate trace creation
+OtelLangfuseTrace(ActivitySource, name, userId?, sessionId?, environment?, release?, tags?, input?, isPublic?) — with ActivitySource and immediate creation
+```
+
+### Static Factory
+
+```csharp
+// Create independent trace for parallel operations (not linked to current Activity context)
+var detached = OtelLangfuseTrace.CreateDetachedTrace("parallel-task",
+    userId: "user-123", sessionId: "session-456");
+```
+
+---
+
+## Observation Types
+
+### OtelObservation (base class — all observation types inherit these)
+
+```
+SetInput(object)
+SetOutput(object)
+SetMetadata(string key, object value)
+SetLevel(LangfuseObservationLevel)  // DEBUG, INFO, WARNING, ERROR
+SetTag(string key, object? value)
+SetStatusMessage(string)
+Skip()          // don't export this observation
+EndObservation() // explicitly end
+Dispose()       // ends the observation
+```
+
+Properties:
+```
+Activity → Activity?   // underlying OTel Activity
+HasActivity → bool     // check if activity exists
+IsSkipped → bool       // check if skipped
+```
+
+### OtelGeneration — LLM calls
+
+```csharp
+using var gen = trace.CreateGeneration("chat",
+    model: "gpt-4",
+    provider: "openai",
+    input: new { prompt },
+    configure: g =>
+    {
+        g.SetTemperature(0.7);
+        g.SetMaxTokens(500);
+        g.SetInputMessages(new List<GenAiMessage>
+        {
+            new() { Role = "user", Content = "Hello!" }
+        });
+    });
+
+gen.SetResponse(new GenAiResponse
+{
+    Model = "gpt-4",
+    InputTokens = 50,
+    OutputTokens = 100,
+    FinishReasons = ["stop"],
+    Completion = result
+});
+```
+
+All OtelGeneration methods:
+
+```
+SetInputMessages(IEnumerable<GenAiMessage>)
+SetPrompt(string)
+SetResponse(GenAiResponse)
+SetCompletion(string)
+SetPromptReference(name, version?)
+RecordCompletionStartTime(DateTimeOffset?)  // Time to First Token
+SetTemperature(double)
+SetMaxTokens(int)
+SetTopP(double)
+SetTopK(int)
+SetFrequencyPenalty(double)
+SetPresencePenalty(double)
+SetRequestModel(string)
+SetProvider(string)
+SetChoiceCount(int)
+SetSeed(int)
+SetStopSequences(string[])
+SetOutputType(string)           // "text", "json"
+SetConversationId(string)
+SetSystemInstructions(string)
+SetToolDefinitions(List<GenAiToolDefinition>)
+SetToolDefinitions(string)      // from JSON
+SetServerAddress(string)
+SetServerPort(int)
+SetUsageDetails(Dictionary<string, long>)
+SetCostDetails(Dictionary<string, decimal>)
+SetCacheReadInputTokens(int)
+SetCacheCreationInputTokens(int)
+```
+
+### OtelToolCall — function/tool invocations
+
+```csharp
+using var tool = trace.CreateToolCall("lookup-account",
+    toolName: "get_account_info",
+    toolDescription: "Retrieves customer account information",
+    provider: "internal",
+    input: new { customer_id = "cust-789" });
+
+var accountInfo = await GetAccountAsync("cust-789");
+tool.SetResult(accountInfo);
+```
+
+Methods:
+```
+SetArguments(object)
+SetResult(object)
+```
+
+### OtelEmbedding — vector embeddings
+
+```csharp
+using var emb = trace.CreateEmbedding("query-embedding",
+    model: "text-embedding-3-small",
+    provider: "openai",
+    input: query);
+
+emb.SetResponse(new GenAiResponse { InputTokens = 15 });
+```
+
+Methods:
+```
+SetText(string)
+SetResponse(GenAiResponse)
+SetDimensions(int)
+SetUsageDetails(Dictionary<string, long>)
+SetCostDetails(Dictionary<string, decimal>)
+```
+
+### OtelAgent — agent workflows
+
+```csharp
+using var agent = trace.CreateAgent("research-assistant",
+    agentId: "agent-001",
+    description: "An agent that researches topics",
+    input: query);
+
+// Agent performs multiple steps with nested observations...
+agent.SetOutput(synthesizedResult);
+```
+
+Methods:
+```
+SetDataSource(string)
+```
+
+### OtelEvent — discrete point-in-time events
+
+```csharp
+using var evt = trace.CreateEvent("user-feedback",
+    input: new { rating = 5 },
+    output: new { action = "logged" });
+```
+
+---
+
+## Skip Pattern
+
+Skip individual observations or entire traces when not needed (e.g., cache hits):
+
+```csharp
+using var span = trace.CreateSpan("llm-processing");
+
+if (cachedResult != null)
+{
+    // Skip this span - won't be sent to Langfuse
+    span.Skip();
+    return cachedResult;
+}
+
+// Or skip the entire trace
+trace.Skip();
+```
+
+---
+
+## Key Types
+
+### GenAiResponse
+
+```csharp
+new GenAiResponse
+{
+    Model = "gpt-4",
+    InputTokens = 50,
+    OutputTokens = 100,
+    FinishReasons = ["stop"],
+    Completion = "result text"
+}
+```
+
+### GenAiMessage
+
+```csharp
+new GenAiMessage { Role = "user", Content = "Hello!" }
+```
+
+### GenAiToolDefinition
+
+```csharp
+new GenAiToolDefinition { Name = "get_weather", Description = "Get weather info" }
+```
+
+### LangfuseObservationLevel
+
+```
+DEBUG, INFO, WARNING, ERROR
+```
+
+---
+
+## ILangfuseClient — REST API
+
+Inject `ILangfuseClient` for full access to Langfuse API endpoints. All methods accept an optional `CancellationToken`.
+
+### Prompts
+
+```
+GetPromptListAsync(PromptListRequest?) → PromptMetaListResponse
+GetPromptAsync(name, version?) → Prompt
+CreatePromptAsync(CreatePromptRequest) → Prompt
+UpdatePromptAsync(name, CreatePromptRequest) → Prompt
+DeletePromptAsync(name)
+DeletePromptVersionAsync(name, version)
+```
+
+Example:
+```csharp
+var prompt = await _langfuseClient.GetPromptAsync("my-prompt", label: "production");
+```
+
+### Datasets
+
+```
+GetDatasetListAsync(DatasetListRequest) → PaginatedDatasets
+GetDatasetAsync(name) → DatasetModel
+CreateDatasetAsync(CreateDatasetRequest) → DatasetModel
+GetDatasetRunAsync(datasetName, runName) → DatasetRunWithItems
+DeleteDatasetRunAsync(datasetName, runName) → DeleteDatasetRunResponse
+GetDatasetRunsAsync(datasetName, DatasetRunListRequest) → PaginatedDatasetRuns
+```
+
+### Dataset Items
+
+```
+GetDatasetItemListAsync(datasetName, DatasetItemListRequest) → PaginatedDatasetItems
+GetDatasetItemAsync(id) → DatasetItem
+CreateDatasetItemAsync(CreateDatasetItemRequest) → DatasetItem
+UpdateDatasetItemAsync(id, CreateDatasetItemRequest) → DatasetItem
+DeleteDatasetItemAsync(id) → DeleteDatasetItemResponse
+```
+
+### Dataset Run Items
+
+```
+GetDatasetRunItemListAsync(datasetName, runName, DatasetRunItemListRequest) → PaginatedDatasetRunItems
+CreateDatasetRunItemAsync(CreateDatasetRunItemRequest) → DatasetRunItemListRequest
+```
+
+### Scores
+
+```
+GetScoreListAsync(ScoreListRequest?) → ScoreListResponse
+GetScoreAsync(id) → ScoreModel
+CreateScoreAsync(ScoreCreateRequest) → CreateScoreResponse
+DeleteScoreAsync(id)
+```
+
+Example:
+```csharp
+await _langfuseClient.CreateScoreAsync(new ScoreCreateRequest
+{
+    TraceId = "trace-123",
+    Name = "accuracy",
+    Value = 0.95
+});
+```
+
+### Score Configs
+
+```
+GetScoreConfigListAsync(ScoreConfigListRequest?) → ScoreConfigListResponse
+GetScoreConfigAsync(id) → ScoreConfig
+CreateScoreConfigAsync(CreateScoreConfigRequest) → ScoreConfig
+UpdateScoreConfigAsync(id, UpdateScoreConfigRequest) → ScoreConfig
+DeleteScoreConfigAsync(id)
+```
+
+### Traces
+
+```
+GetTraceListAsync(TraceListRequest?) → TraceListResponse
+GetTraceAsync(id) → TraceWithDetails
+DeleteTraceAsync(id) → DeleteTraceResponse
+DeleteTraceManyAsync(DeleteTraceManyRequest) → DeleteTraceResponse
+```
+
+### Observations
+
+```
+GetObservationListAsync(ObservationListRequest?) → ObservationListResponse
+GetObservationAsync(id) → ObservationModel
+GetObservationsV2Async(ObservationsV2Request) → ObservationsV2Response
+```
+
+### Sessions
+
+```
+GetSessionListAsync(SessionListRequest?) → SessionListResponse
+GetSessionAsync(id) → Session
+```
+
+### Comments
+
+```
+GetCommentListAsync(objectId) → GetCommentsResponse
+CreateCommentAsync(CreateCommentRequest) → CreateCommentResponse
+DeleteCommentAsync(id)
+```
+
+### Media
+
+```
+UploadMediaAsync(MediaUploadRequest) → MediaUploadResponse
+GetMediaAsync(id) → GetMediaResponse
+UpdateMediaAsync(id, MediaUpdateRequest) → MediaModel
+DeleteMediaAsync(id)
+```
+
+### Models
+
+```
+GetModelListAsync(ModelListRequest?) → PaginatedModels
+GetModelAsync(id) → Model
+CreateModelAsync(CreateModelRequest) → Model
+```
+
+### Metrics
+
+```
+GetMetricsAsync(MetricsRequest) → MetricsResponse
+GetMetricsV2Async(MetricsV2Request) → MetricsV2Response
+```
+
+### Annotation Queues
+
+```
+GetAnnotationQueueListAsync(AnnotationQueueListRequest?) → AnnotationQueueListResponse
+CreateAnnotationQueueAsync(CreateAnnotationQueueRequest) → AnnotationQueueModel
+GetAnnotationQueueItemsAsync(queueId, AnnotationQueueItemListRequest) → AnnotationQueueItemListResponse
+CreateAnnotationQueueItemAsync(queueId, CreateAnnotationQueueItemRequest) → AnnotationQueueItem
+UpdateAnnotationQueueItemAsync(itemId, UpdateAnnotationQueueItemRequest) → AnnotationQueueItem
+DeleteAnnotationQueueItemAsync(itemId) → DeleteAnnotationQueueItemResponse
+AssignAnnotationQueueItemAsync(itemId, AnnotationQueueAssignmentRequest) → CreateAnnotationQueueAssignmentResponse
+DeleteAnnotationQueueAssignmentAsync(assignmentId) → DeleteAnnotationQueueAssignmentResponse
+```
+
+### Blob Storage Integrations
+
+```
+GetBlobStorageIntegrationsAsync() → BlobStorageIntegrationsResponse
+CreateBlobStorageIntegrationAsync(CreateBlobStorageIntegrationRequest) → BlobStorageIntegrationResponse
+DeleteBlobStorageIntegrationAsync(id) → BlobStorageIntegrationDeletionResponse
+```
+
+### LLM Connections
+
+```
+GetLlmConnectionListAsync() → PaginatedLlmConnections
+UpsertLlmConnectionAsync(id, UpsertLlmConnectionRequest) → LlmConnection
+```
+
+### Organization
+
+```
+GetOrganizationAsync() → Organization
+GetOrganizationProjectsAsync() → OrganizationProjectsResponse
+GetApiKeysAsync() → OrganizationApiKeysResponse
+CreateApiKeyAsync(CreateApiKeyRequest) → ApiKeyResponse
+DeleteApiKeyAsync(id) → ApiKeyDeletionResponse
+GetMembershipsAsync() → MembershipsResponse
+CreateMembershipAsync(CreateMembershipRequest) → MembershipResponse
+DeleteMembershipAsync(userId, DeleteMembershipRequest) → MembershipDeletionResponse
+```
+
+### Project
+
+```
+GetProjectAsync() → Project
+GetProjectListAsync() → PaginatedProjects
+CreateProjectAsync(CreateProjectRequest) → Project
+UpdateProjectAsync(id, UpdateProjectRequest) → Project
+DeleteProjectAsync(id) → ProjectDeletionResponse
+```
+
+### SCIM (User Provisioning)
+
+```
+GetScimServiceProviderConfigAsync() → ScimServiceProviderConfig
+GetScimSchemasAsync() → ScimSchemasResponse
+GetScimResourceTypesAsync() → ScimResourceTypesResponse
+GetScimUsersAsync() → PaginatedScimUsers
+CreateScimUserAsync(CreateScimUserRequest) → ScimUser
+```
+
+### Health
+
+```
+GetHealthAsync() → HealthResponse
+```
+
+---
+
+## Configuration Reference
+
+### LangfuseOtlpExporterOptions (OpenTelemetry Exporter)
+
+| Property                    | Type                   | Default                    | Description                             |
+|-----------------------------|------------------------|----------------------------|-----------------------------------------|
+| EnableOpenTelemetryExporter | bool                   | true                       | Enable/disable the exporter             |
+| Url                         | string                 | https://cloud.langfuse.com | Langfuse API endpoint                   |
+| PublicKey                   | string                 | —                          | Langfuse public API key                 |
+| SecretKey                   | string                 | —                          | Langfuse secret API key                 |
+| TimeoutMilliseconds         | int                    | 10000                      | Export timeout in ms                    |
+| OnlyGenAiActivities         | bool                   | true                       | Filter to only export Gen AI activities |
+| ActivityFilter              | Func<Activity, bool>?  | null                       | Custom filter function for activities   |
+
+### LangfuseConfig (API Client)
+
+| Property         | Type     | Default                    | Description                |
+|------------------|----------|----------------------------|----------------------------|
+| Url              | string   | https://cloud.langfuse.com | Langfuse API endpoint      |
+| PublicKey        | string   | —                          | Langfuse public API key    |
+| SecretKey        | string   | —                          | Langfuse secret API key    |
+| BatchMode        | bool     | true                       | Enable batch mode          |
+| BatchWaitTime    | TimeSpan | 5s                         | Batch processing interval  |
+| DefaultTimeout   | TimeSpan | 30s                        | HTTP request timeout       |
+| DefaultPageSize  | int      | 50                         | Default pagination size    |
+| EnableRetry      | bool     | true                       | Auto-retry on failure      |
+| MaxRetryAttempts | int      | 3                          | Maximum retry attempts     |
+| RetryDelay       | TimeSpan | 1s                         | Base delay between retries |
+
+---
+
+## Testing
+
+Register no-op implementation — all methods are safe no-ops, no telemetry exported:
+
+```csharp
+services.AddLangfuseTracingNoOp();
+```
+
+The `NullOtelLangfuseTrace` singleton is used internally. All observation creation methods return no-op instances.
+
+---
+
+## Error Handling
+
+All `ILangfuseClient` methods throw `LangfuseApiException` on non-success HTTP responses.
+
+```csharp
+try
+{
+    var trace = await _langfuseClient.GetTraceAsync("trace-id");
+}
+catch (LangfuseApiException ex)
+{
+    // Handle API error
+}
+```
+
+---
+
+## Architecture Notes
+
+- **Namespace**: `zborek.Langfuse` (client), `zborek.Langfuse.OpenTelemetry` (tracing)
+- **Partial class pattern**: LangfuseClient is split across partial classes per API domain
+- **Scoped services**: IOtelLangfuseTrace is scoped (one per request/operation)
+- **Activity-based**: All tracing uses System.Diagnostics.Activity as the core primitive
+- **ActivitySource name**: "Langfuse"
+- **Batch ingestion**: 3.5MB size limit with automatic splitting
+- **Background processing**: Channel<IIngestionEvent> for thread-safe event queuing
+- **JSON serialization**: camelCase property names
