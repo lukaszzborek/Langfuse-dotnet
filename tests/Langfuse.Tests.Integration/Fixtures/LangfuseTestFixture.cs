@@ -165,6 +165,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithUsername(PostgresUser)
             .WithPassword(PostgresPassword)
             .WithDatabase(PostgresDatabase)
+            .WithImagePullPolicy(_ => true)
             .Build();
 
         // ClickHouse
@@ -173,6 +174,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithNetworkAliases("clickhouse")
             .WithUsername(ClickHouseUser)
             .WithPassword(ClickHousePassword)
+            .WithImagePullPolicy(_ => true)
             .Build();
 
         // Redis
@@ -180,6 +182,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithNetwork(_network)
             .WithNetworkAliases("redis")
             .WithCommand("--requirepass", RedisPassword, "--maxmemory-policy", "noeviction")
+            .WithImagePullPolicy(_ => true)
             .Build();
 
         // MinIO
@@ -188,6 +191,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithNetworkAliases("minio")
             .WithUsername(MinioUser)
             .WithPassword(MinioPassword)
+            .WithImagePullPolicy(_ => true)
             .Build();
 
         // Start all infrastructure containers in parallel
@@ -227,6 +231,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithPortBinding(3030, true)
             .WithEnvironment(langfuseEnvVars)
             .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Listening"))
+            .WithImagePullPolicy(_ => true)
             .Build();
 
         // Langfuse Web
@@ -251,6 +256,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithEnvironment(webEnvVars)
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(r => r.ForPath("/api/public/health").ForPort(3000)))
+            .WithImagePullPolicy(_ => true)
             .Build();
 
         await _langfuseWebContainer.StartAsync();
