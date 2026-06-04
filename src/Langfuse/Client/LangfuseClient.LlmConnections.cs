@@ -1,4 +1,5 @@
 using zborek.Langfuse.Models.LlmConnection;
+using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
 
@@ -10,19 +11,7 @@ internal partial class LangfuseClient
         int? limit = null,
         CancellationToken cancellationToken = default)
     {
-        var queryParams = new List<string>();
-
-        if (page.HasValue)
-        {
-            queryParams.Add($"page={page.Value}");
-        }
-
-        if (limit.HasValue)
-        {
-            queryParams.Add($"limit={limit.Value}");
-        }
-
-        var query = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : string.Empty;
+        var query = QueryStringHelper.BuildPageLimitQuery(page, limit);
         var endpoint = $"/api/public/llm-connections{query}";
 
         return await GetAsync<PaginatedLlmConnections>(endpoint, "Get LLM Connections", cancellationToken);
@@ -42,14 +31,7 @@ internal partial class LangfuseClient
             "Create/Update LLM Connection", cancellationToken);
     }
 
-    /// <summary>
-    ///     Delete an LLM connection by id.
-    ///     Evaluators that depend on the deleted connection are automatically paused.
-    /// </summary>
-    /// <param name="id">The unique identifier of the LLM connection</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Deletion confirmation</returns>
-    /// <exception cref="ArgumentException">Thrown when id is null or empty</exception>
+    /// <inheritdoc />
     public async Task<DeleteLlmConnectionResponse> DeleteLlmConnectionAsync(
         string id,
         CancellationToken cancellationToken = default)

@@ -1,4 +1,5 @@
 using zborek.Langfuse.Models.Evaluation;
+using zborek.Langfuse.Services;
 
 namespace zborek.Langfuse.Client;
 
@@ -24,19 +25,7 @@ internal partial class LangfuseClient
         int? limit = null,
         CancellationToken cancellationToken = default)
     {
-        var queryParams = new List<string>();
-
-        if (page.HasValue)
-        {
-            queryParams.Add($"page={page.Value}");
-        }
-
-        if (limit.HasValue)
-        {
-            queryParams.Add($"limit={limit.Value}");
-        }
-
-        var query = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : string.Empty;
+        var query = QueryStringHelper.BuildPageLimitQuery(page, limit);
         var endpoint = $"/api/public/unstable/evaluators{query}";
 
         return await GetAsync<PaginatedEvaluators>(endpoint, "Get Evaluators", cancellationToken);
