@@ -191,6 +191,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithNetworkAliases("minio")
             .WithUsername(MinioUser)
             .WithPassword(MinioPassword)
+            .WithTmpfsMount("/data")
             .WithImagePullPolicy(_ => true)
             .Build();
 
@@ -257,6 +258,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(r => r.ForPath("/api/public/health").ForPort(3000)))
             .WithImagePullPolicy(_ => true)
+            
             .Build();
 
         await _langfuseWebContainer.StartAsync();
@@ -321,7 +323,10 @@ public class LangfuseTestFixture : IAsyncLifetime
             ["REDIS_HOST"] = "redis",
             ["REDIS_PORT"] = "6379",
             ["REDIS_AUTH"] = RedisPassword,
-            ["REDIS_TLS_ENABLED"] = "false"
+            ["REDIS_TLS_ENABLED"] = "false",
+
+            ["AWS_REQUEST_CHECKSUM_CALCULATION"] = "WHEN_REQUIRED",
+            ["AWS_RESPONSE_CHECKSUM_VALIDATION"] = "WHEN_REQUIRED"
         };
     }
 }

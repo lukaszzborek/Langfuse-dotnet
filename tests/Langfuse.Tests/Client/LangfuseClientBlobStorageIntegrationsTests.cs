@@ -49,6 +49,8 @@ public class LangfuseClientBlobStorageIntegrationsTests
                     ForcePathStyle = false,
                     FileType = BlobStorageIntegrationFileType.Json,
                     ExportMode = BlobStorageExportMode.FullHistory,
+                    Compressed = true,
+                    ExportSource = BlobStorageExportSource.ObservationsV2,
                     Prefix = "",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -132,6 +134,8 @@ public class LangfuseClientBlobStorageIntegrationsTests
             ForcePathStyle = request.ForcePathStyle,
             FileType = request.FileType,
             ExportMode = request.ExportMode,
+            Compressed = true,
+            ExportSource = BlobStorageExportSource.ObservationsV2,
             Prefix = "",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -228,6 +232,8 @@ public class LangfuseClientBlobStorageIntegrationsTests
             ForcePathStyle = request.ForcePathStyle,
             FileType = request.FileType,
             ExportMode = request.ExportMode,
+            Compressed = true,
+            ExportSource = BlobStorageExportSource.ObservationsV2,
             Prefix = "",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -382,6 +388,40 @@ public class LangfuseClientBlobStorageIntegrationsTests
                 await _client.DeleteBlobStorageIntegrationAsync("int-123"));
 
         exception.StatusCode.ShouldBe((int)HttpStatusCode.InternalServerError);
+    }
+
+    [Fact]
+    public async Task GetBlobStorageIntegrationStatusAsync_Success_ReturnsStatus()
+    {
+        // Arrange
+        var expectedResponse = new BlobStorageIntegrationStatusResponse
+        {
+            Id = "int-1",
+            ProjectId = "proj-1",
+            SyncStatus = BlobStorageSyncStatus.Up_To_Date,
+            Enabled = true,
+            LastSyncAt = new DateTime(2024, 8, 3, 12, 0, 0, DateTimeKind.Utc)
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+
+        // Act
+        var result = await _client.GetBlobStorageIntegrationStatusAsync("int-1");
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.SyncStatus.ShouldBe(BlobStorageSyncStatus.Up_To_Date);
+        result.Enabled.ShouldBeTrue();
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
+            .ShouldBe("/api/public/integrations/blob-storage/int-1");
+    }
+
+    [Fact]
+    public async Task GetBlobStorageIntegrationStatusAsync_NullId_ThrowsArgumentException()
+    {
+        await Should.ThrowAsync<ArgumentException>(async () =>
+            await _client.GetBlobStorageIntegrationStatusAsync(null!));
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler

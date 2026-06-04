@@ -54,4 +54,25 @@ internal partial class LangfuseClient
         return await PutAsync<LlmConnection>("/api/public/llm-connections", request,
             "Create/Update LLM Connection", cancellationToken);
     }
+
+    /// <summary>
+    ///     Delete an LLM connection by id.
+    ///     Evaluators that depend on the deleted connection are automatically paused.
+    /// </summary>
+    /// <param name="id">The unique identifier of the LLM connection</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Deletion confirmation</returns>
+    /// <exception cref="ArgumentException">Thrown when id is null or empty</exception>
+    public async Task<DeleteLlmConnectionResponse> DeleteLlmConnectionAsync(
+        string id,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            throw new ArgumentException("LLM connection ID cannot be null or empty", nameof(id));
+        }
+
+        var endpoint = $"/api/public/llm-connections/{Uri.EscapeDataString(id)}";
+        return await DeleteAsync<DeleteLlmConnectionResponse>(endpoint, "Delete LLM Connection", cancellationToken);
+    }
 }

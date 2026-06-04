@@ -36,6 +36,7 @@ public partial interface ILangfuseClient
     /// <returns>Response containing the ID of the created score</returns>
     /// <exception cref="LangfuseApiException">Thrown when score creation fails</exception>
     /// <remarks>Scores can be numeric, categorical, or boolean values used for evaluation and analysis</remarks>
+    [Obsolete("V1 scores endpoint is legacy. Create scores via the ingestion API (IngestAsync).")]
     Task<CreateScoreResponse> CreateScoreAsync(ScoreCreateRequest request,
         CancellationToken cancellationToken = default);
 
@@ -46,5 +47,6 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the deletion operation</returns>
     /// <exception cref="LangfuseApiException">Thrown when the score is not found or deletion fails</exception>
+    [Obsolete("V1 scores endpoint is legacy.")]
     Task DeleteScoreAsync(string scoreId, CancellationToken cancellationToken = default);
 }

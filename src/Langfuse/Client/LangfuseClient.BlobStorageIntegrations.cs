@@ -18,6 +18,27 @@ internal partial class LangfuseClient
     }
 
     /// <summary>
+    ///     Get the sync status of a blob storage integration by ID.
+    ///     Requires organization-scoped API key.
+    /// </summary>
+    /// <param name="id">The unique identifier of the blob storage integration</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Sync status details for the integration</returns>
+    public async Task<BlobStorageIntegrationStatusResponse> GetBlobStorageIntegrationStatusAsync(
+        string id,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            throw new ArgumentException("Blob storage integration ID cannot be null or empty", nameof(id));
+        }
+
+        var endpoint = $"/api/public/integrations/blob-storage/{Uri.EscapeDataString(id)}";
+        return await GetAsync<BlobStorageIntegrationStatusResponse>(endpoint,
+            "Get Blob Storage Integration Status", cancellationToken);
+    }
+
+    /// <summary>
     ///     Create or update a blob storage integration for a specific project.
     ///     The configuration is validated by performing a test upload to the bucket.
     ///     Requires organization-scoped API key.
