@@ -92,6 +92,24 @@ public class BlobStorageIntegrationResponse
     public DateTime? ExportStartDate { get; init; }
 
     /// <summary>
+    ///     Whether gzip compression is enabled for exported files
+    /// </summary>
+    [JsonPropertyName("compressed")]
+    public required bool Compressed { get; init; }
+
+    /// <summary>
+    ///     Data this integration exports
+    /// </summary>
+    [JsonPropertyName("exportSource")]
+    public required BlobStorageExportSource ExportSource { get; init; }
+
+    /// <summary>
+    ///     Field groups included in each exported row. Always null when ExportSource is LEGACY_TRACES_OBSERVATIONS.
+    /// </summary>
+    [JsonPropertyName("exportFieldGroups")]
+    public IReadOnlyList<BlobStorageExportFieldGroup>? ExportFieldGroups { get; init; }
+
+    /// <summary>
     ///     Timestamp of the next scheduled export
     /// </summary>
     [JsonPropertyName("nextSyncAt")]
@@ -102,6 +120,18 @@ public class BlobStorageIntegrationResponse
     /// </summary>
     [JsonPropertyName("lastSyncAt")]
     public DateTime? LastSyncAt { get; init; }
+
+    /// <summary>
+    ///     Most recent error message, if any
+    /// </summary>
+    [JsonPropertyName("lastError")]
+    public string? LastError { get; init; }
+
+    /// <summary>
+    ///     Timestamp of the most recent error, if any
+    /// </summary>
+    [JsonPropertyName("lastErrorAt")]
+    public DateTime? LastErrorAt { get; init; }
 
     /// <summary>
     ///     Timestamp when the integration was created

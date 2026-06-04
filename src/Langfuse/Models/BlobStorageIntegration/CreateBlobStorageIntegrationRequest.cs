@@ -90,4 +90,23 @@ public class CreateBlobStorageIntegrationRequest
     /// </summary>
     [JsonPropertyName("exportStartDate")]
     public DateTime? ExportStartDate { get; init; }
+
+    /// <summary>
+    ///     Enable gzip compression for exported files (.csv.gz, .json.gz, .jsonl.gz). Defaults to true.
+    /// </summary>
+    [JsonPropertyName("compressed")]
+    public bool? Compressed { get; init; }
+
+    /// <summary>
+    ///     Data to export. When omitted on update, the existing value is preserved. Required when ExportFieldGroups is provided.
+    /// </summary>
+    [JsonPropertyName("exportSource")]
+    public BlobStorageExportSource? ExportSource { get; init; }
+
+    /// <summary>
+    ///     Field groups to include in each exported row. Must include Core if provided. Requires ExportSource to be set in the
+    ///     same request. Must be omitted for the LEGACY_TRACES_OBSERVATIONS source.
+    /// </summary>
+    [JsonPropertyName("exportFieldGroups")]
+    public IReadOnlyList<BlobStorageExportFieldGroup>? ExportFieldGroups { get; init; }
 }

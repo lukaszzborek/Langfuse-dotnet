@@ -16,6 +16,18 @@ public partial interface ILangfuseClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Retrieves the sync status of a blob storage integration by ID
+    /// </summary>
+    /// <param name="id">The unique identifier of the blob storage integration</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Sync status details including last/next sync times and any last error</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    /// <remarks>Intended for ETL polling. Requires organization-scoped API key</remarks>
+    Task<BlobStorageIntegrationStatusResponse> GetBlobStorageIntegrationStatusAsync(
+        string id,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Creates or updates a blob storage integration for a specific project
     /// </summary>
     /// <param name="request">Blob storage integration configuration including credentials and export settings</param>

@@ -28,6 +28,29 @@ internal static class QueryStringHelper
     };
 
     /// <summary>
+    ///     Builds a query string from optional page and limit parameters
+    /// </summary>
+    /// <param name="page">Optional 1-based page number</param>
+    /// <param name="limit">Optional maximum number of items per page</param>
+    /// <returns>Query string starting with '?', or an empty string when both are null</returns>
+    public static string BuildPageLimitQuery(int? page, int? limit)
+    {
+        var parameters = new List<string>();
+
+        if (page.HasValue)
+        {
+            parameters.Add($"page={page.Value}");
+        }
+
+        if (limit.HasValue)
+        {
+            parameters.Add($"limit={limit.Value}");
+        }
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
     ///     Builds a query string from an observation list request
     /// </summary>
     /// <param name="request">The observation list request</param>

@@ -6,6 +6,7 @@ namespace zborek.Langfuse.Client;
 internal partial class LangfuseClient
 {
     /// <inheritdoc />
+    [Obsolete("V1 observations list endpoint is legacy. Use GetObservationsV2Async for cursor-based pagination and field selection.")]
     public async Task<ObservationListResponse> GetObservationListAsync(ObservationListRequest? request = null,
         CancellationToken cancellationToken = default)
     {

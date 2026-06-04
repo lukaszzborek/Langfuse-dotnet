@@ -1048,6 +1048,31 @@ public class LangfuseClientLlmConnectionsTests
         result.Meta.TotalPages.ShouldBe(3);
     }
 
+    [Fact]
+    public async Task DeleteLlmConnectionAsync_Success_ReturnsMessage()
+    {
+        // Arrange
+        _httpHandler.SetupResponse(HttpStatusCode.OK,
+            new DeleteLlmConnectionResponse { Message = "LLM connection deleted" });
+
+        // Act
+        var result = await _client.DeleteLlmConnectionAsync("conn-1");
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Message.ShouldBe("LLM connection deleted");
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
+            .ShouldBe("/api/public/llm-connections/conn-1");
+    }
+
+    [Fact]
+    public async Task DeleteLlmConnectionAsync_NullId_ThrowsArgumentException()
+    {
+        await Should.ThrowAsync<ArgumentException>(async () =>
+            await _client.DeleteLlmConnectionAsync(null!));
+    }
+
     private class TestHttpMessageHandler : HttpMessageHandler
     {
         private readonly List<HttpRequestMessage> _requests = new();

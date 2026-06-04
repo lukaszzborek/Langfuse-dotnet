@@ -477,6 +477,8 @@ public class ModelValidationIntegrationTests
                     ""forcePathStyle"": false,
                     ""fileType"": ""JSON"",
                     ""exportMode"": ""FULL_HISTORY"",
+                    ""compressed"": true,
+                    ""exportSource"": ""OBSERVATIONS_V2"",
                     ""createdAt"": ""2024-01-01T00:00:00Z"",
                     ""updatedAt"": ""2024-01-01T00:00:00Z""
                 }

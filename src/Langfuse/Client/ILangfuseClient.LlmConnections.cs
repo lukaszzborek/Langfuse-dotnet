@@ -30,4 +30,16 @@ public partial interface ILangfuseClient
     Task<LlmConnection> UpsertLlmConnectionAsync(
         UpsertLlmConnectionRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes an LLM connection by id
+    /// </summary>
+    /// <param name="id">The unique identifier of the LLM connection</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Deletion confirmation</returns>
+    /// <exception cref="LangfuseApiException">Thrown when the delete operation fails</exception>
+    /// <remarks>Evaluators that depend on the deleted connection are automatically paused</remarks>
+    Task<DeleteLlmConnectionResponse> DeleteLlmConnectionAsync(
+        string id,
+        CancellationToken cancellationToken = default);
 }

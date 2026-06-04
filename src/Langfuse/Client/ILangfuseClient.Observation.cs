@@ -16,6 +16,7 @@ public partial interface ILangfuseClient
     /// <returns>Paginated list of observations (events, spans, and generations) matching the specified criteria</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
     /// <remarks>Supports filtering by observation level (DEBUG, DEFAULT, WARNING, ERROR) and multiple environments</remarks>
+    [Obsolete("V1 observations list endpoint is legacy. Use GetObservationsV2Async for cursor-based pagination and field selection.")]
     Task<ObservationListResponse> GetObservationListAsync(ObservationListRequest? request = null,
         CancellationToken cancellationToken = default);
 

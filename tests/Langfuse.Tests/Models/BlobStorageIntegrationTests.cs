@@ -206,6 +206,8 @@ public class BlobStorageIntegrationTests
             ""forcePathStyle"": false,
             ""fileType"": ""CSV"",
             ""exportMode"": ""FROM_TODAY"",
+            ""compressed"": true,
+            ""exportSource"": ""OBSERVATIONS_V2"",
             ""exportStartDate"": null,
             ""nextSyncAt"": ""2024-08-10T12:00:00Z"",
             ""lastSyncAt"": ""2024-08-03T12:00:00Z"",
@@ -253,6 +255,8 @@ public class BlobStorageIntegrationTests
                     ""forcePathStyle"": false,
                     ""fileType"": ""JSON"",
                     ""exportMode"": ""FULL_HISTORY"",
+                    ""compressed"": true,
+                    ""exportSource"": ""OBSERVATIONS_V2"",
                     ""createdAt"": ""2024-01-01T00:00:00Z"",
                     ""updatedAt"": ""2024-01-01T00:00:00Z""
                 },
@@ -268,6 +272,8 @@ public class BlobStorageIntegrationTests
                     ""forcePathStyle"": true,
                     ""fileType"": ""JSONL"",
                     ""exportMode"": ""FROM_TODAY"",
+                    ""compressed"": false,
+                    ""exportSource"": ""LEGACY_TRACES_OBSERVATIONS"",
                     ""createdAt"": ""2024-02-01T00:00:00Z"",
                     ""updatedAt"": ""2024-02-01T00:00:00Z""
                 }
@@ -319,6 +325,8 @@ public class BlobStorageIntegrationTests
             ""forcePathStyle"": false,
             ""fileType"": ""JSON"",
             ""exportMode"": ""FULL_HISTORY"",
+            ""compressed"": false,
+            ""exportSource"": ""LEGACY_TRACES_OBSERVATIONS"",
             ""exportStartDate"": null,
             ""nextSyncAt"": null,
             ""lastSyncAt"": null,
@@ -335,6 +343,172 @@ public class BlobStorageIntegrationTests
         response.ExportStartDate.ShouldBeNull();
         response.NextSyncAt.ShouldBeNull();
         response.LastSyncAt.ShouldBeNull();
+    }
+
+    [Fact]
+    public void Should_Serialize_BlobStorageExportSource_To_SnakeCaseUpper()
+    {
+        JsonSerializer.Serialize(BlobStorageExportSource.LegacyTracesObservations)
+            .ShouldBe("\"LEGACY_TRACES_OBSERVATIONS\"");
+        JsonSerializer.Serialize(BlobStorageExportSource.ObservationsV2)
+            .ShouldBe("\"OBSERVATIONS_V2\"");
+        JsonSerializer.Serialize(BlobStorageExportSource.LegacyTracesAndEnrichedObservations)
+            .ShouldBe("\"LEGACY_TRACES_AND_ENRICHED_OBSERVATIONS\"");
+    }
+
+    [Fact]
+    public void Should_Deserialize_BlobStorageExportSource_From_SnakeCaseUpper()
+    {
+        JsonSerializer.Deserialize<BlobStorageExportSource>("\"LEGACY_TRACES_OBSERVATIONS\"")
+            .ShouldBe(BlobStorageExportSource.LegacyTracesObservations);
+        JsonSerializer.Deserialize<BlobStorageExportSource>("\"OBSERVATIONS_V2\"")
+            .ShouldBe(BlobStorageExportSource.ObservationsV2);
+        JsonSerializer.Deserialize<BlobStorageExportSource>("\"LEGACY_TRACES_AND_ENRICHED_OBSERVATIONS\"")
+            .ShouldBe(BlobStorageExportSource.LegacyTracesAndEnrichedObservations);
+    }
+
+    [Fact]
+    public void Should_Serialize_BlobStorageExportFieldGroup_To_Lowercase()
+    {
+        JsonSerializer.Serialize(BlobStorageExportFieldGroup.Core).ShouldBe("\"core\"");
+        JsonSerializer.Serialize(BlobStorageExportFieldGroup.Io).ShouldBe("\"io\"");
+        JsonSerializer.Serialize(BlobStorageExportFieldGroup.Trace_Context).ShouldBe("\"trace_context\"");
+    }
+
+    [Fact]
+    public void Should_Deserialize_BlobStorageExportFieldGroup_From_Lowercase()
+    {
+        JsonSerializer.Deserialize<BlobStorageExportFieldGroup>("\"core\"")
+            .ShouldBe(BlobStorageExportFieldGroup.Core);
+        JsonSerializer.Deserialize<BlobStorageExportFieldGroup>("\"io\"")
+            .ShouldBe(BlobStorageExportFieldGroup.Io);
+        JsonSerializer.Deserialize<BlobStorageExportFieldGroup>("\"trace_context\"")
+            .ShouldBe(BlobStorageExportFieldGroup.Trace_Context);
+    }
+
+    [Fact]
+    public void Should_Serialize_CreateRequest_With_ExportSource_And_FieldGroups()
+    {
+        var request = new CreateBlobStorageIntegrationRequest
+        {
+            ProjectId = "p1",
+            Type = BlobStorageIntegrationType.S3,
+            BucketName = "b",
+            Region = "us-east-1",
+            ExportFrequency = BlobStorageExportFrequency.Daily,
+            Enabled = true,
+            ForcePathStyle = false,
+            FileType = BlobStorageIntegrationFileType.Json,
+            ExportMode = BlobStorageExportMode.FullHistory,
+            Compressed = true,
+            ExportSource = BlobStorageExportSource.ObservationsV2,
+            ExportFieldGroups = new[] { BlobStorageExportFieldGroup.Core, BlobStorageExportFieldGroup.Io }
+        };
+
+        var json = JsonSerializer.Serialize(request);
+
+        json.ShouldContain("\"compressed\":true");
+        json.ShouldContain("\"exportSource\":\"OBSERVATIONS_V2\"");
+        json.ShouldContain("\"exportFieldGroups\":[\"core\",\"io\"]");
+    }
+
+    [Fact]
+    public void Should_Omit_Null_ExportSource_And_FieldGroups_On_CreateRequest()
+    {
+        var request = new CreateBlobStorageIntegrationRequest
+        {
+            ProjectId = "p1",
+            Type = BlobStorageIntegrationType.S3,
+            BucketName = "b",
+            Region = "us-east-1",
+            ExportFrequency = BlobStorageExportFrequency.Daily,
+            Enabled = true,
+            ForcePathStyle = false,
+            FileType = BlobStorageIntegrationFileType.Json,
+            ExportMode = BlobStorageExportMode.FullHistory
+        };
+
+        // Client serializer ignores nulls; mirror that here so omit-to-preserve semantics hold.
+        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        });
+
+        json.ShouldNotContain("exportSource");
+        json.ShouldNotContain("exportFieldGroups");
+        json.ShouldNotContain("compressed");
+    }
+
+    [Fact]
+    public void Should_Deserialize_Response_With_New_Fields()
+    {
+        var json = @"{
+            ""id"": ""int-1"",
+            ""projectId"": ""proj-1"",
+            ""type"": ""S3"",
+            ""bucketName"": ""bucket"",
+            ""region"": ""us-east-1"",
+            ""prefix"": """",
+            ""exportFrequency"": ""daily"",
+            ""enabled"": true,
+            ""forcePathStyle"": false,
+            ""fileType"": ""JSON"",
+            ""exportMode"": ""FULL_HISTORY"",
+            ""compressed"": true,
+            ""exportSource"": ""OBSERVATIONS_V2"",
+            ""exportFieldGroups"": [""core"", ""trace_context""],
+            ""lastError"": ""boom"",
+            ""lastErrorAt"": ""2024-01-02T00:00:00Z"",
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<BlobStorageIntegrationResponse>(json);
+
+        response.ShouldNotBeNull();
+        response.Compressed.ShouldBeTrue();
+        response.ExportSource.ShouldBe(BlobStorageExportSource.ObservationsV2);
+        response.ExportFieldGroups.ShouldNotBeNull();
+        response.ExportFieldGroups.ShouldBe(new[]
+        {
+            BlobStorageExportFieldGroup.Core, BlobStorageExportFieldGroup.Trace_Context
+        });
+        response.LastError.ShouldBe("boom");
+        response.LastErrorAt.ShouldBe(new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Utc));
+    }
+
+    [Fact]
+    public void Should_Deserialize_Response_With_Null_ExportFieldGroups()
+    {
+        var json = @"{
+            ""id"": ""int-1"",
+            ""projectId"": ""proj-1"",
+            ""type"": ""S3"",
+            ""bucketName"": ""bucket"",
+            ""region"": ""us-east-1"",
+            ""prefix"": """",
+            ""exportFrequency"": ""daily"",
+            ""enabled"": true,
+            ""forcePathStyle"": false,
+            ""fileType"": ""JSON"",
+            ""exportMode"": ""FULL_HISTORY"",
+            ""compressed"": false,
+            ""exportSource"": ""LEGACY_TRACES_OBSERVATIONS"",
+            ""exportFieldGroups"": null,
+            ""lastError"": null,
+            ""lastErrorAt"": null,
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<BlobStorageIntegrationResponse>(json);
+
+        response.ShouldNotBeNull();
+        response.Compressed.ShouldBeFalse();
+        response.ExportSource.ShouldBe(BlobStorageExportSource.LegacyTracesObservations);
+        response.ExportFieldGroups.ShouldBeNull();
+        response.LastError.ShouldBeNull();
+        response.LastErrorAt.ShouldBeNull();
     }
 
     private class TestTypeWrapper

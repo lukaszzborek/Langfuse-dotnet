@@ -24,5 +24,6 @@ public partial interface ILangfuseClient
     ///     - Time dimensions: grouping by minute, hour, day, week, month, auto
     ///     - Advanced features: histogram binning (1-100 bins), row limits (1-1000)
     /// </remarks>
+    [Obsolete("V1 metrics endpoint is legacy. Use GetMetricsV2Async for better performance.")]
     Task<MetricsResponse> GetMetricsAsync(MetricsRequest request, CancellationToken cancellationToken = default);
 }
