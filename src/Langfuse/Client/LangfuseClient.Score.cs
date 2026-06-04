@@ -27,7 +27,6 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
-    [Obsolete("V1 scores endpoint is legacy. Create scores via the ingestion API (IngestAsync).")]
     public async Task<CreateScoreResponse> CreateScoreAsync(ScoreCreateRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -59,7 +58,6 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
-    [Obsolete("V1 scores endpoint is legacy.")]
     public async Task DeleteScoreAsync(string scoreId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(scoreId))
