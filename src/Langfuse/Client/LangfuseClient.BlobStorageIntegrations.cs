@@ -4,12 +4,7 @@ namespace zborek.Langfuse.Client;
 
 internal partial class LangfuseClient
 {
-    /// <summary>
-    ///     Get all blob storage integrations for the organization.
-    ///     Requires organization-scoped API key.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>List of blob storage integrations</returns>
+    /// <inheritdoc />
     public async Task<BlobStorageIntegrationsResponse> GetBlobStorageIntegrationsAsync(
         CancellationToken cancellationToken = default)
     {
@@ -17,13 +12,7 @@ internal partial class LangfuseClient
             "Get Blob Storage Integrations", cancellationToken);
     }
 
-    /// <summary>
-    ///     Get the sync status of a blob storage integration by ID.
-    ///     Requires organization-scoped API key.
-    /// </summary>
-    /// <param name="id">The unique identifier of the blob storage integration</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Sync status details for the integration</returns>
+    /// <inheritdoc />
     public async Task<BlobStorageIntegrationStatusResponse> GetBlobStorageIntegrationStatusAsync(
         string id,
         CancellationToken cancellationToken = default)
@@ -38,14 +27,7 @@ internal partial class LangfuseClient
             "Get Blob Storage Integration Status", cancellationToken);
     }
 
-    /// <summary>
-    ///     Create or update a blob storage integration for a specific project.
-    ///     The configuration is validated by performing a test upload to the bucket.
-    ///     Requires organization-scoped API key.
-    /// </summary>
-    /// <param name="request">Blob storage integration configuration</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Created or updated blob storage integration</returns>
+    /// <inheritdoc />
     public async Task<BlobStorageIntegrationResponse> UpsertBlobStorageIntegrationAsync(
         CreateBlobStorageIntegrationRequest request,
         CancellationToken cancellationToken = default)
@@ -59,13 +41,7 @@ internal partial class LangfuseClient
             "Create/Update Blob Storage Integration", cancellationToken);
     }
 
-    /// <summary>
-    ///     Delete a blob storage integration by ID.
-    ///     Requires organization-scoped API key.
-    /// </summary>
-    /// <param name="id">The unique identifier of the blob storage integration</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Deletion confirmation</returns>
+    /// <inheritdoc />
     public async Task<BlobStorageIntegrationDeletionResponse> DeleteBlobStorageIntegrationAsync(
         string id,
         CancellationToken cancellationToken = default)
