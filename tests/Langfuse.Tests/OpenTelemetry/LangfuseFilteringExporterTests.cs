@@ -5,6 +5,7 @@ using zborek.Langfuse.OpenTelemetry;
 
 namespace zborek.Langfuse.Tests.OpenTelemetry;
 
+[Collection("ActivityListener tests")]
 public class LangfuseFilteringExporterTests : IDisposable
 {
     private const string SourceName = "LangfuseFilteringExporterTests";

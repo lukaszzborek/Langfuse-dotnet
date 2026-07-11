@@ -7,6 +7,7 @@ using zborek.Langfuse.OpenTelemetry.Trace;
 
 namespace zborek.Langfuse.Tests.OpenTelemetry;
 
+[Collection("ActivityListener tests")]
 public class OtelLangfuseTraceTests : IDisposable
 {
     private readonly ActivitySource _activitySource;

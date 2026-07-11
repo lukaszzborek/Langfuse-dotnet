@@ -5,6 +5,7 @@ using zborek.Langfuse.OpenTelemetry.Models;
 
 namespace zborek.Langfuse.Tests.OpenTelemetry;
 
+[Collection("ActivityListener tests")]
 public class GenAiActivityHelperTests : IDisposable
 {
     private readonly ActivitySource _activitySource;
@@ -18,7 +19,7 @@ public class GenAiActivityHelperTests : IDisposable
 
         _listener = new ActivityListener
         {
-            ShouldListenTo = _ => true,
+            ShouldListenTo = source => source.Name == "TestSource",
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
             ActivityStarted = activity => _capturedActivities.Add(activity)
         };
