@@ -64,6 +64,7 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
             "session-456",
             "1.0.0",
             "prod-1",
+            "production",
             ["tag1", "tag2"],
             new { query = "test" });
 
@@ -71,6 +72,17 @@ public class OtelLangfuseTraceStartTraceTests : IDisposable
         trace.TraceActivity.GetTagItem(LangfuseAttributes.UserId).ShouldBe("user-123");
         trace.TraceActivity.GetTagItem(LangfuseAttributes.SessionId).ShouldBe("session-456");
         trace.TraceActivity.GetTagItem(LangfuseAttributes.Version).ShouldBe("1.0.0");
+        trace.TraceActivity.GetTagItem(LangfuseAttributes.Environment).ShouldBe("production");
+    }
+
+    [Fact]
+    public void StartTrace_WithEnvironment_SetsEnvironmentInBaggage()
+    {
+        using var trace = new OtelLangfuseTrace();
+
+        trace.StartTrace("test-trace", environment: "production");
+
+        Baggage.GetBaggage(LangfuseAttributes.Environment).ShouldBe("production");
     }
 
     [Fact]

@@ -32,6 +32,12 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
         {
             if (ShouldExport(activity))
             {
+                if (!string.IsNullOrEmpty(_options.Environment) &&
+                    activity.GetTagItem(LangfuseAttributes.Environment) == null)
+                {
+                    activity.SetTag(LangfuseAttributes.Environment, _options.Environment);
+                }
+
                 filteredActivities.Add(activity);
             }
         }
@@ -77,7 +83,7 @@ internal class LangfuseFilteringExporter : BaseExporter<Activity>
 
     private static bool IsGenAiActivity(Activity activity)
     {
-        foreach (var tag in activity.EnumerateTagObjects())
+        foreach (KeyValuePair<string, object?> tag in activity.EnumerateTagObjects())
         {
             foreach (var prefix in GenAiAttributePrefixes)
             {

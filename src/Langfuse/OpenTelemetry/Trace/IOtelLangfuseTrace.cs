@@ -26,6 +26,7 @@ public interface IOtelLangfuseTrace : IDisposable
     /// <param name="sessionId">Optional session ID for the trace.</param>
     /// <param name="version">Optional version string.</param>
     /// <param name="release">Optional release string.</param>
+    /// <param name="environment">Optional deployment environment (e.g., "production", "staging").</param>
     /// <param name="tags">Optional tags for the trace.</param>
     /// <param name="input">Optional input for the trace.</param>
     /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
@@ -36,6 +37,7 @@ public interface IOtelLangfuseTrace : IDisposable
         string? sessionId = null,
         string? version = null,
         string? release = null,
+        string? environment = null,
         IEnumerable<string>? tags = null,
         object? input = null,
         bool isRoot = false);

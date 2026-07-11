@@ -19,6 +19,7 @@ This example demonstrates how to use the Langfuse OTLP exporter with OpenTelemet
        "Url": "https://cloud.langfuse.com",
        "PublicKey": "your-public-key-here",
        "SecretKey": "your-secret-key-here",
+       "Environment": "development",
        "TimeoutMilliseconds": 10000
      }
    }
@@ -128,11 +129,32 @@ services.AddOpenTelemetry()
             options.Url = "https://cloud.langfuse.com";
             options.PublicKey = "your-public-key";
             options.SecretKey = "your-secret-key";
+            options.Environment = "production";
             options.TimeoutMilliseconds = 10000;
             options.Headers.Add("X-Custom-Header", "value");
         });
     });
 ```
+
+### Environments
+
+The `Environment` option assigns all exported spans to a
+[Langfuse environment](https://langfuse.com/docs/observability/features/environments) (e.g., "production", "staging").
+Any span that doesn't already carry a `langfuse.environment` attribute gets the configured value at export time.
+
+You can override the environment per trace:
+
+```csharp
+// At trace start - child spans inherit it via Baggage
+trace.StartTrace("my-trace", environment: "staging");
+
+// Or after the trace has started
+trace.SetEnvironment("staging");
+```
+
+Precedence: an attribute already set on a span wins over the Baggage-propagated trace value, which wins over the
+global `Environment` option. Environment names must be lowercase alphanumeric (hyphens and underscores allowed),
+at most 40 characters, and must not start with "langfuse".
 
 ## Viewing Results
 

@@ -89,7 +89,9 @@ public static class LangfuseOtlpExtensions
         UseLangfuseActivityListener();
         var otlpExporter = CreateOtlpExporter(langfuseOptions);
 
-        BaseExporter<Activity> exporter = langfuseOptions.OnlyGenAiActivities || langfuseOptions.ActivityFilter != null
+        BaseExporter<Activity> exporter = langfuseOptions.OnlyGenAiActivities
+                                          || langfuseOptions.ActivityFilter != null
+                                          || !string.IsNullOrEmpty(langfuseOptions.Environment)
             ? new LangfuseFilteringExporter(otlpExporter, langfuseOptions)
             : otlpExporter;
 
@@ -204,6 +206,12 @@ public static class LangfuseOtlpExtensions
                     if (!string.IsNullOrEmpty(sessionId))
                     {
                         activity.SetTag(LangfuseAttributes.SessionId, sessionId);
+                    }
+
+                    var environment = Baggage.GetBaggage(LangfuseAttributes.Environment);
+                    if (!string.IsNullOrEmpty(environment))
+                    {
+                        activity.SetTag(LangfuseAttributes.Environment, environment);
                     }
 
                     var version = Baggage.GetBaggage(LangfuseAttributes.Version);
