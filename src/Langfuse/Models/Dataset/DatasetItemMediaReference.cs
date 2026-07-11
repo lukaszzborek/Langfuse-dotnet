@@ -11,23 +11,23 @@ public class DatasetItemMediaReference
     ///     The dataset item field containing the reference.
     /// </summary>
     [JsonPropertyName("field")]
-    public DatasetItemMediaReferenceField Field { get; set; }
+    public required DatasetItemMediaReferenceField Field { get; init; }
 
     /// <summary>
     ///     The Langfuse media reference string, e.g. `@@@langfuseMedia:type=image/png|id=...|source=bytes@@@`.
     /// </summary>
     [JsonPropertyName("referenceString")]
-    public string ReferenceString { get; set; } = string.Empty;
+    public required string ReferenceString { get; init; }
 
     /// <summary>
     ///     JSONPath of the string holding the reference within the field, e.g. `$['image']`.
     /// </summary>
     [JsonPropertyName("jsonPath")]
-    public string JsonPath { get; set; } = string.Empty;
+    public required string JsonPath { get; init; }
 
     /// <summary>
     ///     The resolved media record.
     /// </summary>
     [JsonPropertyName("media")]
-    public DatasetItemMediaReferenceMedia Media { get; set; } = new();
+    public required DatasetItemMediaReferenceMedia Media { get; init; }
 }

@@ -11,29 +11,29 @@ public class DatasetItemMediaReferenceMedia
     ///     The unique langfuse identifier of the media record.
     /// </summary>
     [JsonPropertyName("mediaId")]
-    public string MediaId { get; set; } = string.Empty;
+    public required string MediaId { get; init; }
 
     /// <summary>
     ///     The MIME type of the media record.
     /// </summary>
     [JsonPropertyName("contentType")]
-    public string ContentType { get; set; } = string.Empty;
+    public required string ContentType { get; init; }
 
     /// <summary>
     ///     The size of the media record in bytes.
     /// </summary>
     [JsonPropertyName("contentLength")]
-    public int ContentLength { get; set; }
+    public required int ContentLength { get; init; }
 
     /// <summary>
     ///     The signed download URL of the media record.
     /// </summary>
     [JsonPropertyName("url")]
-    public string Url { get; set; } = string.Empty;
+    public required string Url { get; init; }
 
     /// <summary>
     ///     The expiry date and time of the download URL.
     /// </summary>
     [JsonPropertyName("urlExpiry")]
-    public string UrlExpiry { get; set; } = string.Empty;
+    public required string UrlExpiry { get; init; }
 }

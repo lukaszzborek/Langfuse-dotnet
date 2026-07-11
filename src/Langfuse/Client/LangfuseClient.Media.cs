@@ -43,11 +43,15 @@ internal partial class LangfuseClient
             throw new ArgumentNullException(nameof(request));
         }
 
-        var hasTraceContext = !string.IsNullOrWhiteSpace(request.TraceId);
-        var hasDatasetContext = !string.IsNullOrWhiteSpace(request.DatasetId) &&
-                                !string.IsNullOrWhiteSpace(request.DatasetItemId);
+        var hasTraceId = !string.IsNullOrWhiteSpace(request.TraceId);
+        var hasObservationId = !string.IsNullOrWhiteSpace(request.ObservationId);
+        var hasDatasetId = !string.IsNullOrWhiteSpace(request.DatasetId);
+        var hasDatasetItemId = !string.IsNullOrWhiteSpace(request.DatasetItemId);
 
-        if (hasTraceContext == hasDatasetContext)
+        var isTraceContext = hasTraceId && !hasDatasetId && !hasDatasetItemId;
+        var isDatasetContext = hasDatasetId && hasDatasetItemId && !hasTraceId && !hasObservationId;
+
+        if (!isTraceContext && !isDatasetContext)
         {
             throw new ArgumentException(
                 "Provide exactly one context: traceId (optionally observationId) or datasetId + datasetItemId",
