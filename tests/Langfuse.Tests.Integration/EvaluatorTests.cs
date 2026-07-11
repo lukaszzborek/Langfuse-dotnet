@@ -98,7 +98,7 @@ public class EvaluatorTests
     {
         var client = CreateClient();
 
-        var request = new CreateEvaluatorRequest
+        var request = new CreateLlmAsJudgeEvaluatorRequest
         {
             Name = $"eval-{Guid.NewGuid():N}"[..16],
             Prompt = "Rate the helpfulness of {{input}} given {{output}}.",

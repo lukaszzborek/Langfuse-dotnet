@@ -43,9 +43,19 @@ internal partial class LangfuseClient
             throw new ArgumentNullException(nameof(request));
         }
 
-        if (string.IsNullOrWhiteSpace(request.TraceId))
+        var hasTraceId = !string.IsNullOrWhiteSpace(request.TraceId);
+        var hasObservationId = !string.IsNullOrWhiteSpace(request.ObservationId);
+        var hasDatasetId = !string.IsNullOrWhiteSpace(request.DatasetId);
+        var hasDatasetItemId = !string.IsNullOrWhiteSpace(request.DatasetItemId);
+
+        var isTraceContext = hasTraceId && !hasDatasetId && !hasDatasetItemId;
+        var isDatasetContext = hasDatasetId && hasDatasetItemId && !hasTraceId && !hasObservationId;
+
+        if (!isTraceContext && !isDatasetContext)
         {
-            throw new ArgumentException("Trace ID cannot be null or empty", nameof(request));
+            throw new ArgumentException(
+                "Provide exactly one context: traceId (optionally observationId) or datasetId + datasetItemId",
+                nameof(request));
         }
 
         if (string.IsNullOrWhiteSpace(request.ContentType))

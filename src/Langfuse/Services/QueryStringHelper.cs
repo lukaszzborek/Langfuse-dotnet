@@ -5,6 +5,7 @@ using System.Web;
 using zborek.Langfuse.Models.AnnotationQueue;
 using zborek.Langfuse.Models.Comment;
 using zborek.Langfuse.Models.Dataset;
+using zborek.Langfuse.Models.Experiment;
 using zborek.Langfuse.Models.Metrics;
 using zborek.Langfuse.Models.Model;
 using zborek.Langfuse.Models.Observation;
@@ -481,6 +482,91 @@ internal static class QueryStringHelper
                 AddParameter(parameters, "environment", env);
             }
         }
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from an experiment list request
+    /// </summary>
+    /// <param name="request">The experiment list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(ExperimentListRequest request)
+    {
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "fields", request.Fields);
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "scoreLimit", request.ScoreLimit);
+        AddParameter(parameters, "cursor", request.Cursor);
+        AddParameter(parameters, "fromStartTime", request.FromStartTime.ToString("O"));
+        AddParameter(parameters, "toStartTime", request.ToStartTime?.ToString("O"));
+        AddParameter(parameters, "id", request.Id);
+        AddParameter(parameters, "name", request.Name);
+        AddParameter(parameters, "datasetId", request.DatasetId);
+        AddParameter(parameters, "filter", request.Filter);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from an experiment item list request
+    /// </summary>
+    /// <param name="request">The experiment item list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(ExperimentItemListRequest request)
+    {
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "fields", request.Fields);
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "scoreLimit", request.ScoreLimit);
+        AddParameter(parameters, "cursor", request.Cursor);
+        AddParameter(parameters, "fromStartTime", request.FromStartTime.ToString("O"));
+        AddParameter(parameters, "toStartTime", request.ToStartTime?.ToString("O"));
+        AddParameter(parameters, "experimentId", request.ExperimentId);
+        AddParameter(parameters, "experimentName", request.ExperimentName);
+        AddParameter(parameters, "experimentItemId", request.ExperimentItemId);
+        AddParameter(parameters, "datasetId", request.DatasetId);
+        AddParameter(parameters, "filter", request.Filter);
+
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a v3 score list request
+    /// </summary>
+    /// <param name="request">The v3 score list request</param>
+    /// <returns>Query string</returns>
+    public static string BuildQueryString(ScoreV3ListRequest? request)
+    {
+        if (request == null)
+        {
+            return string.Empty;
+        }
+
+        var parameters = new List<string>();
+
+        AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "cursor", request.Cursor);
+        AddParameter(parameters, "fields", request.Fields);
+        AddParameter(parameters, "id", request.Id);
+        AddParameter(parameters, "name", request.Name);
+        AddParameter(parameters, "source", request.Source);
+        AddParameter(parameters, "dataType", request.DataType);
+        AddParameter(parameters, "environment", request.Environment);
+        AddParameter(parameters, "configId", request.ConfigId);
+        AddParameter(parameters, "queueId", request.QueueId);
+        AddParameter(parameters, "authorUserId", request.AuthorUserId);
+        AddParameter(parameters, "value", request.Value);
+        AddParameter(parameters, "valueMin", request.ValueMin?.ToString(CultureInfo.InvariantCulture));
+        AddParameter(parameters, "valueMax", request.ValueMax?.ToString(CultureInfo.InvariantCulture));
+        AddParameter(parameters, "traceId", request.TraceId);
+        AddParameter(parameters, "sessionId", request.SessionId);
+        AddParameter(parameters, "observationId", request.ObservationId);
+        AddParameter(parameters, "experimentId", request.ExperimentId);
+        AddParameter(parameters, "fromTimestamp", request.FromTimestamp?.ToString("O"));
+        AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }

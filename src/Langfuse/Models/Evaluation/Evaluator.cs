@@ -1,13 +1,15 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
 
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     One evaluator that can be used for scoring. Describes how to score data: prompt, extracted variables,
-///     output schema, and optional explicit model configuration. It does not define which live objects are
-///     evaluated; that is the job of evaluation rules.
+///     One evaluator that can be used for scoring. Describes how to score data. It does not define which
+///     live objects are evaluated; that is the job of evaluation rules. The concrete shape depends on
+///     <see cref="Type" />: <see cref="LlmAsJudgeEvaluator" /> or <see cref="CodeEvaluator" />.
 /// </summary>
-public class Evaluator
+[JsonConverter(typeof(EvaluatorConverter))]
+public abstract class Evaluator
 {
     /// <summary>
     ///     Identifier of this evaluator version.
@@ -34,35 +36,18 @@ public class Evaluator
     public required EvaluatorScope Scope { get; init; }
 
     /// <summary>
-    ///     Evaluator engine type. Currently always llm_as_judge.
+    ///     Evaluator engine type. Determines the concrete evaluator shape.
     /// </summary>
     [JsonPropertyName("type")]
-    public required EvaluatorType Type { get; init; }
+    public abstract EvaluatorType Type { get; }
 
     /// <summary>
-    ///     Prompt template used during evaluation.
-    /// </summary>
-    [JsonPropertyName("prompt")]
-    public required string Prompt { get; init; }
-
-    /// <summary>
-    ///     Variables extracted from the evaluator prompt. Every variable must be mapped exactly once when
-    ///     creating an evaluation rule.
+    ///     Variables that can be mapped when creating an evaluation rule. LLM evaluators require every
+    ///     variable to be mapped exactly once. Code evaluators always expose the fixed runtime payload
+    ///     fields and Langfuse maps them automatically.
     /// </summary>
     [JsonPropertyName("variables")]
     public required string[] Variables { get; init; }
-
-    /// <summary>
-    ///     Structured output schema returned by this evaluator.
-    /// </summary>
-    [JsonPropertyName("outputDefinition")]
-    public required EvaluatorOutputDefinition OutputDefinition { get; init; }
-
-    /// <summary>
-    ///     Explicit model configuration, or null when the project default evaluation model is used.
-    /// </summary>
-    [JsonPropertyName("modelConfig")]
-    public EvaluatorModelConfig? ModelConfig { get; init; }
 
     /// <summary>
     ///     Number of evaluation rules in the project that currently use this evaluator version.

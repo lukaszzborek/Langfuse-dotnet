@@ -75,6 +75,13 @@ public class DatasetItem
     /// </summary>
     [JsonPropertyName("updatedAt")]
     public DateTime UpdatedAt { get; set; }
+
+    /// <summary>
+    ///     Resolved Langfuse media references found in input, expectedOutput, and metadata. Required in the current API
+    ///     spec, but kept nullable so responses from older Langfuse servers that omit the field still deserialize.
+    /// </summary>
+    [JsonPropertyName("mediaReferences")]
+    public DatasetItemMediaReference[]? MediaReferences { get; set; }
 }
 
 /// <summary>

@@ -3,21 +3,16 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     Request body for creating an evaluation rule.
+///     Request body for creating an evaluation rule. Use <see cref="CreateLlmAsJudgeEvaluationRuleRequest" />
+///     or <see cref="CreateCodeEvaluationRuleRequest" /> depending on the evaluator type.
 /// </summary>
-public class CreateEvaluationRuleRequest
+public abstract class CreateEvaluationRuleRequest
 {
     /// <summary>
     ///     Human-readable deployment name. Must be unique within the project for public evaluation rules.
     /// </summary>
     [JsonPropertyName("name")]
     public required string Name { get; init; }
-
-    /// <summary>
-    ///     Evaluator family to use. Langfuse resolves it to its latest version before saving the rule.
-    /// </summary>
-    [JsonPropertyName("evaluator")]
-    public required EvaluationRuleEvaluatorReference Evaluator { get; init; }
 
     /// <summary>
     ///     Target object type to evaluate.
@@ -44,10 +39,4 @@ public class CreateEvaluationRuleRequest
     [JsonPropertyName("filter")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public EvaluationRuleFilter[]? Filter { get; init; }
-
-    /// <summary>
-    ///     Required variable mappings. Every evaluator variable must appear exactly once.
-    /// </summary>
-    [JsonPropertyName("mapping")]
-    public required EvaluationRuleMapping[] Mapping { get; init; }
 }

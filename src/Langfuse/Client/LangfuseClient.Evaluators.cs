@@ -44,4 +44,18 @@ internal partial class LangfuseClient
         var endpoint = $"/api/public/unstable/evaluators/{Uri.EscapeDataString(evaluatorId)}";
         return await GetAsync<Evaluator>(endpoint, "Get Evaluator", cancellationToken);
     }
+
+    /// <inheritdoc />
+    public async Task<DeleteEvaluatorResponse> DeleteEvaluatorAsync(
+        string evaluatorId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(evaluatorId))
+        {
+            throw new ArgumentException("Evaluator ID cannot be null or empty", nameof(evaluatorId));
+        }
+
+        var endpoint = $"/api/public/unstable/evaluators/{Uri.EscapeDataString(evaluatorId)}";
+        return await DeleteAsync<DeleteEvaluatorResponse>(endpoint, "Delete Evaluator", cancellationToken);
+    }
 }
