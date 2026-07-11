@@ -153,6 +153,7 @@ public class OtelLangfuseTraceTests : IDisposable
             "session-456",
             "1.0.0",
             "prod-1",
+            "production",
             ["tag1"]);
 
         Baggage.GetBaggage(LangfuseAttributes.UserId).ShouldNotBeNull();
@@ -163,6 +164,7 @@ public class OtelLangfuseTraceTests : IDisposable
         Baggage.GetBaggage(LangfuseAttributes.SessionId).ShouldBeNull();
         Baggage.GetBaggage(LangfuseAttributes.Version).ShouldBeNull();
         Baggage.GetBaggage(LangfuseAttributes.Release).ShouldBeNull();
+        Baggage.GetBaggage(LangfuseAttributes.Environment).ShouldBeNull();
         Baggage.GetBaggage(LangfuseAttributes.TraceTags).ShouldBeNull();
     }
 

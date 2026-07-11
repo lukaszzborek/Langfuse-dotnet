@@ -26,6 +26,7 @@ public sealed class NullOtelLangfuseTrace : IOtelLangfuseTrace
         string? sessionId = null,
         string? version = null,
         string? release = null,
+        string? environment = null,
         IEnumerable<string>? tags = null,
         object? input = null,
         bool isRoot = false)

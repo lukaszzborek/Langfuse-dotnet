@@ -59,6 +59,7 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
     /// <param name="sessionId">Optional session ID for the trace.</param>
     /// <param name="version">Optional version string.</param>
     /// <param name="release">Optional release string.</param>
+    /// <param name="environment">Optional deployment environment (e.g., "production", "staging").</param>
     /// <param name="tags">Optional tags for the trace.</param>
     /// <param name="input">Optional input for the trace.</param>
     /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
@@ -68,12 +69,13 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         string? sessionId = null,
         string? version = null,
         string? release = null,
+        string? environment = null,
         IEnumerable<string>? tags = null,
         object? input = null,
         bool isRoot = false)
         : this(DefaultActivitySource)
     {
-        StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot);
+        StartTrace(traceName, userId, sessionId, version, release, environment, tags, input, isRoot);
     }
 
     /// <summary>
@@ -86,12 +88,13 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         string? sessionId = null,
         string? version = null,
         string? release = null,
+        string? environment = null,
         IEnumerable<string>? tags = null,
         object? input = null,
         bool isRoot = false)
         : this(activitySource)
     {
-        StartTrace(traceName, userId, sessionId, version, release, tags, input, isRoot);
+        StartTrace(traceName, userId, sessionId, version, release, environment, tags, input, isRoot);
     }
 
     /// <summary>
@@ -102,6 +105,7 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
     /// <param name="sessionId">Optional session ID for the trace.</param>
     /// <param name="version">Optional version string.</param>
     /// <param name="release">Optional release string.</param>
+    /// <param name="environment">Optional deployment environment (e.g., "production", "staging").</param>
     /// <param name="tags">Optional tags for the trace.</param>
     /// <param name="input">Optional input for the trace.</param>
     /// <param name="isRoot">If true, creates a new root trace (new TraceId) ignoring any current activity context.</param>
@@ -112,6 +116,7 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         string? sessionId = null,
         string? version = null,
         string? release = null,
+        string? environment = null,
         IEnumerable<string>? tags = null,
         object? input = null,
         bool isRoot = false)
@@ -123,13 +128,14 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         }
 
         // Set context in Baggage for auto-enrichment by ActivityListener
-        SetBaggageContext(userId, sessionId, version, release, tags);
+        SetBaggageContext(userId, sessionId, version, release, environment, tags);
 
         var config = new TraceConfig
         {
             UserId = userId,
             SessionId = sessionId,
             Version = version,
+            Environment = environment,
             Tags = tags?.ToList()
         };
 
@@ -518,11 +524,12 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         string? sessionId = null,
         string? version = null,
         string? release = null,
+        string? environment = null,
         IEnumerable<string>? tags = null,
         object? input = null)
     {
         var trace = new OtelLangfuseTrace();
-        trace.StartTrace(traceName, userId, sessionId, version, release, tags, input, true);
+        trace.StartTrace(traceName, userId, sessionId, version, release, environment, tags, input, true);
         return trace;
     }
 
@@ -531,6 +538,7 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         string? sessionId,
         string? version,
         string? release,
+        string? environment,
         IEnumerable<string>? tags)
     {
         if (!string.IsNullOrEmpty(userId))
@@ -553,6 +561,11 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
             Baggage.SetBaggage(LangfuseAttributes.Release, release);
         }
 
+        if (!string.IsNullOrEmpty(environment))
+        {
+            Baggage.SetBaggage(LangfuseAttributes.Environment, environment);
+        }
+
         if (tags != null)
         {
             Baggage.SetBaggage(LangfuseAttributes.TraceTags, string.Join(",", tags));
@@ -565,6 +578,7 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         Baggage.RemoveBaggage(LangfuseAttributes.SessionId);
         Baggage.RemoveBaggage(LangfuseAttributes.Version);
         Baggage.RemoveBaggage(LangfuseAttributes.Release);
+        Baggage.RemoveBaggage(LangfuseAttributes.Environment);
         Baggage.RemoveBaggage(LangfuseAttributes.TraceTags);
     }
 }

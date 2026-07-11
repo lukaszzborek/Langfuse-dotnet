@@ -34,6 +34,13 @@ public class LangfuseOtlpExporterOptions
     public string SecretKey { get; set; } = string.Empty;
 
     /// <summary>
+    ///     Default deployment environment (e.g., "production", "staging") applied to all exported
+    ///     activities that don't already have a langfuse.environment attribute.
+    ///     When not set, Langfuse assigns the "default" environment.
+    /// </summary>
+    public string? Environment { get; set; }
+
+    /// <summary>
     ///     Optional custom headers to be sent with OTLP requests
     /// </summary>
     public Dictionary<string, string> Headers { get; set; } = new();
