@@ -25,6 +25,12 @@ public enum EvaluationRuleMappingSource
     Metadata,
 
     /// <summary>
+    ///     The tool calls recorded on the observation, as an array of {id, name, arguments, type, index} objects in the
+    ///     order the model emitted them. Combine with jsonPath (for example $[*].name) to select parts of each call.
+    /// </summary>
+    Tool_Calls,
+
+    /// <summary>
     ///     The experiment item's expected output. Only valid for target=experiment.
     /// </summary>
     Expected_Output,

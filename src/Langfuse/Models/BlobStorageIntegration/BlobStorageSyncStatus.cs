@@ -15,6 +15,11 @@ public enum BlobStorageSyncStatus
     Idle,
 
     /// <summary>
+    ///     An export job is currently being processed.
+    /// </summary>
+    Running,
+
+    /// <summary>
     ///     Next export is overdue and waiting to be picked up by the worker.
     /// </summary>
     Queued,

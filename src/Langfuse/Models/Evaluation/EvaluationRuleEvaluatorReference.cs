@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     Evaluator family reference used when creating or updating an evaluation rule.
+///     Evaluator family reference used when updating an evaluation rule. A rule's evaluator type cannot
+///     be changed, so this reference does not accept a type; the family must match the rule's current
+///     evaluator type.
 /// </summary>
 public class EvaluationRuleEvaluatorReference
 {

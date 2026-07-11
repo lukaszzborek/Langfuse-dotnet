@@ -29,34 +29,39 @@ public class LangfuseClientEvaluatorsTests
         _client = new LangfuseClient(httpClient, channel, config, logger);
     }
 
-    private static EvaluatorOutputDefinition SampleOutput() => new()
+    private static EvaluatorOutputDefinition SampleOutput()
     {
-        DataType = EvaluatorOutputDataType.Numeric,
-        Reasoning = new EvaluatorOutputFieldDefinition { Description = "why" },
-        Score = new EvaluatorOutputScoreDefinition { Description = "0..1" }
-    };
+        return new EvaluatorOutputDefinition
+        {
+            DataType = EvaluatorOutputDataType.Numeric,
+            Reasoning = new EvaluatorOutputFieldDefinition { Description = "why" },
+            Score = new EvaluatorOutputScoreDefinition { Description = "0..1" }
+        };
+    }
 
-    private static Evaluator SampleEvaluator(string id = "ev-1") => new()
+    private static LlmAsJudgeEvaluator SampleEvaluator(string id = "ev-1")
     {
-        Id = id,
-        Name = "helpfulness",
-        Version = 1,
-        Scope = EvaluatorScope.Project,
-        Type = EvaluatorType.Llm_As_Judge,
-        Prompt = "Rate {{input}}",
-        Variables = new[] { "input" },
-        OutputDefinition = SampleOutput(),
-        EvaluationRuleCount = 0,
-        CreatedAt = DateTime.UtcNow,
-        UpdatedAt = DateTime.UtcNow
-    };
+        return new LlmAsJudgeEvaluator
+        {
+            Id = id,
+            Name = "helpfulness",
+            Version = 1,
+            Scope = EvaluatorScope.Project,
+            Prompt = "Rate {{input}}",
+            Variables = new[] { "input" },
+            OutputDefinition = SampleOutput(),
+            EvaluationRuleCount = 0,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+    }
 
     [Fact]
-    public async Task CreateEvaluatorAsync_PostsToUnstableEndpoint_ReturnsEvaluator()
+    public async Task CreateEvaluatorAsync_LlmAsJudge_PostsToUnstableEndpoint_ReturnsEvaluator()
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
 
-        var request = new CreateEvaluatorRequest
+        var request = new CreateLlmAsJudgeEvaluatorRequest
         {
             Name = "helpfulness",
             Prompt = "Rate {{input}}",
@@ -66,6 +71,7 @@ public class LangfuseClientEvaluatorsTests
         var result = await _client.CreateEvaluatorAsync(request);
 
         result.ShouldNotBeNull();
+        result.ShouldBeOfType<LlmAsJudgeEvaluator>();
         result.Id.ShouldBe("ev-1");
         result.Type.ShouldBe(EvaluatorType.Llm_As_Judge);
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
@@ -74,7 +80,45 @@ public class LangfuseClientEvaluatorsTests
 
         var body = await _httpHandler.GetLastRequestBodyAsync();
         body.ShouldNotBeNull();
+        body.ShouldContain("\"type\":\"llm_as_judge\"");
         body.ShouldContain("\"dataType\":\"NUMERIC\"");
+    }
+
+    [Fact]
+    public async Task CreateEvaluatorAsync_Code_SendsCodeDiscriminator_ReturnsCodeEvaluator()
+    {
+        _httpHandler.SetupJsonResponse(HttpStatusCode.OK, @"{
+            ""id"": ""ev-2"",
+            ""name"": ""length-check"",
+            ""version"": 1,
+            ""scope"": ""project"",
+            ""type"": ""code"",
+            ""variables"": [""input"", ""output""],
+            ""sourceCode"": ""def evaluate(*, output, **kwargs): return len(output)"",
+            ""sourceCodeLanguage"": ""PYTHON"",
+            ""evaluationRuleCount"": 0,
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }");
+
+        var request = new CreateCodeEvaluatorRequest
+        {
+            Name = "length-check",
+            SourceCode = "def evaluate(*, output, **kwargs): return len(output)",
+            SourceCodeLanguage = CodeEvaluatorSourceCodeLanguage.Python
+        };
+
+        var result = await _client.CreateEvaluatorAsync(request);
+
+        var codeEvaluator = result.ShouldBeOfType<CodeEvaluator>();
+        codeEvaluator.Type.ShouldBe(EvaluatorType.Code);
+        codeEvaluator.SourceCode.ShouldBe("def evaluate(*, output, **kwargs): return len(output)");
+        codeEvaluator.SourceCodeLanguage.ShouldBe(CodeEvaluatorSourceCodeLanguage.Python);
+
+        var body = await _httpHandler.GetLastRequestBodyAsync();
+        body.ShouldNotBeNull();
+        body.ShouldContain("\"type\":\"code\"");
+        body.ShouldContain("\"sourceCodeLanguage\":\"PYTHON\"");
     }
 
     [Fact]
@@ -89,13 +133,14 @@ public class LangfuseClientEvaluatorsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, new PaginatedEvaluators
         {
-            Data = new[] { SampleEvaluator() },
+            Data = new Evaluator[] { SampleEvaluator() },
             Meta = new ApiMetadata { Page = 1, Limit = 50, TotalItems = 1, TotalPages = 1 }
         });
 
         var result = await _client.GetEvaluatorsAsync();
 
         result.Data.Length.ShouldBe(1);
+        result.Data[0].ShouldBeOfType<LlmAsJudgeEvaluator>();
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath
             .ShouldBe("/api/public/unstable/evaluators");
@@ -138,6 +183,27 @@ public class LangfuseClientEvaluatorsTests
             await _client.GetEvaluatorAsync(null!));
     }
 
+    [Fact]
+    public async Task DeleteEvaluatorAsync_DeletesUnstableEndpoint_ReturnsMessage()
+    {
+        _httpHandler.SetupResponse(HttpStatusCode.OK,
+            new DeleteEvaluatorResponse { Message = "Evaluator successfully deleted" });
+
+        var result = await _client.DeleteEvaluatorAsync("ev-5");
+
+        result.Message.ShouldBe("Evaluator successfully deleted");
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
+            .ShouldBe("/api/public/unstable/evaluators/ev-5");
+    }
+
+    [Fact]
+    public async Task DeleteEvaluatorAsync_NullId_ThrowsArgumentException()
+    {
+        await Should.ThrowAsync<ArgumentException>(async () =>
+            await _client.DeleteEvaluatorAsync(null!));
+    }
+
     private class TestHttpMessageHandler : HttpMessageHandler
     {
         private readonly List<HttpRequestMessage> _requests = new();
@@ -152,6 +218,11 @@ public class LangfuseClientEvaluatorsTests
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
+            SetupJsonResponse(statusCode, json);
+        }
+
+        public void SetupJsonResponse(HttpStatusCode statusCode, string json)
+        {
             _response = new HttpResponseMessage(statusCode)
             {
                 Content = new StringContent(json, Encoding.UTF8, "application/json")

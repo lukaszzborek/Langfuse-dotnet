@@ -88,10 +88,10 @@ public class EvaluationRuleTests
     {
         var client = CreateClient();
 
-        var request = new CreateEvaluationRuleRequest
+        var request = new CreateLlmAsJudgeEvaluationRuleRequest
         {
             Name = $"rule-{Guid.NewGuid():N}"[..16],
-            Evaluator = new EvaluationRuleEvaluatorReference
+            Evaluator = new LlmAsJudgeEvaluationRuleEvaluatorReference
             {
                 Name = $"missing-{Guid.NewGuid():N}",
                 Scope = EvaluatorScope.Project

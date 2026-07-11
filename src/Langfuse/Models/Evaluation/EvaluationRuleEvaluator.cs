@@ -24,4 +24,10 @@ public class EvaluationRuleEvaluator
     /// </summary>
     [JsonPropertyName("scope")]
     public required EvaluatorScope Scope { get; init; }
+
+    /// <summary>
+    ///     Evaluator engine type.
+    /// </summary>
+    [JsonPropertyName("type")]
+    public required EvaluatorType Type { get; init; }
 }

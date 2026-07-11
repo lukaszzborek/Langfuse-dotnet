@@ -29,33 +29,42 @@ public class LangfuseClientEvaluationRulesTests
         _client = new LangfuseClient(httpClient, channel, config, logger);
     }
 
-    private static EvaluationRule SampleRule(string id = "rule-1") => new()
+    private static EvaluationRule SampleRule(string id = "rule-1")
     {
-        Id = id,
-        Name = "My rule",
-        Evaluator = new EvaluationRuleEvaluator { Id = "ev-1", Name = "helpfulness", Scope = EvaluatorScope.Project },
-        Target = EvaluationRuleTarget.Observation,
-        Enabled = true,
-        Status = EvaluationRuleStatus.Active,
-        Sampling = 1.0,
-        Filter = Array.Empty<EvaluationRuleFilter>(),
-        Mapping = new[]
+        return new EvaluationRule
         {
-            new EvaluationRuleMapping { Variable = "input", Source = EvaluationRuleMappingSource.Input }
-        },
-        CreatedAt = DateTime.UtcNow,
-        UpdatedAt = DateTime.UtcNow
-    };
+            Id = id,
+            Name = "My rule",
+            Evaluator = new EvaluationRuleEvaluator
+            {
+                Id = "ev-1", Name = "helpfulness", Scope = EvaluatorScope.Project, Type = EvaluatorType.Llm_As_Judge
+            },
+            Target = EvaluationRuleTarget.Observation,
+            Enabled = true,
+            Status = EvaluationRuleStatus.Active,
+            Sampling = 1.0,
+            Filter = Array.Empty<EvaluationRuleFilter>(),
+            Mapping = new[]
+            {
+                new EvaluationRuleMapping { Variable = "input", Source = EvaluationRuleMappingSource.Input }
+            },
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+    }
 
     [Fact]
-    public async Task CreateEvaluationRuleAsync_PostsToUnstableEndpoint_ReturnsRule()
+    public async Task CreateEvaluationRuleAsync_LlmAsJudge_PostsToUnstableEndpoint_ReturnsRule()
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule());
 
-        var request = new CreateEvaluationRuleRequest
+        var request = new CreateLlmAsJudgeEvaluationRuleRequest
         {
             Name = "My rule",
-            Evaluator = new EvaluationRuleEvaluatorReference { Name = "helpfulness", Scope = EvaluatorScope.Project },
+            Evaluator = new LlmAsJudgeEvaluationRuleEvaluatorReference
+            {
+                Name = "helpfulness", Scope = EvaluatorScope.Project
+            },
             Target = EvaluationRuleTarget.Observation,
             Enabled = true,
             Mapping = new[]
@@ -68,6 +77,7 @@ public class LangfuseClientEvaluationRulesTests
 
         result.ShouldNotBeNull();
         result.Id.ShouldBe("rule-1");
+        result.Evaluator.Type.ShouldBe(EvaluatorType.Llm_As_Judge);
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath
             .ShouldBe("/api/public/unstable/evaluation-rules");
@@ -76,6 +86,36 @@ public class LangfuseClientEvaluationRulesTests
         body.ShouldNotBeNull();
         body.ShouldContain("\"target\":\"observation\"");
         body.ShouldContain("\"source\":\"input\"");
+        body.ShouldContain("\"type\":\"llm_as_judge\"");
+    }
+
+    [Fact]
+    public async Task CreateEvaluationRuleAsync_Code_SendsCodeEvaluatorReference_WithoutMapping()
+    {
+        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule());
+
+        var request = new CreateCodeEvaluationRuleRequest
+        {
+            Name = "My code rule",
+            Evaluator = new CodeEvaluationRuleEvaluatorReference
+            {
+                Name = "length-check", Scope = EvaluatorScope.Project
+            },
+            Target = EvaluationRuleTarget.Observation,
+            Enabled = true
+        };
+
+        await _client.CreateEvaluationRuleAsync(request);
+
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
+            .ShouldBe("/api/public/unstable/evaluation-rules");
+
+        var body = await _httpHandler.GetLastRequestBodyAsync();
+        body.ShouldNotBeNull();
+        body.ShouldContain("\"type\":\"code\"");
+        body.ShouldContain("\"name\":\"length-check\"");
+        body.ShouldNotContain("mapping");
     }
 
     [Fact]

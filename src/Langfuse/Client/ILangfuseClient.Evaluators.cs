@@ -6,8 +6,9 @@ namespace zborek.Langfuse.Client;
 public partial interface ILangfuseClient
 {
     /// <summary>
-    ///     Creates an evaluator that defines how Langfuse should score data: the prompt, the expected
-    ///     structured output, and the optional model configuration
+    ///     Creates an evaluator that defines how Langfuse should score data. Use
+    ///     <see cref="CreateLlmAsJudgeEvaluatorRequest" /> for LLM-as-a-judge evaluators or
+    ///     <see cref="CreateCodeEvaluatorRequest" /> for code evaluators
     /// </summary>
     /// <param name="request">Evaluator configuration</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -43,6 +44,22 @@ public partial interface ILangfuseClient
     /// <returns>The evaluator</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
     Task<Evaluator> GetEvaluatorAsync(
+        string evaluatorId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes an evaluator including all of its stored versions
+    /// </summary>
+    /// <param name="evaluatorId">Evaluator identifier; may reference any version</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Deletion confirmation</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    /// <remarks>
+    ///     The API returns 409 while evaluation rules still reference the evaluator; delete those rules first.
+    ///     Langfuse-managed evaluators (scope=managed) cannot be deleted and return 403.
+    ///     Scores already produced by the evaluator are not deleted.
+    /// </remarks>
+    Task<DeleteEvaluatorResponse> DeleteEvaluatorAsync(
         string evaluatorId,
         CancellationToken cancellationToken = default);
 }

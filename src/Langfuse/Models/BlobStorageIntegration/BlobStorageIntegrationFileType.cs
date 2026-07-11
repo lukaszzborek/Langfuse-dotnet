@@ -22,5 +22,11 @@ public enum BlobStorageIntegrationFileType
     /// <summary>
     ///     JSON Lines file format (newline-delimited JSON)
     /// </summary>
-    Jsonl
+    Jsonl,
+
+    /// <summary>
+    ///     Parquet columnar binary format, encoded and compressed by the storage engine; gzip compression does not apply.
+    ///     Model-price columns (input_price, output_price, total_price) are not included in Parquet observation exports.
+    /// </summary>
+    Parquet
 }

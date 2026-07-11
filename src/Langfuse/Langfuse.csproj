@@ -9,13 +9,8 @@
         <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     </PropertyGroup>
 
-    <ItemGroup>
-        <InternalsVisibleTo Include="zborek.Langfuse.Tests" />
-        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-    </ItemGroup>
-
     <PropertyGroup>
-        <Version>0.9.1</Version>
+        <Version>0.10.0</Version>
         <PackageId>zborek.LangfuseDotnet</PackageId>
         <RepositoryUrl>https://github.com/lukaszzborek/Langfuse-dotnet</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -181,5 +176,10 @@
               Pack="true"
               PackagePath="analyzers/dotnet/cs"
               Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="zborek.Langfuse.Tests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 </Project>
