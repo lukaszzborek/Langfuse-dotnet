@@ -21,16 +21,6 @@ public class LangfuseConfig
     public string SecretKey { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Enable batch mode. When enabled, events will be sent in batches in background.
-    /// </summary>
-    public bool BatchMode { get; set; } = true;
-
-    /// <summary>
-    ///     Batch wait time. Default is 5 seconds.
-    /// </summary>
-    public TimeSpan BatchWaitTime { get; set; } = TimeSpan.FromSeconds(5);
-
-    /// <summary>
     ///     Default timeout for HTTP requests to Langfuse API. Default is 30 seconds.
     /// </summary>
     public TimeSpan DefaultTimeout { get; set; } = TimeSpan.FromSeconds(30);

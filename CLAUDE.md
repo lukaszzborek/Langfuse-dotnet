@@ -29,28 +29,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Main HTTP client for Langfuse API communication
 - Implements partial classes pattern for different API sections (AnnotationQueue, Comment, Dataset, etc.)
-- Handles batch ingestion with automatic size-based splitting (3.5MB limit)
-- Supports both immediate and background batch modes
 
-**LangfuseTrace** (`src/Langfuse/Services/LangfuseTrace.cs`)
+**OtelLangfuseTrace** (`src/Langfuse/OpenTelemetry/Trace/`)
 
-- Central orchestration class for trace management
-- Manages hierarchical parent-child relationships between events/spans/generations
-- Provides scoped creation methods for automatic parent ID management
-- Core observability primitive that aggregates all events before ingestion
-
-**Event System** (`src/Langfuse/Models/`)
-
-- `IIngestionEvent` - Base interface for all trackable events
-- `CreateTraceEvent` - Top-level trace container
-- `CreateSpanEvent` - Duration-based operations within traces
-- `CreateGenerationEvent` - AI model generations with LLM-specific metadata
-- `CreateEvent` - Discrete point-in-time events
+- OpenTelemetry-based tracing (`IOtelLangfuseTrace` for DI, `OtelLangfuseTrace` for direct use)
+- Uses System.Diagnostics.Activity as the core primitive; exported via OTLP
+- Provides trace/span/generation/tool-call/embedding/agent creation methods
 
 **Configuration** (`src/Langfuse/Config/LangfuseConfig.cs`)
 
 - Configurable via appsettings.json "Langfuse" section
-- Supports batch mode, retry policies, timeouts, and page sizes
+- Supports retry policies, timeouts, and page sizes
 - Default endpoint: https://cloud.langfuse.com
 
 ### Service Architecture
@@ -63,15 +52,6 @@ The client uses a **partial class pattern** where each API domain has its own fi
 - `LangfuseClient.Score.cs` - Scoring and score configuration
 - Plus additional domains (Comment, Health, Media, Model, Organization, Project, Prompt, Scim, Session)
 
-### Background Processing
-
-**LangfuseBackgroundService** (`src/Langfuse/Services/LangfuseBackgroundService.cs`)
-
-- Enabled when `BatchMode = true` in configuration
-- Uses `Channel<IIngestionEvent>` for thread-safe event queuing
-- Processes events in configurable time intervals (default 5 seconds)
-- Handles automatic batching and retry logic
-
 ### Dependency Injection Setup
 
 **Extensions.cs** - Registration pattern:
@@ -80,18 +60,10 @@ The client uses a **partial class pattern** where each API domain has its own fi
 services.AddLangfuse(configuration);
 ```
 
-- Registers `LangfuseTrace` as scoped (one per request/operation)
 - Configures HTTP clients with authentication handlers
-- Sets up background service for batch mode
 - Configures time provider for testing support
 
 ## Key Patterns
-
-### Scoped vs Non-Scoped Operations
-
-- **Non-scoped**: `CreateEvent()`, `CreateSpan()`, `CreateGeneration()` - Events remain at current hierarchy level
-- **Scoped**: `CreateEventScoped()`, `CreateSpanScoped()`, `CreateGenerationScoped()` - Events become new parent for
-  subsequent operations
 
 ### Authentication
 

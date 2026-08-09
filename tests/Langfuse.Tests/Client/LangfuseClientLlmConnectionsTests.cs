@@ -22,11 +22,10 @@ public class LangfuseClientLlmConnectionsTests
     {
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
-        var channel = Channel.CreateUnbounded<IIngestionEvent>();
         IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
-        _client = new LangfuseClient(httpClient, channel, config, logger);
+        _client = new LangfuseClient(httpClient, logger);
     }
 
     [Fact]

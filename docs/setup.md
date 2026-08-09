@@ -112,8 +112,6 @@ AddLangfuse(IServiceCollection, Action<LangfuseConfig>) — Register ILangfuseCl
 | Url              | string   | https://cloud.langfuse.com | Langfuse API endpoint      |
 | PublicKey        | string   | —                          | Langfuse public API key    |
 | SecretKey        | string   | —                          | Langfuse secret API key    |
-| BatchMode        | bool     | true                       | Enable batch mode          |
-| BatchWaitTime    | TimeSpan | 5s                         | Batch processing interval  |
 | DefaultTimeout   | TimeSpan | 30s                        | HTTP request timeout       |
 | DefaultPageSize  | int      | 50                         | Default pagination size    |
 | EnableRetry      | bool     | true                       | Auto-retry on failure      |
@@ -158,6 +156,4 @@ catch (LangfuseApiException ex)
 - **Scoped services**: IOtelLangfuseTrace is scoped (one per request/operation)
 - **Activity-based**: All tracing uses System.Diagnostics.Activity as the core primitive
 - **ActivitySource name**: "Langfuse"
-- **Batch ingestion**: 3.5MB size limit with automatic splitting
-- **Background processing**: Channel<IIngestionEvent> for thread-safe event queuing
 - **JSON serialization**: camelCase property names

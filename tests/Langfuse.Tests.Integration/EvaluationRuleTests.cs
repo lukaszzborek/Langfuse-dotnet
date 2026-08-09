@@ -34,7 +34,6 @@ public class EvaluationRuleTests
             config.Url = _fixture.LangfuseBaseUrl;
             config.PublicKey = _fixture.PublicKey;
             config.SecretKey = _fixture.SecretKey;
-            config.BatchMode = false;
         });
 
         var provider = services.BuildServiceProvider();

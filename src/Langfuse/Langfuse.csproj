@@ -172,13 +172,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\Langfuse.Analyzers\bin\$(Configuration)\netstandard2.1\*.dll"
-              Pack="true"
-              PackagePath="analyzers/dotnet/cs"
-              Visible="false" />
-    </ItemGroup>
-
-    <ItemGroup>
         <InternalsVisibleTo Include="zborek.Langfuse.Tests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>

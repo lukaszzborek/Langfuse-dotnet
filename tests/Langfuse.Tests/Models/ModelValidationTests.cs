@@ -28,38 +28,6 @@ public class ModelValidationTests
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    #region CreateGenerationEventBody Tests
-
-    [Fact]
-    public void CreateGenerationEventBody_Should_Serialize_With_UsageDetails()
-    {
-        // Arrange
-        var body = new CreateGenerationEventBody
-        {
-            Id = "gen-123",
-            TraceId = "trace-123",
-            Name = "Generation",
-            Model = "gpt-4",
-            Environment = "production",
-            UsageDetails = new Dictionary<string, int>
-            {
-                ["input_tokens"] = 100,
-                ["output_tokens"] = 50
-            }
-        };
-
-        // Act
-        var json = JsonSerializer.Serialize(body, JsonOptions);
-
-        // Assert
-        json.ShouldContain("\"environment\":\"production\"");
-        json.ShouldContain("\"usageDetails\":");
-        json.ShouldContain("\"input_tokens\":100");
-        json.ShouldContain("\"output_tokens\":50");
-    }
-
-    #endregion
-
     #region ObservationModel Tests
 
     [Fact]
@@ -113,34 +81,6 @@ public class ModelValidationTests
         result.Latency.ShouldBe(1.5);
         result.TimeToFirstToken.ShouldBe(0.2);
         result.Environment.ShouldBe("production");
-    }
-
-    #endregion
-
-    #region IIngestionEvent Metadata Tests
-
-    [Fact]
-    public void CreateScoreEvent_Should_Have_Metadata_Property()
-    {
-        // Arrange
-        var body = new CreateScoreEventBody
-        {
-            Id = "score-id",
-            TraceId = "trace-id",
-            Name = "test",
-            Value = 1.0
-        };
-        var evt = new CreateScoreEvent(body, "2024-01-15T10:00:00Z")
-        {
-            Metadata = new { debug = true }
-        };
-
-        // Act
-        var json = JsonSerializer.Serialize(evt, JsonOptions);
-
-        // Assert
-        json.ShouldContain("\"metadata\":");
-        json.ShouldContain("\"debug\":true");
     }
 
     #endregion
@@ -306,56 +246,6 @@ public class ModelValidationTests
 
     #endregion
 
-    #region CreateTraceBody Tests
-
-    [Fact]
-    public void CreateTraceBody_Should_Serialize_With_Correct_Casing()
-    {
-        // Arrange
-        var body = new CreateTraceBody
-        {
-            Id = "trace-123",
-            Name = "Test Trace",
-            Version = "1.0.0",
-            Public = true,
-            Environment = "production"
-        };
-
-        // Act
-        var json = JsonSerializer.Serialize(body, JsonOptions);
-
-        // Assert - verify camelCase properties
-        json.ShouldContain("\"version\":\"1.0.0\"");
-        json.ShouldContain("\"public\":true");
-        json.ShouldContain("\"environment\":\"production\"");
-    }
-
-    [Fact]
-    public void CreateTraceBody_Should_Deserialize_With_Correct_Casing()
-    {
-        // Arrange
-        var json = """
-                   {
-                     "id": "trace-456",
-                     "name": "Deserialization Test",
-                     "version": "2.0.0",
-                     "public": false,
-                     "environment": "staging"
-                   }
-                   """;
-
-        // Act
-        var result = JsonSerializer.Deserialize<CreateTraceBody>(json, JsonOptions);
-
-        // Assert
-        result.ShouldNotBeNull();
-        result.Version.ShouldBe("2.0.0");
-        result.Public.ShouldBe(false);
-        result.Environment.ShouldBe("staging");
-    }
-
-    #endregion
-
     #region Usage Tests
 
     [Fact]
@@ -445,34 +335,6 @@ public class ModelValidationTests
         result.DatasetRunId.ShouldBe("run-789");
         result.QueueId.ShouldBe("queue-abc");
         result.Environment.ShouldBe("production");
-    }
-
-    [Fact]
-    public void CreateScoreEventBody_Should_Serialize_With_NewProperties()
-    {
-        // Arrange
-        var body = new CreateScoreEventBody
-        {
-            Id = "score-123",
-            TraceId = "trace-456",
-            Name = "test-score",
-            Value = 0.8,
-            SessionId = "session-abc",
-            DatasetRunId = "run-xyz",
-            Environment = "staging",
-            QueueId = "queue-123",
-            Metadata = new { key = "value" }
-        };
-
-        // Act
-        var json = JsonSerializer.Serialize(body, JsonOptions);
-
-        // Assert
-        json.ShouldContain("\"sessionId\":\"session-abc\"");
-        json.ShouldContain("\"datasetRunId\":\"run-xyz\"");
-        json.ShouldContain("\"environment\":\"staging\"");
-        json.ShouldContain("\"queueId\":\"queue-123\"");
-        json.ShouldContain("\"metadata\":");
     }
 
     [Fact]
