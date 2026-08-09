@@ -469,8 +469,7 @@ internal static class QueryStringHelper
         AddParameter(parameters, "sessionId", request.SessionId);
         AddParameter(parameters, "level", request.Level?.ToString().ToUpperInvariant());
         AddParameter(parameters, "parentObservationId", request.ParentObservationId);
-        AddParameter(parameters, "isRootObservation",
-            request.IsRootObservation?.ToString().ToLowerInvariant());
+        AddParameter(parameters, "isRootObservation", request.IsRootObservation);
         AddParameter(parameters, "fromStartTime", request.FromStartTime?.ToString("O"));
         AddParameter(parameters, "toStartTime", request.ToStartTime?.ToString("O"));
         AddParameter(parameters, "version", request.Version);
@@ -581,6 +580,7 @@ internal static class QueryStringHelper
             var valueString = value switch
             {
                 int intValue => intValue.ToString(CultureInfo.InvariantCulture),
+                bool boolValue => boolValue ? "true" : "false",
                 DateTime dateTime => dateTime.ToString("O"),
                 _ => value.ToString()
             };

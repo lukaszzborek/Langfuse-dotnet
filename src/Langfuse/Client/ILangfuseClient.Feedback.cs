@@ -1,3 +1,4 @@
+using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Feedback;
 
 namespace zborek.Langfuse.Client;

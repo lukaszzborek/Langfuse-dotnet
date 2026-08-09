@@ -25,4 +25,10 @@ public class Deprecation
     /// </summary>
     [JsonPropertyName("docsUrl")]
     public string? DocsUrl { get; set; }
+
+    /// <summary>
+    ///     ISO date after which the endpoint may stop working, when a removal date is committed.
+    /// </summary>
+    [JsonPropertyName("sunsetAt")]
+    public string? SunsetAt { get; set; }
 }
