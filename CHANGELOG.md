@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-08-09
+
+### Added
+
+- Feedback API: `SubmitFeedbackAsync` (`POST /api/public/feedback`) with `SubmitFeedbackRequest`, `SubmitFeedbackResponse`, and `FeedbackTargetType` (#38)
+- `Deprecation` model surfaced as `_deprecation` on responses from deprecated endpoints (dataset runs, observations, scores, sessions, traces) (#38)
+- Observations V2 filters: `SessionId` and `IsRootObservation` on `ObservationsV2Request` (#38)
+- `ScoreCreateRequest.Source` with new `CreateScoreSource` enum (`API`, `ANNOTATION`) (#38)
+- Metrics views: `scores-boolean` supported alongside numeric and categorical (#38)
+
 ## [0.10.0] - 2026-07-11
 
 ### Added
@@ -119,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.11.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.7.0...v0.8.0
