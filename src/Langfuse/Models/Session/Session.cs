@@ -11,6 +11,12 @@ namespace zborek.Langfuse.Models.Session;
 public class SessionModel
 {
     /// <summary>
+    ///     Migration signal returned by deprecated endpoints (session detail GET only).
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Core.Deprecation? Deprecation { get; set; }
+
+    /// <summary>
     ///     Unique identifier for the session
     /// </summary>
     [JsonPropertyName("id")]

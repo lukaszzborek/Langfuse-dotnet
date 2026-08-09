@@ -466,8 +466,11 @@ internal static class QueryStringHelper
         AddParameter(parameters, "userId", request.UserId);
         AddParameter(parameters, "type", request.Type);
         AddParameter(parameters, "traceId", request.TraceId);
+        AddParameter(parameters, "sessionId", request.SessionId);
         AddParameter(parameters, "level", request.Level?.ToString().ToUpperInvariant());
         AddParameter(parameters, "parentObservationId", request.ParentObservationId);
+        AddParameter(parameters, "isRootObservation",
+            request.IsRootObservation?.ToString().ToLowerInvariant());
         AddParameter(parameters, "fromStartTime", request.FromStartTime?.ToString("O"));
         AddParameter(parameters, "toStartTime", request.ToStartTime?.ToString("O"));
         AddParameter(parameters, "version", request.Version);

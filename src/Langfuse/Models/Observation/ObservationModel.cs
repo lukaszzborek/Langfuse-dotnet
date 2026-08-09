@@ -11,6 +11,12 @@ namespace zborek.Langfuse.Models.Observation;
 public class ObservationModel
 {
     /// <summary>
+    ///     Migration signal returned by deprecated endpoints (single-observation GET only).
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Deprecation? Deprecation { get; set; }
+
+    /// <summary>
     ///     Unique identifier of the observation
     /// </summary>
     [JsonPropertyName("id")]

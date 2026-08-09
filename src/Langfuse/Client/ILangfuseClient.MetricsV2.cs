@@ -17,7 +17,7 @@ public partial interface ILangfuseClient
     /// <remarks>
     ///     <para>V2 Differences from V1:</para>
     ///     <list type="bullet">
-    ///         <item>Supports observations, scores-numeric, and scores-categorical views only (traces view not supported)</item>
+    ///         <item>Supports observations, scores-numeric, scores-boolean, and scores-categorical views only (traces view not supported)</item>
     ///         <item>Direct access to tags and release fields on observations</item>
     ///         <item>High cardinality dimensions are not supported and will return a 400 error</item>
     ///     </list>

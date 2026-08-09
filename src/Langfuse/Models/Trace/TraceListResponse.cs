@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using zborek.Langfuse.Models.Core;
 
 namespace zborek.Langfuse.Models.Trace;
@@ -7,4 +8,9 @@ namespace zborek.Langfuse.Models.Trace;
 /// </summary>
 public class TraceListResponse : PaginatedResponse<TraceModel>
 {
+    /// <summary>
+    ///     Migration signal returned by deprecated endpoints.
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Deprecation? Deprecation { get; set; }
 }

@@ -8,6 +8,11 @@ namespace zborek.Langfuse.Models.Dataset;
 /// </summary>
 public class PaginatedDatasetRuns : PaginatedResponse<DatasetRun>
 {
+    /// <summary>
+    ///     Migration signal returned by deprecated endpoints.
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Deprecation? Deprecation { get; set; }
 }
 
 /// <summary>

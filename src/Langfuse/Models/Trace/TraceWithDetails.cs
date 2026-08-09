@@ -9,6 +9,12 @@ namespace zborek.Langfuse.Models.Trace;
 public class TraceWithDetails : TraceModel
 {
     /// <summary>
+    ///     Migration signal returned by deprecated endpoints.
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Core.Deprecation? Deprecation { get; set; }
+
+    /// <summary>
     ///     Observations (generations, spans, events) associated with this trace
     /// </summary>
     [JsonPropertyName("observations")]

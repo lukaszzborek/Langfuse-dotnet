@@ -11,6 +11,12 @@ namespace zborek.Langfuse.Models.Dataset;
 public class DatasetRunWithItems
 {
     /// <summary>
+    ///     Migration signal returned by deprecated endpoints.
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Core.Deprecation? Deprecation { get; set; }
+
+    /// <summary>
     ///     Unique identifier of the dataset run.
     /// </summary>
     [JsonPropertyName("id")]
