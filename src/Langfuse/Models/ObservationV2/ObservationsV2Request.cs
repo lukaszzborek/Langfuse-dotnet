@@ -76,10 +76,26 @@ public class ObservationsV2Request
     public LangfuseLogLevel? Level { get; set; }
 
     /// <summary>
-    ///     Filter by parent observation ID.
+    ///     Filter by session ID.
+    /// </summary>
+    [JsonPropertyName("sessionId")]
+    public string? SessionId { get; set; }
+
+    /// <summary>
+    ///     Filter by the physical parent observation ID.
+    ///     An empty value matches only observations without a physical parent. Use <see cref="IsRootObservation" /> to
+    ///     include observations marked as app roots by the SDK, which may retain a non-null parentObservationId.
     /// </summary>
     [JsonPropertyName("parentObservationId")]
     public string? ParentObservationId { get; set; }
+
+    /// <summary>
+    ///     Filter by whether an observation is a logical root. Root observations include observations without a physical
+    ///     parent and observations marked as app roots by the SDK. An app-root observation may have
+    ///     isRootObservation=true and a non-null parentObservationId.
+    /// </summary>
+    [JsonPropertyName("isRootObservation")]
+    public bool? IsRootObservation { get; set; }
 
     /// <summary>
     ///     Optional filter for observations where the environment is one of the provided values.

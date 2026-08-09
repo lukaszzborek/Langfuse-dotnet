@@ -90,4 +90,10 @@ public class ScoreCreateRequest
     /// </summary>
     [JsonPropertyName("queueId")]
     public string? QueueId { get; set; }
+
+    /// <summary>
+    ///     Source of the score. Only API and ANNOTATION are accepted when creating scores; defaults to API.
+    /// </summary>
+    [JsonPropertyName("source")]
+    public CreateScoreSource? Source { get; set; }
 }

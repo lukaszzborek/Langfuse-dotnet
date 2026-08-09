@@ -9,7 +9,7 @@ namespace zborek.Langfuse.Models.MetricsV2;
 public class MetricsV2Request
 {
     /// <summary>
-    ///     The view to query. One of "observations", "scores-numeric", "scores-categorical".
+    ///     The view to query. One of "observations", "scores-numeric", "scores-boolean", "scores-categorical".
     /// </summary>
     [JsonPropertyName("view")]
     public string View { get; set; } = string.Empty;

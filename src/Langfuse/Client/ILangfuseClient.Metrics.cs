@@ -17,7 +17,7 @@ public partial interface ILangfuseClient
     /// <exception cref="LangfuseApiException">Thrown when the query is invalid or an API error occurs</exception>
     /// <remarks>
     ///     Supports complex analytics queries with:
-    ///     - Views: traces, observations, scores-numeric, scores-categorical
+    ///     - Views: traces, observations, scores-numeric, scores-boolean, scores-categorical
     ///     - Dimensions: grouping by fields like name, userId, sessionId
     ///     - Metrics: count, latency, value with aggregations (count, sum, avg, p95, histogram)
     ///     - Filters: column-based filtering with various operators

@@ -10,6 +10,12 @@ namespace zborek.Langfuse.Models.Score;
 public class ScoreModel
 {
     /// <summary>
+    ///     Migration signal returned by deprecated endpoints.
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Core.Deprecation? Deprecation { get; set; }
+
+    /// <summary>
     ///     Unique identifier of the score
     /// </summary>
     [JsonPropertyName("id")]

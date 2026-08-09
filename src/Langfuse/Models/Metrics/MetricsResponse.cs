@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Models.Core;
 
 namespace zborek.Langfuse.Models.Metrics;
 
@@ -15,4 +16,10 @@ public class MetricsResponse
     /// </summary>
     [JsonPropertyName("data")]
     public object[] Data { get; set; } = [];
+
+    /// <summary>
+    ///     Migration signal returned by deprecated endpoints.
+    /// </summary>
+    [JsonPropertyName("_deprecation")]
+    public Deprecation? Deprecation { get; set; }
 }
