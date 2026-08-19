@@ -59,6 +59,7 @@ public class DatasetRunItemTests
         return (datasetName, item.Id);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateDataSetRunAsync_LinksToTrace()
     {
@@ -88,6 +89,7 @@ public class DatasetRunItemTests
         runItem.DatasetRunName.ShouldBe(runName);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateDataSetRunAsync_WithObservation_LinksToObservation()
     {
@@ -115,6 +117,7 @@ public class DatasetRunItemTests
         runItem.ObservationId.ShouldBe(generationId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetDatasetRunListAsync_ReturnsRunItems()
     {
@@ -151,6 +154,7 @@ public class DatasetRunItemTests
         result.Data.ShouldContain(r => r.TraceId == traceId && r.DatasetItemId == itemId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateDataSetRunAsync_MultipleItemsSameRun()
     {
@@ -205,6 +209,7 @@ public class DatasetRunItemTests
         runItem2.DatasetRunName.ShouldBe(runName);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateDataSetRunAsync_CreatesNewRun()
     {
@@ -232,6 +237,7 @@ public class DatasetRunItemTests
         runs.Data.ShouldContain(r => r.Name == runName);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetDatasetRunListAsync_Pagination()
     {
@@ -287,6 +293,7 @@ public class DatasetRunItemTests
         page2.Data.Length.ShouldBe(1);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateDataSetRunAsync_ValidatesAllResponseFields()
     {
@@ -322,6 +329,7 @@ public class DatasetRunItemTests
         runItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateDataSetRunAsync_WithObservation_ValidatesAllResponseFields()
     {
@@ -355,6 +363,7 @@ public class DatasetRunItemTests
         runItem.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateDataSetRunAsync_WithoutObservation_ValidatesObservationIdIsNull()
     {

@@ -41,6 +41,7 @@ public class ScoreTests
         return new TraceTestHelper(client, _fixture);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_CreatesNumericScore()
     {
@@ -71,6 +72,7 @@ public class ScoreTests
         actualValue.ShouldBe(0.85, 0.01);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_CreatesCategoricalScore()
     {
@@ -97,6 +99,7 @@ public class ScoreTests
         fetchedScore.StringValue.ShouldBe("positive");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_CreatesBooleanScore()
     {
@@ -148,6 +151,7 @@ public class ScoreTests
         score.Id.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreAsync_ReturnsScore()
     {
@@ -174,6 +178,7 @@ public class ScoreTests
         actualValue.ShouldBe(0.75, 0.01);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreAsync_NotFound_ThrowsException()
     {
@@ -186,6 +191,7 @@ public class ScoreTests
         exception.StatusCode.ShouldBe(404);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreListAsync_ReturnsPaginatedList()
     {
@@ -228,6 +234,7 @@ public class ScoreTests
         result.Data.ShouldContain(s => s.Id == score2.Id && s.Name == $"{prefix}-2");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreListAsync_FiltersByScoreName()
     {
@@ -258,6 +265,7 @@ public class ScoreTests
         result.Data.ShouldAllBe(s => s.Name == scoreName);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task DeleteScoreAsync_DeletesScore()
     {
@@ -306,6 +314,7 @@ public class ScoreTests
         score.Id.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreListAsync_FiltersByName()
     {
@@ -336,6 +345,7 @@ public class ScoreTests
         result.Data.ShouldAllBe(s => s.Name == scoreName);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_NumericScore_ValidatesAllResponseFields()
     {
@@ -381,6 +391,7 @@ public class ScoreTests
         score.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_CategoricalScore_ValidatesAllResponseFields()
     {
@@ -414,6 +425,7 @@ public class ScoreTests
         score.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_WithObservation_ValidatesAllResponseFields()
     {
@@ -446,6 +458,7 @@ public class ScoreTests
         score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_WithoutObservation_ValidatesObservationIdIsNull()
     {
@@ -476,6 +489,7 @@ public class ScoreTests
         score.Timestamp.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreAsync_ValidatesAllResponseFields()
     {

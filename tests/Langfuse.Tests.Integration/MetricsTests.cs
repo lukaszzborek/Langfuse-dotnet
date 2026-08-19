@@ -40,6 +40,7 @@ public class MetricsTests
         return new TraceTestHelper(client, _fixture);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_ReturnsTraceMetrics()
     {
@@ -70,6 +71,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_ReturnsObservationMetrics()
     {
@@ -101,6 +103,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_GroupsByDimension()
     {
@@ -136,6 +139,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_FiltersByTimeRange()
     {
@@ -169,6 +173,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_WithLatencyMetric()
     {
@@ -200,6 +205,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_WithTimeDimension()
     {
@@ -231,6 +237,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_WithFilter()
     {
@@ -266,6 +273,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_WithRowLimit()
     {
@@ -304,6 +312,7 @@ public class MetricsTests
         response.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetMetricsAsync_ValidatesAllResponseFields()
     {

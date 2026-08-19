@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Text.Json;
 using Langfuse.Tests.Integration.Fixtures;
 using zborek.Langfuse.Client;
 using zborek.Langfuse.Models.Core;
+using zborek.Langfuse.Models.ObservationV2;
 using zborek.Langfuse.Models.Score;
 using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
@@ -34,17 +36,11 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            try
+            var response = await _client.GetObservationsV2Async(
+                new ObservationsV2Request { TraceId = traceId, Limit = 1 }, cancellationToken);
+            if (response.Data.Count > 0)
             {
-                var trace = await _client.GetTraceAsync(traceId, cancellationToken);
-                if (trace != null)
-                {
-                    return;
-                }
-            }
-            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-            {
-                // Not found yet, wait and retry
+                return;
             }
 
             await Task.Delay(500, cancellationToken);
@@ -64,17 +60,9 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            try
+            if (await ObservationExistsOnceAsync(observationId, cancellationToken))
             {
-                var observation = await _client.GetObservationAsync(observationId, cancellationToken);
-                if (observation != null)
-                {
-                    return;
-                }
-            }
-            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-            {
-                // Not found yet, wait and retry
+                return;
             }
 
             await Task.Delay(500, cancellationToken);
@@ -84,7 +72,8 @@ public class TraceTestHelper
     }
 
     /// <summary>
-    ///     Waits for a score to become available in the API with full data (handles eventual consistency)
+    ///     Waits for a score to become available in the legacy scores API (handles eventual consistency).
+    ///     Legacy only: the endpoint returns 404 on v4 events_only mode, so callers must be tagged [Trait("Legacy", "true")].
     /// </summary>
     public async Task<ScoreModel> WaitForScoreAsync(string scoreId, TimeSpan? timeout = null,
         CancellationToken cancellationToken = default)
@@ -124,17 +113,11 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            try
+            var response = await _client.GetObservationsV2Async(
+                new ObservationsV2Request { SessionId = sessionId, Limit = 1 }, cancellationToken);
+            if (response.Data.Count > 0)
             {
-                var session = await _client.GetSessionAsync(sessionId, cancellationToken);
-                if (session != null)
-                {
-                    return;
-                }
-            }
-            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-            {
-                // Not found yet, wait and retry
+                return;
             }
 
             await Task.Delay(500, cancellationToken);
@@ -746,23 +729,29 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            try
+            if (await ObservationExistsOnceAsync(observationId, cancellationToken))
             {
-                var observation = await _client.GetObservationAsync(observationId, cancellationToken);
-                if (observation != null)
-                {
-                    return true;
-                }
-            }
-            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-            {
-                // Not found, continue checking
+                return true;
             }
 
             await Task.Delay(500, cancellationToken);
         }
 
         return false;
+    }
+
+    private async Task<bool> ObservationExistsOnceAsync(string observationId, CancellationToken cancellationToken)
+    {
+        var response = await _client.GetObservationsV2Async(new ObservationsV2Request
+        {
+            Filter = JsonSerializer.Serialize(new[]
+            {
+                new { type = "string", column = "id", @operator = "=", value = observationId }
+            }),
+            Limit = 1
+        }, cancellationToken);
+
+        return response.Data.Count > 0;
     }
 }
 

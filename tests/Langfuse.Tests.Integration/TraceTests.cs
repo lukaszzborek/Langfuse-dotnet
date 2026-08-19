@@ -41,6 +41,7 @@ public class TraceTests
         return new TraceTestHelper(client, _fixture);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceListAsync_ReturnsPaginatedList()
     {
@@ -68,6 +69,7 @@ public class TraceTests
         result1.Data[0].Id.ShouldNotBe(result2.Data[0].Id);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceListAsync_FiltersByName()
     {
@@ -86,6 +88,7 @@ public class TraceTests
         result.Data[0].Name.ShouldBe(uniqueName);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceListAsync_FiltersByUserId()
     {
@@ -103,6 +106,7 @@ public class TraceTests
         result.Data.ShouldContain(t => t.UserId == userId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceListAsync_FiltersByTags()
     {
@@ -121,6 +125,7 @@ public class TraceTests
         result.Data.ShouldContain(t => t.Tags != null && t.Tags.Contains(uniqueTag));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceAsync_ReturnsTraceWithDetails()
     {
@@ -144,6 +149,7 @@ public class TraceTests
         trace.UserId.ShouldBe("test-user");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceAsync_NotFound_ThrowsException()
     {
@@ -156,6 +162,7 @@ public class TraceTests
         exception.StatusCode.ShouldBe(404);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task DeleteTraceAsync_DeletesTrace()
     {
@@ -216,6 +223,7 @@ public class TraceTests
         // due to eventual consistency with background processing.
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceListAsync_FiltersBySessionId()
     {
@@ -234,6 +242,7 @@ public class TraceTests
         result.Data.ShouldContain(t => t.SessionId == sessionId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceAsync_ValidatesAllResponseFields()
     {
@@ -280,6 +289,7 @@ public class TraceTests
         trace.Environment.ShouldNotBeNullOrEmpty();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetTraceAsync_ReturnsNonNullableFieldsWithDefaults()
     {
