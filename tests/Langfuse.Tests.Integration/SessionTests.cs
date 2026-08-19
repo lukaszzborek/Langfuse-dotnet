@@ -72,7 +72,7 @@ public class SessionTests
 
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);
-        await traceHelper.WaitForSessionAsync(sessionId);
+        await traceHelper.WaitForSessionAsync(sessionId, expectedTraceCount: 2);
 
         var session = await client.GetSessionAsync(sessionId);
 
@@ -134,7 +134,7 @@ public class SessionTests
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);
         await traceHelper.WaitForTraceAsync(traceId3);
-        await traceHelper.WaitForSessionAsync(sessionId);
+        await traceHelper.WaitForSessionAsync(sessionId, expectedTraceCount: 3);
 
         var session = await client.GetSessionAsync(sessionId);
 
@@ -157,7 +157,7 @@ public class SessionTests
 
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);
-        await traceHelper.WaitForSessionAsync(sessionId);
+        await traceHelper.WaitForSessionAsync(sessionId, expectedTraceCount: 2);
 
         var session = await client.GetSessionAsync(sessionId);
 
