@@ -226,12 +226,13 @@ public class LangfuseTestFixture : IAsyncLifetime
         Dictionary<string, string> langfuseEnvVars = GetLangfuseEnvironmentVariables();
 
         // Langfuse Worker
-        _langfuseWorkerContainer = new ContainerBuilder("docker.io/langfuse/langfuse-worker:3")
+        _langfuseWorkerContainer = new ContainerBuilder("docker.io/langfuse/langfuse-worker:4")
             .WithNetwork(_network)
             .WithNetworkAliases("langfuse-worker")
             .WithPortBinding(3030, true)
             .WithEnvironment(langfuseEnvVars)
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Listening"))
+            .WithWaitStrategy(Wait.ForUnixContainer()
+                .UntilHttpRequestIsSucceeded(r => r.ForPath("").ForPort(3030)))
             .WithImagePullPolicy(_ => true)
             .Build();
 
@@ -250,7 +251,7 @@ public class LangfuseTestFixture : IAsyncLifetime
             ["LANGFUSE_INIT_USER_PASSWORD"] = "testpassword123"
         };
 
-        _langfuseWebContainer = new ContainerBuilder("docker.io/langfuse/langfuse:3")
+        _langfuseWebContainer = new ContainerBuilder("docker.io/langfuse/langfuse:4")
             .WithNetwork(_network)
             .WithNetworkAliases("langfuse-web")
             .WithPortBinding(3000, true)
