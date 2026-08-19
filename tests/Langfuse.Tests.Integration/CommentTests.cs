@@ -203,7 +203,7 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var authorId = $"author-{Guid.NewGuid():N}";
+        var authorId = _fixture.UserId;
         var request = new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
@@ -230,7 +230,7 @@ public class CommentTests
         await traceHelper.WaitForTraceAsync(traceId);
 
         var content = "Comprehensive test comment with detailed feedback about the trace";
-        var authorId = $"author-{Guid.NewGuid():N}";
+        var authorId = _fixture.UserId;
 
         var request = new CreateCommentRequest
         {

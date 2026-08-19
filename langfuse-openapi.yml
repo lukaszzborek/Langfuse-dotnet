@@ -53,35 +53,35 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: &ref_0
-        - BasicAuth: [ ]
+        - BasicAuth: []
     post:
       description: Create an annotation queue
       operationId: annotationQueues_createQueue
       tags:
         - AnnotationQueues
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -93,27 +93,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -145,27 +145,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/annotation-queues/{queueId}/items:
     get:
@@ -212,27 +212,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     post:
       description: Add an item to an annotation queue
@@ -257,27 +257,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -315,27 +315,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     patch:
       description: Update an annotation queue item
@@ -366,27 +366,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -423,27 +423,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/annotation-queues/{queueId}/assignments:
     post:
@@ -469,27 +469,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -520,27 +520,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -556,7 +556,7 @@ paths:
       operationId: blobStorageIntegrations_getBlobStorageIntegrations
       tags:
         - BlobStorageIntegrations
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -568,27 +568,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     put:
       description: >-
@@ -598,7 +598,7 @@ paths:
       operationId: blobStorageIntegrations_upsertBlobStorageIntegration
       tags:
         - BlobStorageIntegrations
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -610,27 +610,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -663,27 +663,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: >-
@@ -709,27 +709,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/comments:
     post:
@@ -739,7 +739,7 @@ paths:
       operationId: comments_create
       tags:
         - Comments
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -751,27 +751,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -837,27 +837,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/comments/{commentId}:
     get:
@@ -883,27 +883,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/dataset-items:
     post:
@@ -911,7 +911,7 @@ paths:
       operationId: datasetItems_create
       tags:
         - DatasetItems
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -923,27 +923,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -1020,27 +1020,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/dataset-items/{id}:
     get:
@@ -1065,27 +1065,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: >-
@@ -1111,27 +1111,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/dataset-run-items:
     post:
@@ -1139,7 +1139,7 @@ paths:
       operationId: datasetRunItems_create
       tags:
         - DatasetRunItems
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -1151,27 +1151,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -1220,27 +1220,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/v2/datasets:
     get:
@@ -1274,34 +1274,34 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     post:
       description: Create a dataset
       operationId: datasets_create
       tags:
         - Datasets
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -1313,27 +1313,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -1364,27 +1364,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/datasets/{datasetName}/runs/{runName}:
     get:
@@ -1414,27 +1414,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: Delete a dataset run and all its run items. This action is irreversible.
@@ -1463,27 +1463,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/datasets/{datasetName}/runs:
     get:
@@ -1522,27 +1522,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/experiments:
     get:
@@ -1641,27 +1641,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/experiment-items:
     get:
@@ -1774,27 +1774,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/feedback:
     post:
@@ -1805,7 +1805,7 @@ paths:
       operationId: feedback_submit
       tags:
         - Feedback
-      parameters: [ ]
+      parameters: []
       responses:
         '201':
           description: ''
@@ -1817,27 +1817,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '409':
           description: ''
       security: *ref_0
@@ -1853,7 +1853,7 @@ paths:
       operationId: health_health
       tags:
         - Health
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -1865,27 +1865,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '503':
           description: ''
   /api/public/ingestion:
@@ -1930,7 +1930,7 @@ paths:
       operationId: ingestion_batch
       tags:
         - Ingestion
-      parameters: [ ]
+      parameters: []
       responses:
         '207':
           description: ''
@@ -1942,27 +1942,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -2012,7 +2012,7 @@ paths:
 
             {
               "view": string,           // Required. One of "traces", "observations", "scores-numeric", "scores-boolean", "scores-categorical"
-              "dimensions": [           // Optional. Default: [ ]
+              "dimensions": [           // Optional. Default: []
                 {
                   "field": string       // Field to group by, e.g. "name", "userId", "sessionId"
                 }
@@ -2023,7 +2023,7 @@ paths:
                   "aggregation": string // How to aggregate, e.g. "count", "sum", "avg", "p95", "histogram"
                 }
               ],
-              "filters": [              // Optional. Default: [ ]
+              "filters": [              // Optional. Default: []
                 {
                   "column": string,     // Column to filter on
                   "operator": string,   // Operator, e.g. "=", ">", "<", "contains"
@@ -2064,27 +2064,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/observations/{observationId}:
     get:
@@ -2112,27 +2112,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/observations:
     get:
@@ -2400,27 +2400,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/scores/{scoreId}:
     delete:
@@ -2442,27 +2442,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/llm-connections:
     get:
@@ -2496,27 +2496,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     put:
       description: >-
@@ -2525,7 +2525,7 @@ paths:
       operationId: llmConnections_upsert
       tags:
         - LlmConnections
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -2537,27 +2537,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -2590,27 +2590,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/media/{mediaId}:
     get:
@@ -2636,27 +2636,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     patch:
       description: Patch a media record
@@ -2677,27 +2677,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -2711,7 +2711,7 @@ paths:
       operationId: media_getUploadUrl
       tags:
         - Media
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -2723,27 +2723,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -2992,7 +2992,7 @@ paths:
 
             {
               "view": string,           // Required. One of "observations", "scores-numeric", "scores-boolean", "scores-categorical"
-              "dimensions": [           // Optional. Default: [ ]
+              "dimensions": [           // Optional. Default: []
                 {
                   "field": string       // Field to group by (see available dimensions above)
                 }
@@ -3003,7 +3003,7 @@ paths:
                   "aggregation": string // How to aggregate: "sum", "avg", "count", "max", "min", "p50", "p75", "p90", "p95", "p99", "histogram"
                 }
               ],
-              "filters": [              // Optional. Default: [ ]
+              "filters": [              // Optional. Default: []
                 {
                   "column": string,     // Column to filter on (any dimension field)
                   "operator": string,   // Operator based on type:
@@ -3068,27 +3068,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/models:
     post:
@@ -3096,7 +3096,7 @@ paths:
       operationId: models_create
       tags:
         - Models
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -3108,27 +3108,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -3167,27 +3167,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/models/{id}:
     get:
@@ -3212,27 +3212,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: >-
@@ -3255,27 +3255,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/v2/observations:
     get:
@@ -3696,27 +3696,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/otel/v1/traces:
     post:
@@ -3755,7 +3755,7 @@ paths:
       operationId: opentelemetry_exportTraces
       tags:
         - Opentelemetry
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -3767,27 +3767,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -3813,7 +3813,7 @@ paths:
       operationId: organizations_getOrganizationMemberships
       tags:
         - Organizations
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -3825,27 +3825,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     put:
       description: >-
@@ -3854,7 +3854,7 @@ paths:
       operationId: organizations_updateOrganizationMembership
       tags:
         - Organizations
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -3866,27 +3866,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -3901,7 +3901,7 @@ paths:
       operationId: organizations_deleteOrganizationMembership
       tags:
         - Organizations
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -3913,27 +3913,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -3966,27 +3966,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     put:
       description: >-
@@ -4013,27 +4013,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -4066,27 +4066,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -4102,7 +4102,7 @@ paths:
       operationId: organizations_getOrganizationProjects
       tags:
         - Organizations
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -4114,27 +4114,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/organizations/apiKeys:
     get:
@@ -4144,7 +4144,7 @@ paths:
       operationId: organizations_getOrganizationApiKeys
       tags:
         - Organizations
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -4156,27 +4156,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/projects:
     get:
@@ -4187,7 +4187,7 @@ paths:
       operationId: projects_get
       tags:
         - Projects
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -4199,34 +4199,34 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     post:
       description: Create a new project (requires organization-scoped API key)
       operationId: projects_create
       tags:
         - Projects
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -4238,27 +4238,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -4306,27 +4306,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -4376,27 +4376,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/projects/{projectId}/apiKeys:
     get:
@@ -4421,27 +4421,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     post:
       description: >-
@@ -4467,27 +4467,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -4540,27 +4540,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/v2/prompts/{name}/versions/{version}:
     patch:
@@ -4596,27 +4596,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -4690,27 +4690,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: >-
@@ -4751,27 +4751,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/v2/prompts:
     get:
@@ -4843,34 +4843,34 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     post:
       description: Create a new version for the prompt with the given `name`
       operationId: prompts_create
       tags:
         - Prompts
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -4882,27 +4882,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -4918,7 +4918,7 @@ paths:
       operationId: scim_getServiceProviderConfig
       tags:
         - Scim
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -4930,27 +4930,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/scim/ResourceTypes:
     get:
@@ -4958,7 +4958,7 @@ paths:
       operationId: scim_getResourceTypes
       tags:
         - Scim
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -4970,27 +4970,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/scim/Schemas:
     get:
@@ -4998,7 +4998,7 @@ paths:
       operationId: scim_getSchemas
       tags:
         - Scim
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -5010,27 +5010,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/scim/Users:
     get:
@@ -5071,27 +5071,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     post:
       description: >-
@@ -5100,7 +5100,7 @@ paths:
       operationId: scim_createUser
       tags:
         - Scim
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -5112,27 +5112,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -5187,27 +5187,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: >-
@@ -5234,27 +5234,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/score-configs:
     post:
@@ -5264,7 +5264,7 @@ paths:
       operationId: scoreConfigs_create
       tags:
         - ScoreConfigs
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -5276,27 +5276,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -5337,27 +5337,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/score-configs/{configId}:
     get:
@@ -5383,27 +5383,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     patch:
       description: Update a score config
@@ -5428,27 +5428,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -5678,27 +5678,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/scores:
     post:
@@ -5708,7 +5708,7 @@ paths:
       operationId: scores_create
       tags:
         - Scores
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -5720,27 +5720,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -5951,27 +5951,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/v2/scores/{scoreId}:
     get:
@@ -6001,27 +6001,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/sessions:
     get:
@@ -6100,27 +6100,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/sessions/{sessionId}:
     get:
@@ -6158,27 +6158,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/traces/{traceId}:
     get:
@@ -6217,27 +6217,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: Delete a specific trace
@@ -6262,27 +6262,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
   /api/public/traces:
     get:
@@ -6589,34 +6589,34 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
     delete:
       description: Delete multiple traces
       operationId: trace_deleteMultiple
       tags:
         - Trace
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -6628,27 +6628,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
       security: *ref_0
       requestBody:
         required: true
@@ -6701,27 +6701,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -6769,7 +6769,7 @@ paths:
       operationId: unstable_dashboardWidgets_create
       tags:
         - UnstableDashboardWidgets
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -6781,27 +6781,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -6847,27 +6847,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -6912,27 +6912,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -6978,27 +6978,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '409':
           description: ''
           content:
@@ -7052,27 +7052,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7091,7 +7091,7 @@ paths:
       operationId: unstable_dashboards_create
       tags:
         - UnstableDashboards
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -7103,27 +7103,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7166,27 +7166,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7222,27 +7222,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7284,27 +7284,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7351,27 +7351,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '409':
           description: ''
           content:
@@ -7429,27 +7429,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7498,27 +7498,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7626,7 +7626,7 @@ paths:
       operationId: unstable_evaluationRules_create
       tags:
         - UnstableEvaluationRules
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -7638,27 +7638,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '409':
           description: ''
           content:
@@ -7728,27 +7728,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7795,27 +7795,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -7901,27 +7901,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '422':
           description: ''
           content:
@@ -7975,27 +7975,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -8087,7 +8087,7 @@ paths:
       operationId: unstable_evaluators_create
       tags:
         - UnstableEvaluators
-      parameters: [ ]
+      parameters: []
       responses:
         '200':
           description: ''
@@ -8099,27 +8099,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '409':
           description: ''
           content:
@@ -8194,27 +8194,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -8258,27 +8258,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '429':
           description: ''
           content:
@@ -8330,27 +8330,27 @@ paths:
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '401':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '403':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '404':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '405':
           description: ''
           content:
             application/json:
-              schema: { }
+              schema: {}
         '409':
           description: ''
           content:
@@ -10767,7 +10767,7 @@ components:
 
         - Exactly one tier must have isDefault=true (the fallback tier)
 
-        - The default tier must have priority=0 and conditions=[ ]
+        - The default tier must have priority=0 and conditions=[]
 
         - All tier names and priorities must be unique within the model
 
@@ -10798,7 +10798,7 @@ components:
 
             - Must have priority=0
 
-            - Must have empty conditions array (conditions=[ ])
+            - Must have empty conditions array (conditions=[])
 
 
             The default tier acts as a fallback when no conditional tiers match.
@@ -10823,7 +10823,7 @@ components:
             logic).
 
 
-            The default tier must have an empty array (conditions=[ ]).
+            The default tier must have an empty array (conditions=[]).
 
             Conditional tiers should define one or more conditions that specify
             when this tier's pricing applies.
@@ -11753,7 +11753,7 @@ components:
       title: SDKLogBody
       type: object
       properties:
-        log: { }
+        log: {}
       required:
         - log
     ScoreBody:
@@ -12509,7 +12509,7 @@ components:
 
             - For models with standard flat pricing: Create a single default
             tier with your prices
-              (e.g., one tier with isDefault=true, priority=0, conditions=[ ], and your standard prices)
+              (e.g., one tier with isDefault=true, priority=0, conditions=[], and your standard prices)
 
             - For models with threshold-based pricing: Create a default tier
             plus additional conditional tiers
@@ -12521,7 +12521,7 @@ components:
             (inputPrice/outputPrice/totalPrice) - use one approach or the other
 
             - Must include exactly one default tier with isDefault=true,
-            priority=0, and conditions=[ ]
+            priority=0, and conditions=[]
 
             - All tier names and priorities must be unique within the model
 
@@ -12723,7 +12723,7 @@ components:
       title: OtelTraceResponse
       type: object
       description: Response from trace export request. Empty object indicates success.
-      properties: { }
+      properties: {}
     MembershipRole:
       title: MembershipRole
       type: string
@@ -13155,7 +13155,7 @@ components:
           type: string
         version:
           type: integer
-        config: { }
+        config: {}
         labels:
           type: array
           items:
@@ -13452,7 +13452,7 @@ components:
           type: string
         attributes:
           type: array
-          items: { }
+          items: {}
         meta:
           $ref: '#/components/schemas/ResourceMeta'
       required:
@@ -13551,7 +13551,7 @@ components:
       title: EmptyResponse
       type: object
       description: Empty response for 204 No Content responses
-      properties: { }
+      properties: {}
     ScoreConfigs:
       title: ScoreConfigs
       type: object
@@ -15757,7 +15757,7 @@ components:
           description: Human-readable explanation of the validation failure.
         path:
           type: array
-          items: { }
+          items: {}
           description: Path to the invalid field, for example `["mapping", 0, "jsonPath"]`.
       required:
         - code
@@ -16105,7 +16105,7 @@ components:
 
         - if `target=experiment` and you want a dataset filter, call `GET
         /api/public/v2/datasets` first and use dataset `id` values in
-        `filter[ ].value`
+        `filter[].value`
 
         - for `llm_as_judge`, fetch or inspect the evaluator first and provide a
         complete variable mapping for every evaluator variable
