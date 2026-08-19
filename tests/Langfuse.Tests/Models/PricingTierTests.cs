@@ -19,7 +19,7 @@ public class PricingTierTests
     public void PricingTierCondition_Should_Serialize_Correctly()
     {
         // Arrange
-        var condition = new PricingTierCondition
+        var condition = new PricingTierUsageCondition
         {
             UsageDetailPattern = "^input",
             Operator = PricingTierOperator.Gte,
@@ -51,14 +51,102 @@ public class PricingTierTests
                    """;
 
         // Act
-        var result = JsonSerializer.Deserialize<PricingTierCondition>(json, JsonOptions);
+        var result = JsonSerializer.Deserialize<PricingTierCondition>(json, JsonOptions)
+            .ShouldBeOfType<PricingTierUsageCondition>();
 
         // Assert
-        result.ShouldNotBeNull();
         result.UsageDetailPattern.ShouldBe("^output");
         result.Operator.ShouldBe(PricingTierOperator.Gt);
         result.Value.ShouldBe(50000);
         result.CaseSensitive.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void PricingTierAttributeCondition_Should_Serialize_Correctly()
+    {
+        // Arrange
+        var condition = new PricingTierAttributeCondition
+        {
+            Source = PricingTierAttributeSource.ModelParameters,
+            Key = "service_tier",
+            Values = ["priority", "flex"]
+        };
+
+        // Act
+        var json = JsonSerializer.Serialize<PricingTierCondition>(condition, JsonOptions);
+
+        // Assert
+        json.ShouldContain("\"source\":\"model_parameters\"");
+        json.ShouldContain("\"key\":\"service_tier\"");
+        json.ShouldContain("\"operator\":\"in\"");
+        json.ShouldContain("\"values\":[\"priority\",\"flex\"]");
+        json.ShouldNotContain("usageDetailPattern");
+    }
+
+    [Fact]
+    public void PricingTierAttributeCondition_Should_Deserialize_Correctly()
+    {
+        // Arrange
+        var json = """
+                   {
+                     "source": "metadata",
+                     "key": "tier",
+                     "operator": "in",
+                     "values": ["gold"]
+                   }
+                   """;
+
+        // Act
+        var result = JsonSerializer.Deserialize<PricingTierCondition>(json, JsonOptions)
+            .ShouldBeOfType<PricingTierAttributeCondition>();
+
+        // Assert
+        result.Source.ShouldBe(PricingTierAttributeSource.Metadata);
+        result.Key.ShouldBe("tier");
+        result.Operator.ShouldBe("in");
+        result.Values.ShouldBe(["gold"]);
+    }
+
+    [Fact]
+    public void PricingTierCondition_Should_Throw_On_Unknown_Shape()
+    {
+        Should.Throw<JsonException>(() =>
+            JsonSerializer.Deserialize<PricingTierCondition>("""{"operator":"gt","value":1}""", JsonOptions));
+    }
+
+    [Fact]
+    public void PricingTier_Should_Round_Trip_Mixed_Conditions()
+    {
+        // Arrange
+        var tier = new PricingTier
+        {
+            Id = "tier_mixed",
+            Name = "Mixed",
+            IsDefault = false,
+            Priority = 1,
+            Conditions =
+            [
+                new PricingTierUsageCondition
+                {
+                    UsageDetailPattern = "^input", Operator = PricingTierOperator.Gt, Value = 200000
+                },
+                new PricingTierAttributeCondition
+                {
+                    Source = PricingTierAttributeSource.ModelParameters, Key = "service_tier", Values = ["priority"]
+                }
+            ],
+            Prices = new Dictionary<string, double> { ["input"] = 0.00001 }
+        };
+
+        // Act
+        var json = JsonSerializer.Serialize(tier, JsonOptions);
+        var result = JsonSerializer.Deserialize<PricingTier>(json, JsonOptions);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Conditions.Count.ShouldBe(2);
+        result.Conditions[0].ShouldBeOfType<PricingTierUsageCondition>().Value.ShouldBe(200000);
+        result.Conditions[1].ShouldBeOfType<PricingTierAttributeCondition>().Values.ShouldBe(["priority"]);
     }
 
     #endregion
@@ -109,7 +197,7 @@ public class PricingTierTests
             Priority = 1,
             Conditions =
             [
-                new PricingTierCondition
+                new PricingTierUsageCondition
                 {
                     UsageDetailPattern = "^input",
                     Operator = PricingTierOperator.Gte,
@@ -178,10 +266,11 @@ public class PricingTierTests
         result.IsDefault.ShouldBeFalse();
         result.Priority.ShouldBe(2);
         result.Conditions.Count.ShouldBe(2);
-        result.Conditions[0].UsageDetailPattern.ShouldBe("^input_tokens$");
-        result.Conditions[0].Operator.ShouldBe(PricingTierOperator.Gt);
-        result.Conditions[0].CaseSensitive.ShouldBeFalse();
-        result.Conditions[1].UsageDetailPattern.ShouldBe("^output_tokens$");
+        var first = result.Conditions[0].ShouldBeOfType<PricingTierUsageCondition>();
+        first.UsageDetailPattern.ShouldBe("^input_tokens$");
+        first.Operator.ShouldBe(PricingTierOperator.Gt);
+        first.CaseSensitive.ShouldBeFalse();
+        result.Conditions[1].ShouldBeOfType<PricingTierUsageCondition>().UsageDetailPattern.ShouldBe("^output_tokens$");
         result.Prices.Count.ShouldBe(3);
         result.Prices["input"].ShouldBe(0.000005);
         result.Prices["output"].ShouldBe(0.00002);
@@ -203,7 +292,7 @@ public class PricingTierTests
             Priority = 1,
             Conditions =
             [
-                new PricingTierCondition
+                new PricingTierUsageCondition
                 {
                     UsageDetailPattern = "^input",
                     Operator = PricingTierOperator.Gte,
@@ -320,7 +409,7 @@ public class PricingTierTests
         extendedTier.Name.ShouldBe("Extended");
         extendedTier.Priority.ShouldBe(1);
         extendedTier.Conditions.Count.ShouldBe(1);
-        extendedTier.Conditions[0].Operator.ShouldBe(PricingTierOperator.Gte);
+        extendedTier.Conditions[0].ShouldBeOfType<PricingTierUsageCondition>().Operator.ShouldBe(PricingTierOperator.Gte);
     }
 
     #endregion

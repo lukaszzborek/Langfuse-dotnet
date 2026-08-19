@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking:** `PricingTierCondition` is now an abstract base of `PricingTierUsageCondition` (the previous regex/threshold shape) and new `PricingTierAttributeCondition` (`Source`: `PricingTierAttributeSource.ModelParameters`/`Metadata`, `Key`, `Operator` = `in`, `Values`). Replace `new PricingTierCondition { ... }` with `new PricingTierUsageCondition { ... }`. Deserialization picks the concrete type by shape.
+- Marked Langfuse v3 endpoints as `[Obsolete]` per OpenAPI spec (removed on Langfuse Cloud 2026-11-16, on self-hosted when upgrading to v4): `GetDatasetRunAsync`, `DeleteDatasetRunAsync`, `GetDatasetRunsAsync`, `CreateDataSetRunAsync`, `GetDatasetRunListAsync`, `GetScoreListAsync`, `GetScoreAsync`, `GetTraceListAsync`, `GetTraceAsync`, `GetObservationAsync`, `GetSessionListAsync`, `GetSessionAsync`. Existing obsolete messages for `IngestAsync`, `GetMetricsAsync`, `GetObservationListAsync` updated with removal date and replacements.
+- Doc comments synced with spec: `CreateCommentRequest.AuthorUserId` must be an org member, `CreateScimUserRequest.Password` is ignored, `BlobStorageExportSource`/`ExportSource` default and availability notes.
+
 ## [0.11.0] - 2026-08-09
 
 ### Added

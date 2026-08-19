@@ -3,6 +3,7 @@
 > ILangfuseClient provides full access to the Langfuse REST API.
 > All methods accept an optional `CancellationToken`.
 > See [api-types.md](api-types.md) for request/response type definitions.
+> Methods marked `[Obsolete]` call Langfuse v3 endpoints that are removed on Langfuse Cloud on 2026-11-16 and on self-hosted when upgrading to v4; the attribute message names the replacement. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4
 
 ## Prompts
 
@@ -26,9 +27,9 @@ var prompt = await _langfuseClient.GetPromptAsync("my-prompt", label: "productio
 GetDatasetListAsync(DatasetListRequest) → PaginatedDatasets
 GetDatasetAsync(name) → DatasetModel
 CreateDatasetAsync(CreateDatasetRequest) → DatasetModel
-GetDatasetRunAsync(datasetName, runName) → DatasetRunWithItems
-DeleteDatasetRunAsync(datasetName, runName) → DeleteDatasetRunResponse
-GetDatasetRunsAsync(datasetName, DatasetRunListRequest) → PaginatedDatasetRuns
+GetDatasetRunAsync(datasetName, runName) → DatasetRunWithItems   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+DeleteDatasetRunAsync(datasetName, runName) → DeleteDatasetRunResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+GetDatasetRunsAsync(datasetName, DatasetRunListRequest) → PaginatedDatasetRuns   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 ```
 
 ## Dataset Items
@@ -44,15 +45,15 @@ DeleteDatasetItemAsync(id) → DeleteDatasetItemResponse
 ## Dataset Run Items
 
 ```
-GetDatasetRunItemListAsync(datasetName, runName, DatasetRunItemListRequest) → PaginatedDatasetRunItems
-CreateDatasetRunItemAsync(CreateDatasetRunItemRequest) → DatasetRunItemListRequest
+GetDatasetRunItemListAsync(datasetName, runName, DatasetRunItemListRequest) → PaginatedDatasetRunItems   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+CreateDatasetRunItemAsync(CreateDatasetRunItemRequest) → DatasetRunItemListRequest   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 ```
 
 ## Scores
 
 ```
-GetScoreListAsync(ScoreListRequest?) → ScoreListResponse
-GetScoreAsync(id) → ScoreModel
+GetScoreListAsync(ScoreListRequest?) → ScoreListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+GetScoreAsync(id) → ScoreModel   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 CreateScoreAsync(ScoreCreateRequest) → CreateScoreResponse
 DeleteScoreAsync(id)
 ```
@@ -80,8 +81,8 @@ DeleteScoreConfigAsync(id)
 ## Traces
 
 ```
-GetTraceListAsync(TraceListRequest?) → TraceListResponse
-GetTraceAsync(id) → TraceWithDetails
+GetTraceListAsync(TraceListRequest?) → TraceListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+GetTraceAsync(id) → TraceWithDetails   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 DeleteTraceAsync(id) → DeleteTraceResponse
 DeleteTraceManyAsync(DeleteTraceManyRequest) → DeleteTraceResponse
 ```
@@ -89,16 +90,16 @@ DeleteTraceManyAsync(DeleteTraceManyRequest) → DeleteTraceResponse
 ## Observations
 
 ```
-GetObservationListAsync(ObservationListRequest?) → ObservationListResponse
-GetObservationAsync(id) → ObservationModel
+GetObservationListAsync(ObservationListRequest?) → ObservationListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+GetObservationAsync(id) → ObservationModel   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 GetObservationsV2Async(ObservationsV2Request) → ObservationsV2Response
 ```
 
 ## Sessions
 
 ```
-GetSessionListAsync(SessionListRequest?) → SessionListResponse
-GetSessionAsync(id) → Session
+GetSessionListAsync(SessionListRequest?) → SessionListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+GetSessionAsync(id) → Session   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 ```
 
 ## Comments
@@ -129,7 +130,7 @@ CreateModelAsync(CreateModelRequest) → Model
 ## Metrics
 
 ```
-GetMetricsAsync(MetricsRequest) → MetricsResponse
+GetMetricsAsync(MetricsRequest) → MetricsResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 GetMetricsV2Async(MetricsV2Request) → MetricsV2Response
 ```
 

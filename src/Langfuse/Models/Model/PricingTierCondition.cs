@@ -1,10 +1,32 @@
 using System.Text.Json.Serialization;
+using zborek.Langfuse.Converters;
 
 namespace zborek.Langfuse.Models.Model;
 
 /// <summary>
-///     Condition for matching a pricing tier based on usage details.
-///     Used to implement tiered pricing models where costs vary based on usage thresholds.
+///     Condition for matching a pricing tier against usage details or observation attributes.
+///     All conditions in a tier must be met (AND logic) for the tier to match.
+/// </summary>
+/// <remarks>
+///     <para>Two kinds of conditions exist:</para>
+///     <list type="bullet">
+///         <item>
+///             <see cref="PricingTierUsageCondition" /> treats <c>usageDetailPattern</c> as a regex, sums all matching
+///             usage values and compares the sum to a numeric threshold.
+///         </item>
+///         <item>
+///             <see cref="PricingTierAttributeCondition" /> matches an exact top-level model parameter or metadata key
+///             against one or more string values.
+///         </item>
+///     </list>
+/// </remarks>
+[JsonConverter(typeof(PricingTierConditionConverter))]
+public abstract class PricingTierCondition
+{
+}
+
+/// <summary>
+///     Condition that sums usage details whose keys match a regex and compares the sum to a numeric threshold.
 /// </summary>
 /// <remarks>
 ///     <para>How it works:</para>
@@ -12,10 +34,9 @@ namespace zborek.Langfuse.Models.Model;
 ///         <item>The regex pattern matches against usage detail keys (e.g., "input_tokens", "input_cached")</item>
 ///         <item>Values of all matching keys are summed together</item>
 ///         <item>The sum is compared against the threshold value using the specified operator</item>
-///         <item>All conditions in a tier must be met (AND logic) for the tier to match</item>
 ///     </list>
 /// </remarks>
-public class PricingTierCondition
+public class PricingTierUsageCondition : PricingTierCondition
 {
     /// <summary>
     ///     Regex pattern to match against usage detail keys.
@@ -46,4 +67,52 @@ public class PricingTierCondition
     /// </summary>
     [JsonPropertyName("caseSensitive")]
     public bool CaseSensitive { get; set; }
+}
+
+/// <summary>
+///     Condition that matches any configured value for a top-level observation attribute
+///     (model parameter or metadata), e.g. a provider service tier.
+/// </summary>
+public class PricingTierAttributeCondition : PricingTierCondition
+{
+    /// <summary>
+    ///     Observation attribute object evaluated by this condition.
+    /// </summary>
+    [JsonPropertyName("source")]
+    public PricingTierAttributeSource Source { get; set; }
+
+    /// <summary>
+    ///     Exact top-level attribute key.
+    /// </summary>
+    [JsonPropertyName("key")]
+    public string Key { get; set; } = string.Empty;
+
+    /// <summary>
+    ///     Membership operator. Always <c>in</c>.
+    /// </summary>
+    [JsonPropertyName("operator")]
+    public string Operator { get; set; } = "in";
+
+    /// <summary>
+    ///     Accepted string attribute values. At least one value is required.
+    /// </summary>
+    [JsonPropertyName("values")]
+    public List<string> Values { get; set; } = [];
+}
+
+/// <summary>
+///     Observation attribute object evaluated by a <see cref="PricingTierAttributeCondition" />.
+/// </summary>
+[JsonConverter(typeof(SnakeCaseLowerEnumConverter<PricingTierAttributeSource>))]
+public enum PricingTierAttributeSource
+{
+    /// <summary>
+    ///     Top-level keys of the observation's model parameters.
+    /// </summary>
+    ModelParameters,
+
+    /// <summary>
+    ///     Top-level keys of the observation's metadata.
+    /// </summary>
+    Metadata
 }

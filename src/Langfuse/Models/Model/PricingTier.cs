@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Model;
 
 /// <summary>
-///     Pricing tier definition with conditional pricing based on usage thresholds.
+///     Pricing tier definition with conditional pricing based on usage thresholds or observation attributes.
 /// </summary>
 /// <remarks>
 ///     <para>
 ///         Pricing tiers enable accurate cost tracking for LLM providers that charge different rates
-///         based on usage patterns. For example, some providers charge higher rates when context size
-///         exceeds certain thresholds.
+///         based on usage patterns or request attributes. For example, some providers charge higher rates
+///         when context size exceeds certain thresholds or when an accelerated service tier is selected.
 ///     </para>
 ///     <para>How tier matching works:</para>
 ///     <list type="number">
@@ -54,6 +54,9 @@ public class PricingTier
     ///     Array of conditions that must ALL be met for this tier to match (AND logic).
     ///     The default tier must have an empty conditions array.
     ///     Conditional tiers should have one or more conditions that define when this tier's pricing applies.
+    ///     Conditions can compare summed matching usage details to a numeric threshold
+    ///     (<see cref="PricingTierUsageCondition" />), or exactly match a top-level model parameter or metadata
+    ///     value (<see cref="PricingTierAttributeCondition" />).
     /// </summary>
     [JsonPropertyName("conditions")]
     public List<PricingTierCondition> Conditions { get; set; } = [];

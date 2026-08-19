@@ -56,6 +56,9 @@ public class PricingTierInput
     ///     Array of conditions that must ALL be met for this tier to match (AND logic).
     ///     The default tier must have an empty array.
     ///     Conditional tiers should define one or more conditions that specify when this tier's pricing applies.
+    ///     Conditions can compare summed matching usage details to a numeric threshold
+    ///     (<see cref="PricingTierUsageCondition" />), or exactly match a top-level model parameter or metadata
+    ///     value (<see cref="PricingTierAttributeCondition" />).
     /// </summary>
     [JsonPropertyName("conditions")]
     public List<PricingTierCondition> Conditions { get; set; } = [];
