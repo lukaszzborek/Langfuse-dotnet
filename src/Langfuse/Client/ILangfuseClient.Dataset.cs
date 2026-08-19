@@ -41,6 +41,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The dataset run with all its items and execution details</returns>
     /// <exception cref="LangfuseApiException">Thrown when the dataset run is not found or an API error occurs</exception>
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, dataset runs are replaced by experiments; use GetExperimentsAsync (GET /api/public/experiments) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     Task<DatasetRunWithItems> GetDatasetRunAsync(string datasetName, string runName,
         CancellationToken cancellationToken = default);
 
@@ -53,6 +54,7 @@ public partial interface ILangfuseClient
     /// <returns>Deletion confirmation response</returns>
     /// <exception cref="LangfuseApiException">Thrown when the dataset run is not found or deletion fails</exception>
     /// <remarks>This action is irreversible and will permanently delete all run items associated with the run</remarks>
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, dataset runs are replaced by experiments. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     Task<DeleteDatasetRunResponse> DeleteDatasetRunAsync(string datasetName, string runName,
         CancellationToken cancellationToken = default);
 
@@ -64,6 +66,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Paginated list of dataset runs with execution metadata</returns>
     /// <exception cref="LangfuseApiException">Thrown when the dataset is not found or an API error occurs</exception>
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, dataset runs are replaced by experiments; use GetExperimentsAsync (GET /api/public/experiments) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     Task<PaginatedDatasetRuns> GetDatasetRunsAsync(string datasetName, DatasetRunListRequest request,
         CancellationToken cancellationToken = default);
 }

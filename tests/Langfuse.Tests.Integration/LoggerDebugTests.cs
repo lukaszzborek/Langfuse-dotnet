@@ -62,8 +62,8 @@ public class LoggerDebugTests
 
             health.ShouldNotBeNull();
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -85,7 +85,7 @@ public class LoggerDebugTests
         {
             await client.GetHealthAsync();
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
+            var logs = collector.GetSnapshot();
             var completionLog = logs.FirstOrDefault(l =>
                 l.Level == LogLevel.Debug &&
                 l.Message.Contains("Successfully completed") &&
@@ -118,8 +118,8 @@ public class LoggerDebugTests
         {
             await client.GetHealthAsync();
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldBeEmpty();
         }
@@ -159,8 +159,8 @@ public class LoggerDebugTests
                 DataType = ScoreDataType.Numeric
             });
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -194,7 +194,7 @@ public class LoggerDebugTests
                 DataType = ScoreDataType.Numeric
             });
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
+            var logs = collector.GetSnapshot();
             var startLog = logs.FirstOrDefault(l =>
                 l.Level == LogLevel.Debug &&
                 l.Message.Contains("Starting") &&
@@ -225,8 +225,8 @@ public class LoggerDebugTests
                 DataType = ScoreDataType.Numeric
             });
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldBeEmpty();
         }
@@ -253,8 +253,8 @@ public class LoggerDebugTests
                 IsArchived = true
             });
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -312,8 +312,8 @@ public class LoggerDebugTests
 
             await client.DeleteScoreAsync(score.Id);
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -341,8 +341,8 @@ public class LoggerDebugTests
 
             result.ShouldNotBeNull();
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -368,7 +368,7 @@ public class LoggerDebugTests
 
             await client.DeleteTraceAsync(traceId);
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
+            var logs = collector.GetSnapshot();
             var completionLog = logs.FirstOrDefault(l =>
                 l.Level == LogLevel.Debug &&
                 l.Message.Contains("Successfully completed") &&
@@ -400,8 +400,8 @@ public class LoggerDebugTests
 
             result.ShouldNotBeNull();
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -413,6 +413,7 @@ public class LoggerDebugTests
         }
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetAsync_NotFound_WithDebugEnabled_LogsStartingBeforeError()
     {
@@ -426,8 +427,8 @@ public class LoggerDebugTests
 
             exception.StatusCode.ShouldBe(404);
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -447,8 +448,8 @@ public class LoggerDebugTests
             await Should.ThrowAsync<TaskCanceledException>(async () =>
                 await client.GetHealthAsync(cts.Token));
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> warningLogs = logs.Where(l => l.Level == LogLevel.Warning).ToList();
+            var logs = collector.GetSnapshot();
+            var warningLogs = logs.Where(l => l.Level == LogLevel.Warning).ToList();
 
             warningLogs.ShouldContain(l =>
                 l.Message.Contains("cancelled") &&
@@ -479,8 +480,8 @@ public class LoggerDebugTests
 
             updated.ShouldNotBeNull();
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
@@ -509,8 +510,8 @@ public class LoggerDebugTests
 
             await client.DeletePromptAsync(promptName, 1);
 
-            IReadOnlyList<FakeLogRecord> logs = collector.GetSnapshot();
-            List<FakeLogRecord> debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
+            var logs = collector.GetSnapshot();
+            var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&

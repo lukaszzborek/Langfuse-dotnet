@@ -6,6 +6,7 @@ namespace zborek.Langfuse.Client;
 internal partial class LangfuseClient
 {
     /// <inheritdoc />
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, read session data via GetObservationsV2Async with a sessionId filter. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<SessionListResponse> GetSessionListAsync(SessionListRequest? request = null,
         CancellationToken cancellationToken = default)
     {
@@ -15,6 +16,7 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, read session data via GetObservationsV2Async with a sessionId filter. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<SessionModel> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(sessionId))

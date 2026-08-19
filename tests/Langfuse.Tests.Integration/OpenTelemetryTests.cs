@@ -49,6 +49,7 @@ public class OpenTelemetryTests
         return new TraceTestHelper(client, _fixture);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task EmbeddingObservation_IsExportedWithCorrectMetadata()
     {
@@ -73,6 +74,7 @@ public class OpenTelemetryTests
         observation.Model.ShouldBe("text-embedding-3-small");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task ToolCallObservation_IsExportedWithArguments()
     {
@@ -99,6 +101,7 @@ public class OpenTelemetryTests
         observation.Output.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task AgentObservation_IsExportedWithId()
     {
@@ -126,6 +129,7 @@ public class OpenTelemetryTests
         observation.Output.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task Generation_TokenUsage_IsExported()
     {
@@ -157,6 +161,7 @@ public class OpenTelemetryTests
         observation.Usage.Total.ShouldBe(225);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task BaggageContext_PropagesToTrace()
     {
@@ -183,6 +188,7 @@ public class OpenTelemetryTests
         trace.Tags!.ShouldContain("tag2");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task BaggageContext_AllChildObservationsHaveTags()
     {
@@ -238,6 +244,7 @@ public class OpenTelemetryTests
         observations.Data.Length.ShouldBeGreaterThanOrEqualTo(2);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task BaggageContext_NestedObservationsInheritTraceContext()
     {
@@ -310,6 +317,7 @@ public class OpenTelemetryTests
         resultTrace.Tags!.ShouldContain("level0");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task NestedHierarchy_MaintainsParentChildRelationships()
     {
@@ -348,6 +356,7 @@ public class OpenTelemetryTests
         genObs.ParentObservationId.ShouldBe(result.SpanId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task NestedHierarchy_AllObservationsBelongToSameTrace()
     {
@@ -367,6 +376,7 @@ public class OpenTelemetryTests
         genObs.TraceId.ShouldBe(result.TraceId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task SkipTrace_NothingExported()
     {
@@ -423,6 +433,7 @@ public class OpenTelemetryTests
         trace.ShouldBeOfType<NullOtelLangfuseTrace>();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task DiRegistration_TracesWorkWithInjectedTrace()
     {
@@ -494,6 +505,7 @@ public class OpenTelemetryTests
         exception.ShouldBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task TraceWithMultipleObservationTypes_AllExported()
     {

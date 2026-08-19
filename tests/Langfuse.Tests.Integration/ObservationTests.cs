@@ -40,6 +40,7 @@ public class ObservationTests
         return new TraceTestHelper(client, _fixture);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationListAsync_ReturnsPaginatedList()
     {
@@ -77,6 +78,7 @@ public class ObservationTests
         observations1.Data[0].Id.ShouldNotBe(observations2.Data[0].Id);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationListAsync_FiltersByType_Span()
     {
@@ -99,6 +101,7 @@ public class ObservationTests
         observations.Data.ShouldAllBe(o => o.Type == "SPAN");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationListAsync_FiltersByType_Generation()
     {
@@ -121,6 +124,7 @@ public class ObservationTests
         observations.Data.ShouldAllBe(o => o.Type == "GENERATION");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationListAsync_FiltersByType_Event()
     {
@@ -143,6 +147,7 @@ public class ObservationTests
         observations.Data.ShouldAllBe(o => o.Type == "EVENT");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationListAsync_FiltersByTraceId()
     {
@@ -171,6 +176,7 @@ public class ObservationTests
         observations.Data.ShouldContain(o => o.Id == result.EventId && o.Type == "EVENT");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationAsync_ReturnsObservation()
     {
@@ -189,6 +195,7 @@ public class ObservationTests
         observation.Type.ShouldBe("SPAN");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationAsync_NotFound_ThrowsException()
     {
@@ -201,6 +208,7 @@ public class ObservationTests
         exception.StatusCode.ShouldBe(404);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationAsync_ReturnsGenerationWithModel()
     {
@@ -223,6 +231,7 @@ public class ObservationTests
         observation.Model.ShouldBe("gpt-4-turbo");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationListAsync_FiltersByName()
     {
@@ -246,6 +255,7 @@ public class ObservationTests
         observations.Data.ShouldContain(o => o.Name == uniqueName);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationAsync_Span_ValidatesAllResponseFields()
     {
@@ -279,6 +289,7 @@ public class ObservationTests
         observation.CostDetails.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationAsync_Generation_ValidatesAllResponseFields()
     {
@@ -315,6 +326,7 @@ public class ObservationTests
         observation.CostDetails.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetObservationAsync_Event_ValidatesAllResponseFields()
     {
@@ -387,6 +399,7 @@ public class ObservationTests
         skippedExists.ShouldBeFalse();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task SkippedSpan_TraceStillExistsWithoutSkippedObservation()
     {

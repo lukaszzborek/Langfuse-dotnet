@@ -56,7 +56,7 @@ internal class SnakeCaseUpperEnumConverter<T> : JsonConverter<T> where T : struc
     /// <summary>
     ///     Converts PascalCase to SNAKE_CASE_UPPER
     /// </summary>
-    private static string ConvertPascalCaseToSnakeCaseUpper(string value)
+    protected static string ConvertPascalCaseToSnakeCaseUpper(string value)
     {
         if (string.IsNullOrEmpty(value))
         {

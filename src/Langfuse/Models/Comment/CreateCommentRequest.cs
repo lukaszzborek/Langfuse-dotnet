@@ -36,6 +36,7 @@ public class CreateCommentRequest
 
     /// <summary>
     ///     Optional user ID of the comment author. Used for attribution and identifying who created the comment.
+    ///     Must be a member of the organization that owns the project, otherwise the API returns an error.
     /// </summary>
     [JsonPropertyName("authorUserId")]
     public string? AuthorUserId { get; set; }

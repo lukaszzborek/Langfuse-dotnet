@@ -24,6 +24,6 @@ public partial interface ILangfuseClient
     ///     - Time dimensions: grouping by minute, hour, day, week, month, auto
     ///     - Advanced features: histogram binning (1-100 bins), row limits (1-1000)
     /// </remarks>
-    [Obsolete("V1 metrics endpoint is legacy. Use GetMetricsV2Async for better performance.")]
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetMetricsV2Async (GET /api/public/v2/metrics) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     Task<MetricsResponse> GetMetricsAsync(MetricsRequest request, CancellationToken cancellationToken = default);
 }

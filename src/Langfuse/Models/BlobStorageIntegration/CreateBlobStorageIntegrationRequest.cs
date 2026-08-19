@@ -98,7 +98,10 @@ public class CreateBlobStorageIntegrationRequest
     public bool? Compressed { get; init; }
 
     /// <summary>
-    ///     Data to export. When omitted on update, the existing value is preserved. Required when ExportFieldGroups is provided.
+    ///     Data to export. When omitted on update, the existing value is preserved. When omitted on create, the default
+    ///     is ObservationsV2 on Langfuse Cloud, and on self-hosted deployments LegacyTracesObservations — or
+    ///     ObservationsV2 where the deployment no longer populates the legacy tables. The default is never a source
+    ///     the deployment cannot serve. Required when ExportFieldGroups is provided.
     /// </summary>
     [JsonPropertyName("exportSource")]
     public BlobStorageExportSource? ExportSource { get; init; }

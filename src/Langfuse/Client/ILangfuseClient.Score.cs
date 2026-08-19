@@ -16,6 +16,7 @@ public partial interface ILangfuseClient
     /// <returns>Paginated list of scores with numeric or categorical values and associated metadata</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
     /// <remarks>Supports filtering by score configuration name, data type (NUMERIC, CATEGORICAL, BOOLEAN), and value ranges</remarks>
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetScoresV3Async (GET /api/public/v3/scores) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     Task<ScoreListResponse> GetScoreListAsync(ScoreListRequest? request = null,
         CancellationToken cancellationToken = default);
 
@@ -26,6 +27,7 @@ public partial interface ILangfuseClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The score with the specified ID</returns>
     /// <exception cref="LangfuseApiException">Thrown when the score is not found or an API error occurs</exception>
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetScoresV3Async (GET /api/public/v3/scores) with the id filter instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     Task<ScoreModel> GetScoreAsync(string scoreId, CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -93,6 +93,7 @@ public class DatasetTests
         result.Data.ShouldContain(d => d.Id == dataset2.Id && d.Name == $"{prefix}-2");
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetDatasetRunsAsync_ReturnsEmptyList()
     {
@@ -107,6 +108,7 @@ public class DatasetTests
         runs.Data.ShouldBeEmpty();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetDatasetRunAsync_ThrowsNotFound()
     {
@@ -120,6 +122,7 @@ public class DatasetTests
         exception.StatusCode.ShouldBe(404);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task DeleteDatasetRunAsync_ThrowsNotFound()
     {
@@ -209,6 +212,7 @@ public class DatasetTests
         dataset.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetDatasetRunAsync_ValidatesAllResponseFields()
     {

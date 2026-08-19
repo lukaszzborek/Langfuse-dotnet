@@ -5,9 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
+using zborek.Langfuse.Models.BlobStorageIntegration;
+using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Dataset;
 using zborek.Langfuse.Models.Score;
-using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Session;
 
 namespace Langfuse.Tests.Integration;
@@ -47,8 +48,50 @@ public class ModelValidationIntegrationTests
         return new TraceTestHelper(client, _fixture);
     }
 
+    #region BlobStorageIntegration Tests
+
+    [Fact]
+    public void BlobStorageIntegrationResponse_PrefixIsRequired()
+    {
+        // This test validates that when we receive a response, the Prefix property
+        // is correctly deserialized as a required field.
+        // Since we don't have access to the blob storage API without proper auth,
+        // we just verify the model structure is correct.
+
+        var json = @"{
+            ""data"": [
+                {
+                    ""id"": ""int-1"",
+                    ""projectId"": ""proj-1"",
+                    ""type"": ""S3"",
+                    ""bucketName"": ""bucket"",
+                    ""region"": ""us-east-1"",
+                    ""prefix"": ""exports/"",
+                    ""exportFrequency"": ""daily"",
+                    ""enabled"": true,
+                    ""forcePathStyle"": false,
+                    ""fileType"": ""JSON"",
+                    ""exportMode"": ""FULL_HISTORY"",
+                    ""compressed"": true,
+                    ""exportSource"": ""OBSERVATIONS_V2"",
+                    ""createdAt"": ""2024-01-01T00:00:00Z"",
+                    ""updatedAt"": ""2024-01-01T00:00:00Z""
+                }
+            ]
+        }";
+
+        var response = JsonSerializer.Deserialize<BlobStorageIntegrationsResponse>(json);
+
+        response.ShouldNotBeNull();
+        response.Data.ShouldNotBeNull();
+        response.Data[0].Prefix.ShouldBe("exports/");
+    }
+
+    #endregion
+
     #region Score Model Tests
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_WithEnvironment_SerializesCorrectly()
     {
@@ -80,6 +123,7 @@ public class ModelValidationIntegrationTests
         fetchedScore.Name.ShouldBe(request.Name);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreListAsync_FiltersByDataType_WithFixedEnumSerialization()
     {
@@ -113,6 +157,7 @@ public class ModelValidationIntegrationTests
         result.Data.ShouldAllBe(s => s.DataType == ScoreDataType.Numeric);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetScoreListAsync_FiltersBySource_WithFixedEnumSerialization()
     {
@@ -146,6 +191,7 @@ public class ModelValidationIntegrationTests
         result.Data.ShouldAllBe(s => s.Source == ScoreSource.Api);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task ScoreModel_HasExpectedNewProperties()
     {
@@ -285,6 +331,7 @@ public class ModelValidationIntegrationTests
 
     #region Session List Request Tests
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionListAsync_WithEnvironmentArray_Works()
     {
@@ -308,6 +355,7 @@ public class ModelValidationIntegrationTests
         result.Data.ShouldNotBeNull();
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionListAsync_WithMultipleEnvironments_SerializesCorrectly()
     {
@@ -403,6 +451,7 @@ public class ModelValidationIntegrationTests
 
     #region Observation Model Tests
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task ObservationModel_HasExpectedNewProperties()
     {
@@ -432,6 +481,7 @@ public class ModelValidationIntegrationTests
         _ = observation.Environment;
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task ObservationModel_UsageDetails_Deserializes()
     {
@@ -449,47 +499,6 @@ public class ModelValidationIntegrationTests
         // UsageDetails is a new property - verify it doesn't throw
         _ = observation.UsageDetails;
         _ = observation.CostDetails;
-    }
-
-    #endregion
-
-    #region BlobStorageIntegration Tests
-
-    [Fact]
-    public void BlobStorageIntegrationResponse_PrefixIsRequired()
-    {
-        // This test validates that when we receive a response, the Prefix property
-        // is correctly deserialized as a required field.
-        // Since we don't have access to the blob storage API without proper auth,
-        // we just verify the model structure is correct.
-
-        var json = @"{
-            ""data"": [
-                {
-                    ""id"": ""int-1"",
-                    ""projectId"": ""proj-1"",
-                    ""type"": ""S3"",
-                    ""bucketName"": ""bucket"",
-                    ""region"": ""us-east-1"",
-                    ""prefix"": ""exports/"",
-                    ""exportFrequency"": ""daily"",
-                    ""enabled"": true,
-                    ""forcePathStyle"": false,
-                    ""fileType"": ""JSON"",
-                    ""exportMode"": ""FULL_HISTORY"",
-                    ""compressed"": true,
-                    ""exportSource"": ""OBSERVATIONS_V2"",
-                    ""createdAt"": ""2024-01-01T00:00:00Z"",
-                    ""updatedAt"": ""2024-01-01T00:00:00Z""
-                }
-            ]
-        }";
-
-        var response = JsonSerializer.Deserialize<zborek.Langfuse.Models.BlobStorageIntegration.BlobStorageIntegrationsResponse>(json);
-
-        response.ShouldNotBeNull();
-        response.Data.ShouldNotBeNull();
-        response.Data[0].Prefix.ShouldBe("exports/");
     }
 
     #endregion

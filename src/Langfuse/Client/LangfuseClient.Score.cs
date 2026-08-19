@@ -6,6 +6,7 @@ namespace zborek.Langfuse.Client;
 internal partial class LangfuseClient
 {
     /// <inheritdoc />
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetScoresV3Async (GET /api/public/v3/scores) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<ScoreListResponse> GetScoreListAsync(ScoreListRequest? request = null,
         CancellationToken cancellationToken = default)
     {
@@ -15,6 +16,7 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetScoresV3Async (GET /api/public/v3/scores) with the id filter instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<ScoreModel> GetScoreAsync(string scoreId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(scoreId))

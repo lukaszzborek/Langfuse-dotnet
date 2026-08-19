@@ -40,6 +40,7 @@ public class SessionTests
         return new TraceTestHelper(client, _fixture);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionListAsync_ReturnsPaginatedList()
     {
@@ -58,6 +59,7 @@ public class SessionTests
         result.Data.ShouldContain(s => s.Id == sessionId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionAsync_ReturnsSessionWithTraces()
     {
@@ -78,6 +80,7 @@ public class SessionTests
         session.Id.ShouldBe(sessionId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionAsync_NotFound_ThrowsException()
     {
@@ -90,6 +93,7 @@ public class SessionTests
         exception.StatusCode.ShouldBe(404);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionListAsync_FiltersByFromTimestamp()
     {
@@ -114,6 +118,7 @@ public class SessionTests
         result.Data.ShouldContain(s => s.Id == sessionId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionListAsync_MultipleTracesInSession()
     {
@@ -137,6 +142,7 @@ public class SessionTests
         session.Id.ShouldBe(sessionId);
     }
 
+    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetSessionAsync_ValidatesAllResponseFields()
     {
@@ -146,8 +152,8 @@ public class SessionTests
         var sessionId = $"comprehensive-session-{Guid.NewGuid():N}";
         var userId = $"user-{Guid.NewGuid():N}";
 
-        var traceId1 = traceHelper.CreateTrace(name: "trace-1", sessionId: sessionId, userId: userId);
-        var traceId2 = traceHelper.CreateTrace(name: "trace-2", sessionId: sessionId, userId: userId);
+        var traceId1 = traceHelper.CreateTrace("trace-1", sessionId, userId);
+        var traceId2 = traceHelper.CreateTrace("trace-2", sessionId, userId);
 
         await traceHelper.WaitForTraceAsync(traceId1);
         await traceHelper.WaitForTraceAsync(traceId2);

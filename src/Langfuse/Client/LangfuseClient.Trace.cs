@@ -6,6 +6,7 @@ namespace zborek.Langfuse.Client;
 internal partial class LangfuseClient
 {
     /// <inheritdoc />
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, read span and trace data via GetObservationsV2Async (GET /api/public/v2/observations). Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<TraceListResponse> GetTraceListAsync(TraceListRequest? request = null,
         CancellationToken cancellationToken = default)
     {
@@ -15,6 +16,7 @@ internal partial class LangfuseClient
     }
 
     /// <inheritdoc />
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, read span and trace data via GetObservationsV2Async (GET /api/public/v2/observations). Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<TraceWithDetails> GetTraceAsync(string traceId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(traceId))

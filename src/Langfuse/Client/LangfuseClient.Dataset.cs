@@ -36,6 +36,7 @@ internal partial class LangfuseClient
         return await PostAsync<DatasetModel>(endpoint, request, "Create Dataset", cancellationToken);
     }
 
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, dataset runs are replaced by experiments; use GetExperimentsAsync (GET /api/public/experiments) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<DatasetRunWithItems> GetDatasetRunAsync(string datasetName, string runName,
         CancellationToken cancellationToken = default)
     {
@@ -53,6 +54,7 @@ internal partial class LangfuseClient
         return await GetAsync<DatasetRunWithItems>(endpoint, "Get Dataset Run", cancellationToken);
     }
 
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, dataset runs are replaced by experiments. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<DeleteDatasetRunResponse> DeleteDatasetRunAsync(string datasetName, string runName,
         CancellationToken cancellationToken = default)
     {
@@ -70,6 +72,7 @@ internal partial class LangfuseClient
         return await DeleteAsync<DeleteDatasetRunResponse>(endpoint, "Delete Dataset Run", cancellationToken);
     }
 
+    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. In Langfuse v4, dataset runs are replaced by experiments; use GetExperimentsAsync (GET /api/public/experiments) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
     public async Task<PaginatedDatasetRuns> GetDatasetRunsAsync(string datasetName, DatasetRunListRequest request,
         CancellationToken cancellationToken = default)
     {

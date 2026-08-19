@@ -32,12 +32,25 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-    - name: Run tests
+    - name: Run tests (Langfuse v4 dual mode, all tests)
       run: dotnet test --configuration Release
+
+  run_test_events_only:
+    runs-on: ubuntu-latest
+    env:
+      LANGFUSE_TEST_V4_MODE: events_only
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    - name: Run tests (Langfuse v4 events_only mode, legacy API tests excluded)
+      run: dotnet test --configuration Release --filter "Legacy!=true"
 
   create_nuget:
     runs-on: ubuntu-latest
-    needs: [ run_test ]
+    needs: [ run_test, run_test_events_only ]
     steps:
     - uses: actions/checkout@v3
       with:
