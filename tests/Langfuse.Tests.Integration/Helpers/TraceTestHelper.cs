@@ -38,7 +38,7 @@ public class TraceTestHelper
         {
             var response = await _client.GetObservationsV2Async(
                 new ObservationsV2Request { TraceId = traceId, Limit = 1 }, cancellationToken);
-            if (response.Data.Count > 0)
+            if (response.Data.Count > 0 && await LegacyTraceExistsAsync(traceId, cancellationToken))
             {
                 return;
             }
@@ -105,7 +105,7 @@ public class TraceTestHelper
     /// <summary>
     ///     Waits for a session to become available in the API (handles eventual consistency)
     /// </summary>
-    public async Task WaitForSessionAsync(string sessionId, TimeSpan? timeout = null,
+    public async Task WaitForSessionAsync(string sessionId, int expectedTraceCount = 1, TimeSpan? timeout = null,
         CancellationToken cancellationToken = default)
     {
         timeout ??= TimeSpan.FromSeconds(30);
@@ -115,7 +115,7 @@ public class TraceTestHelper
         {
             var response = await _client.GetObservationsV2Async(
                 new ObservationsV2Request { SessionId = sessionId, Limit = 1 }, cancellationToken);
-            if (response.Data.Count > 0)
+            if (response.Data.Count > 0 && await LegacySessionHasTracesAsync(sessionId, expectedTraceCount, cancellationToken))
             {
                 return;
             }
@@ -124,6 +124,52 @@ public class TraceTestHelper
         }
 
         throw new TimeoutException($"Session {sessionId} did not become available within {timeout}");
+    }
+
+    /// <summary>
+    ///     In dual mode the traces table is written separately from observations and can lag behind.
+    ///     Legacy read endpoints (GET /traces/{id}, GET /sessions/{id}) query the traces table, so wait for it too.
+    ///     In events_only mode those endpoints do not exist, so only the observations check applies.
+    /// </summary>
+    private async Task<bool> LegacyTraceExistsAsync(string traceId, CancellationToken cancellationToken)
+    {
+        if (LangfuseTestFixture.V4Mode != "dual")
+        {
+            return true;
+        }
+
+        try
+        {
+#pragma warning disable CS0618
+            await _client.GetTraceAsync(traceId, cancellationToken);
+#pragma warning restore CS0618
+            return true;
+        }
+        catch (LangfuseApiException ex) when (ex.StatusCode == 404)
+        {
+            return false;
+        }
+    }
+
+    private async Task<bool> LegacySessionHasTracesAsync(string sessionId, int expectedTraceCount,
+        CancellationToken cancellationToken)
+    {
+        if (LangfuseTestFixture.V4Mode != "dual")
+        {
+            return true;
+        }
+
+        try
+        {
+#pragma warning disable CS0618
+            var session = await _client.GetSessionAsync(sessionId, cancellationToken);
+#pragma warning restore CS0618
+            return session.Traces?.Length >= expectedTraceCount;
+        }
+        catch (LangfuseApiException ex) when (ex.StatusCode == 404)
+        {
+            return false;
+        }
     }
 
     /// <summary>
