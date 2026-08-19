@@ -169,8 +169,9 @@ public class TraceTests
 
         deleteResponse.ShouldNotBeNull();
 
+        // Deletion is processed asynchronously by the worker; allow extra time under full-suite load
         var stopwatch = Stopwatch.StartNew();
-        var timeout = TimeSpan.FromSeconds(30);
+        var timeout = TimeSpan.FromSeconds(90);
         LangfuseApiException? deleteException = null;
 
         while (stopwatch.Elapsed < timeout)

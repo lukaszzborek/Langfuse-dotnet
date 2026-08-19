@@ -49,7 +49,7 @@ public class LangfuseTestFixture : IAsyncLifetime
     /// <summary>
     ///     Gets the Langfuse API base URL for testing.
     /// </summary>
-    public string LangfuseBaseUrl => $"http://localhost:{_langfuseWebContainer?.GetMappedPublicPort(3000)}";
+    public string LangfuseBaseUrl => $"http://127.0.0.1:{_langfuseWebContainer?.GetMappedPublicPort(3000)}";
 
     /// <summary>
     ///     Gets the public key for the test project.
@@ -65,6 +65,11 @@ public class LangfuseTestFixture : IAsyncLifetime
     ///     Gets the project ID for the test project.
     /// </summary>
     public string ProjectId => "test-project";
+
+    /// <summary>
+    ///     Gets the ID of the init user (member of the test organization).
+    /// </summary>
+    public string UserId { get; private set; } = string.Empty;
 
     /// <summary>
     ///     Gets the TracerProvider for OpenTelemetry-based tracing.
@@ -85,6 +90,8 @@ public class LangfuseTestFixture : IAsyncLifetime
 
         // Start Langfuse services (they depend on infrastructure)
         await StartLangfuseServicesAsync();
+
+        UserId = await GetInitUserIdAsync();
 
         // Configure OpenTelemetry TracerProvider after services are running
         ConfigureOpenTelemetry();
@@ -207,6 +214,23 @@ public class LangfuseTestFixture : IAsyncLifetime
         await CreateMinioBucketAsync();
     }
 
+    private async Task<string> GetInitUserIdAsync()
+    {
+        var result = await _postgresContainer!.ExecAsync(new[]
+        {
+            "psql", "-U", PostgresUser, "-d", PostgresDatabase, "-tAc",
+            "SELECT id FROM users WHERE email = 'test@example.com'"
+        });
+
+        var userId = result.Stdout.Trim();
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new InvalidOperationException($"Init user not found in database: {result.Stderr}");
+        }
+
+        return userId;
+    }
+
     private async Task CreateMinioBucketAsync()
     {
         // Use mc client to create bucket
@@ -223,7 +247,7 @@ public class LangfuseTestFixture : IAsyncLifetime
 
     private async Task StartLangfuseServicesAsync()
     {
-        Dictionary<string, string> langfuseEnvVars = GetLangfuseEnvironmentVariables();
+        var langfuseEnvVars = GetLangfuseEnvironmentVariables();
 
         // Langfuse Worker
         _langfuseWorkerContainer = new ContainerBuilder("docker.io/langfuse/langfuse-worker:4")
@@ -259,7 +283,6 @@ public class LangfuseTestFixture : IAsyncLifetime
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(r => r.ForPath("/api/public/health").ForPort(3000)))
             .WithImagePullPolicy(_ => true)
-            
             .Build();
 
         await _langfuseWebContainer.StartAsync();
@@ -282,6 +305,11 @@ public class LangfuseTestFixture : IAsyncLifetime
 
             // Telemetry
             ["TELEMETRY_ENABLED"] = "false",
+
+            // Langfuse v4 defaults to events_only mode where legacy read APIs (GET /traces/{id}, /observations/{id}, ...)
+            // return 404. Dual mode keeps legacy tables populated so both legacy and v2 APIs can be tested.
+            ["LANGFUSE_MIGRATION_V4_WRITE_MODE"] = "dual",
+            ["LANGFUSE_MIGRATION_V4_NATIVE_OTEL_BEHAVIOUR"] = "dual_write",
             ["LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES"] = "true",
 
             // ClickHouse
