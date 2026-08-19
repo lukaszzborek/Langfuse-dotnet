@@ -150,11 +150,13 @@ public static class LangfuseOtlpExtensions
         var credentials = Convert.ToBase64String(
             Encoding.UTF8.GetBytes($"{langfuseOptions.PublicKey}:{langfuseOptions.SecretKey}")
         );
-        otlpOptions.Headers = $"Authorization=Basic {credentials}";
+        // x-langfuse-ingestion-version=4 makes Langfuse v4 write directly to the new tables.
+        // Without it, data goes through the legacy dual-write pipeline with ~15 min delay.
+        otlpOptions.Headers = $"Authorization=Basic {credentials},x-langfuse-ingestion-version=4";
 
         if (langfuseOptions.Headers.Count > 0)
         {
-            IEnumerable<string> headerStrings = langfuseOptions.Headers
+            var headerStrings = langfuseOptions.Headers
                 .Select(kvp => $"{kvp.Key}={kvp.Value}");
 
             otlpOptions.Headers = $"{otlpOptions.Headers},{string.Join(",", headerStrings)}";
@@ -230,7 +232,7 @@ public static class LangfuseOtlpExtensions
                     if (!string.IsNullOrEmpty(tags))
                     {
                         // Serialize as JSON array to match GenAiActivityHelper format
-                        List<string> tagList = tags.Split(',').ToList();
+                        var tagList = tags.Split(',').ToList();
                         activity.SetTag(LangfuseAttributes.TraceTags, JsonSerializer.Serialize(tagList));
                     }
                 }
