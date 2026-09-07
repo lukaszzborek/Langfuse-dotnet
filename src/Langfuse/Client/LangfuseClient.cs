@@ -48,7 +48,7 @@ internal partial class LangfuseClient : ILangfuseClient
         "This method uses the legacy ingestion endpoint, which on Langfuse Cloud will be removed on November 16, 2026 (self-hosted deployments lose it when upgrading to Langfuse v4). Use the OpenTelemetry endpoint instead: https://langfuse.com/integrations/native/opentelemetry")]
     public async Task IngestAsync(LangfuseTrace langfuseTrace, CancellationToken cancellationToken = default)
     {
-        List<IIngestionEvent> events = langfuseTrace.GetEvents();
+        var events = langfuseTrace.GetEvents();
         foreach (var @event in events)
         {
             await IngestAsync(@event, cancellationToken);
@@ -101,7 +101,7 @@ internal partial class LangfuseClient : ILangfuseClient
         }
 
         // If over limit, split into smaller batches
-        List<object> allEvents = request.Batch.ToList();
+        var allEvents = request.Batch.ToList();
         var currentBatch = new List<object>();
 
         // save all results
@@ -179,20 +179,20 @@ internal partial class LangfuseClient : ILangfuseClient
             if (_logger.IsEnabled(LogLevel.Debug))
             {
                 var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                
+
                 _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
                     operationName, endpoint, responseContent);
-                
+
                 var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
                 if (result == null)
                 {
                     throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                         $"Failed to deserialize {operationName} response");
                 }
-                
+
                 return result;
             }
-            
+
             var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
 
             if (responseResult == null)
@@ -469,33 +469,34 @@ internal partial class LangfuseClient : ILangfuseClient
             {
                 var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
                 throw new LangfuseApiException((int)response.StatusCode,
-                    $"Failed to {operationName.ToLower()}: {errorContent}");
+                    $"Failed to {operationName.ToLower()}: {errorContent}", errorContent);
             }
+
             if (_logger.IsEnabled(LogLevel.Debug))
             {
                 var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
                 _logger.LogDebug("Successfully completed {Operation} request to {Endpoint}. Response: {ResponseData}",
                     operationName, endpoint, responseContent);
-                
+
                 var result = JsonSerializer.Deserialize<TResponse>(responseContent, JsonOptions);
                 if (result == null)
                 {
                     throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                         $"Failed to deserialize {operationName} response");
                 }
-                
+
                 return result;
             }
-            
+
             var responseResult = await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
-            
+
             if (responseResult == null)
             {
                 throw new LangfuseApiException((int)HttpStatusCode.InternalServerError,
                     $"Failed to deserialize {operationName} response");
             }
-            
+
             return responseResult;
         }
         catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)

@@ -3,40 +3,38 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     Request body for creating an evaluation rule. Use <see cref="CreateLlmAsJudgeEvaluationRuleRequest" />
-///     or <see cref="CreateCodeEvaluationRuleRequest" /> depending on the evaluator type.
+///     Request body for creating an evaluation rule using stable evaluator identifiers. Rules always use the
+///     latest version of each associated evaluator. An enabled rule requires at least one evaluator assignment.
 /// </summary>
-public abstract class CreateEvaluationRuleRequest
+public class CreateEvaluationRuleRequest
 {
     /// <summary>
-    ///     Human-readable deployment name. Must be unique within the project for public evaluation rules.
+    ///     Human-readable rule name. Names are not identifiers and do not need to be unique.
     /// </summary>
     [JsonPropertyName("name")]
     public required string Name { get; init; }
 
     /// <summary>
-    ///     Target object type to evaluate.
-    /// </summary>
-    [JsonPropertyName("target")]
-    public required EvaluationRuleTarget Target { get; init; }
-
-    /// <summary>
-    ///     Whether the deployment should be active immediately after creation.
+    ///     Whether live execution should start immediately. Enabled rules require at least one evaluator assignment.
     /// </summary>
     [JsonPropertyName("enabled")]
     public required bool Enabled { get; init; }
 
     /// <summary>
-    ///     Optional sampling fraction. Defaults to 1.
+    ///     Fraction of matching observations to evaluate. Omit to use the default of 1, which evaluates every match.
     /// </summary>
     [JsonPropertyName("sampling")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public double? Sampling { get; init; }
 
     /// <summary>
-    ///     Optional filter list. Omit or pass an empty list to evaluate all matching targets.
+    ///     Conditions used to select observations. Omit to match every incoming observation.
     /// </summary>
     [JsonPropertyName("filter")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public EvaluationRuleFilter[]? Filter { get; init; }
+
+    /// <summary>
+    ///     Evaluators to attach to this rule. Disabled rules may use an empty list as a draft.
+    /// </summary>
+    [JsonPropertyName("evaluatorAssignments")]
+    public required EvaluationRuleEvaluatorAssignmentInput[] EvaluatorAssignments { get; init; }
 }

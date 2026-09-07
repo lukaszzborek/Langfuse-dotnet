@@ -23,6 +23,23 @@ internal partial class LangfuseClient
         return await PostAsync<Model>("/api/public/models", request, "Create Model", cancellationToken);
     }
 
+    public async Task<Model> UpsertModelAsync(string modelId, CreateModelRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(modelId))
+        {
+            throw new ArgumentException("Model ID cannot be null or empty", nameof(modelId));
+        }
+
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        return await PutAsync<Model>($"/api/public/models/{Uri.EscapeDataString(modelId)}", request, "Upsert Model",
+            cancellationToken);
+    }
+
     public async Task DeleteModelAsync(string modelId, CancellationToken cancellationToken = default)
     {
         await DeleteAsync($"/api/public/models/{Uri.EscapeDataString(modelId)}", "Delete Model", cancellationToken);

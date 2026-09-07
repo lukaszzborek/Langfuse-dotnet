@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-09-07
+
+### Added
+
+- Stable Evaluators API (`/api/public/v2/evaluators`): `CreateEvaluatorAsync`, `GetEvaluatorsAsync`, `GetEvaluatorAsync`, `UpdateEvaluatorAsync`, `DeleteEvaluatorAsync`, `GetEvaluatorVersionsAsync`. Evaluators carry `Status`/`PausedReason`, `CreatedBy`, flattened latest-version fields (`VersionId`, `Version`, `VersionCreatedAt`, `VersionCreatedBy`) and `EvaluationRuleAssignments`. LLM-as-a-judge prompts are chat message lists (`EvaluatorChatMessage`); requests accept a plain string shortcut via `EvaluatorChatPromptInput`. Updates use `UpdateEvaluatorMetadataRequest` (no new version) or `UpdateLlmAsJudgeEvaluatorRequest`/`UpdateCodeEvaluatorRequest` (full definition replacement); assigning `Description = null` explicitly clears the description, omitting it keeps the current one.
+- Stable Evaluation Rules API (`/api/public/v2/evaluation-rules`): rules reference evaluators by stable id through `EvaluatorAssignments` (`EvaluationRuleEvaluatorAssignmentInput` with optional per-rule `PromptVariableMappingInput` override). Responses include legacy trace/dataset rules; legacy mappings are exposed on `PromptVariableMapping` (`IsLegacy`, `LangfuseObject`, `ObjectName`).
+- Cursor pagination for evaluators and rules: `EvaluatorsPage`, `EvaluatorVersionsPage`, `EvaluationRulesPage` with `CursorMeta`.
+- `UpsertModelAsync` (`PUT /api/public/models/{id}`) to create or replace a project-owned model by id.
+- `ModelTokenizerId` enum (`openai`, `claude`).
+
+### Changed
+
+- **Breaking:** the unstable evaluator/evaluation-rule endpoints (`/api/public/unstable/...`) were replaced by the stable v2 API (Langfuse removed them from Cloud on 2026-09-04). Removed types: `EvaluatorScope`, `EvaluationRuleTarget`, `EvaluationRuleStatus`, `EvaluationRuleMapping`, `EvaluationRuleMappingSource` (now `PromptVariableMappingSource`), `EvaluationRuleEvaluator`, `*EvaluationRuleEvaluatorReference`, `Create*EvaluationRuleRequest` subclasses (now a single `CreateEvaluationRuleRequest`), `EvaluatorOutputDataType` (now `EvaluatorOutputScoreType`), `EvaluatorOutputFieldDefinition`/`EvaluatorOutputScoreDefinition` (flattened into `EvaluatorOutputDefinition`), `PaginatedEvaluators`/`PaginatedEvaluationRules`, `DeleteEvaluatorResponse`/`DeleteEvaluationRuleResponse` (now `DeletedEvaluator`/`DeletedEvaluationRule` with `Id`). `GetEvaluatorsAsync`/`GetEvaluationRulesAsync` take `(limit, cursor)` instead of `(page, limit)`. Member changes on kept types: `Evaluator.Scope`/`EvaluationRuleCount` removed and `Evaluator.Variables` moved to `LlmAsJudgeEvaluator`; `LlmAsJudgeEvaluator.Prompt` is `EvaluatorChatMessage[]` instead of `string`; `EvaluationRule.Evaluator`/`Target`/`Status`/`PausedReason`/`PausedMessage`/`Mapping` replaced by `CreatedBy`/`EvaluatorAssignments`; `CreateEvaluationRuleRequest` is no longer abstract and has no `Target`.
+- **Breaking:** `CreateModelRequest.Unit` is now required (non-nullable) and `CreateModelRequest.TokenizerId` is a `ModelTokenizerId?` enum instead of `string?`, per spec.
+- **Breaking:** `PricingTierInput.IsDefault` is now `bool?` instead of `bool`, and `PricingTierUsageCondition.CaseSensitive` is now `bool?` instead of `bool`. Both are optional on input and default to false when omitted; `caseSensitive` is required in the response schema, so conditions read back from the API always carry a value. Code reading these properties directly (`if (tier.IsDefault)`) must handle null, e.g. `tier.IsDefault == true`.
+- `CreateModelRequest` flat price fields documented as deprecated in favour of `PricingTiers`.
+- Observations V2 field group docs synced with the spec: `isRootObservation` (basic), `usagePricingTierName` (usage), the new `trace_context` group (tags, release, traceName), metadata truncation note, and `providedModelName` renamed to `model`.
+
+## [0.12.0] - 2026-08-19
+
 ### Changed
 
 - **Breaking:** `PricingTierCondition` is now an abstract base of `PricingTierUsageCondition` (the previous regex/threshold shape) and new `PricingTierAttributeCondition` (`Source`: `PricingTierAttributeSource.ModelParameters`/`Metadata`, `Key`, `Operator` = `in`, `Values`). Replace `new PricingTierCondition { ... }` with `new PricingTierUsageCondition { ... }`. Deserialization picks the concrete type by shape.
@@ -137,6 +157,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.13.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.8.0...v0.9.0

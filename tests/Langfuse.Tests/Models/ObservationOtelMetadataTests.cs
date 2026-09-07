@@ -417,7 +417,7 @@ public class ObservationModelMetadataTests
         otelMetadata.GetResourceAttribute("service.name").ShouldBe("my-service");
         otelMetadata.Scope!.Name.ShouldBe("Langfuse");
     }
-    
+
     [Fact]
     public void Should_Deserialize_Full_Observation_With_Custom_Metadata()
     {
@@ -468,7 +468,7 @@ public class ObservationModelMetadataTests
     {
         [JsonPropertyName("customField")]
         public string? CustomField { get; set; }
-        
+
         [JsonPropertyName("number")]
         public int Number { get; set; }
     }

@@ -12,21 +12,26 @@ public class CreateLlmAsJudgeEvaluatorRequest : CreateEvaluatorRequest
     public override EvaluatorType Type => EvaluatorType.Llm_As_Judge;
 
     /// <summary>
-    ///     Prompt template used by the evaluator.
+    ///     User prompt string shortcut or an ordered list of chat messages. Variables use <c>{{variable}}</c> syntax.
     /// </summary>
     [JsonPropertyName("prompt")]
-    public required string Prompt { get; init; }
+    public required EvaluatorChatPromptInput Prompt { get; init; }
 
     /// <summary>
-    ///     Structured output schema the evaluator must return. Always send DataType.
+    ///     Explicit model configuration. Omit to use the project's default evaluation model.
+    /// </summary>
+    [JsonPropertyName("modelConfig")]
+    public EvaluatorModelConfig? ModelConfig { get; init; }
+
+    /// <summary>
+    ///     Default prompt-variable mapping, or null when no default is configured.
+    /// </summary>
+    [JsonPropertyName("variableMapping")]
+    public PromptVariableMappingInput[]? VariableMapping { get; init; }
+
+    /// <summary>
+    ///     Structured output schema returned by this evaluator.
     /// </summary>
     [JsonPropertyName("outputDefinition")]
     public required EvaluatorOutputDefinition OutputDefinition { get; init; }
-
-    /// <summary>
-    ///     Optional explicit model configuration. Omit or set to null to use the project default evaluation model.
-    /// </summary>
-    [JsonPropertyName("modelConfig")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public EvaluatorModelConfig? ModelConfig { get; init; }
 }

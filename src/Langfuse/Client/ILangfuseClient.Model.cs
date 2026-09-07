@@ -34,6 +34,18 @@ public partial interface ILangfuseClient
     Task<Model> CreateModelAsync(CreateModelRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Creates or replaces a project-owned model definition using its id
+    /// </summary>
+    /// <param name="modelId">Model identifier to create or replace</param>
+    /// <param name="request">Complete model definition</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The created or replaced model</returns>
+    /// <exception cref="LangfuseApiException">Thrown when the upsert fails</exception>
+    /// <remarks>Built-in (Langfuse-managed) models cannot be modified</remarks>
+    Task<Model> UpsertModelAsync(string modelId, CreateModelRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Deletes a custom model definition permanently
     /// </summary>
     /// <param name="modelId">The unique identifier of the model to delete</param>

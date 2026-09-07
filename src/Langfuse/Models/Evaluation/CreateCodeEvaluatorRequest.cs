@@ -12,13 +12,13 @@ public class CreateCodeEvaluatorRequest : CreateEvaluatorRequest
     public override EvaluatorType Type => EvaluatorType.Code;
 
     /// <summary>
-    ///     Code executed for each matched observation.
+    ///     Source code executed for each matched observation.
     /// </summary>
     [JsonPropertyName("sourceCode")]
     public required string SourceCode { get; init; }
 
     /// <summary>
-    ///     Runtime language for <see cref="SourceCode" />.
+    ///     Runtime language used to execute the source code.
     /// </summary>
     [JsonPropertyName("sourceCodeLanguage")]
     public required CodeEvaluatorSourceCodeLanguage SourceCodeLanguage { get; init; }

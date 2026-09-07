@@ -4,66 +4,107 @@ using zborek.Langfuse.Converters;
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     One evaluator that can be used for scoring. Describes how to score data. It does not define which
-///     live objects are evaluated; that is the job of evaluation rules. The concrete shape depends on
-///     <see cref="Type" />: <see cref="LlmAsJudgeEvaluator" /> or <see cref="CodeEvaluator" />.
+///     One evaluator that can be used for scoring. An evaluator describes how to score data; associated
+///     evaluation rules describe which live objects should be evaluated. The latest definition and version
+///     metadata are flattened into this object. Concrete types: <see cref="LlmAsJudgeEvaluator" /> and
+///     <see cref="CodeEvaluator" />.
 /// </summary>
-[JsonConverter(typeof(EvaluatorConverter))]
+[JsonConverter(typeof(EvaluatorTypeConverter<Evaluator, LlmAsJudgeEvaluator, CodeEvaluator>))]
 public abstract class Evaluator
 {
     /// <summary>
-    ///     Identifier of this evaluator version.
+    ///     Stable identifier of this evaluator across all versions.
     /// </summary>
     [JsonPropertyName("id")]
     public required string Id { get; init; }
 
     /// <summary>
-    ///     Evaluator name.
+    ///     Human-readable evaluator name. Names are not identifiers and do not need to be unique.
     /// </summary>
     [JsonPropertyName("name")]
     public required string Name { get; init; }
 
     /// <summary>
-    ///     Version number of this evaluator.
+    ///     Optional human-readable evaluator description.
     /// </summary>
-    [JsonPropertyName("version")]
-    public required int Version { get; init; }
+    [JsonPropertyName("description")]
+    public string? Description { get; init; }
 
     /// <summary>
-    ///     Where this evaluator comes from: your project or Langfuse-managed defaults.
-    /// </summary>
-    [JsonPropertyName("scope")]
-    public required EvaluatorScope Scope { get; init; }
-
-    /// <summary>
-    ///     Evaluator engine type. Determines the concrete evaluator shape.
+    ///     Evaluator engine type. Determined by the concrete class.
     /// </summary>
     [JsonPropertyName("type")]
     public abstract EvaluatorType Type { get; }
 
     /// <summary>
-    ///     Variables that can be mapped when creating an evaluation rule. LLM evaluators require every
-    ///     variable to be mapped exactly once. Code evaluators always expose the fixed runtime payload
-    ///     fields and Langfuse maps them automatically.
+    ///     User who created this evaluator, or null when no user can be resolved.
     /// </summary>
-    [JsonPropertyName("variables")]
-    public required string[] Variables { get; init; }
+    [JsonPropertyName("createdBy")]
+    public Creator? CreatedBy { get; init; }
 
     /// <summary>
-    ///     Number of evaluation rules in the project that currently use this evaluator version.
+    ///     Effective evaluator status after Langfuse validates its runtime configuration.
     /// </summary>
-    [JsonPropertyName("evaluationRuleCount")]
-    public required int EvaluationRuleCount { get; init; }
+    [JsonPropertyName("status")]
+    public required EvaluatorStatus Status { get; init; }
 
     /// <summary>
-    ///     Timestamp when this evaluator was created.
+    ///     Timestamp when the evaluator was paused, otherwise null.
+    /// </summary>
+    [JsonPropertyName("pausedAt")]
+    public DateTime? PausedAt { get; init; }
+
+    /// <summary>
+    ///     Machine-readable reason when <see cref="Status" /> is paused, otherwise null.
+    /// </summary>
+    [JsonPropertyName("pausedReason")]
+    public string? PausedReason { get; init; }
+
+    /// <summary>
+    ///     Human-readable explanation when <see cref="Status" /> is paused, otherwise null.
+    /// </summary>
+    [JsonPropertyName("pausedMessage")]
+    public string? PausedMessage { get; init; }
+
+    /// <summary>
+    ///     All modern and legacy evaluation-rule assignments in newest-assignment-first order.
+    /// </summary>
+    [JsonPropertyName("evaluationRuleAssignments")]
+    public required EvaluationRuleAssignment[] EvaluationRuleAssignments { get; init; }
+
+    /// <summary>
+    ///     Timestamp when the evaluator was created.
     /// </summary>
     [JsonPropertyName("createdAt")]
     public required DateTime CreatedAt { get; init; }
 
     /// <summary>
-    ///     Timestamp when this evaluator was last updated.
+    ///     Timestamp when the evaluator was last updated.
     /// </summary>
     [JsonPropertyName("updatedAt")]
     public required DateTime UpdatedAt { get; init; }
+
+    /// <summary>
+    ///     Stable identifier of the latest evaluator version.
+    /// </summary>
+    [JsonPropertyName("versionId")]
+    public required string VersionId { get; init; }
+
+    /// <summary>
+    ///     Monotonically increasing latest evaluator version number.
+    /// </summary>
+    [JsonPropertyName("version")]
+    public required int Version { get; init; }
+
+    /// <summary>
+    ///     Timestamp when the latest evaluator version was created.
+    /// </summary>
+    [JsonPropertyName("versionCreatedAt")]
+    public required DateTime VersionCreatedAt { get; init; }
+
+    /// <summary>
+    ///     User who created the latest evaluator version, or null when no user can be resolved.
+    /// </summary>
+    [JsonPropertyName("versionCreatedBy")]
+    public Creator? VersionCreatedBy { get; init; }
 }

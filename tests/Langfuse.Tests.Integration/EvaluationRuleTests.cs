@@ -1,4 +1,4 @@
-using Langfuse.Tests.Integration.Fixtures;
+﻿using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using zborek.Langfuse;
@@ -9,11 +9,8 @@ using zborek.Langfuse.Models.Evaluation;
 namespace Langfuse.Tests.Integration;
 
 /// <summary>
-///     Integration tests for the unstable Evaluation Rules API.
-///     Note: creating an evaluation rule requires an existing evaluator, and creating a runnable evaluator
-///     requires a working LLM connection (the evaluator create endpoint preflights the model). The test
-///     project has no live LLM credentials, so the create-success path is covered by unit tests; here we cover
-///     the read paths and failure contracts (missing evaluator, not-found ids).
+///     Integration tests for the Evaluation Rules API (v2). Uses a code evaluator (no LLM connection needed)
+///     to exercise the rule lifecycle, plus failure contracts (missing evaluator, not-found ids).
 /// </summary>
 [Collection(LangfuseTestCollection.Name)]
 public class EvaluationRuleTests
@@ -54,15 +51,78 @@ public class EvaluationRuleTests
     }
 
     [Fact]
-    public async Task GetEvaluationRulesAsync_RespectsPagination()
+    public async Task GetEvaluationRulesAsync_RespectsLimit()
     {
         var client = CreateClient();
 
-        var result = await client.GetEvaluationRulesAsync(1, 5);
+        var result = await client.GetEvaluationRulesAsync(5);
 
         result.ShouldNotBeNull();
-        result.Meta.Page.ShouldBe(1);
-        result.Meta.Limit.ShouldBe(5);
+        result.Data.Length.ShouldBeLessThanOrEqualTo(5);
+    }
+
+    [Fact]
+    public async Task EvaluationRule_Lifecycle_WithCodeEvaluator()
+    {
+        var client = CreateClient();
+
+        var evaluator = await client.CreateEvaluatorAsync(new CreateCodeEvaluatorRequest
+        {
+            Name = $"eval-{Guid.NewGuid():N}"[..16],
+            SourceCode =
+                "export function evaluate(ctx) { return { scores: [{ name: \"length\", value: String(ctx.output ?? \"\").length, dataType: \"NUMERIC\" }] }; }",
+            SourceCodeLanguage = CodeEvaluatorSourceCodeLanguage.Typescript
+        });
+
+        try
+        {
+            var rule = await client.CreateEvaluationRuleAsync(new CreateEvaluationRuleRequest
+            {
+                Name = $"rule-{Guid.NewGuid():N}"[..16],
+                Enabled = false,
+                Sampling = 0.5,
+                Filter = new[]
+                {
+                    new StringOptionsEvaluationRuleFilter
+                    {
+                        Column = "type",
+                        Operator = EvaluationRuleOptionsFilterOperator.AnyOf,
+                        Value = new[] { "GENERATION" }
+                    }
+                },
+                EvaluatorAssignments = new[]
+                {
+                    new EvaluationRuleEvaluatorAssignmentInput { EvaluatorId = evaluator.Id }
+                }
+            });
+
+            try
+            {
+                rule.Enabled.ShouldBeFalse();
+                rule.Sampling.ShouldBe(0.5);
+                rule.Filter.Length.ShouldBe(1);
+                rule.EvaluatorAssignments.Single().EvaluatorId.ShouldBe(evaluator.Id);
+
+                var updated = await client.UpdateEvaluationRuleAsync(rule.Id,
+                    new UpdateEvaluationRuleRequest { Name = "renamed" });
+                updated.Name.ShouldBe("renamed");
+
+                var fetched = await client.GetEvaluationRuleAsync(rule.Id);
+                fetched.Id.ShouldBe(rule.Id);
+
+                var evaluatorWithRules = await client.GetEvaluatorAsync(evaluator.Id);
+                evaluatorWithRules.EvaluationRuleAssignments.ShouldContain(a => a.EvaluationRuleId == rule.Id);
+            }
+            finally
+            {
+                var deleted = await client.DeleteEvaluationRuleAsync(rule.Id);
+                deleted.Id.ShouldBe(rule.Id);
+            }
+        }
+        finally
+        {
+            await client.DeleteEvaluatorAsync(evaluator.Id);
+        }
     }
 
     [Fact]
@@ -88,19 +148,13 @@ public class EvaluationRuleTests
     {
         var client = CreateClient();
 
-        var request = new CreateLlmAsJudgeEvaluationRuleRequest
+        var request = new CreateEvaluationRuleRequest
         {
             Name = $"rule-{Guid.NewGuid():N}"[..16],
-            Evaluator = new LlmAsJudgeEvaluationRuleEvaluatorReference
-            {
-                Name = $"missing-{Guid.NewGuid():N}",
-                Scope = EvaluatorScope.Project
-            },
-            Target = EvaluationRuleTarget.Observation,
             Enabled = false,
-            Mapping = new[]
+            EvaluatorAssignments = new[]
             {
-                new EvaluationRuleMapping { Variable = "input", Source = EvaluationRuleMappingSource.Input }
+                new EvaluationRuleEvaluatorAssignmentInput { EvaluatorId = $"missing-{Guid.NewGuid():N}" }
             }
         };
 

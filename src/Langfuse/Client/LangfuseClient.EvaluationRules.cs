@@ -15,20 +15,19 @@ internal partial class LangfuseClient
             throw new ArgumentNullException(nameof(request));
         }
 
-        return await PostAsync<EvaluationRule>("/api/public/unstable/evaluation-rules", request,
+        return await PostAsync<EvaluationRule>("/api/public/v2/evaluation-rules", request,
             "Create Evaluation Rule", cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<PaginatedEvaluationRules> GetEvaluationRulesAsync(
-        int? page = null,
+    public async Task<EvaluationRulesPage> GetEvaluationRulesAsync(
         int? limit = null,
+        string? cursor = null,
         CancellationToken cancellationToken = default)
     {
-        var query = QueryStringHelper.BuildPageLimitQuery(page, limit);
-        var endpoint = $"/api/public/unstable/evaluation-rules{query}";
-
-        return await GetAsync<PaginatedEvaluationRules>(endpoint, "Get Evaluation Rules", cancellationToken);
+        var query = QueryStringHelper.BuildCursorLimitQuery(limit, cursor);
+        return await GetAsync<EvaluationRulesPage>($"/api/public/v2/evaluation-rules{query}",
+            "Get Evaluation Rules", cancellationToken);
     }
 
     /// <inheritdoc />
@@ -41,7 +40,7 @@ internal partial class LangfuseClient
             throw new ArgumentException("Evaluation rule ID cannot be null or empty", nameof(evaluationRuleId));
         }
 
-        var endpoint = $"/api/public/unstable/evaluation-rules/{Uri.EscapeDataString(evaluationRuleId)}";
+        var endpoint = $"/api/public/v2/evaluation-rules/{Uri.EscapeDataString(evaluationRuleId)}";
         return await GetAsync<EvaluationRule>(endpoint, "Get Evaluation Rule", cancellationToken);
     }
 
@@ -61,12 +60,12 @@ internal partial class LangfuseClient
             throw new ArgumentNullException(nameof(request));
         }
 
-        var endpoint = $"/api/public/unstable/evaluation-rules/{Uri.EscapeDataString(evaluationRuleId)}";
+        var endpoint = $"/api/public/v2/evaluation-rules/{Uri.EscapeDataString(evaluationRuleId)}";
         return await PatchAsync<EvaluationRule>(endpoint, request, "Update Evaluation Rule", cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<DeleteEvaluationRuleResponse> DeleteEvaluationRuleAsync(
+    public async Task<DeletedEvaluationRule> DeleteEvaluationRuleAsync(
         string evaluationRuleId,
         CancellationToken cancellationToken = default)
     {
@@ -75,7 +74,7 @@ internal partial class LangfuseClient
             throw new ArgumentException("Evaluation rule ID cannot be null or empty", nameof(evaluationRuleId));
         }
 
-        var endpoint = $"/api/public/unstable/evaluation-rules/{Uri.EscapeDataString(evaluationRuleId)}";
-        return await DeleteAsync<DeleteEvaluationRuleResponse>(endpoint, "Delete Evaluation Rule", cancellationToken);
+        var endpoint = $"/api/public/v2/evaluation-rules/{Uri.EscapeDataString(evaluationRuleId)}";
+        return await DeleteAsync<DeletedEvaluationRule>(endpoint, "Delete Evaluation Rule", cancellationToken);
     }
 }

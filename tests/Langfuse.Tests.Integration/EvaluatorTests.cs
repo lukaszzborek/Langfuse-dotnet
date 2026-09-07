@@ -1,4 +1,4 @@
-using Langfuse.Tests.Integration.Fixtures;
+﻿using Langfuse.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using zborek.Langfuse;
@@ -9,11 +9,9 @@ using zborek.Langfuse.Models.Evaluation;
 namespace Langfuse.Tests.Integration;
 
 /// <summary>
-///     Integration tests for the unstable Evaluators API.
-///     Note: creating a runnable evaluator requires a working LLM connection because the create endpoint
-///     preflights the resolved model configuration (422 evaluator_preflight_failed). The test project has no
-///     live LLM credentials, so the create-success path is covered by unit tests; here we cover the read paths
-///     and the preflight-failure contract.
+///     Integration tests for the Evaluators API (v2). Uses a code evaluator (no LLM connection needed)
+///     to exercise the create/update/versions/delete lifecycle, plus failure contracts (LLM-as-a-judge without a
+///     resolvable model, not-found ids).
 /// </summary>
 [Collection(LangfuseTestCollection.Name)]
 public class EvaluatorTests
@@ -41,13 +39,14 @@ public class EvaluatorTests
         return provider.GetRequiredService<ILangfuseClient>();
     }
 
-    private static EvaluatorOutputDefinition NumericOutput()
+    private static NumericEvaluatorOutputDefinition NumericOutput()
     {
-        return new EvaluatorOutputDefinition
+        return new NumericEvaluatorOutputDefinition
         {
-            DataType = EvaluatorOutputDataType.Numeric,
-            Reasoning = new EvaluatorOutputFieldDefinition { Description = "Explain the score" },
-            Score = new EvaluatorOutputScoreDefinition { Description = "Score between 0 and 1" }
+            ScoreReasoningInstructions = "Explain the score",
+            ScoreValueInstructions = "Score between 0 and 1",
+            MinValue = 0,
+            MaxValue = 1
         };
     }
 
@@ -64,15 +63,14 @@ public class EvaluatorTests
     }
 
     [Fact]
-    public async Task GetEvaluatorsAsync_RespectsPagination()
+    public async Task GetEvaluatorsAsync_RespectsLimit()
     {
         var client = CreateClient();
 
-        var result = await client.GetEvaluatorsAsync(1, 5);
+        var result = await client.GetEvaluatorsAsync(5);
 
         result.ShouldNotBeNull();
-        result.Meta.Page.ShouldBe(1);
-        result.Meta.Limit.ShouldBe(5);
+        result.Data.Length.ShouldBeLessThanOrEqualTo(5);
     }
 
     [Fact]
@@ -94,7 +92,43 @@ public class EvaluatorTests
     }
 
     [Fact]
-    public async Task CreateEvaluatorAsync_WithoutResolvableModel_FailsPreflight()
+    public async Task CreateEvaluatorAsync_Code_CreatesUpdatesListsVersionsAndDeletes()
+    {
+        var client = CreateClient();
+
+        var created = await client.CreateEvaluatorAsync(new CreateCodeEvaluatorRequest
+        {
+            Name = $"eval-{Guid.NewGuid():N}"[..16],
+            SourceCode =
+                "export function evaluate(ctx) { return { scores: [{ name: \"length\", value: String(ctx.output ?? \"\").length, dataType: \"NUMERIC\" }] }; }",
+            SourceCodeLanguage = CodeEvaluatorSourceCodeLanguage.Typescript
+        });
+
+        try
+        {
+            var codeEvaluator = created.ShouldBeOfType<CodeEvaluator>();
+            codeEvaluator.Version.ShouldBe(1);
+
+            var updated = await client.UpdateEvaluatorAsync(created.Id,
+                new UpdateEvaluatorMetadataRequest { Description = "updated" });
+            updated.Description.ShouldBe("updated");
+            updated.Version.ShouldBe(1);
+
+            var fetched = await client.GetEvaluatorAsync(created.Id);
+            fetched.Id.ShouldBe(created.Id);
+
+            var versions = await client.GetEvaluatorVersionsAsync(created.Id);
+            versions.Data.ShouldContain(v => v.Version == 1);
+        }
+        finally
+        {
+            var deleted = await client.DeleteEvaluatorAsync(created.Id);
+            deleted.Id.ShouldBe(created.Id);
+        }
+    }
+
+    [Fact]
+    public async Task CreateEvaluatorAsync_LlmAsJudge_WithoutResolvableModel_IsPausedOrRejected()
     {
         var client = CreateClient();
 
@@ -105,11 +139,24 @@ public class EvaluatorTests
             OutputDefinition = NumericOutput()
         };
 
-        // No project default evaluation model and no explicit modelConfig => preflight cannot resolve a model.
-        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
-            await client.CreateEvaluatorAsync(request));
-
-        exception.StatusCode.ShouldBe(422);
+        // No project default evaluation model and no explicit modelConfig: the API either rejects the
+        // request or returns an evaluator paused by a missing model configuration.
+        try
+        {
+            var created = await client.CreateEvaluatorAsync(request);
+            try
+            {
+                created.Status.ShouldBe(EvaluatorStatus.Paused);
+            }
+            finally
+            {
+                await client.DeleteEvaluatorAsync(created.Id);
+            }
+        }
+        catch (LangfuseApiException exception)
+        {
+            exception.StatusCode.ShouldBeOneOf(400, 412, 422);
+        }
     }
 
     [Fact]

@@ -23,7 +23,7 @@ public class LangfuseClientEvaluationRulesTests
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
         var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
+        var config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
         _client = new LangfuseClient(httpClient, channel, config, logger);
@@ -35,87 +35,49 @@ public class LangfuseClientEvaluationRulesTests
         {
             Id = id,
             Name = "My rule",
-            Evaluator = new EvaluationRuleEvaluator
-            {
-                Id = "ev-1", Name = "helpfulness", Scope = EvaluatorScope.Project, Type = EvaluatorType.Llm_As_Judge
-            },
-            Target = EvaluationRuleTarget.Observation,
             Enabled = true,
-            Status = EvaluationRuleStatus.Active,
             Sampling = 1.0,
-            Filter = Array.Empty<EvaluationRuleFilter>(),
-            Mapping = new[]
-            {
-                new EvaluationRuleMapping { Variable = "input", Source = EvaluationRuleMappingSource.Input }
-            },
+            Filter = Array.Empty<EvaluationRuleReadFilter>(),
+            EvaluatorAssignments = new[] { new EvaluatorAssignment { EvaluatorId = "ev-1" } },
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
     }
 
     [Fact]
-    public async Task CreateEvaluationRuleAsync_LlmAsJudge_PostsToUnstableEndpoint_ReturnsRule()
+    public async Task CreateEvaluationRuleAsync_PostsToV2Endpoint_ReturnsRule()
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule());
 
-        var request = new CreateLlmAsJudgeEvaluationRuleRequest
+        var request = new CreateEvaluationRuleRequest
         {
             Name = "My rule",
-            Evaluator = new LlmAsJudgeEvaluationRuleEvaluatorReference
-            {
-                Name = "helpfulness", Scope = EvaluatorScope.Project
-            },
-            Target = EvaluationRuleTarget.Observation,
             Enabled = true,
-            Mapping = new[]
+            Sampling = 0.5,
+            Filter = new[]
             {
-                new EvaluationRuleMapping { Variable = "input", Source = EvaluationRuleMappingSource.Input }
-            }
+                new StringOptionsEvaluationRuleFilter
+                {
+                    Column = "type",
+                    Operator = EvaluationRuleOptionsFilterOperator.AnyOf,
+                    Value = new[] { "GENERATION" }
+                }
+            },
+            EvaluatorAssignments = new[] { new EvaluationRuleEvaluatorAssignmentInput { EvaluatorId = "ev-1" } }
         };
 
         var result = await _client.CreateEvaluationRuleAsync(request);
 
-        result.ShouldNotBeNull();
         result.Id.ShouldBe("rule-1");
-        result.Evaluator.Type.ShouldBe(EvaluatorType.Llm_As_Judge);
+        result.EvaluatorAssignments.Single().EvaluatorId.ShouldBe("ev-1");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluation-rules");
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluation-rules");
 
         var body = await _httpHandler.GetLastRequestBodyAsync();
         body.ShouldNotBeNull();
-        body.ShouldContain("\"target\":\"observation\"");
-        body.ShouldContain("\"source\":\"input\"");
-        body.ShouldContain("\"type\":\"llm_as_judge\"");
-    }
-
-    [Fact]
-    public async Task CreateEvaluationRuleAsync_Code_SendsCodeEvaluatorReference_WithoutMapping()
-    {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule());
-
-        var request = new CreateCodeEvaluationRuleRequest
-        {
-            Name = "My code rule",
-            Evaluator = new CodeEvaluationRuleEvaluatorReference
-            {
-                Name = "length-check", Scope = EvaluatorScope.Project
-            },
-            Target = EvaluationRuleTarget.Observation,
-            Enabled = true
-        };
-
-        await _client.CreateEvaluationRuleAsync(request);
-
-        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluation-rules");
-
-        var body = await _httpHandler.GetLastRequestBodyAsync();
-        body.ShouldNotBeNull();
-        body.ShouldContain("\"type\":\"code\"");
-        body.ShouldContain("\"name\":\"length-check\"");
-        body.ShouldNotContain("mapping");
+        body.ShouldContain("\"sampling\":0.5");
+        body.ShouldContain("\"operator\":\"any of\"");
+        body.ShouldContain("\"evaluatorAssignments\":[{\"evaluatorId\":\"ev-1\"}]");
     }
 
     [Fact]
@@ -126,91 +88,98 @@ public class LangfuseClientEvaluationRulesTests
     }
 
     [Fact]
-    public async Task GetEvaluationRulesAsync_NoPaging_GetsUnstableEndpoint()
+    public async Task GetEvaluationRulesAsync_WithLimitAndCursor_BuildsQuery()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, new PaginatedEvaluationRules
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new EvaluationRulesPage
         {
             Data = new[] { SampleRule() },
-            Meta = new ApiMetadata { Page = 1, Limit = 50, TotalItems = 1, TotalPages = 1 }
+            Meta = new CursorMeta { Cursor = "next" }
         });
 
-        var result = await _client.GetEvaluationRulesAsync();
+        var result = await _client.GetEvaluationRulesAsync(20, "cur");
 
         result.Data.Length.ShouldBe(1);
+        result.Meta.Cursor.ShouldBe("next");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluation-rules");
-        _httpHandler.LastRequest?.RequestUri?.Query.ShouldBeEmpty();
+        _httpHandler.LastRequest?.RequestUri?.PathAndQuery
+            .ShouldBe("/api/public/v2/evaluation-rules?limit=20&cursor=cur");
     }
 
     [Fact]
-    public async Task GetEvaluationRulesAsync_WithPaging_BuildsQuery()
+    public async Task GetEvaluationRulesAsync_NoParams_NoQuery()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, new PaginatedEvaluationRules
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new EvaluationRulesPage
         {
             Data = Array.Empty<EvaluationRule>(),
-            Meta = new ApiMetadata { Page = 2, Limit = 10, TotalItems = 0, TotalPages = 0 }
+            Meta = new CursorMeta()
         });
 
-        await _client.GetEvaluationRulesAsync(2, 10);
+        await _client.GetEvaluationRulesAsync();
 
-        var query = _httpHandler.LastRequest?.RequestUri?.Query;
-        query.ShouldContain("page=2");
-        query.ShouldContain("limit=10");
+        _httpHandler.LastRequest?.RequestUri?.PathAndQuery.ShouldBe("/api/public/v2/evaluation-rules");
     }
 
     [Fact]
-    public async Task GetEvaluationRuleAsync_GetsByIdOnUnstableEndpoint()
+    public async Task GetEvaluationRuleAsync_GetsById()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule("rule-42"));
+        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule("rule 1"));
 
-        var result = await _client.GetEvaluationRuleAsync("rule-42");
+        var result = await _client.GetEvaluationRuleAsync("rule 1");
 
-        result.Id.ShouldBe("rule-42");
-        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluation-rules/rule-42");
+        result.Id.ShouldBe("rule 1");
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluation-rules/rule%201");
     }
 
     [Fact]
     public async Task GetEvaluationRuleAsync_NullId_ThrowsArgumentException()
     {
-        await Should.ThrowAsync<ArgumentException>(async () =>
-            await _client.GetEvaluationRuleAsync(null!));
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.GetEvaluationRuleAsync(null!));
     }
 
     [Fact]
-    public async Task UpdateEvaluationRuleAsync_PatchesUnstableEndpoint()
+    public async Task UpdateEvaluationRuleAsync_PatchesById_OmitsNulls()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule("rule-7"));
+        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule());
 
-        var result = await _client.UpdateEvaluationRuleAsync("rule-7",
-            new UpdateEvaluationRuleRequest { Enabled = false });
+        await _client.UpdateEvaluationRuleAsync("rule-1", new UpdateEvaluationRuleRequest
+        {
+            Enabled = false,
+            EvaluatorAssignments = Array.Empty<EvaluationRuleEvaluatorAssignmentInput>()
+        });
 
-        result.Id.ShouldBe("rule-7");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Patch);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluation-rules/rule-7");
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluation-rules/rule-1");
+        (await _httpHandler.GetLastRequestBodyAsync()).ShouldBe("{\"enabled\":false,\"evaluatorAssignments\":[]}");
     }
 
     [Fact]
-    public async Task DeleteEvaluationRuleAsync_DeletesUnstableEndpoint_ReturnsMessage()
+    public async Task UpdateEvaluationRuleAsync_NullRequest_ThrowsArgumentNullException()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK,
-            new DeleteEvaluationRuleResponse { Message = "deleted" });
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
+            await _client.UpdateEvaluationRuleAsync("rule-1", null!));
+    }
 
-        var result = await _client.DeleteEvaluationRuleAsync("rule-9");
+    [Fact]
+    public async Task DeleteEvaluationRuleAsync_DeletesById_ReturnsConfirmation()
+    {
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new DeletedEvaluationRule { Id = "rule-1" });
 
-        result.Message.ShouldBe("deleted");
+        var result = await _client.DeleteEvaluationRuleAsync("rule-1");
+
+        result.Id.ShouldBe("rule-1");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluation-rules/rule-9");
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluation-rules/rule-1");
+    }
+
+    [Fact]
+    public async Task DeleteEvaluationRuleAsync_NullId_ThrowsArgumentException()
+    {
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.DeleteEvaluationRuleAsync(""));
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
         private readonly List<HttpRequestMessage> _requests = new();
-        private Exception? _exception;
         private HttpResponseMessage? _response;
 
         public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
@@ -227,11 +196,6 @@ public class LangfuseClientEvaluationRulesTests
             };
         }
 
-        public void SetupException(Exception exception)
-        {
-            _exception = exception;
-        }
-
         public async Task<string?> GetLastRequestBodyAsync()
         {
             if (LastRequest?.Content == null)
@@ -246,11 +210,6 @@ public class LangfuseClientEvaluationRulesTests
             CancellationToken cancellationToken)
         {
             _requests.Add(request);
-
-            if (_exception != null)
-            {
-                throw _exception;
-            }
 
             if (_response != null)
             {
