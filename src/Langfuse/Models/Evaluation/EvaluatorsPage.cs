@@ -1,22 +1,21 @@
 using System.Text.Json.Serialization;
-using zborek.Langfuse.Models.Core;
 
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     Paginated list of evaluators.
+///     Cursor-paginated page of evaluators.
 /// </summary>
-public record PaginatedEvaluators
+public class EvaluatorsPage
 {
     /// <summary>
-    ///     Evaluators in the current page.
+    ///     Evaluators for this page.
     /// </summary>
     [JsonPropertyName("data")]
     public required Evaluator[] Data { get; init; }
 
     /// <summary>
-    ///     Standard pagination metadata.
+    ///     Cursor pagination metadata.
     /// </summary>
     [JsonPropertyName("meta")]
-    public required ApiMetadata Meta { get; init; }
+    public required CursorMeta Meta { get; init; }
 }

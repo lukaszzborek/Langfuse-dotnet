@@ -1,4 +1,4 @@
-using DotNet.Testcontainers.Builders;
+﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 using OpenTelemetry;
@@ -319,6 +319,12 @@ public class LangfuseTestFixture : IAsyncLifetime
             ["LANGFUSE_MIGRATION_V4_WRITE_MODE"] = V4Mode,
             ["LANGFUSE_MIGRATION_V4_NATIVE_OTEL_BEHAVIOUR"] = V4Mode == "dual" ? "dual_write" : "direct",
             ["LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES"] = "true",
+
+            // Code evaluators are disabled unless a dispatcher is configured; without it the evaluator and
+            // evaluation rule APIs reject code evaluators with 412 "Code evaluations are not enabled for this
+            // deployment.". insecure-local runs evaluator code in the worker process - fine for tests.
+            ["LANGFUSE_CODE_EVAL_DISPATCHER"] = "insecure-local",
+            ["QUEUE_CONSUMER_CODE_EVAL_EXECUTION_QUEUE_IS_ENABLED"] = "true",
 
             // ClickHouse
             ["CLICKHOUSE_MIGRATION_URL"] = "clickhouse://clickhouse:9000",

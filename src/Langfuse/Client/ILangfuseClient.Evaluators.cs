@@ -12,34 +12,32 @@ public partial interface ILangfuseClient
     /// </summary>
     /// <param name="request">Evaluator configuration</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The created evaluator version</returns>
+    /// <returns>The created evaluator at version 1</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    /// <remarks>
-    ///     If the name already exists in the project, a new version is created and returned.
-    ///     This is an unstable API surface and may evolve while the evaluation data model is redesigned.
-    /// </remarks>
+    /// <remarks>Names are not identifiers and do not need to be unique; this always creates a new evaluator.</remarks>
     Task<Evaluator> CreateEvaluatorAsync(
         CreateEvaluatorRequest request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Lists the evaluators available to the authenticated project, returning the latest version of each
+    ///     Lists evaluators in newest-first creation order. Every evaluator includes its latest definition and
+    ///     version metadata plus associated evaluation rules
     /// </summary>
-    /// <param name="page">Optional 1-based page number. Defaults to 1.</param>
-    /// <param name="limit">Optional maximum number of items per page. Defaults to 50.</param>
+    /// <param name="limit">Optional maximum number of items. Defaults to 50, cannot exceed 100.</param>
+    /// <param name="cursor">Optional opaque cursor returned by the previous page</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated list of evaluators</returns>
+    /// <returns>Cursor-paginated page of evaluators</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    /// <remarks>Results can include both project evaluators and Langfuse-managed evaluators</remarks>
-    Task<PaginatedEvaluators> GetEvaluatorsAsync(
-        int? page = null,
+    Task<EvaluatorsPage> GetEvaluatorsAsync(
         int? limit = null,
+        string? cursor = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Gets a single evaluator by id, including its prompt, output definition, model configuration, and variables
+    ///     Gets one evaluator by its stable identifier, including its latest definition and version metadata
+    ///     plus associated evaluation rules
     /// </summary>
-    /// <param name="evaluatorId">Evaluator identifier</param>
+    /// <param name="evaluatorId">Stable evaluator identifier</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The evaluator</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
@@ -48,18 +46,45 @@ public partial interface ILangfuseClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Deletes an evaluator including all of its stored versions
+    ///     Updates an evaluator by its stable identifier. Metadata-only changes
+    ///     (<see cref="UpdateEvaluatorMetadataRequest" />) do not create a version; definition replacements
+    ///     (<see cref="UpdateLlmAsJudgeEvaluatorRequest" />, <see cref="UpdateCodeEvaluatorRequest" />) replace
+    ///     the definition as a complete unit and create a new version. Evaluator type cannot change.
     /// </summary>
-    /// <param name="evaluatorId">Evaluator identifier; may reference any version</param>
+    /// <param name="evaluatorId">Stable evaluator identifier</param>
+    /// <param name="request">Update body</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The updated evaluator</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    Task<Evaluator> UpdateEvaluatorAsync(
+        string evaluatorId,
+        UpdateEvaluatorRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Deletes an evaluator and all of its stored versions. Associated evaluation-rule assignments are also
+    ///     removed; scores already produced by the evaluator are preserved
+    /// </summary>
+    /// <param name="evaluatorId">Stable evaluator identifier</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Deletion confirmation</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    /// <remarks>
-    ///     The API returns 409 while evaluation rules still reference the evaluator; delete those rules first.
-    ///     Langfuse-managed evaluators (scope=managed) cannot be deleted and return 403.
-    ///     Scores already produced by the evaluator are not deleted.
-    /// </remarks>
-    Task<DeleteEvaluatorResponse> DeleteEvaluatorAsync(
+    Task<DeletedEvaluator> DeleteEvaluatorAsync(
         string evaluatorId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Lists an evaluator's version history in newest-first order. Intended for history and audit use cases.
+    /// </summary>
+    /// <param name="evaluatorId">Stable evaluator identifier</param>
+    /// <param name="limit">Optional maximum number of versions. Defaults to 50, cannot exceed 100.</param>
+    /// <param name="cursor">Optional opaque cursor returned by the previous page</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Cursor-paginated page of evaluator versions</returns>
+    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
+    Task<EvaluatorVersionsPage> GetEvaluatorVersionsAsync(
+        string evaluatorId,
+        int? limit = null,
+        string? cursor = null,
         CancellationToken cancellationToken = default);
 }

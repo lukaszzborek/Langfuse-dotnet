@@ -279,6 +279,7 @@ public class ModelValidationTests
         {
             ModelName = "custom-model",
             MatchPattern = "custom-.*",
+            Unit = ModelUsageUnit.Tokens,
             InputPrice = 0.01,
             OutputPrice = 0.02,
             PricingTiers =

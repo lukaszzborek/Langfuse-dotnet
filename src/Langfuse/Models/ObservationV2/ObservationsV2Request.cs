@@ -10,7 +10,7 @@ public class ObservationsV2Request
 {
     /// <summary>
     ///     Comma-separated list of field groups to include in the response.
-    ///     Available groups: core, basic, time, io, metadata, model, usage, prompt, metrics.
+    ///     Available groups: core, basic, time, io, metadata, model, usage, prompt, metrics, trace_context.
     ///     If not specified, `core` and `basic` field groups are returned.
     /// </summary>
     /// <example>basic,usage,model</example>

@@ -3,57 +3,38 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     Partial update body for an evaluation rule. Provide only the fields you want to change.
-///     An empty body is rejected by the API.
+///     Partial update for an evaluation rule. Provide only the fields to change; at least one is required.
+///     Legacy trace and dataset rules can only be deactivated via <see cref="Enabled" />.
 /// </summary>
 public class UpdateEvaluationRuleRequest
 {
     /// <summary>
-    ///     Updated deployment name.
+    ///     New human-readable rule name.
     /// </summary>
     [JsonPropertyName("name")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Name { get; init; }
 
     /// <summary>
-    ///     Updated evaluator family. Langfuse resolves it to its latest version before saving the rule.
-    /// </summary>
-    [JsonPropertyName("evaluator")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public EvaluationRuleEvaluatorReference? Evaluator { get; init; }
-
-    /// <summary>
-    ///     Updated target object type.
-    /// </summary>
-    [JsonPropertyName("target")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public EvaluationRuleTarget? Target { get; init; }
-
-    /// <summary>
-    ///     Updated desired enabled state.
+    ///     New desired live-execution state. Setting true is rejected when the resulting assignment list is empty.
     /// </summary>
     [JsonPropertyName("enabled")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Enabled { get; init; }
 
     /// <summary>
-    ///     Updated sampling fraction.
+    ///     New fraction of matching observations to evaluate. Omit to keep the current value.
     /// </summary>
     [JsonPropertyName("sampling")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public double? Sampling { get; init; }
 
     /// <summary>
-    ///     Updated filter list.
+    ///     Complete replacement filter list. An empty list matches every incoming observation.
     /// </summary>
     [JsonPropertyName("filter")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public EvaluationRuleFilter[]? Filter { get; init; }
 
     /// <summary>
-    ///     Updated variable mappings.
+    ///     Complete replacement assignment list. An empty list disables the rule.
     /// </summary>
-    [JsonPropertyName("mapping")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public EvaluationRuleMapping[]? Mapping { get; init; }
+    [JsonPropertyName("evaluatorAssignments")]
+    public EvaluationRuleEvaluatorAssignmentInput[]? EvaluatorAssignments { get; init; }
 }

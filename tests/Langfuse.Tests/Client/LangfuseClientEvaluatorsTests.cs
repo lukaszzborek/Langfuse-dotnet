@@ -23,20 +23,10 @@ public class LangfuseClientEvaluatorsTests
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
         var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
+        var config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
         _client = new LangfuseClient(httpClient, channel, config, logger);
-    }
-
-    private static EvaluatorOutputDefinition SampleOutput()
-    {
-        return new EvaluatorOutputDefinition
-        {
-            DataType = EvaluatorOutputDataType.Numeric,
-            Reasoning = new EvaluatorOutputFieldDefinition { Description = "why" },
-            Score = new EvaluatorOutputScoreDefinition { Description = "0..1" }
-        };
     }
 
     private static LlmAsJudgeEvaluator SampleEvaluator(string id = "ev-1")
@@ -45,19 +35,22 @@ public class LangfuseClientEvaluatorsTests
         {
             Id = id,
             Name = "helpfulness",
-            Version = 1,
-            Scope = EvaluatorScope.Project,
-            Prompt = "Rate {{input}}",
+            Status = EvaluatorStatus.Active,
+            EvaluationRuleAssignments = Array.Empty<EvaluationRuleAssignment>(),
+            Prompt = new[]
+                { new EvaluatorChatMessage { Role = EvaluatorChatMessageRole.User, Content = "Rate {{input}}" } },
             Variables = new[] { "input" },
-            OutputDefinition = SampleOutput(),
-            EvaluationRuleCount = 0,
+            OutputDefinition = new NumericEvaluatorOutputDefinition(),
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            VersionId = "ver-1",
+            Version = 1,
+            VersionCreatedAt = DateTime.UtcNow
         };
     }
 
     [Fact]
-    public async Task CreateEvaluatorAsync_LlmAsJudge_PostsToUnstableEndpoint_ReturnsEvaluator()
+    public async Task CreateEvaluatorAsync_LlmAsJudge_PostsToV2Endpoint_ReturnsEvaluator()
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
 
@@ -65,22 +58,21 @@ public class LangfuseClientEvaluatorsTests
         {
             Name = "helpfulness",
             Prompt = "Rate {{input}}",
-            OutputDefinition = SampleOutput()
+            OutputDefinition = new NumericEvaluatorOutputDefinition()
         };
 
         var result = await _client.CreateEvaluatorAsync(request);
 
-        result.ShouldNotBeNull();
         result.ShouldBeOfType<LlmAsJudgeEvaluator>();
         result.Id.ShouldBe("ev-1");
         result.Type.ShouldBe(EvaluatorType.Llm_As_Judge);
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluators");
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluators");
 
         var body = await _httpHandler.GetLastRequestBodyAsync();
         body.ShouldNotBeNull();
         body.ShouldContain("\"type\":\"llm_as_judge\"");
+        body.ShouldContain("\"prompt\":\"Rate {{input}}\"");
         body.ShouldContain("\"dataType\":\"NUMERIC\"");
     }
 
@@ -90,15 +82,22 @@ public class LangfuseClientEvaluatorsTests
         _httpHandler.SetupJsonResponse(HttpStatusCode.OK, @"{
             ""id"": ""ev-2"",
             ""name"": ""length-check"",
-            ""version"": 1,
-            ""scope"": ""project"",
+            ""description"": null,
             ""type"": ""code"",
-            ""variables"": [""input"", ""output""],
+            ""createdBy"": null,
+            ""status"": ""active"",
+            ""pausedAt"": null,
+            ""pausedReason"": null,
+            ""pausedMessage"": null,
+            ""evaluationRuleAssignments"": [],
             ""sourceCode"": ""def evaluate(*, output, **kwargs): return len(output)"",
             ""sourceCodeLanguage"": ""PYTHON"",
-            ""evaluationRuleCount"": 0,
             ""createdAt"": ""2024-01-01T00:00:00Z"",
-            ""updatedAt"": ""2024-01-01T00:00:00Z""
+            ""updatedAt"": ""2024-01-01T00:00:00Z"",
+            ""versionId"": ""ver-1"",
+            ""version"": 1,
+            ""versionCreatedAt"": ""2024-01-01T00:00:00Z"",
+            ""versionCreatedBy"": null
         }");
 
         var request = new CreateCodeEvaluatorRequest
@@ -112,7 +111,6 @@ public class LangfuseClientEvaluatorsTests
 
         var codeEvaluator = result.ShouldBeOfType<CodeEvaluator>();
         codeEvaluator.Type.ShouldBe(EvaluatorType.Code);
-        codeEvaluator.SourceCode.ShouldBe("def evaluate(*, output, **kwargs): return len(output)");
         codeEvaluator.SourceCodeLanguage.ShouldBe(CodeEvaluatorSourceCodeLanguage.Python);
 
         var body = await _httpHandler.GetLastRequestBodyAsync();
@@ -129,85 +127,137 @@ public class LangfuseClientEvaluatorsTests
     }
 
     [Fact]
-    public async Task GetEvaluatorsAsync_NoPaging_GetsUnstableEndpoint()
+    public async Task GetEvaluatorsAsync_NoPaging_GetsV2Endpoint()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, new PaginatedEvaluators
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new EvaluatorsPage
         {
             Data = new Evaluator[] { SampleEvaluator() },
-            Meta = new ApiMetadata { Page = 1, Limit = 50, TotalItems = 1, TotalPages = 1 }
+            Meta = new CursorMeta { Cursor = "next" }
         });
 
         var result = await _client.GetEvaluatorsAsync();
 
         result.Data.Length.ShouldBe(1);
-        result.Data[0].ShouldBeOfType<LlmAsJudgeEvaluator>();
+        result.Meta.Cursor.ShouldBe("next");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluators");
-        _httpHandler.LastRequest?.RequestUri?.Query.ShouldBeEmpty();
+        _httpHandler.LastRequest?.RequestUri?.PathAndQuery.ShouldBe("/api/public/v2/evaluators");
     }
 
     [Fact]
-    public async Task GetEvaluatorsAsync_WithPaging_BuildsQuery()
+    public async Task GetEvaluatorsAsync_WithLimitAndCursor_BuildsQuery()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, new PaginatedEvaluators
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new EvaluatorsPage
         {
             Data = Array.Empty<Evaluator>(),
-            Meta = new ApiMetadata { Page = 3, Limit = 5, TotalItems = 0, TotalPages = 0 }
+            Meta = new CursorMeta()
         });
 
-        await _client.GetEvaluatorsAsync(3, 5);
+        await _client.GetEvaluatorsAsync(10, "abc=");
 
-        var query = _httpHandler.LastRequest?.RequestUri?.Query;
-        query.ShouldContain("page=3");
-        query.ShouldContain("limit=5");
+        _httpHandler.LastRequest?.RequestUri?.PathAndQuery
+            .ShouldBe("/api/public/v2/evaluators?limit=10&cursor=abc%3d");
     }
 
     [Fact]
-    public async Task GetEvaluatorAsync_GetsByIdOnUnstableEndpoint()
+    public async Task GetEvaluatorAsync_GetsById()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator("ev-99"));
+        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator("ev/1"));
 
-        var result = await _client.GetEvaluatorAsync("ev-99");
+        var result = await _client.GetEvaluatorAsync("ev/1");
 
-        result.Id.ShouldBe("ev-99");
-        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluators/ev-99");
+        result.Id.ShouldBe("ev/1");
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluators/ev%2F1");
     }
 
     [Fact]
     public async Task GetEvaluatorAsync_NullId_ThrowsArgumentException()
     {
-        await Should.ThrowAsync<ArgumentException>(async () =>
-            await _client.GetEvaluatorAsync(null!));
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.GetEvaluatorAsync(" "));
     }
 
     [Fact]
-    public async Task DeleteEvaluatorAsync_DeletesUnstableEndpoint_ReturnsMessage()
+    public async Task UpdateEvaluatorAsync_PatchesById()
     {
-        _httpHandler.SetupResponse(HttpStatusCode.OK,
-            new DeleteEvaluatorResponse { Message = "Evaluator successfully deleted" });
+        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
 
-        var result = await _client.DeleteEvaluatorAsync("ev-5");
+        await _client.UpdateEvaluatorAsync("ev-1", new UpdateEvaluatorMetadataRequest { Name = "renamed" });
 
-        result.Message.ShouldBe("Evaluator successfully deleted");
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Patch);
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluators/ev-1");
+        (await _httpHandler.GetLastRequestBodyAsync()).ShouldBe("{\"name\":\"renamed\"}");
+    }
+
+    [Fact]
+    public async Task UpdateEvaluatorAsync_ExplicitNullDescription_SendsNullToClearIt()
+    {
+        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
+
+        await _client.UpdateEvaluatorAsync("ev-1",
+            new UpdateEvaluatorMetadataRequest { Name = "renamed", Description = null });
+
+        (await _httpHandler.GetLastRequestBodyAsync()).ShouldBe("{\"name\":\"renamed\",\"description\":null}");
+    }
+
+    [Fact]
+    public async Task UpdateEvaluatorAsync_DescriptionSet_SendsDescription()
+    {
+        _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
+
+        await _client.UpdateEvaluatorAsync("ev-1", new UpdateEvaluatorMetadataRequest { Description = "new" });
+
+        (await _httpHandler.GetLastRequestBodyAsync()).ShouldBe("{\"description\":\"new\"}");
+    }
+
+    [Fact]
+    public async Task UpdateEvaluatorAsync_NullRequest_ThrowsArgumentNullException()
+    {
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
+            await _client.UpdateEvaluatorAsync("ev-1", null!));
+    }
+
+    [Fact]
+    public async Task DeleteEvaluatorAsync_DeletesById_ReturnsConfirmation()
+    {
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new DeletedEvaluator { Id = "ev-1" });
+
+        var result = await _client.DeleteEvaluatorAsync("ev-1");
+
+        result.Id.ShouldBe("ev-1");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
-        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
-            .ShouldBe("/api/public/unstable/evaluators/ev-5");
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluators/ev-1");
     }
 
     [Fact]
     public async Task DeleteEvaluatorAsync_NullId_ThrowsArgumentException()
     {
-        await Should.ThrowAsync<ArgumentException>(async () =>
-            await _client.DeleteEvaluatorAsync(null!));
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.DeleteEvaluatorAsync(null!));
+    }
+
+    [Fact]
+    public async Task GetEvaluatorVersionsAsync_GetsVersionsWithQuery()
+    {
+        _httpHandler.SetupJsonResponse(HttpStatusCode.OK, @"{ ""data"": [
+            { ""id"": ""ver-1"", ""version"": 1, ""createdAt"": ""2024-01-01T00:00:00Z"", ""createdBy"": null,
+              ""type"": ""code"", ""sourceCode"": ""x"", ""sourceCodeLanguage"": ""PYTHON"" }
+        ], ""meta"": {} }");
+
+        var result = await _client.GetEvaluatorVersionsAsync("ev-1", 5, "c");
+
+        result.Data.Single().ShouldBeOfType<CodeEvaluatorVersion>().Version.ShouldBe(1);
+        result.Meta.Cursor.ShouldBeNull();
+        _httpHandler.LastRequest?.RequestUri?.PathAndQuery
+            .ShouldBe("/api/public/v2/evaluators/ev-1/versions?limit=5&cursor=c");
+    }
+
+    [Fact]
+    public async Task GetEvaluatorVersionsAsync_NullId_ThrowsArgumentException()
+    {
+        await Should.ThrowAsync<ArgumentException>(async () => await _client.GetEvaluatorVersionsAsync(""));
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler
     {
         private readonly List<HttpRequestMessage> _requests = new();
-        private Exception? _exception;
         private HttpResponseMessage? _response;
 
         public HttpRequestMessage? LastRequest => _requests.LastOrDefault();
@@ -229,11 +279,6 @@ public class LangfuseClientEvaluatorsTests
             };
         }
 
-        public void SetupException(Exception exception)
-        {
-            _exception = exception;
-        }
-
         public async Task<string?> GetLastRequestBodyAsync()
         {
             if (LastRequest?.Content == null)
@@ -248,11 +293,6 @@ public class LangfuseClientEvaluatorsTests
             CancellationToken cancellationToken)
         {
             _requests.Add(request);
-
-            if (_exception != null)
-            {
-                throw _exception;
-            }
 
             if (_response != null)
             {

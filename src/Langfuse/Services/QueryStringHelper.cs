@@ -52,6 +52,20 @@ internal static class QueryStringHelper
     }
 
     /// <summary>
+    ///     Builds a query string from optional limit and cursor parameters
+    /// </summary>
+    /// <param name="limit">Optional maximum number of items per page</param>
+    /// <param name="cursor">Optional opaque cursor returned by the previous page</param>
+    /// <returns>Query string starting with '?', or an empty string when both are null</returns>
+    public static string BuildCursorLimitQuery(int? limit, string? cursor)
+    {
+        var parameters = new List<string>();
+        AddParameter(parameters, "limit", limit);
+        AddParameter(parameters, "cursor", cursor);
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
     ///     Builds a query string from an observation list request
     /// </summary>
     /// <param name="request">The observation list request</param>

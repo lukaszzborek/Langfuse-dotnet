@@ -12,13 +12,13 @@ public class CodeEvaluator : Evaluator
     public override EvaluatorType Type => EvaluatorType.Code;
 
     /// <summary>
-    ///     Source code executed for each matched observation.
+    ///     Source code executed by the latest evaluator version.
     /// </summary>
     [JsonPropertyName("sourceCode")]
     public required string SourceCode { get; init; }
 
     /// <summary>
-    ///     Runtime language for <see cref="SourceCode" />.
+    ///     Runtime language used to execute the latest source code.
     /// </summary>
     [JsonPropertyName("sourceCodeLanguage")]
     public required CodeEvaluatorSourceCodeLanguage SourceCodeLanguage { get; init; }

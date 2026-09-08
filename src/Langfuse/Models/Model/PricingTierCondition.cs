@@ -63,10 +63,11 @@ public class PricingTierUsageCondition : PricingTierCondition
 
     /// <summary>
     ///     Whether the regex pattern matching is case-sensitive.
-    ///     Default is false (case-insensitive matching).
+    ///     Optional on input, where it defaults to false (case-insensitive matching) when omitted.
+    ///     Always present on conditions read back from the API, so responses never leave this null.
     /// </summary>
     [JsonPropertyName("caseSensitive")]
-    public bool CaseSensitive { get; set; }
+    public bool? CaseSensitive { get; set; }
 }
 
 /// <summary>

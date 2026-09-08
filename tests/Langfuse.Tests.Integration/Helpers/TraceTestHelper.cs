@@ -60,7 +60,8 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            if (await ObservationExistsOnceAsync(observationId, cancellationToken))
+            if (await ObservationExistsOnceAsync(observationId, cancellationToken) &&
+                await LegacyObservationExistsAsync(observationId, cancellationToken))
             {
                 return;
             }
@@ -142,6 +143,31 @@ public class TraceTestHelper
         {
 #pragma warning disable CS0618
             await _client.GetTraceAsync(traceId, cancellationToken);
+#pragma warning restore CS0618
+            return true;
+        }
+        catch (LangfuseApiException ex) when (ex.StatusCode == 404)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    ///     In dual mode the legacy observations table is written separately from the v2 observations table and can lag
+    ///     behind. Legacy read endpoints (GET /observations/{id}, GET /observations) query that table, so wait for it too.
+    ///     In events_only mode those endpoints do not exist, so only the v2 check applies.
+    /// </summary>
+    private async Task<bool> LegacyObservationExistsAsync(string observationId, CancellationToken cancellationToken)
+    {
+        if (LangfuseTestFixture.V4Mode != "dual")
+        {
+            return true;
+        }
+
+        try
+        {
+#pragma warning disable CS0618
+            await _client.GetObservationAsync(observationId, cancellationToken);
 #pragma warning restore CS0618
             return true;
         }

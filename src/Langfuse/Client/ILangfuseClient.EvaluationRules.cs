@@ -6,35 +6,35 @@ namespace zborek.Langfuse.Client;
 public partial interface ILangfuseClient
 {
     /// <summary>
-    ///     Creates an evaluation rule that defines what incoming data should be evaluated and how prompt
-    ///     variables should be populated from that data
+    ///     Creates an evaluation rule that defines which incoming observations should be evaluated and how
+    ///     prompt variables should be populated. Rules always use the latest version of each assigned evaluator.
     /// </summary>
     /// <param name="request">Evaluation rule configuration</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The created evaluation rule</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    /// <remarks>This is an unstable API surface and may evolve while the evaluation data model is redesigned</remarks>
     Task<EvaluationRule> CreateEvaluationRuleAsync(
         CreateEvaluationRuleRequest request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Lists evaluation rules in the authenticated project
+    ///     Lists evaluation rules in newest-first creation order, including legacy trace and dataset rules so
+    ///     they can be inspected and migrated
     /// </summary>
-    /// <param name="page">Optional 1-based page number. Defaults to 1.</param>
-    /// <param name="limit">Optional maximum number of items per page. Defaults to 50.</param>
+    /// <param name="limit">Optional maximum number of items. Defaults to 50, cannot exceed 100.</param>
+    /// <param name="cursor">Optional opaque cursor returned by the previous page</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated list of evaluation rules</returns>
+    /// <returns>Cursor-paginated page of evaluation rules</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    Task<PaginatedEvaluationRules> GetEvaluationRulesAsync(
-        int? page = null,
+    Task<EvaluationRulesPage> GetEvaluationRulesAsync(
         int? limit = null,
+        string? cursor = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Gets a single evaluation rule by its identifier
+    ///     Gets one evaluation rule, including a legacy trace or dataset rule, by its stable identifier
     /// </summary>
-    /// <param name="evaluationRuleId">Evaluation rule identifier</param>
+    /// <param name="evaluationRuleId">Stable evaluation-rule identifier</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The evaluation rule</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
@@ -43,9 +43,11 @@ public partial interface ILangfuseClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Updates an evaluation rule. Provide only the fields you want to change.
+    ///     Updates an evaluation rule. Provide only the fields to change. Providing evaluator assignments
+    ///     replaces the complete list; an empty list disables the rule. Legacy trace and dataset rules can only
+    ///     be deactivated.
     /// </summary>
-    /// <param name="evaluationRuleId">Evaluation rule identifier</param>
+    /// <param name="evaluationRuleId">Stable evaluation-rule identifier</param>
     /// <param name="request">Partial update body</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The updated evaluation rule</returns>
@@ -56,14 +58,14 @@ public partial interface ILangfuseClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Deletes an evaluation rule. This removes the live-ingestion rule only; it does not delete the
-    ///     referenced evaluator.
+    ///     Deletes an evaluation rule. This removes the live-ingestion rule only; associated evaluators and
+    ///     scores already produced by them are preserved.
     /// </summary>
-    /// <param name="evaluationRuleId">Evaluation rule identifier</param>
+    /// <param name="evaluationRuleId">Stable evaluation-rule identifier</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Deletion confirmation</returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    Task<DeleteEvaluationRuleResponse> DeleteEvaluationRuleAsync(
+    Task<DeletedEvaluationRule> DeleteEvaluationRuleAsync(
         string evaluationRuleId,
         CancellationToken cancellationToken = default);
 }

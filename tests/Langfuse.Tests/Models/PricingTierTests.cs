@@ -13,6 +13,76 @@ public class PricingTierTests
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
+    #region Model with PricingTiers Tests
+
+    [Fact]
+    public void Model_Should_Deserialize_With_PricingTiers()
+    {
+        // Arrange
+        var json = """
+                   {
+                     "id": "model-123",
+                     "modelName": "gpt-4-turbo",
+                     "matchPattern": "gpt-4-turbo.*",
+                     "unit": "TOKENS",
+                     "isLangfuseManaged": true,
+                     "pricingTiers": [
+                       {
+                         "id": "tier-1",
+                         "name": "Standard",
+                         "isDefault": true,
+                         "priority": 0,
+                         "conditions": [],
+                         "prices": {
+                           "input": 0.00001,
+                           "output": 0.00003
+                         }
+                       },
+                       {
+                         "id": "tier-2",
+                         "name": "Extended",
+                         "isDefault": false,
+                         "priority": 1,
+                         "conditions": [
+                           {
+                             "usageDetailPattern": "^input",
+                             "operator": "gte",
+                             "value": 128000,
+                             "caseSensitive": false
+                           }
+                         ],
+                         "prices": {
+                           "input": 0.00002,
+                           "output": 0.00006
+                         }
+                       }
+                     ]
+                   }
+                   """;
+
+        // Act
+        var result = JsonSerializer.Deserialize<Model>(json, JsonOptions);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.PricingTiers.ShouldNotBeNull();
+        result.PricingTiers.Count.ShouldBe(2);
+
+        var standardTier = result.PricingTiers.First(t => t.IsDefault);
+        standardTier.Name.ShouldBe("Standard");
+        standardTier.Priority.ShouldBe(0);
+        standardTier.Conditions.ShouldBeEmpty();
+
+        var extendedTier = result.PricingTiers.First(t => !t.IsDefault);
+        extendedTier.Name.ShouldBe("Extended");
+        extendedTier.Priority.ShouldBe(1);
+        extendedTier.Conditions.Count.ShouldBe(1);
+        extendedTier.Conditions[0].ShouldBeOfType<PricingTierUsageCondition>().Operator
+            .ShouldBe(PricingTierOperator.Gte);
+    }
+
+    #endregion
+
     #region PricingTierCondition Tests
 
     [Fact]
@@ -58,7 +128,7 @@ public class PricingTierTests
         result.UsageDetailPattern.ShouldBe("^output");
         result.Operator.ShouldBe(PricingTierOperator.Gt);
         result.Value.ShouldBe(50000);
-        result.CaseSensitive.ShouldBeTrue();
+        result.CaseSensitive.ShouldBe(true);
     }
 
     [Fact]
@@ -269,7 +339,7 @@ public class PricingTierTests
         var first = result.Conditions[0].ShouldBeOfType<PricingTierUsageCondition>();
         first.UsageDetailPattern.ShouldBe("^input_tokens$");
         first.Operator.ShouldBe(PricingTierOperator.Gt);
-        first.CaseSensitive.ShouldBeFalse();
+        first.CaseSensitive.ShouldBe(false);
         result.Conditions[1].ShouldBeOfType<PricingTierUsageCondition>().UsageDetailPattern.ShouldBe("^output_tokens$");
         result.Prices.Count.ShouldBe(3);
         result.Prices["input"].ShouldBe(0.000005);
@@ -341,75 +411,6 @@ public class PricingTierTests
         json.ShouldContain("\"conditions\":[]");
         json.ShouldContain("\"isDefault\":true");
         json.ShouldContain("\"priority\":0");
-    }
-
-    #endregion
-
-    #region Model with PricingTiers Tests
-
-    [Fact]
-    public void Model_Should_Deserialize_With_PricingTiers()
-    {
-        // Arrange
-        var json = """
-                   {
-                     "id": "model-123",
-                     "modelName": "gpt-4-turbo",
-                     "matchPattern": "gpt-4-turbo.*",
-                     "unit": "TOKENS",
-                     "isLangfuseManaged": true,
-                     "pricingTiers": [
-                       {
-                         "id": "tier-1",
-                         "name": "Standard",
-                         "isDefault": true,
-                         "priority": 0,
-                         "conditions": [],
-                         "prices": {
-                           "input": 0.00001,
-                           "output": 0.00003
-                         }
-                       },
-                       {
-                         "id": "tier-2",
-                         "name": "Extended",
-                         "isDefault": false,
-                         "priority": 1,
-                         "conditions": [
-                           {
-                             "usageDetailPattern": "^input",
-                             "operator": "gte",
-                             "value": 128000,
-                             "caseSensitive": false
-                           }
-                         ],
-                         "prices": {
-                           "input": 0.00002,
-                           "output": 0.00006
-                         }
-                       }
-                     ]
-                   }
-                   """;
-
-        // Act
-        var result = JsonSerializer.Deserialize<Model>(json, JsonOptions);
-
-        // Assert
-        result.ShouldNotBeNull();
-        result.PricingTiers.ShouldNotBeNull();
-        result.PricingTiers.Count.ShouldBe(2);
-
-        var standardTier = result.PricingTiers.First(t => t.IsDefault);
-        standardTier.Name.ShouldBe("Standard");
-        standardTier.Priority.ShouldBe(0);
-        standardTier.Conditions.ShouldBeEmpty();
-
-        var extendedTier = result.PricingTiers.First(t => !t.IsDefault);
-        extendedTier.Name.ShouldBe("Extended");
-        extendedTier.Priority.ShouldBe(1);
-        extendedTier.Conditions.Count.ShouldBe(1);
-        extendedTier.Conditions[0].ShouldBeOfType<PricingTierUsageCondition>().Operator.ShouldBe(PricingTierOperator.Gte);
     }
 
     #endregion

@@ -21,14 +21,18 @@ public partial interface ILangfuseClient
     ///     <para>Field Groups:</para>
     ///     <list type="bullet">
     ///         <item>core - Always included: id, traceId, startTime, endTime, projectId, parentObservationId, type</item>
-    ///         <item>basic - name, level, statusMessage, version, environment, bookmarked, public, userId, sessionId</item>
+    ///         <item>
+    ///             basic - name, level, statusMessage, version, environment, bookmarked, public, userId, sessionId,
+    ///             isRootObservation
+    ///         </item>
     ///         <item>time - completionStartTime, createdAt, updatedAt</item>
     ///         <item>io - input, output</item>
-    ///         <item>metadata - metadata</item>
-    ///         <item>model - providedModelName, internalModelId, modelParameters</item>
-    ///         <item>usage - usageDetails, costDetails, totalCost</item>
+    ///         <item>metadata - metadata (truncated to 200 chars by default, use expandMetadata for full values)</item>
+    ///         <item>model - model, internalModelId, modelParameters</item>
+    ///         <item>usage - usageDetails, costDetails, totalCost, usagePricingTierName</item>
     ///         <item>prompt - promptId, promptName, promptVersion</item>
     ///         <item>metrics - latency, timeToFirstToken</item>
+    ///         <item>trace_context - tags, release, traceName</item>
     ///     </list>
     ///     <para>If not specified, core and basic field groups are returned.</para>
     /// </remarks>

@@ -39,9 +39,10 @@ public class PricingTierInput
     ///         <item>Must have empty Conditions array</item>
     ///     </list>
     ///     The default tier acts as a fallback when no conditional tiers match.
+    ///     Defaults to false when omitted.
     /// </remarks>
     [JsonPropertyName("isDefault")]
-    public bool IsDefault { get; set; }
+    public bool? IsDefault { get; set; }
 
     /// <summary>
     ///     Priority for tier matching evaluation.

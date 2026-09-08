@@ -29,35 +29,38 @@ public class CreateModelRequest
     public DateTime? StartDate { get; set; }
 
     /// <summary>
-    ///     Price per unit for input/prompt processing in USD. Used for automatic cost calculation in observations.
+    ///     Deprecated, use <see cref="PricingTiers" /> instead. Price (USD) per input unit. Creates a default tier if
+    ///     pricing tiers are not provided.
     /// </summary>
     [JsonPropertyName("inputPrice")]
     public double? InputPrice { get; set; }
 
     /// <summary>
-    ///     Price per unit for output/completion generation in USD. Used for automatic cost calculation in observations.
+    ///     Deprecated, use <see cref="PricingTiers" /> instead. Price (USD) per output unit. Creates a default tier if
+    ///     pricing tiers are not provided.
     /// </summary>
     [JsonPropertyName("outputPrice")]
     public double? OutputPrice { get; set; }
 
     /// <summary>
-    ///     Total price per unit when input and output are billed together. Alternative to separate input/output pricing.
+    ///     Deprecated, use <see cref="PricingTiers" /> instead. Price (USD) per total unit. Cannot be set together with
+    ///     input or output price. Creates a default tier if pricing tiers are not provided.
     /// </summary>
     [JsonPropertyName("totalPrice")]
     public double? TotalPrice { get; set; }
 
     /// <summary>
-    ///     Unit of measurement for model usage (tokens, characters, milliseconds, seconds, images, requests).
+    ///     Unit of measurement for model usage (tokens, characters, milliseconds, seconds, images, requests). Required.
     /// </summary>
     [JsonPropertyName("unit")]
-    public ModelUsageUnit? Unit { get; set; }
+    public required ModelUsageUnit Unit { get; set; }
 
     /// <summary>
-    ///     Optional ID of the tokenizer to use for counting tokens. Links to specific tokenization logic for accurate usage
-    ///     tracking.
+    ///     Optional tokenizer applied to observations which match this model (<see cref="ModelTokenizerId.Openai" /> or
+    ///     <see cref="ModelTokenizerId.Claude" />).
     /// </summary>
     [JsonPropertyName("tokenizerId")]
-    public string? TokenizerId { get; set; }
+    public ModelTokenizerId? TokenizerId { get; set; }
 
     /// <summary>
     ///     Optional configuration settings for the tokenizer, including overhead tokens and model-specific parameters.

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using zborek.Langfuse.Models.Evaluation;
 using zborek.Langfuse.Services;
 
@@ -15,20 +16,19 @@ internal partial class LangfuseClient
             throw new ArgumentNullException(nameof(request));
         }
 
-        return await PostAsync<Evaluator>("/api/public/unstable/evaluators", request,
-            "Create Evaluator", cancellationToken);
+        return await PostAsync<Evaluator>("/api/public/v2/evaluators", request, "Create Evaluator",
+            cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<PaginatedEvaluators> GetEvaluatorsAsync(
-        int? page = null,
+    public async Task<EvaluatorsPage> GetEvaluatorsAsync(
         int? limit = null,
+        string? cursor = null,
         CancellationToken cancellationToken = default)
     {
-        var query = QueryStringHelper.BuildPageLimitQuery(page, limit);
-        var endpoint = $"/api/public/unstable/evaluators{query}";
-
-        return await GetAsync<PaginatedEvaluators>(endpoint, "Get Evaluators", cancellationToken);
+        var query = QueryStringHelper.BuildCursorLimitQuery(limit, cursor);
+        return await GetAsync<EvaluatorsPage>($"/api/public/v2/evaluators{query}", "Get Evaluators",
+            cancellationToken);
     }
 
     /// <inheritdoc />
@@ -41,12 +41,40 @@ internal partial class LangfuseClient
             throw new ArgumentException("Evaluator ID cannot be null or empty", nameof(evaluatorId));
         }
 
-        var endpoint = $"/api/public/unstable/evaluators/{Uri.EscapeDataString(evaluatorId)}";
+        var endpoint = $"/api/public/v2/evaluators/{Uri.EscapeDataString(evaluatorId)}";
         return await GetAsync<Evaluator>(endpoint, "Get Evaluator", cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<DeleteEvaluatorResponse> DeleteEvaluatorAsync(
+    public async Task<Evaluator> UpdateEvaluatorAsync(
+        string evaluatorId,
+        UpdateEvaluatorRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(evaluatorId))
+        {
+            throw new ArgumentException("Evaluator ID cannot be null or empty", nameof(evaluatorId));
+        }
+
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        var endpoint = $"/api/public/v2/evaluators/{Uri.EscapeDataString(evaluatorId)}";
+        if (request is { DescriptionSet: true, Description: null })
+        {
+            // JsonOptions omits null properties; the API needs an explicit null to clear the description.
+            var body = JsonSerializer.SerializeToNode(request, request.GetType(), JsonOptions)!.AsObject();
+            body["description"] = null;
+            return await PatchAsync<Evaluator>(endpoint, body, "Update Evaluator", cancellationToken);
+        }
+
+        return await PatchAsync<Evaluator>(endpoint, request, "Update Evaluator", cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<DeletedEvaluator> DeleteEvaluatorAsync(
         string evaluatorId,
         CancellationToken cancellationToken = default)
     {
@@ -55,7 +83,24 @@ internal partial class LangfuseClient
             throw new ArgumentException("Evaluator ID cannot be null or empty", nameof(evaluatorId));
         }
 
-        var endpoint = $"/api/public/unstable/evaluators/{Uri.EscapeDataString(evaluatorId)}";
-        return await DeleteAsync<DeleteEvaluatorResponse>(endpoint, "Delete Evaluator", cancellationToken);
+        var endpoint = $"/api/public/v2/evaluators/{Uri.EscapeDataString(evaluatorId)}";
+        return await DeleteAsync<DeletedEvaluator>(endpoint, "Delete Evaluator", cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<EvaluatorVersionsPage> GetEvaluatorVersionsAsync(
+        string evaluatorId,
+        int? limit = null,
+        string? cursor = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(evaluatorId))
+        {
+            throw new ArgumentException("Evaluator ID cannot be null or empty", nameof(evaluatorId));
+        }
+
+        var query = QueryStringHelper.BuildCursorLimitQuery(limit, cursor);
+        var endpoint = $"/api/public/v2/evaluators/{Uri.EscapeDataString(evaluatorId)}/versions{query}";
+        return await GetAsync<EvaluatorVersionsPage>(endpoint, "Get Evaluator Versions", cancellationToken);
     }
 }

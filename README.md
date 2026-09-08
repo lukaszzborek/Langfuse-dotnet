@@ -284,30 +284,32 @@ public class MyService
 
 ### Available API Domains
 
-| Domain                         | Description                                        |
-|--------------------------------|----------------------------------------------------|
-| **Datasets**                   | Create and manage test datasets and runs           |
-| **Dataset Items**              | Create, query, and delete dataset items            |
-| **Dataset Run Items**          | Create dataset runs and list run items             |
-| **Prompts**                    | Version control and retrieve prompt templates      |
-| **Scores**                     | Create and query evaluation scores                 |
-| **Score Configs**              | Define score schemas and metadata                  |
-| **Traces**                     | Query and manage traces                            |
-| **Observations**               | Query spans, generations, and events               |
-| **Observations V2**            | Query observations with updated API                |
-| **Sessions**                   | Group traces into user sessions                    |
-| **Comments**                   | Add comments to traces and observations            |
-| **Models**                     | Query supported LLM models and pricing             |
-| **Media**                      | Upload and manage media assets                     |
-| **Metrics**                    | Query project metrics                              |
-| **Metrics V2**                 | Query metrics with updated API                     |
-| **Annotation Queues**          | Manage annotation workflows                        |
-| **Blob Storage Integrations**  | Configure external blob storage integrations       |
-| **LLM Connections**            | Manage LLM provider connections                    |
-| **Project**                    | Manage projects and API keys                       |
-| **Organization**               | Manage organization memberships and permissions    |
-| **SCIM**                       | SCIM provisioning for users and groups             |
-| **Health**                     | API health checks                                  |
+| Domain                        | Description                                      |
+|-------------------------------|--------------------------------------------------|
+| **Datasets**                  | Create and manage test datasets and runs         |
+| **Dataset Items**             | Create, query, and delete dataset items          |
+| **Dataset Run Items**         | Create dataset runs and list run items           |
+| **Prompts**                   | Version control and retrieve prompt templates    |
+| **Scores**                    | Create and query evaluation scores               |
+| **Score Configs**             | Define score schemas and metadata                |
+| **Traces**                    | Query and manage traces                          |
+| **Observations**              | Query spans, generations, and events             |
+| **Observations V2**           | Query observations with updated API              |
+| **Sessions**                  | Group traces into user sessions                  |
+| **Comments**                  | Add comments to traces and observations          |
+| **Models**                    | Query, create, and upsert LLM models and pricing |
+| **Media**                     | Upload and manage media assets                   |
+| **Metrics**                   | Query project metrics                            |
+| **Metrics V2**                | Query metrics with updated API                   |
+| **Annotation Queues**         | Manage annotation workflows                      |
+| **Blob Storage Integrations** | Configure external blob storage integrations     |
+| **LLM Connections**           | Manage LLM provider connections                  |
+| **Evaluators**                | Define LLM-as-a-judge and code evaluators (v2)   |
+| **Evaluation Rules**          | Run evaluators on live observations (v2)         |
+| **Project**                   | Manage projects and API keys                     |
+| **Organization**              | Manage organization memberships and permissions  |
+| **SCIM**                      | SCIM provisioning for users and groups           |
+| **Health**                    | API health checks                                |
 
 ### API Client Configuration Options
 
@@ -375,10 +377,12 @@ This project is licensed under the MIT License.
 
 ## Documentation for AI Coding Assistants
 
-This library's documentation is available via [Context7](https://context7.com/) for use with AI coding tools like Cursor, Claude Code, and Windsurf. Structured docs are also available in the [`docs/`](docs/llms.md) directory.
+This library's documentation is available via [Context7](https://context7.com/) for use with AI coding tools like
+Cursor, Claude Code, and Windsurf. Structured docs are also available in the [`docs/`](docs/llms.md) directory.
 
 ## Additional Resources
 
 - [Langfuse Documentation](https://langfuse.com/docs)
+- [OpenApi](https://cloud.langfuse.com/generated/api/openapi.yml)
 - [OpenTelemetry Gen AI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
 - [GitHub Repository](https://github.com/lukaszzborek/Langfuse-dotnet)
