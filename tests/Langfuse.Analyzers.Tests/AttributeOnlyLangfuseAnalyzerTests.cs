@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Xunit;
 using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Langfuse.Analyzers.AttributeOnlyLangfuseAnalyzer>;
+    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<Langfuse.Analyzers.AttributeOnlyLangfuseAnalyzer, Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
 
 namespace Langfuse.Analyzers.Tests;
 
