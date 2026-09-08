@@ -5,8 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
 ## [0.13.0] - 2026-09-08
 
 ### Added
@@ -24,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** `PricingTierInput.IsDefault` is now `bool?` instead of `bool`, and `PricingTierUsageCondition.CaseSensitive` is now `bool?` instead of `bool`. Both are optional on input and default to false when omitted; `caseSensitive` is required in the response schema, so conditions read back from the API always carry a value. Code reading these properties directly (`if (tier.IsDefault)`) must handle null, e.g. `tier.IsDefault == true`.
 - `CreateModelRequest` flat price fields documented as deprecated in favour of `PricingTiers`.
 - Observations V2 field group docs synced with the spec: `isRootObservation` (basic), `usagePricingTierName` (usage), the new `trace_context` group (tags, release, traceName), metadata truncation note, and `providedModelName` renamed to `model`.
+- Build/test infrastructure moved to the .NET 10 SDK (`global.json`), xunit v3 and Microsoft.Testing.Platform; test projects now run as executables. The library itself still targets the same frameworks.
 
 ## [0.12.0] - 2026-08-19
 
@@ -157,6 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[Unreleased]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.13.0...HEAD
 [0.13.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.10.0...v0.11.0
