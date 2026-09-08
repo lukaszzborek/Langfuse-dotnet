@@ -31,7 +31,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: Run tests (Langfuse v4 dual mode, all tests)
       run: dotnet test --configuration Release
 
@@ -44,9 +44,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: Run tests (Langfuse v4 events_only mode, legacy API tests excluded)
-      run: dotnet test --configuration Release --filter "Legacy!=true"
+      run: dotnet test --configuration Release --filter-not-trait "Legacy=true"
 
   create_nuget:
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
 
     - run: dotnet build -c Release ./src/Langfuse.Analyzers 
     - run: dotnet build -c Release ./src/Langfuse 

@@ -83,7 +83,7 @@ public class LangfuseTestFixture : IAsyncLifetime
     /// </summary>
     public TracerProvider? TracerProvider { get; private set; }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         // Create a shared network for all containers
         _network = new NetworkBuilder()
@@ -104,7 +104,7 @@ public class LangfuseTestFixture : IAsyncLifetime
         ConfigureOpenTelemetry();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         // Dispose TracerProvider first to flush any pending exports
         TracerProvider?.Dispose();
