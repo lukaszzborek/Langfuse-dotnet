@@ -16,11 +16,25 @@ public abstract class UpdateEvaluatorRequest
     [JsonPropertyName("name")]
     public string? Name { get; init; }
 
+    private readonly string? _description;
+
     /// <summary>
-    ///     New description. Omit or leave null to keep the current description. Note: the API accepts an explicit
-    ///     null to clear the description, but this client omits null properties when serializing, so the
-    ///     description cannot be cleared through <c>UpdateEvaluatorAsync</c>.
+    ///     New description. Omit to keep the current description; assign <c>null</c> explicitly to clear it.
     /// </summary>
     [JsonPropertyName("description")]
-    public string? Description { get; init; }
+    public string? Description
+    {
+        get => _description;
+        init
+        {
+            _description = value;
+            DescriptionSet = true;
+        }
+    }
+
+    /// <summary>
+    ///     True when <see cref="Description" /> was assigned (including an explicit null).
+    /// </summary>
+    [JsonIgnore]
+    public bool DescriptionSet { get; private init; }
 }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using zborek.Langfuse.Models.Evaluation;
 using zborek.Langfuse.Services;
 
@@ -61,6 +62,14 @@ internal partial class LangfuseClient
         }
 
         var endpoint = $"/api/public/v2/evaluators/{Uri.EscapeDataString(evaluatorId)}";
+        if (request is { DescriptionSet: true, Description: null })
+        {
+            // JsonOptions omits null properties; the API needs an explicit null to clear the description.
+            var body = JsonSerializer.SerializeToNode(request, request.GetType(), JsonOptions)!.AsObject();
+            body["description"] = null;
+            return await PatchAsync<Evaluator>(endpoint, body, "Update Evaluator", cancellationToken);
+        }
+
         return await PatchAsync<Evaluator>(endpoint, request, "Update Evaluator", cancellationToken);
     }
 
