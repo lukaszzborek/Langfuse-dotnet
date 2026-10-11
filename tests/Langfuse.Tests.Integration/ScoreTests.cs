@@ -531,4 +531,92 @@ public class ScoreTests
 
         score.Environment.ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task CreateScoresAsync_CreatesAllScoresInBatch()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        // Batch responses carry no score ids, so ids are set upfront to look the scores up afterwards
+        var numericId = Guid.NewGuid().ToString();
+        var categoricalId = Guid.NewGuid().ToString();
+        var booleanId = Guid.NewGuid().ToString();
+
+        var result = await client.CreateScoresAsync([
+            new ScoreCreateRequest
+            {
+                Id = numericId, TraceId = traceId, Name = "batch-quality", Value = 0.75,
+                DataType = ScoreDataType.Numeric
+            },
+            new ScoreCreateRequest
+            {
+                Id = categoricalId, TraceId = traceId, Name = "batch-sentiment", Value = "positive",
+                DataType = ScoreDataType.Categorical
+            },
+            new ScoreCreateRequest
+            {
+                Id = booleanId, TraceId = traceId, Name = "batch-accurate", Value = 1,
+                DataType = ScoreDataType.Boolean
+            }
+        ]);
+
+        result.Message.ShouldBe("Accepted");
+
+        var numeric = await traceHelper.WaitForScoreAsync(numericId);
+        numeric.TraceId.ShouldBe(traceId);
+        numeric.Name.ShouldBe("batch-quality");
+        var numericValue = numeric.Value is JsonElement je ? je.GetDouble() : Convert.ToDouble(numeric.Value);
+        numericValue.ShouldBe(0.75, 0.01);
+
+        var categorical = await traceHelper.WaitForScoreAsync(categoricalId);
+        categorical.TraceId.ShouldBe(traceId);
+        categorical.Name.ShouldBe("batch-sentiment");
+        categorical.StringValue.ShouldBe("positive");
+
+        var boolean = await traceHelper.WaitForScoreAsync(booleanId);
+        boolean.TraceId.ShouldBe(traceId);
+        boolean.Name.ShouldBe("batch-accurate");
+    }
+
+    [Fact]
+    public async Task CreateScoresAsync_PartiallyInvalidBatch_CreatesOnlyValidScores()
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var traceId = traceHelper.CreateTrace();
+        await traceHelper.WaitForTraceAsync(traceId);
+
+        var validId = Guid.NewGuid().ToString();
+        var invalidId = Guid.NewGuid().ToString();
+
+        var result = await client.CreateScoresAsync([
+            new ScoreCreateRequest
+            {
+                Id = validId, TraceId = traceId, Name = "batch-valid", Value = 0.5,
+                DataType = ScoreDataType.Numeric
+            },
+            new ScoreCreateRequest
+            {
+                Id = invalidId, TraceId = traceId, Name = "batch-invalid", Value = 5,
+                DataType = ScoreDataType.Boolean
+            }
+        ]);
+
+        result.Accepted.ShouldBe(1);
+        result.Rejected.ShouldBe(1);
+        result.Errors.ShouldHaveSingleItem().Message.ShouldNotBeNullOrEmpty();
+
+        var valid = await traceHelper.WaitForScoreAsync(validId);
+        valid.TraceId.ShouldBe(traceId);
+        valid.Name.ShouldBe("batch-valid");
+
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.GetScoreAsync(invalidId));
+        exception.StatusCode.ShouldBe(404);
+    }
 }
