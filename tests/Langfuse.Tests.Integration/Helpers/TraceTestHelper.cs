@@ -167,7 +167,7 @@ public class TraceTestHelper
         try
         {
 #pragma warning disable CS0618
-            await _client.GetObservationAsync(observationId, cancellationToken);
+            await _client.GetObservationAsync(observationId, cancellationToken: cancellationToken);
 #pragma warning restore CS0618
             return true;
         }

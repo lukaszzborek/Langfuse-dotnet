@@ -48,4 +48,13 @@ public class PromptListRequest
     /// </summary>
     [JsonPropertyName("toUpdatedAt")]
     public DateTime? ToUpdatedAt { get; set; }
+
+    /// <summary>
+    ///     JSON string containing an array of filter conditions, combined with AND.
+    ///     When provided, this takes precedence over name, version, label, tag, fromUpdatedAt and toUpdatedAt.
+    ///     Filters apply to prompt versions before aggregation.
+    ///     Example: [{"type":"string","column":"name","operator":"starts with","value":"tools/"}]
+    /// </summary>
+    [JsonPropertyName("filter")]
+    public string? Filter { get; set; }
 }

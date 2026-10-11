@@ -27,7 +27,8 @@ namespace zborek.Langfuse.Models.Evaluation;
 ///         <item><c>toolCalls</c> (number of tool calls on the observation)</item>
 ///     </list>
 ///     <para>
-///         Operators by type: string/stringObject: "=", "contains", "does not contain", "starts with", "ends with";
+///         Operators by type: string: "=", "contains", "does not contain", "starts with", "ends with";
+///         stringObject: same as string plus "is set", "is not set";
 ///         number/datetime: "=", "&gt;", "&lt;", "&gt;=", "&lt;="; stringOptions/categoryOptions: "any of", "none of";
 ///         arrayOptions: "any of", "none of", "all of"; boolean: "=", "&lt;&gt;"; null: "is null", "is not null".
 ///     </para>
