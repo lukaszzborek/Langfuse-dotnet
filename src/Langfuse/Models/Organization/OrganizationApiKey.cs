@@ -32,8 +32,15 @@ public record OrganizationApiKey
     public DateTime? LastUsedAt { get; init; }
 
     /// <summary>
-    ///     Optional note describing the API key's purpose
+    ///     Name of the API key (null if no name was provided)
     /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; init; }
+
+    /// <summary>
+    ///     Deprecated alias for <see cref="Name" />. Contains the same value.
+    /// </summary>
+    [Obsolete("Use Name instead.")]
     [JsonPropertyName("note")]
     public string? Note { get; init; }
 

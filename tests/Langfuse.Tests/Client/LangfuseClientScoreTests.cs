@@ -717,6 +717,78 @@ public class LangfuseClientScoreTests
     }
 
     [Fact]
+    public async Task CreateScoresAsync_Accepted_SendsArrayAndReturnsMessage()
+    {
+        // Arrange
+        var requests = new[]
+        {
+            new ScoreCreateRequest { Name = "quality", Value = 0.9, TraceId = "trace-1" },
+            new ScoreCreateRequest { Name = "quality", Value = 0.5, TraceId = "trace-2" }
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
+
+        // Act
+        var result = await _client.CreateScoresAsync(requests);
+
+        // Assert
+        result.Message.ShouldBe("Accepted");
+        result.Accepted.ShouldBeNull();
+        result.Errors.ShouldBeEmpty();
+
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
+        _httpHandler.LastRequest?.RequestUri?.ToString().ShouldContain("/api/public/scores");
+        var body = await _httpHandler.GetLastRequestBodyAsync();
+        body.ShouldNotBeNull();
+        body.ShouldStartWith("[");
+        body.ShouldContain("trace-1");
+        body.ShouldContain("trace-2");
+    }
+
+    [Fact]
+    public async Task CreateScoresAsync_MultiStatus_ReturnsCountsAndErrors()
+    {
+        // Arrange
+        var requests = new[]
+        {
+            new ScoreCreateRequest { Name = "quality", Value = 0.9, TraceId = "trace-1" },
+            new ScoreCreateRequest { Name = "quality", Value = 0.5, TraceId = "trace-2" }
+        };
+
+        _httpHandler.SetupResponse((HttpStatusCode)207,
+            """{"accepted":1,"rejected":1,"errors":[{"message":"invalid score"}]}""");
+
+        // Act
+        var result = await _client.CreateScoresAsync(requests);
+
+        // Assert
+        result.Message.ShouldBeNull();
+        result.Accepted.ShouldBe(1);
+        result.Rejected.ShouldBe(1);
+        result.Errors.ShouldHaveSingleItem().Message.ShouldBe("invalid score");
+    }
+
+    [Fact]
+    public async Task CreateScoresAsync_EmptyBatch_ThrowsArgumentException()
+    {
+        await Should.ThrowAsync<ArgumentException>(async () =>
+            await _client.CreateScoresAsync([]));
+    }
+
+    [Fact]
+    public async Task CreateScoresAsync_InvalidItem_ThrowsArgumentException()
+    {
+        var requests = new[]
+        {
+            new ScoreCreateRequest { Name = "quality", Value = 0.9, TraceId = "trace-1" },
+            new ScoreCreateRequest { Name = "", Value = 0.5, TraceId = "trace-2" }
+        };
+
+        await Should.ThrowAsync<ArgumentException>(async () =>
+            await _client.CreateScoresAsync(requests));
+    }
+
+    [Fact]
     public void CreateScoreResponse_Deserialization()
     {
         // Arrange

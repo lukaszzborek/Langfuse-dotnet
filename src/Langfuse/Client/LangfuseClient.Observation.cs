@@ -17,7 +17,7 @@ internal partial class LangfuseClient
 
     /// <inheritdoc />
     [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetObservationsV2Async (GET /api/public/v2/observations) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
-    public async Task<ObservationModel> GetObservationAsync(string observationId, DateTime? startTime = null,
+    public async Task<ObservationModel> GetObservationAsync(string observationId,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(observationId))
@@ -26,11 +26,6 @@ internal partial class LangfuseClient
         }
 
         var endpoint = $"/api/public/observations/{Uri.EscapeDataString(observationId)}";
-        if (startTime.HasValue)
-        {
-            endpoint += $"?startTime={Uri.EscapeDataString(startTime.Value.ToString("O"))}";
-        }
-
         return await GetAsync<ObservationModel>(endpoint, "Get Observation", cancellationToken);
     }
 }

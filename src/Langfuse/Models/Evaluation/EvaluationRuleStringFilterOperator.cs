@@ -5,8 +5,7 @@ using zborek.Langfuse.Converters;
 namespace zborek.Langfuse.Models.Evaluation;
 
 /// <summary>
-///     Comparison operators for string-valued evaluation rule filters
-///     (<see cref="StringEvaluationRuleFilter" />, <see cref="StringObjectEvaluationRuleFilter" />).
+///     Comparison operators for <see cref="StringEvaluationRuleFilter" />.
 /// </summary>
 [JsonConverter(typeof(EnumWireValueConverter<EvaluationRuleStringFilterOperator>))]
 public enum EvaluationRuleStringFilterOperator

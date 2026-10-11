@@ -24,14 +24,10 @@ public partial interface ILangfuseClient
     ///     Retrieves a single observation by its unique identifier
     /// </summary>
     /// <param name="observationId">The unique Langfuse identifier of an observation (can be an event, span, or generation)</param>
-    /// <param name="startTime">
-    ///     Optional start time of the observation. Performance hint only - narrows the lookup; an incorrect or
-    ///     omitted value never changes the result.
-    /// </param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The observation with detailed information including type, timestamps, input/output, and metadata</returns>
     /// <exception cref="LangfuseApiException">Thrown when the observation is not found or an API error occurs</exception>
     [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetObservationsV2Async (GET /api/public/v2/observations) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
-    Task<ObservationModel> GetObservationAsync(string observationId, DateTime? startTime = null,
+    Task<ObservationModel> GetObservationAsync(string observationId,
         CancellationToken cancellationToken = default);
 }

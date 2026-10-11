@@ -8,10 +8,23 @@ namespace zborek.Langfuse.Models.Organization;
 public class CreateApiKeyRequest
 {
     /// <summary>
-    ///     Optional note for the API key to help identify its purpose.
+    ///     Optional name for the API key. Cannot be set together with <see cref="Note" />.
     /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    /// <summary>
+    ///     Deprecated alias for <see cref="Name" />. Cannot be set together with <see cref="Name" />.
+    /// </summary>
+    [Obsolete("Use Name instead.")]
     [JsonPropertyName("note")]
     public string? Note { get; set; }
+
+    /// <summary>
+    ///     Optional expiration timestamp. Must be in the future. Null for a key that does not expire.
+    /// </summary>
+    [JsonPropertyName("expiresAt")]
+    public DateTime? ExpiresAt { get; set; }
 
     /// <summary>
     ///     Optional predefined public key. If not provided, one will be generated.

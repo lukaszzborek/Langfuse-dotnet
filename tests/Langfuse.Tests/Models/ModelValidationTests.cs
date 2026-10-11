@@ -200,7 +200,8 @@ public class ModelValidationTests
         // Arrange
         var request = new CreateApiKeyRequest
         {
-            Note = "Test API Key",
+            Name = "Test API Key",
+            ExpiresAt = new DateTime(2030, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             PublicKey = "pk_test_123",
             SecretKey = "sk_test_456"
         };
@@ -209,7 +210,8 @@ public class ModelValidationTests
         var json = JsonSerializer.Serialize(request, JsonOptions);
 
         // Assert - verify new property names
-        json.ShouldContain("\"note\":\"Test API Key\"");
+        json.ShouldContain("\"name\":\"Test API Key\"");
+        json.ShouldContain("\"expiresAt\":\"2030-01-01T00:00:00Z\"");
         json.ShouldContain("\"publicKey\":\"pk_test_123\"");
         json.ShouldContain("\"secretKey\":\"sk_test_456\"");
     }
@@ -220,7 +222,7 @@ public class ModelValidationTests
         // Arrange
         var json = """
                    {
-                     "note": "My API Key Note",
+                     "name": "My API Key Name",
                      "publicKey": "pk-abc",
                      "secretKey": "sk-xyz"
                    }
@@ -231,7 +233,7 @@ public class ModelValidationTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Note.ShouldBe("My API Key Note");
+        result.Name.ShouldBe("My API Key Name");
         result.PublicKey.ShouldBe("pk-abc");
         result.SecretKey.ShouldBe("sk-xyz");
     }

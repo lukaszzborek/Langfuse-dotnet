@@ -40,11 +40,4 @@ public class CreateCommentRequest
     /// </summary>
     [JsonPropertyName("authorUserId")]
     public string? AuthorUserId { get; set; }
-
-    /// <summary>
-    ///     Optional start time of the referenced object (for observations, the observation's start time).
-    ///     Performance hint only - narrows the reference lookup; an incorrect or omitted value never changes the result.
-    /// </summary>
-    [JsonPropertyName("objectStartTime")]
-    public DateTime? ObjectStartTime { get; set; }
 }

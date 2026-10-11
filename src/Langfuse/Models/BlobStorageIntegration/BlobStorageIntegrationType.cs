@@ -22,5 +22,10 @@ public enum BlobStorageIntegrationType
     /// <summary>
     ///     Microsoft Azure Blob Storage service
     /// </summary>
-    AzureBlobStorage
+    AzureBlobStorage,
+
+    /// <summary>
+    ///     Google Cloud Storage service
+    /// </summary>
+    GoogleCloudStorage
 }

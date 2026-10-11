@@ -362,7 +362,7 @@ public class EvaluationModelsTests
                 {
                     Column = "metadata",
                     Key = "env",
-                    Operator = EvaluationRuleStringFilterOperator.Equals,
+                    Operator = EvaluationRuleStringObjectFilterOperator.Equals,
                     Value = "prod"
                 },
                 new NullEvaluationRuleFilter
@@ -555,7 +555,7 @@ public class EvaluationModelsTests
         {
             Column = "metadata",
             Key = "env",
-            Operator = EvaluationRuleStringFilterOperator.Equals,
+            Operator = EvaluationRuleStringObjectFilterOperator.Equals,
             Value = "prod"
         };
 
@@ -567,8 +567,24 @@ public class EvaluationModelsTests
             .ShouldBeOfType<StringObjectEvaluationRuleFilter>();
         deserialized.Column.ShouldBe("metadata");
         deserialized.Key.ShouldBe("env");
-        deserialized.Operator.ShouldBe(EvaluationRuleStringFilterOperator.Equals);
+        deserialized.Operator.ShouldBe(EvaluationRuleStringObjectFilterOperator.Equals);
         deserialized.Value.ShouldBe("prod");
+    }
+
+    [Fact]
+    public void Should_Serialize_StringObjectEvaluationRuleFilter_IsSet_With_Empty_Value()
+    {
+        var filter = new StringObjectEvaluationRuleFilter
+        {
+            Column = "metadata",
+            Key = "env",
+            Operator = EvaluationRuleStringObjectFilterOperator.IsSet
+        };
+
+        var json = JsonSerializer.Serialize<EvaluationRuleFilter>(filter, Options);
+
+        json.ShouldBe(
+            "{\"type\":\"stringObject\",\"column\":\"metadata\",\"key\":\"env\",\"operator\":\"is set\",\"value\":\"\"}");
     }
 
     [Fact]
