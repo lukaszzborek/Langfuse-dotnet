@@ -104,6 +104,32 @@ public class TraceTestHelper
     }
 
     /// <summary>
+    ///     Waits until the v3 scores API returns at least <paramref name="expectedCount" /> scores for a trace
+    ///     (handles eventual consistency). Works in both v4 dual and events_only modes.
+    /// </summary>
+    public async Task<ScoreV3[]> WaitForTraceScoresV3Async(string traceId, int expectedCount,
+        TimeSpan? timeout = null, CancellationToken cancellationToken = default)
+    {
+        timeout ??= TimeSpan.FromSeconds(30);
+        var stopwatch = Stopwatch.StartNew();
+
+        while (stopwatch.Elapsed < timeout)
+        {
+            var response = await _client.GetScoresV3Async(new ScoreV3ListRequest { TraceId = traceId },
+                cancellationToken);
+            if (response.Data.Length >= expectedCount)
+            {
+                return response.Data;
+            }
+
+            await Task.Delay(500, cancellationToken);
+        }
+
+        throw new TimeoutException(
+            $"Trace {traceId} did not get {expectedCount} score(s) in the v3 scores API within {timeout}");
+    }
+
+    /// <summary>
     ///     Waits for a session to become available in the API (handles eventual consistency)
     /// </summary>
     public async Task WaitForSessionAsync(string sessionId, int expectedTraceCount = 1, TimeSpan? timeout = null,

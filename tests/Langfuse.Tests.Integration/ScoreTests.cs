@@ -566,20 +566,20 @@ public class ScoreTests
 
         result.Message.ShouldBe("Accepted");
 
-        var numeric = await traceHelper.WaitForScoreAsync(numericId);
-        numeric.TraceId.ShouldBe(traceId);
+        var scores = await traceHelper.WaitForTraceScoresV3Async(traceId, 3);
+        scores.Length.ShouldBe(3);
+
+        var numeric = scores.Single(s => s.Id == numericId).ShouldBeOfType<NumericScoreV3>();
         numeric.Name.ShouldBe("batch-quality");
-        var numericValue = numeric.Value is JsonElement je ? je.GetDouble() : Convert.ToDouble(numeric.Value);
-        numericValue.ShouldBe(0.75, 0.01);
+        numeric.Value.ShouldBe(0.75, 0.01);
 
-        var categorical = await traceHelper.WaitForScoreAsync(categoricalId);
-        categorical.TraceId.ShouldBe(traceId);
+        var categorical = scores.Single(s => s.Id == categoricalId).ShouldBeOfType<CategoricalScoreV3>();
         categorical.Name.ShouldBe("batch-sentiment");
-        categorical.StringValue.ShouldBe("positive");
+        categorical.Value.ShouldBe("positive");
 
-        var boolean = await traceHelper.WaitForScoreAsync(booleanId);
-        boolean.TraceId.ShouldBe(traceId);
+        var boolean = scores.Single(s => s.Id == booleanId).ShouldBeOfType<BooleanScoreV3>();
         boolean.Name.ShouldBe("batch-accurate");
+        boolean.Value.ShouldBeTrue();
     }
 
     [Fact]
@@ -611,12 +611,11 @@ public class ScoreTests
         result.Rejected.ShouldBe(1);
         result.Errors.ShouldHaveSingleItem().Message.ShouldNotBeNullOrEmpty();
 
-        var valid = await traceHelper.WaitForScoreAsync(validId);
-        valid.TraceId.ShouldBe(traceId);
-        valid.Name.ShouldBe("batch-valid");
+        var scores = await traceHelper.WaitForTraceScoresV3Async(traceId, 1);
 
-        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
-            await client.GetScoreAsync(invalidId));
-        exception.StatusCode.ShouldBe(404);
+        var valid = scores.ShouldHaveSingleItem().ShouldBeOfType<NumericScoreV3>();
+        valid.Id.ShouldBe(validId);
+        valid.Name.ShouldBe("batch-valid");
+        valid.Value.ShouldBe(0.5, 0.01);
     }
 }
