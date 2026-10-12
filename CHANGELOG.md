@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-10-12
+
+### Added
+
+- Batch score creation: `CreateScoresAsync` (`POST /api/public/scores` with an array body) returning `CreateScoreBatchResponse` — `Message` ("Accepted") on HTTP 202, or `Accepted`/`Rejected` counts with `Errors` on partial acceptance (HTTP 207). Do not retry a partially accepted batch automatically; accepted scores would be duplicated.
+- API keys: `Name` and `ExpiresAt` on `CreateApiKeyRequest`, `ApiKeyResponse`; `Name` on `ApiKeySummary` and `OrganizationApiKey`.
+- `PromptListRequest.Filter` (JSON filter conditions, takes precedence over the other list parameters).
+- `BlobStorageIntegrationType.GoogleCloudStorage`.
+- `EvaluationRuleStringObjectFilterOperator` with `IsSet` / `IsNotSet` (`is set` / `is not set`) for key-presence filters on `StringObjectEvaluationRuleFilter`.
+
+### Changed
+
+- **Breaking:** `StringObjectEvaluationRuleFilter.Operator` is now `EvaluationRuleStringObjectFilterOperator` instead of `EvaluationRuleStringFilterOperator`, and `Value` is no longer required (ignored for `is set` / `is not set`).
+- API key `Note` properties marked `[Obsolete]` in favour of `Name` (same value; `Name` and `Note` cannot both be set on create).
+- Legacy ingestion (`IngestAsync`, `LangfuseTrace.IngestAsync`) obsolete messages updated: from November 16, 2026 Langfuse Cloud keeps accepting `score-create` events on the legacy endpoint and rejects all other event types.
+
 ## [0.13.0] - 2026-09-08
 
 ### Added
@@ -156,7 +172,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
-[Unreleased]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.10.0...v0.11.0
