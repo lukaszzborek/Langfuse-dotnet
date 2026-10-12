@@ -20,6 +20,12 @@ public class ApiKeyResponse
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
+    ///     Expiration timestamp. Null if the key does not expire.
+    /// </summary>
+    [JsonPropertyName("expiresAt")]
+    public DateTime? ExpiresAt { get; set; }
+
+    /// <summary>
     ///     The public key portion of the API key.
     /// </summary>
     [JsonPropertyName("publicKey")]
@@ -38,8 +44,15 @@ public class ApiKeyResponse
     public string DisplaySecretKey { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Optional note describing the API key.
+    ///     Name of the API key. Null if no name was provided.
     /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    /// <summary>
+    ///     Deprecated alias for <see cref="Name" />. Contains the same value.
+    /// </summary>
+    [Obsolete("Use Name instead.")]
     [JsonPropertyName("note")]
     public string? Note { get; set; }
 }

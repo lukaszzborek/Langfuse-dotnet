@@ -279,7 +279,7 @@ public class LangfuseTrace
     /// <summary>
     ///     Ingest trace to langfuse
     /// </summary>
-    [Obsolete("This method uses the legacy ingestion endpoint, which on Langfuse Cloud will be removed on November 16, 2026 (self-hosted deployments lose it when upgrading to Langfuse v4). Use the OpenTelemetry endpoint instead: https://langfuse.com/integrations/native/opentelemetry")]
+    [Obsolete("This method uses the legacy ingestion endpoint. On Langfuse Cloud, from November 16, 2026 it accepts only score-create events and rejects all other event types (self-hosted deployments behave the same once v4-only write mode is enabled). Send traces and observations via the OpenTelemetry endpoint instead: https://langfuse.com/integrations/native/opentelemetry. Write scores via CreateScoreAsync (POST /api/public/scores).")]
     public async Task IngestAsync()
     {
         if (_langfuseClient == null)

@@ -228,18 +228,19 @@ public class StringObjectEvaluationRuleFilter : EvaluationRuleFilter
     public required string Key { get; init; }
 
     /// <summary>
-    ///     Comparison operator.
+    ///     Comparison operator. Use <see cref="EvaluationRuleStringObjectFilterOperator.IsSet" /> /
+    ///     <see cref="EvaluationRuleStringObjectFilterOperator.IsNotSet" /> to filter on key presence.
     /// </summary>
     [JsonPropertyOrder(3)]
     [JsonPropertyName("operator")]
-    public required EvaluationRuleStringFilterOperator Operator { get; init; }
+    public required EvaluationRuleStringObjectFilterOperator Operator { get; init; }
 
     /// <summary>
-    ///     String value to compare against.
+    ///     String value to compare against. Ignored for <c>is set</c> / <c>is not set</c>.
     /// </summary>
     [JsonPropertyOrder(4)]
     [JsonPropertyName("value")]
-    public required string Value { get; init; }
+    public string Value { get; init; } = string.Empty;
 }
 
 /// <summary>

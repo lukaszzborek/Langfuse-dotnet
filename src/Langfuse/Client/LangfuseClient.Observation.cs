@@ -25,7 +25,7 @@ internal partial class LangfuseClient
             throw new ArgumentException("Observation ID cannot be null or empty", nameof(observationId));
         }
 
-        return await GetAsync<ObservationModel>($"/api/public/observations/{Uri.EscapeDataString(observationId)}",
-            "Get Observation", cancellationToken);
+        var endpoint = $"/api/public/observations/{Uri.EscapeDataString(observationId)}";
+        return await GetAsync<ObservationModel>(endpoint, "Get Observation", cancellationToken);
     }
 }

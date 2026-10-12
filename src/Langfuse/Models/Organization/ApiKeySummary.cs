@@ -33,8 +33,15 @@ public class ApiKeySummary
     public DateTime? LastUsedAt { get; set; }
 
     /// <summary>
-    ///     Optional human-readable note or description for the API key, helping identify its purpose.
+    ///     Name of the API key. Null if no name was provided.
     /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    /// <summary>
+    ///     Deprecated alias for <see cref="Name" />. Contains the same value.
+    /// </summary>
+    [Obsolete("Use Name instead.")]
     [JsonPropertyName("note")]
     public string? Note { get; set; }
 

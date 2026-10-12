@@ -243,6 +243,7 @@ internal static class QueryStringHelper
         AddParameter(parameters, "limit", request.Limit);
         AddParameter(parameters, "fromUpdatedAt", request.FromUpdatedAt?.ToString("O"));
         AddParameter(parameters, "toUpdatedAt", request.ToUpdatedAt?.ToString("O"));
+        AddParameter(parameters, "filter", request.Filter);
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }

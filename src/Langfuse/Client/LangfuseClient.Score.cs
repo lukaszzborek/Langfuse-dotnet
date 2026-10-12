@@ -32,19 +32,47 @@ internal partial class LangfuseClient
     public async Task<CreateScoreResponse> CreateScoreAsync(ScoreCreateRequest request,
         CancellationToken cancellationToken = default)
     {
+        ValidateScoreCreateRequest(request, nameof(request));
+
+        const string endpoint = "/api/public/scores";
+        return await PostAsync<CreateScoreResponse>(endpoint, request, "Create Score", cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<CreateScoreBatchResponse> CreateScoresAsync(IReadOnlyCollection<ScoreCreateRequest> requests,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(requests);
+
+        if (requests.Count == 0)
+        {
+            throw new ArgumentException("At least one score must be provided", nameof(requests));
+        }
+
+        foreach (var request in requests)
+        {
+            ValidateScoreCreateRequest(request, nameof(requests));
+        }
+
+        const string endpoint = "/api/public/scores";
+        return await PostAsync<CreateScoreBatchResponse>(endpoint, requests, "Create Scores", cancellationToken);
+    }
+
+    private static void ValidateScoreCreateRequest(ScoreCreateRequest? request, string paramName)
+    {
         if (request == null)
         {
-            throw new ArgumentNullException(nameof(request));
+            throw new ArgumentNullException(paramName);
         }
 
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            throw new ArgumentException("Score name cannot be null or empty", nameof(request));
+            throw new ArgumentException("Score name cannot be null or empty", paramName);
         }
 
         if (request.Value == null)
         {
-            throw new ArgumentException("Score value cannot be null", nameof(request));
+            throw new ArgumentException("Score value cannot be null", paramName);
         }
 
         if (string.IsNullOrWhiteSpace(request.TraceId) &&
@@ -52,11 +80,8 @@ internal partial class LangfuseClient
             string.IsNullOrWhiteSpace(request.SessionId))
         {
             throw new ArgumentException("At least one of TraceId, ObservationId, or SessionId must be provided",
-                nameof(request));
+                paramName);
         }
-
-        const string endpoint = "/api/public/scores";
-        return await PostAsync<CreateScoreResponse>(endpoint, request, "Create Score", cancellationToken);
     }
 
     /// <inheritdoc />

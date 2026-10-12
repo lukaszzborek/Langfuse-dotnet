@@ -42,6 +42,20 @@ public partial interface ILangfuseClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Creates multiple scores in a single asynchronous batch request
+    /// </summary>
+    /// <param name="requests">Scores to create</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>
+    ///     Batch result: "Accepted" message when all scores were accepted (HTTP 202), or accepted/rejected counts
+    ///     with error messages on partial acceptance (HTTP 207)
+    /// </returns>
+    /// <exception cref="LangfuseApiException">Thrown when batch creation fails</exception>
+    /// <remarks>Do not automatically retry a partially accepted batch - accepted scores would be duplicated</remarks>
+    Task<CreateScoreBatchResponse> CreateScoresAsync(IReadOnlyCollection<ScoreCreateRequest> requests,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Deletes a score by its ID
     /// </summary>
     /// <param name="scoreId">Unique identifier of the score to delete</param>
