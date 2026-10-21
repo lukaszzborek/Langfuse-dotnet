@@ -6,39 +6,17 @@ namespace zborek.Langfuse.Client;
 public partial interface ILangfuseClient
 {
     /// <summary>
-    ///     Retrieves a paginated list of scores with optional filtering
-    /// </summary>
-    /// <param name="request">
-    ///     Filter and pagination parameters including name, user ID, trace ID, observation ID, data type,
-    ///     and value filters
-    /// </param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated list of scores with numeric or categorical values and associated metadata</returns>
-    /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
-    /// <remarks>Supports filtering by score configuration name, data type (NUMERIC, CATEGORICAL, BOOLEAN), and value ranges</remarks>
-    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetScoresV3Async (GET /api/public/v3/scores) instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
-    Task<ScoreListResponse> GetScoreListAsync(ScoreListRequest? request = null,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     Retrieves a single score by its ID
-    /// </summary>
-    /// <param name="scoreId">Unique identifier of the score</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The score with the specified ID</returns>
-    /// <exception cref="LangfuseApiException">Thrown when the score is not found or an API error occurs</exception>
-    [Obsolete("Deprecated: on Langfuse Cloud this endpoint will be removed on November 16, 2026. Use GetScoresV3Async (GET /api/public/v3/scores) with the id filter instead. Self-hosted deployments lose the endpoint when upgrading to Langfuse v4. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4")]
-    Task<ScoreModel> GetScoreAsync(string scoreId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     Creates a new score for a trace or observation
+    ///     Creates a new score for a trace, observation or session
     /// </summary>
     /// <param name="request">Score creation parameters including name, value, trace/observation ID, and optional metadata</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Response containing the ID of the created score</returns>
-    /// <exception cref="LangfuseApiException">Thrown when score creation fails</exception>
-    /// <remarks>Scores can be numeric, categorical, or boolean values used for evaluation and analysis</remarks>
-    Task<CreateScoreResponse> CreateScoreAsync(ScoreCreateRequest request,
+    /// <returns>Batch result for the single score (see <see cref="CreateScoresAsync" />)</returns>
+    /// <exception cref="LangfuseApiException">Thrown when score creation fails or the server rejects the score</exception>
+    /// <remarks>
+    ///     Scores are created asynchronously, so the response carries no score ID. When
+    ///     <see cref="ScoreCreateRequest.Id" /> is null, the client sets it to a new GUID before sending.
+    /// </remarks>
+    Task<CreateScoreBatchResponse> CreateScoreAsync(ScoreCreateRequest request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -51,7 +29,10 @@ public partial interface ILangfuseClient
     ///     with error messages on partial acceptance (HTTP 207)
     /// </returns>
     /// <exception cref="LangfuseApiException">Thrown when batch creation fails</exception>
-    /// <remarks>Do not automatically retry a partially accepted batch - accepted scores would be duplicated</remarks>
+    /// <remarks>
+    ///     Do not automatically retry a partially accepted batch - accepted scores would be duplicated. Requests with a
+    ///     null <see cref="ScoreCreateRequest.Id" /> get a new GUID before sending.
+    /// </remarks>
     Task<CreateScoreBatchResponse> CreateScoresAsync(IReadOnlyCollection<ScoreCreateRequest> requests,
         CancellationToken cancellationToken = default);
 

@@ -10,7 +10,7 @@
 - [Configuration](setup.md#configuration-reference): appsettings.json or programmatic setup for both OTel exporter and API client
 - [Testing](setup.md#testing): AddLangfuseTracingNoOp() for unit tests
 - [Error Handling](setup.md#error-handling): LangfuseApiException on API errors
-- [Architecture](setup.md#architecture-notes): Namespaces, scoping, batch processing
+- [Architecture](setup.md#architecture-notes): Namespaces, scoping, trace export
 
 ## Tracing (OpenTelemetry)
 - [IOtelLangfuseTrace](tracing.md#iotellangfusetrace--scoped-trace-service-di): Scoped trace service — StartTrace, CreateGeneration, CreateSpan, CreateToolCall, CreateEmbedding, CreateAgent, CreateEvent
@@ -21,22 +21,23 @@
 - [Key Types](tracing.md#key-types): GenAiResponse, GenAiMessage, GenAiToolDefinition, LangfuseObservationLevel
 
 ## API Client
-- [ILangfuseClient](api-client.md): Full Langfuse REST API — 22 domain areas
+- [ILangfuseClient](api-client.md): Full Langfuse REST API (v4)
 - [Prompts](api-client.md#prompts): GetPromptAsync, CreatePromptAsync — version-controlled prompt templates
-- [Datasets](api-client.md#datasets): CRUD for datasets, dataset items, and dataset run items
-- [Scores](api-client.md#scores): CreateScoreAsync, GetScoreListAsync — evaluation scoring
-- [Traces & Observations](api-client.md#traces): Query and manage traces and observations
-- [Sessions](api-client.md#sessions): Group traces into user sessions
-- [All API Domains](api-client.md#annotation-queues): Comments, Models, Media, Metrics, AnnotationQueues, Organization, Project, SCIM, Health, BlobStorage, LlmConnections
+- [Datasets](api-client.md#datasets): CRUD for datasets and dataset items
+- [Experiments](api-client.md#experiments): GetExperimentsAsync, GetExperimentItemsAsync — replace dataset runs
+- [Scores](api-client.md#scores): CreateScoreAsync, CreateScoresAsync, GetScoresV3Async — evaluation scoring
+- [Observations](api-client.md#observations): GetObservationsV2Async — read traces, spans, generations, events
+- [Skills](api-client.md#skills): GetSkillAsync, CreateSkillVersionAsync — versioned agent skills
+- [All API Domains](api-client.md#annotation-queues): Comments, Models, Media, Metrics V2, AnnotationQueues, Organization, Project, SCIM, Health, BlobStorage, LlmConnections
 
 ## API Types Reference
 - [Pagination](api-types.md#pagination): PaginatedResponse<T>, ApiMetadata
 - [Prompt Types](api-types.md#prompt-types): Prompt (TextPrompt/ChatPrompt), PromptMeta, CreatePromptRequest
-- [Trace Types](api-types.md#trace-types): TraceModel, TraceWithDetails (with observations, scores, cost, latency), TraceListRequest
-- [Observation Types](api-types.md#observation-types): ObservationModel with usage, cost, model details, TTFT
-- [Dataset Types](api-types.md#dataset-types): DatasetModel, DatasetItem, DatasetRun, DatasetRunItem, DatasetRunWithItems
-- [Score Types](api-types.md#score-types): ScoreModel (Numeric/Boolean/Categorical/Correction), ScoreConfig, ScoreCreateRequest
-- [Session Types](api-types.md#session-types): SessionModel with traces
+- [Trace Types](api-types.md#trace-types): DeleteTraceManyRequest
+- [Observation V2 Types](api-types.md#observation-v2-types): ObservationsV2Request, ObservationsV2Response with cursor pagination
+- [Dataset Types](api-types.md#dataset-types): DatasetModel, DatasetItem (with Version)
+- [Score Types](api-types.md#score-types): GetScoresV3Response, ScoreConfig, ScoreCreateRequest, CreateScoreBatchResponse
+- [Skill Types](api-types.md#skill-types): SkillMeta, SkillVersion, SkillFile, CreateSkillVersionRequest
 - [Comment Types](api-types.md#comment-types): CommentModel for traces, observations, sessions, prompts
 - [Media Types](api-types.md#media-types): MediaModel, presigned upload/download URLs
 - [Model Types](api-types.md#model-types-llm-model-definitions): LLM model definitions with pricing and tokenizer config

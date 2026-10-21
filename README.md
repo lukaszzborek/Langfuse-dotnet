@@ -286,24 +286,22 @@ public class MyService
 
 | Domain                        | Description                                      |
 |-------------------------------|--------------------------------------------------|
-| **Datasets**                  | Create and manage test datasets and runs         |
+| **Datasets**                  | Create and manage test datasets                  |
 | **Dataset Items**             | Create, query, and delete dataset items          |
-| **Dataset Run Items**         | Create dataset runs and list run items           |
+| **Experiments**               | Query experiments and experiment items           |
 | **Prompts**                   | Version control and retrieve prompt templates    |
-| **Scores**                    | Create and query evaluation scores               |
+| **Skills**                    | Version, label, and read agent skills            |
+| **Scores**                    | Create and delete scores, query scores (v3)      |
 | **Score Configs**             | Define score schemas and metadata                |
-| **Traces**                    | Query and manage traces                          |
-| **Observations**              | Query spans, generations, and events             |
-| **Observations V2**           | Query observations with updated API              |
-| **Sessions**                  | Group traces into user sessions                  |
+| **Traces**                    | Delete traces                                    |
+| **Observations V2**           | Query observations (spans, generations, events)  |
 | **Comments**                  | Add comments to traces and observations          |
 | **Models**                    | Query, create, and upsert LLM models and pricing |
 | **Media**                     | Upload and manage media assets                   |
-| **Metrics**                   | Query project metrics                            |
-| **Metrics V2**                | Query metrics with updated API                   |
+| **Metrics V2**                | Query project metrics                            |
 | **Annotation Queues**         | Manage annotation workflows                      |
 | **Blob Storage Integrations** | Configure external blob storage integrations     |
-| **LLM Connections**           | Manage LLM provider connections                  |
+| **LLM Connections**           | Manage project and organization LLM connections  |
 | **Evaluators**                | Define LLM-as-a-judge and code evaluators (v2)   |
 | **Evaluation Rules**          | Run evaluators on live observations (v2)         |
 | **Project**                   | Manage projects and API keys                     |
@@ -319,10 +317,6 @@ public class MyService
 | `PublicKey`        | -                            | Langfuse public API key    |
 | `SecretKey`        | -                            | Langfuse secret API key    |
 | `DefaultTimeout`   | `30s`                        | HTTP request timeout       |
-| `DefaultPageSize`  | `50`                         | Default pagination size    |
-| `EnableRetry`      | `true`                       | Auto-retry on failure      |
-| `MaxRetryAttempts` | `3`                          | Maximum retry attempts     |
-| `RetryDelay`       | `1s`                         | Base delay between retries |
 
 ## OpenTelemetry Exporter Options
 

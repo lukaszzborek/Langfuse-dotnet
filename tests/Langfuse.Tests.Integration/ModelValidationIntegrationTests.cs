@@ -9,7 +9,6 @@ using zborek.Langfuse.Models.BlobStorageIntegration;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Dataset;
 using zborek.Langfuse.Models.Score;
-using zborek.Langfuse.Models.Session;
 
 namespace Langfuse.Tests.Integration;
 
@@ -36,7 +35,6 @@ public class ModelValidationIntegrationTests
             config.Url = _fixture.LangfuseBaseUrl;
             config.PublicKey = _fixture.PublicKey;
             config.SecretKey = _fixture.SecretKey;
-            config.BatchMode = false;
         });
 
         var provider = services.BuildServiceProvider();
@@ -91,7 +89,6 @@ public class ModelValidationIntegrationTests
 
     #region Score Model Tests
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task CreateScoreAsync_WithEnvironment_SerializesCorrectly()
     {
@@ -103,6 +100,7 @@ public class ModelValidationIntegrationTests
 
         var request = new ScoreCreateRequest
         {
+            Id = Guid.NewGuid().ToString(),
             TraceId = traceId,
             Name = $"env-test-{Guid.NewGuid():N}"[..20],
             Value = 0.85,
@@ -110,22 +108,16 @@ public class ModelValidationIntegrationTests
             Environment = "production"
         };
 
-        var score = await client.CreateScoreAsync(request);
+        await client.CreateScoreAsync(request);
 
-        score.ShouldNotBeNull();
-        score.Id.ShouldNotBeNullOrEmpty();
+        var fetchedScore = await traceHelper.WaitForScoreAsync(request.Id);
 
-        // Wait for score to be fully available
-        var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
-
-        // Verify the score was created (environment may or may not be returned depending on API version)
-        fetchedScore.ShouldNotBeNull();
         fetchedScore.Name.ShouldBe(request.Name);
+        fetchedScore.Environment.ShouldBe("production");
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
-    public async Task GetScoreListAsync_FiltersByDataType_WithFixedEnumSerialization()
+    public async Task GetScoresV3Async_FiltersByDataType()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
@@ -133,33 +125,30 @@ public class ModelValidationIntegrationTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Create a numeric score
-        var numericScore = await client.CreateScoreAsync(new ScoreCreateRequest
+        var scoreId = Guid.NewGuid().ToString();
+        await client.CreateScoreAsync(new ScoreCreateRequest
         {
+            Id = scoreId,
             TraceId = traceId,
             Name = $"numeric-{Guid.NewGuid():N}"[..20],
             Value = 0.75,
             DataType = ScoreDataType.Numeric
         });
 
-        await traceHelper.WaitForScoreAsync(numericScore.Id);
+        await traceHelper.WaitForScoreAsync(scoreId);
 
-        // Filter by data type
-        var result = await client.GetScoreListAsync(new ScoreListRequest
+        var result = await client.GetScoresV3Async(new ScoreV3ListRequest
         {
-            DataType = ScoreDataType.Numeric,
-            Page = 1,
-            Limit = 50
+            TraceId = traceId,
+            DataType = "NUMERIC"
         });
 
-        result.ShouldNotBeNull();
-        result.Data.ShouldNotBeNull();
-        result.Data.ShouldAllBe(s => s.DataType == ScoreDataType.Numeric);
+        result.Data.ShouldNotBeEmpty();
+        result.Data.ShouldAllBe(s => s.DataType == ScoreV3DataType.Numeric);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
-    public async Task GetScoreListAsync_FiltersBySource_WithFixedEnumSerialization()
+    public async Task GetScoresV3Async_FiltersBySource()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
@@ -167,57 +156,27 @@ public class ModelValidationIntegrationTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        // Create a score (source will be API by default)
-        var score = await client.CreateScoreAsync(new ScoreCreateRequest
+        // Scores created through the public API get source API
+        var scoreId = Guid.NewGuid().ToString();
+        await client.CreateScoreAsync(new ScoreCreateRequest
         {
+            Id = scoreId,
             TraceId = traceId,
             Name = $"source-test-{Guid.NewGuid():N}"[..20],
             Value = 0.9,
             DataType = ScoreDataType.Numeric
         });
 
-        await traceHelper.WaitForScoreAsync(score.Id);
+        await traceHelper.WaitForScoreAsync(scoreId);
 
-        // Filter by source
-        var result = await client.GetScoreListAsync(new ScoreListRequest
-        {
-            Source = ScoreSource.Api,
-            Page = 1,
-            Limit = 50
-        });
-
-        result.ShouldNotBeNull();
-        result.Data.ShouldNotBeNull();
-        result.Data.ShouldAllBe(s => s.Source == ScoreSource.Api);
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task ScoreModel_HasExpectedNewProperties()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
-
-        var score = await client.CreateScoreAsync(new ScoreCreateRequest
+        var result = await client.GetScoresV3Async(new ScoreV3ListRequest
         {
             TraceId = traceId,
-            Name = $"props-test-{Guid.NewGuid():N}"[..20],
-            Value = 0.8,
-            DataType = ScoreDataType.Numeric
+            Source = "API"
         });
 
-        var fetchedScore = await traceHelper.WaitForScoreAsync(score.Id);
-
-        // Verify new properties exist (may be null but shouldn't throw)
-        fetchedScore.ShouldNotBeNull();
-        // These are the new properties we added - they may be null for this test
-        // but accessing them shouldn't throw
-        _ = fetchedScore.DatasetRunId;
-        _ = fetchedScore.QueueId;
-        _ = fetchedScore.Environment;
+        result.Data.ShouldNotBeEmpty();
+        result.Data.ShouldAllBe(s => s.Source == ScoreSource.Api);
     }
 
     #endregion
@@ -329,59 +288,6 @@ public class ModelValidationIntegrationTests
 
     #endregion
 
-    #region Session List Request Tests
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetSessionListAsync_WithEnvironmentArray_Works()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        // Create a trace with session (this creates a session implicitly)
-        var sessionId = $"session-{Guid.NewGuid():N}";
-        var traceId = traceHelper.CreateTrace(sessionId: sessionId);
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForSessionAsync(sessionId);
-
-        // Query sessions without environment filter (should work)
-        var result = await client.GetSessionListAsync(new SessionListRequest
-        {
-            Page = 1,
-            Limit = 50
-        });
-
-        result.ShouldNotBeNull();
-        result.Data.ShouldNotBeNull();
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetSessionListAsync_WithMultipleEnvironments_SerializesCorrectly()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        // Create a trace with session
-        var sessionId = $"session-{Guid.NewGuid():N}";
-        var traceId = traceHelper.CreateTrace(sessionId: sessionId);
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForSessionAsync(sessionId);
-
-        // Query with multiple environment values (array parameter)
-        var result = await client.GetSessionListAsync(new SessionListRequest
-        {
-            Page = 1,
-            Limit = 50,
-            Environment = ["production", "staging"]
-        });
-
-        result.ShouldNotBeNull();
-        result.Data.ShouldNotBeNull();
-    }
-
-    #endregion
-
     #region Score Config Tests
 
     [Fact]
@@ -445,60 +351,6 @@ public class ModelValidationIntegrationTests
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
         config.DataType.ShouldBe(ScoreConfigDataType.Categorical);
-    }
-
-    #endregion
-
-    #region Observation Model Tests
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task ObservationModel_HasExpectedNewProperties()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
-
-        var observation = await client.GetObservationAsync(generationId);
-
-        observation.ShouldNotBeNull();
-
-        // Verify new properties exist and don't throw when accessed
-        // These may be null depending on the observation type and data
-        _ = observation.CompletionStartTime;
-        _ = observation.PromptId;
-        _ = observation.PromptName;
-        _ = observation.PromptVersion;
-        _ = observation.ModelId;
-        _ = observation.InputPrice;
-        _ = observation.OutputPrice;
-        _ = observation.TotalPrice;
-        _ = observation.Latency;
-        _ = observation.TimeToFirstToken;
-        _ = observation.Environment;
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task ObservationModel_UsageDetails_Deserializes()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration(model: "gpt-4");
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
-
-        var observation = await client.GetObservationAsync(generationId);
-
-        observation.ShouldNotBeNull();
-
-        // UsageDetails is a new property - verify it doesn't throw
-        _ = observation.UsageDetails;
-        _ = observation.CostDetails;
     }
 
     #endregion

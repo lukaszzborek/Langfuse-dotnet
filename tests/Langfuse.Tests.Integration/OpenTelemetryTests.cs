@@ -6,8 +6,7 @@ using OpenTelemetry.Trace;
 using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
-using zborek.Langfuse.Models.Core;
-using zborek.Langfuse.Models.Observation;
+using zborek.Langfuse.Models.ObservationV2;
 using zborek.Langfuse.OpenTelemetry;
 using zborek.Langfuse.OpenTelemetry.Models;
 using zborek.Langfuse.OpenTelemetry.Trace;
@@ -37,7 +36,6 @@ public class OpenTelemetryTests
             config.Url = _fixture.LangfuseBaseUrl;
             config.PublicKey = _fixture.PublicKey;
             config.SecretKey = _fixture.SecretKey;
-            config.BatchMode = false;
         });
 
         var provider = services.BuildServiceProvider();
@@ -49,7 +47,6 @@ public class OpenTelemetryTests
         return new TraceTestHelper(client, _fixture);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task EmbeddingObservation_IsExportedWithCorrectMetadata()
     {
@@ -57,24 +54,19 @@ public class OpenTelemetryTests
         var traceHelper = CreateTraceHelper(client);
         var embeddingName = $"embedding-test-{Guid.NewGuid():N}";
 
-        var (traceId, embeddingId) = traceHelper.CreateTraceWithEmbedding(
+        var (_, embeddingId) = traceHelper.CreateTraceWithEmbedding(
             embeddingName: embeddingName,
             model: "text-embedding-3-small",
             provider: "openai",
             input: "Test input text");
 
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(embeddingId);
+        var observation = await traceHelper.GetObservationV2Async(embeddingId, "core,basic,model");
 
-        var observation = await client.GetObservationAsync(embeddingId);
-
-        observation.ShouldNotBeNull();
-        observation.Id.ShouldBe(embeddingId);
-        observation.Name.ShouldBe(embeddingName);
-        observation.Model.ShouldBe("text-embedding-3-small");
+        TraceTestHelper.GetString(observation, "id").ShouldBe(embeddingId);
+        TraceTestHelper.GetString(observation, "name").ShouldBe(embeddingName);
+        TraceTestHelper.GetString(observation, "model").ShouldBe("text-embedding-3-small");
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task ToolCallObservation_IsExportedWithArguments()
     {
@@ -82,26 +74,21 @@ public class OpenTelemetryTests
         var traceHelper = CreateTraceHelper(client);
         var toolCallName = $"tool-call-test-{Guid.NewGuid():N}";
 
-        var (traceId, toolCallId) = traceHelper.CreateTraceWithToolCall(
+        var (_, toolCallId) = traceHelper.CreateTraceWithToolCall(
             toolCallName: toolCallName,
             toolName: "get_weather",
             toolDescription: "Gets current weather",
             input: new { location = "San Francisco", unit = "celsius" },
             result: new { temperature = 18, conditions = "sunny" });
 
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(toolCallId);
+        var observation = await traceHelper.GetObservationV2Async(toolCallId, "core,basic,io");
 
-        var observation = await client.GetObservationAsync(toolCallId);
-
-        observation.ShouldNotBeNull();
-        observation.Id.ShouldBe(toolCallId);
-        observation.Name.ShouldBe("get_weather");
-        observation.Input.ShouldNotBeNull();
-        observation.Output.ShouldNotBeNull();
+        TraceTestHelper.GetString(observation, "id").ShouldBe(toolCallId);
+        TraceTestHelper.GetString(observation, "name").ShouldBe("get_weather");
+        TraceTestHelper.GetString(observation, "input").ShouldNotBeNullOrEmpty();
+        TraceTestHelper.GetString(observation, "output").ShouldNotBeNullOrEmpty();
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task AgentObservation_IsExportedWithId()
     {
@@ -110,26 +97,21 @@ public class OpenTelemetryTests
         var agentName = $"agent-test-{Guid.NewGuid():N}";
         var agentId = $"agent-{Guid.NewGuid():N}";
 
-        var (traceId, agentSpanId) = traceHelper.CreateTraceWithAgent(
+        var (_, agentSpanId) = traceHelper.CreateTraceWithAgent(
             agentName: agentName,
             agentId: agentId,
             description: "A test research agent",
             input: "Research query",
             output: "Research results");
 
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(agentSpanId);
+        var observation = await traceHelper.GetObservationV2Async(agentSpanId, "core,basic,io");
 
-        var observation = await client.GetObservationAsync(agentSpanId);
-
-        observation.ShouldNotBeNull();
-        observation.Id.ShouldBe(agentSpanId);
-        observation.Name.ShouldBe(agentName);
-        observation.Input.ShouldNotBeNull();
-        observation.Output.ShouldNotBeNull();
+        TraceTestHelper.GetString(observation, "id").ShouldBe(agentSpanId);
+        TraceTestHelper.GetString(observation, "name").ShouldBe(agentName);
+        TraceTestHelper.GetString(observation, "input").ShouldNotBeNullOrEmpty();
+        TraceTestHelper.GetString(observation, "output").ShouldNotBeNullOrEmpty();
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task Generation_TokenUsage_IsExported()
     {
@@ -137,31 +119,27 @@ public class OpenTelemetryTests
         var traceHelper = CreateTraceHelper(client);
         var generationName = $"gen-tokens-{Guid.NewGuid():N}";
 
-        var (traceId, generationId) = traceHelper.CreateTraceWithTokenUsage(
+        var (_, generationId) = traceHelper.CreateTraceWithTokenUsage(
             generationName: generationName,
             model: "gpt-4-turbo",
             inputTokens: 150,
             outputTokens: 75);
 
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
+        var observation = await traceHelper.GetObservationV2Async(generationId, "core,basic,model,usage");
 
-        var observation = await client.GetObservationAsync(generationId);
-
-        observation.ShouldNotBeNull();
-        observation.Id.ShouldBe(generationId);
-        observation.Name.ShouldBe(generationName);
-        observation.Model.ShouldBe("gpt-4-turbo");
-        observation.Type.ShouldBe("GENERATION");
+        TraceTestHelper.GetString(observation, "id").ShouldBe(generationId);
+        TraceTestHelper.GetString(observation, "name").ShouldBe(generationName);
+        TraceTestHelper.GetString(observation, "model").ShouldBe("gpt-4-turbo");
+        TraceTestHelper.GetString(observation, "type").ShouldBe("GENERATION");
 
         // Token usage should be captured
-        observation.Usage.ShouldNotBeNull();
-        observation.Usage.Input.ShouldBe(150);
-        observation.Usage.Output.ShouldBe(75);
-        observation.Usage.Total.ShouldBe(225);
+        var usage = TraceTestHelper.GetElement(observation, "usageDetails");
+        usage.ShouldNotBeNull();
+        usage.Value.GetProperty("input").GetInt64().ShouldBe(150);
+        usage.Value.GetProperty("output").GetInt64().ShouldBe(75);
+        usage.Value.GetProperty("total").GetInt64().ShouldBe(225);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task BaggageContext_PropagesToTrace()
     {
@@ -176,19 +154,15 @@ public class OpenTelemetryTests
             sessionId: sessionId,
             tags: tags);
 
-        await traceHelper.WaitForTraceAsync(result.TraceId);
+        var observation = await traceHelper.GetObservationV2Async(result.SpanId, "core,basic,trace_context");
 
-        var trace = await client.GetTraceAsync(result.TraceId);
-
-        trace.ShouldNotBeNull();
-        trace.UserId.ShouldBe(userId);
-        trace.SessionId.ShouldBe(sessionId);
-        trace.Tags.ShouldNotBeNull();
-        trace.Tags!.ShouldContain("tag1");
-        trace.Tags!.ShouldContain("tag2");
+        TraceTestHelper.GetString(observation, "userId").ShouldBe(userId);
+        TraceTestHelper.GetString(observation, "sessionId").ShouldBe(sessionId);
+        var traceTags = GetTags(observation);
+        traceTags.ShouldContain("tag1");
+        traceTags.ShouldContain("tag2");
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task BaggageContext_AllChildObservationsHaveTags()
     {
@@ -204,47 +178,31 @@ public class OpenTelemetryTests
             sessionId: sessionId,
             tags: tags);
 
-        await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
         await traceHelper.WaitForObservationAsync(result.GenerationId);
 
-        // Get all observations for the trace
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = result.TraceId,
-            Page = 1,
+            Fields = "core,basic,trace_context",
             Limit = 50
         });
 
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
+        // Verify we have multiple observations linked to this trace
+        observations.Data.Count.ShouldBeGreaterThanOrEqualTo(2);
 
-        // ALL child observations should belong to the same trace
+        // ALL child observations should carry the baggage-propagated attributes
         foreach (var observation in observations.Data)
         {
-            observation.TraceId.ShouldBe(result.TraceId);
-            var otelMetadata = observation.GetOtelMetadata();
-            otelMetadata.ShouldNotBeNull();
-            otelMetadata.UserId.ShouldBe(userId);
-            otelMetadata.SessionId.ShouldBe(sessionId);
-            otelMetadata.Tags.ShouldNotBeNull();
-            otelMetadata.Tags.ShouldContain("baggage-tag1");
-            otelMetadata.Tags.ShouldContain("baggage-tag2");
+            TraceTestHelper.GetString(observation, "traceId").ShouldBe(result.TraceId);
+            TraceTestHelper.GetString(observation, "userId").ShouldBe(userId);
+            TraceTestHelper.GetString(observation, "sessionId").ShouldBe(sessionId);
+            var observationTags = GetTags(observation);
+            observationTags.ShouldContain("baggage-tag1");
+            observationTags.ShouldContain("baggage-tag2");
         }
-
-        // Verify the trace has the correct baggage-propagated attributes
-        var trace = await client.GetTraceAsync(result.TraceId);
-        trace.UserId.ShouldBe(userId);
-        trace.SessionId.ShouldBe(sessionId);
-        trace.Tags.ShouldNotBeNull();
-        trace.Tags!.ShouldContain("baggage-tag1");
-        trace.Tags!.ShouldContain("baggage-tag2");
-
-        // Verify we have multiple observations linked to this trace
-        observations.Data.Length.ShouldBeGreaterThanOrEqualTo(2);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task BaggageContext_NestedObservationsInheritTraceContext()
     {
@@ -292,32 +250,25 @@ public class OpenTelemetryTests
 
         // Wait for all observations
         var traceHelper = CreateTraceHelper(client);
-        await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(span1Id);
         await traceHelper.WaitForObservationAsync(span2Id);
         await traceHelper.WaitForObservationAsync(generationId);
 
-        // Verify all observations belong to the same trace
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
-            Page = 1,
+            Fields = "core,basic,trace_context",
             Limit = 50
         });
 
         // All observations should be linked to the trace with baggage context
-        observations.Data.Length.ShouldBeGreaterThanOrEqualTo(3);
-        observations.Data.ShouldAllBe(o => o.TraceId == traceId);
-
-        // Verify the parent trace has baggage-propagated attributes
-        var resultTrace = await client.GetTraceAsync(traceId);
-        resultTrace.UserId.ShouldBe(userId);
-        resultTrace.SessionId.ShouldBe(sessionId);
-        resultTrace.Tags.ShouldNotBeNull();
-        resultTrace.Tags!.ShouldContain("level0");
+        observations.Data.Count.ShouldBeGreaterThanOrEqualTo(3);
+        observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "traceId") == traceId);
+        observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "userId") == userId);
+        observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "sessionId") == sessionId);
+        observations.Data.ShouldAllBe(o => GetTags(o).Contains("level0"));
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task NestedHierarchy_MaintainsParentChildRelationships()
     {
@@ -326,37 +277,17 @@ public class OpenTelemetryTests
 
         var result = traceHelper.CreateNestedHierarchy();
 
-        await traceHelper.WaitForTraceAsync(result.TraceId);
-        await traceHelper.WaitForObservationAsync(result.SpanId);
-        await traceHelper.WaitForObservationAsync(result.GenerationId);
-
-        // Get all observations for the trace
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
-        {
-            TraceId = result.TraceId,
-            Page = 1,
-            Limit = 50
-        });
-
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
-
-        // Verify we have the expected observations
-        var spanObs = observations.Data.FirstOrDefault(o => o.Id == result.SpanId);
-        var genObs = observations.Data.FirstOrDefault(o => o.Id == result.GenerationId);
-
-        spanObs.ShouldNotBeNull();
-        genObs.ShouldNotBeNull();
+        var spanObs = await traceHelper.GetObservationV2Async(result.SpanId);
+        var genObs = await traceHelper.GetObservationV2Async(result.GenerationId);
 
         // Verify parent-child relationships
-        spanObs.Name.ShouldBe("parent-span");
-        genObs.Name.ShouldBe("child-generation");
+        TraceTestHelper.GetString(spanObs, "name").ShouldBe("parent-span");
+        TraceTestHelper.GetString(genObs, "name").ShouldBe("child-generation");
 
         // Generation should be child of span
-        genObs.ParentObservationId.ShouldBe(result.SpanId);
+        TraceTestHelper.GetString(genObs, "parentObservationId").ShouldBe(result.SpanId);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task NestedHierarchy_AllObservationsBelongToSameTrace()
     {
@@ -365,18 +296,13 @@ public class OpenTelemetryTests
 
         var result = traceHelper.CreateNestedHierarchy();
 
-        await traceHelper.WaitForTraceAsync(result.TraceId);
-        await traceHelper.WaitForObservationAsync(result.SpanId);
-        await traceHelper.WaitForObservationAsync(result.GenerationId);
+        var spanObs = await traceHelper.GetObservationV2Async(result.SpanId);
+        var genObs = await traceHelper.GetObservationV2Async(result.GenerationId);
 
-        var spanObs = await client.GetObservationAsync(result.SpanId);
-        var genObs = await client.GetObservationAsync(result.GenerationId);
-
-        spanObs.TraceId.ShouldBe(result.TraceId);
-        genObs.TraceId.ShouldBe(result.TraceId);
+        TraceTestHelper.GetString(spanObs, "traceId").ShouldBe(result.TraceId);
+        TraceTestHelper.GetString(genObs, "traceId").ShouldBe(result.TraceId);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task SkipTrace_NothingExported()
     {
@@ -388,19 +314,13 @@ public class OpenTelemetryTests
         // Wait a bit to ensure export would have happened
         await Task.Delay(3000);
 
-        // The trace should not exist
-        var traceExists = false;
-        try
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
-            await client.GetTraceAsync(traceId);
-            traceExists = true;
-        }
-        catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-        {
-            traceExists = false;
-        }
+            TraceId = traceId,
+            Limit = 1
+        });
 
-        traceExists.ShouldBeFalse();
+        observations.Data.ShouldBeEmpty();
     }
 
     [Fact]
@@ -433,7 +353,6 @@ public class OpenTelemetryTests
         trace.ShouldBeOfType<NullOtelLangfuseTrace>();
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task DiRegistration_TracesWorkWithInjectedTrace()
     {
@@ -464,9 +383,14 @@ public class OpenTelemetryTests
         // Verify the trace was exported
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var trace = await client.GetTraceAsync(traceId);
-        trace.ShouldNotBeNull();
-        trace.Name.ShouldBe(traceName);
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
+        {
+            TraceId = traceId,
+            Fields = "core,basic,trace_context",
+            Limit = 50
+        });
+
+        observations.Data.ShouldContain(o => TraceTestHelper.GetString(o, "traceName") == traceName);
     }
 
     [Fact]
@@ -505,7 +429,6 @@ public class OpenTelemetryTests
         exception.ShouldBeNull();
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task TraceWithMultipleObservationTypes_AllExported()
     {
@@ -555,24 +478,28 @@ public class OpenTelemetryTests
         _fixture.FlushTraces();
 
         // Wait for all observations
-        await traceHelper.WaitForTraceAsync(traceId);
         await traceHelper.WaitForObservationAsync(embeddingId);
         await traceHelper.WaitForObservationAsync(generationId);
         await traceHelper.WaitForObservationAsync(spanId);
         await traceHelper.WaitForObservationAsync(eventId);
 
         // Verify all observations exist
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
-            Page = 1,
             Limit = 50
         });
 
-        observations.Data.Length.ShouldBeGreaterThanOrEqualTo(4);
-        observations.Data.ShouldContain(o => o.Id == embeddingId);
-        observations.Data.ShouldContain(o => o.Id == generationId);
-        observations.Data.ShouldContain(o => o.Id == spanId);
-        observations.Data.ShouldContain(o => o.Id == eventId);
+        observations.Data.Count.ShouldBeGreaterThanOrEqualTo(4);
+        observations.Data.ShouldContain(o => TraceTestHelper.GetString(o, "id") == embeddingId);
+        observations.Data.ShouldContain(o => TraceTestHelper.GetString(o, "id") == generationId);
+        observations.Data.ShouldContain(o => TraceTestHelper.GetString(o, "id") == spanId);
+        observations.Data.ShouldContain(o => TraceTestHelper.GetString(o, "id") == eventId);
+    }
+
+    private static string[] GetTags(Dictionary<string, object?> observation)
+    {
+        var tags = TraceTestHelper.GetElement(observation, "tags");
+        return tags?.EnumerateArray().Select(t => t.GetString()!).ToArray() ?? [];
     }
 }

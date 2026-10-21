@@ -1,13 +1,10 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Shouldly;
 using zborek.Langfuse.Client;
-using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.LlmConnection;
 
@@ -22,11 +19,9 @@ public class LangfuseClientLlmConnectionsTests
     {
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
-        var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
-        _client = new LangfuseClient(httpClient, channel, config, logger);
+        _client = new LangfuseClient(httpClient, logger);
     }
 
     [Fact]
@@ -1071,6 +1066,93 @@ public class LangfuseClientLlmConnectionsTests
     {
         await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.DeleteLlmConnectionAsync(null!));
+    }
+
+    [Fact]
+    public async Task GetOrganizationLlmConnectionsAsync_WithPagination_CallsOrganizationEndpoint()
+    {
+        // Arrange
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new PaginatedLlmConnections
+        {
+            Data = Array.Empty<LlmConnection>(),
+            Meta = new ApiMetadata { Page = 2, Limit = 10, TotalItems = 0, TotalPages = 0 }
+        });
+
+        // Act
+        var result = await _client.GetOrganizationLlmConnectionsAsync(2, 10);
+
+        // Assert
+        result.Meta.Page.ShouldBe(2);
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
+        _httpHandler.LastRequest?.RequestUri?.PathAndQuery
+            .ShouldBe("/api/public/organizations/llm-connections?page=2&limit=10");
+    }
+
+    [Fact]
+    public async Task UpsertOrganizationLlmConnectionAsync_Success_PutsToOrganizationEndpoint()
+    {
+        // Arrange
+        var request = new UpsertLlmConnectionRequest
+        {
+            Provider = "org-provider",
+            Adapter = LlmAdapter.OpenAi,
+            SecretKey = "sk-secret123456"
+        };
+
+        _httpHandler.SetupResponse(HttpStatusCode.OK, new LlmConnection
+        {
+            Id = "org-conn",
+            Provider = "org-provider",
+            Adapter = LlmAdapter.OpenAi,
+            DisplaySecretKey = "sk-sec***456",
+            CustomModels = Array.Empty<string>(),
+            WithDefaultModels = true,
+            ExtraHeaderKeys = Array.Empty<string>(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+
+        // Act
+        var result = await _client.UpsertOrganizationLlmConnectionAsync(request);
+
+        // Assert
+        result.Id.ShouldBe("org-conn");
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Put);
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/organizations/llm-connections");
+        var body = await _httpHandler.GetLastRequestBodyAsync();
+        body.ShouldNotBeNull();
+        body.ShouldContain("\"provider\":\"org-provider\"");
+    }
+
+    [Fact]
+    public async Task UpsertOrganizationLlmConnectionAsync_NullRequest_ThrowsArgumentNullException()
+    {
+        await Should.ThrowAsync<ArgumentNullException>(async () =>
+            await _client.UpsertOrganizationLlmConnectionAsync(null!));
+    }
+
+    [Fact]
+    public async Task DeleteOrganizationLlmConnectionAsync_Success_ReturnsMessage()
+    {
+        // Arrange
+        _httpHandler.SetupResponse(HttpStatusCode.OK,
+            new DeleteLlmConnectionResponse { Message = "LLM connection deleted" });
+
+        // Act
+        var result = await _client.DeleteOrganizationLlmConnectionAsync("org-conn");
+
+        // Assert
+        result.Message.ShouldBe("LLM connection deleted");
+        _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
+        _httpHandler.LastRequest?.RequestUri?.AbsolutePath
+            .ShouldBe("/api/public/organizations/llm-connections/org-conn");
+    }
+
+    [Fact]
+    public async Task DeleteOrganizationLlmConnectionAsync_EmptyId_ThrowsArgumentException()
+    {
+        await Should.ThrowAsync<ArgumentException>(async () =>
+            await _client.DeleteOrganizationLlmConnectionAsync(""));
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler

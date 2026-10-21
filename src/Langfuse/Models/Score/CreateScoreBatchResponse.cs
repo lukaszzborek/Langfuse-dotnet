@@ -30,7 +30,7 @@ public record CreateScoreBatchResponse
     ///     Errors for rejected scores (HTTP 207)
     /// </summary>
     [JsonPropertyName("errors")]
-    public List<CreateScoreBatchError> Errors { get; init; } = [];
+    public List<CreateScoreBatchError>? Errors { get; init; }
 }
 
 /// <summary>
@@ -42,5 +42,5 @@ public record CreateScoreBatchError
     ///     Error message
     /// </summary>
     [JsonPropertyName("message")]
-    public required string Message { get; init; }
+    public string? Message { get; init; }
 }
