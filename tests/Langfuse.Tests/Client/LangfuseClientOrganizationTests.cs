@@ -42,7 +42,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.DeleteOrganizationMembershipAsync(request);
+        var result = await _client.DeleteOrganizationMembershipAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -74,7 +74,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.DeleteOrganizationMembershipAsync(request);
+        await _client.DeleteOrganizationMembershipAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -101,7 +101,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.DeleteOrganizationMembershipAsync(request);
+        await _client.DeleteOrganizationMembershipAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -127,7 +127,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.DeleteOrganizationMembershipAsync(request);
+        var result = await _client.DeleteOrganizationMembershipAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -181,7 +181,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.DeleteProjectMembershipAsync(projectId, request);
+        var result = await _client.DeleteProjectMembershipAsync(projectId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -214,7 +214,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.DeleteProjectMembershipAsync(projectId, request);
+        await _client.DeleteProjectMembershipAsync(projectId, request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
@@ -242,7 +242,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.DeleteProjectMembershipAsync(projectId, request);
+        await _client.DeleteProjectMembershipAsync(projectId, request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -270,7 +270,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.DeleteProjectMembershipAsync(projectId, request);
+        await _client.DeleteProjectMembershipAsync(projectId, request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -297,7 +297,7 @@ public class LangfuseClientOrganizationTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.DeleteProjectMembershipAsync(projectId, request);
+        var result = await _client.DeleteProjectMembershipAsync(projectId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();

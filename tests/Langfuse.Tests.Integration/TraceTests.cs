@@ -47,9 +47,9 @@ public class TraceTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace("trace-to-delete");
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var deleteResponse = await client.DeleteTraceAsync(traceId);
+        var deleteResponse = await client.DeleteTraceAsync(traceId, TestContext.Current.CancellationToken);
 
         deleteResponse.ShouldNotBeNull();
 
@@ -60,15 +60,14 @@ public class TraceTests
 
         while (stopwatch.Elapsed < timeout)
         {
-            var observations = await client.GetObservationsV2Async(
-                new ObservationsV2Request { TraceId = traceId, Limit = 1 });
+            var observations = await client.GetObservationsV2Async(new ObservationsV2Request { TraceId = traceId, Limit = 1 }, TestContext.Current.CancellationToken);
             if (observations.Data.Count == 0)
             {
                 deleted = true;
                 break;
             }
 
-            await Task.Delay(500);
+            await Task.Delay(500, TestContext.Current.CancellationToken);
         }
 
         deleted.ShouldBeTrue();
@@ -83,11 +82,11 @@ public class TraceTests
         var traceId1 = traceHelper.CreateTrace("bulk-delete-1");
         var traceId2 = traceHelper.CreateTrace("bulk-delete-2");
 
-        await traceHelper.WaitForTraceAsync(traceId1);
-        await traceHelper.WaitForTraceAsync(traceId2);
+        await traceHelper.WaitForTraceAsync(traceId1, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForTraceAsync(traceId2, cancellationToken: TestContext.Current.CancellationToken);
 
         var deleteResponse =
-            await client.DeleteTraceManyAsync(new DeleteTraceManyRequest { TraceIds = [traceId1, traceId2] });
+            await client.DeleteTraceManyAsync(new DeleteTraceManyRequest { TraceIds = [traceId1, traceId2] }, TestContext.Current.CancellationToken);
 
         // Assert - verify delete was called successfully
         deleteResponse.ShouldNotBeNull();

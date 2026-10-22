@@ -47,7 +47,7 @@ public class ScoreConfigTests
             MaxValue = 100
         };
 
-        var config = await client.CreateScoreConfigAsync(request);
+        var config = await client.CreateScoreConfigAsync(request, TestContext.Current.CancellationToken);
 
         config.ShouldNotBeNull();
         config.Id.ShouldNotBeNull();
@@ -77,7 +77,7 @@ public class ScoreConfigTests
             ]
         };
 
-        var config = await client.CreateScoreConfigAsync(request);
+        var config = await client.CreateScoreConfigAsync(request, TestContext.Current.CancellationToken);
 
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
@@ -101,7 +101,7 @@ public class ScoreConfigTests
             Description = "Pass/Fail evaluation"
         };
 
-        var config = await client.CreateScoreConfigAsync(request);
+        var config = await client.CreateScoreConfigAsync(request, TestContext.Current.CancellationToken);
 
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
@@ -120,9 +120,9 @@ public class ScoreConfigTests
             DataType = ScoreConfigDataType.Numeric,
             MinValue = 1,
             MaxValue = 5
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var config = await client.GetScoreConfigAsync(created.Id);
+        var config = await client.GetScoreConfigAsync(created.Id, TestContext.Current.CancellationToken);
 
         config.ShouldNotBeNull();
         config.Id.ShouldBe(created.Id);
@@ -140,14 +140,14 @@ public class ScoreConfigTests
         {
             Name = $"{prefix}-1",
             DataType = ScoreConfigDataType.Numeric
-        });
+        }, TestContext.Current.CancellationToken);
         var config2 = await client.CreateScoreConfigAsync(new CreateScoreConfigRequest
         {
             Name = $"{prefix}-2",
             DataType = ScoreConfigDataType.Boolean
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var result = await client.GetScoreConfigListAsync(new ScoreConfigListRequest { Page = 1, Limit = 50 });
+        var result = await client.GetScoreConfigListAsync(new ScoreConfigListRequest { Page = 1, Limit = 50 }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -170,13 +170,13 @@ public class ScoreConfigTests
             Description = "Original description",
             MinValue = 0,
             MaxValue = 10
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             Description = "Updated description",
             MaxValue = 100
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.ShouldNotBeNull();
         updated.Id.ShouldBe(created.Id);
@@ -194,12 +194,12 @@ public class ScoreConfigTests
         {
             Name = configName,
             DataType = ScoreConfigDataType.Boolean
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             IsArchived = true
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.IsArchived.ShouldBeTrue();
     }
@@ -225,12 +225,12 @@ public class ScoreConfigTests
         {
             Name = originalName,
             DataType = ScoreConfigDataType.Numeric
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             Name = newName
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.Name.ShouldBe(newName);
     }
@@ -249,7 +249,7 @@ public class ScoreConfigTests
                 new ConfigCategory { Label = "Good", Value = 1 },
                 new ConfigCategory { Label = "Bad", Value = 0 }
             ]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
@@ -260,7 +260,7 @@ public class ScoreConfigTests
                 new ConfigCategory { Label = "Fair", Value = 0 },
                 new ConfigCategory { Label = "Poor", Value = -1 }
             ]
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.Categories.ShouldNotBeNull();
         updated.Categories.Length.ShouldBe(4);
@@ -286,7 +286,7 @@ public class ScoreConfigTests
             MaxValue = maxValue
         };
 
-        var config = await client.CreateScoreConfigAsync(request);
+        var config = await client.CreateScoreConfigAsync(request, TestContext.Current.CancellationToken);
 
         config.Id.ShouldNotBeNullOrEmpty();
         config.Name.ShouldBe(configName);
@@ -323,7 +323,7 @@ public class ScoreConfigTests
             Categories = categories
         };
 
-        var config = await client.CreateScoreConfigAsync(request);
+        var config = await client.CreateScoreConfigAsync(request, TestContext.Current.CancellationToken);
 
         config.Id.ShouldNotBeNullOrEmpty();
         config.Name.ShouldBe(configName);
@@ -354,9 +354,9 @@ public class ScoreConfigTests
             Name = configName,
             DataType = ScoreConfigDataType.Boolean,
             Description = description
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var config = await client.GetScoreConfigAsync(created.Id);
+        var config = await client.GetScoreConfigAsync(created.Id, TestContext.Current.CancellationToken);
 
         config.Id.ShouldBe(created.Id);
         config.Name.ShouldBe(configName);
@@ -383,13 +383,13 @@ public class ScoreConfigTests
             Description = "Original description",
             MinValue = 0,
             MaxValue = 10
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpdateScoreConfigAsync(created.Id, new UpdateScoreConfigRequest
         {
             Description = updatedDescription,
             MaxValue = 100
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.Id.ShouldBe(created.Id);
         updated.Name.ShouldBe(configName);

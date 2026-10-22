@@ -56,7 +56,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetBlobStorageIntegrationsAsync();
+        var result = await _client.GetBlobStorageIntegrationsAsync(TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -82,7 +82,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetBlobStorageIntegrationsAsync();
+        var result = await _client.GetBlobStorageIntegrationsAsync(TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -139,7 +139,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertBlobStorageIntegrationAsync(request);
+        var result = await _client.UpsertBlobStorageIntegrationAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -237,7 +237,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.UpsertBlobStorageIntegrationAsync(request);
+        await _client.UpsertBlobStorageIntegrationAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -263,7 +263,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.DeleteBlobStorageIntegrationAsync(integrationId);
+        var result = await _client.DeleteBlobStorageIntegrationAsync(integrationId, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -288,7 +288,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.DeleteBlobStorageIntegrationAsync(integrationId);
+        await _client.DeleteBlobStorageIntegrationAsync(integrationId, TestContext.Current.CancellationToken);
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
@@ -401,7 +401,7 @@ public class LangfuseClientBlobStorageIntegrationsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetBlobStorageIntegrationStatusAsync("int-1");
+        var result = await _client.GetBlobStorageIntegrationStatusAsync("int-1", TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();

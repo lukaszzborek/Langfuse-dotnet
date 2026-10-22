@@ -74,7 +74,7 @@ public class LangfuseClientSkillsTests
                                                       """);
 
         // Act
-        var result = await _client.GetSkillListAsync();
+        var result = await _client.GetSkillListAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Data.ShouldHaveSingleItem();
@@ -107,7 +107,7 @@ public class LangfuseClientSkillsTests
             Page = 2,
             Limit = 10,
             FromUpdatedAt = new DateTimeOffset(2026, 10, 1, 0, 0, 0, TimeSpan.Zero)
-        });
+        }, TestContext.Current.CancellationToken);
 
         // Assert
         var query = _httpHandler.LastRequest?.RequestUri?.Query;
@@ -128,7 +128,7 @@ public class LangfuseClientSkillsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, SkillVersionJson);
 
         // Act
-        var result = await _client.GetSkillAsync("my skill", 3, "production", true);
+        var result = await _client.GetSkillAsync("my skill", 3, "production", true, TestContext.Current.CancellationToken);
 
         // Assert
         result.Id.ShouldBe("sv-1");
@@ -151,7 +151,7 @@ public class LangfuseClientSkillsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, SkillVersionJson);
 
         // Act
-        await _client.GetSkillAsync("my-skill");
+        await _client.GetSkillAsync("my-skill", cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         _httpHandler.LastRequest?.RequestUri?.PathAndQuery.ShouldBe("/api/public/skills/my-skill");
@@ -179,7 +179,7 @@ public class LangfuseClientSkillsTests
         };
 
         // Act
-        var result = await _client.CreateSkillVersionAsync(request);
+        var result = await _client.CreateSkillVersionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.Id.ShouldBe("sv-1");
@@ -237,7 +237,7 @@ public class LangfuseClientSkillsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, SkillVersionJson);
 
         // Act
-        await _client.UpdateSkillAsync("my-skill", new UpdateSkillRequest { Tags = [] });
+        await _client.UpdateSkillAsync("my-skill", new UpdateSkillRequest { Tags = [] }, TestContext.Current.CancellationToken);
 
         // Assert
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Patch);
@@ -262,7 +262,7 @@ public class LangfuseClientSkillsTests
                                                       """);
 
         // Act
-        var result = await _client.GetSkillFileContentsAsync(["abc+/=", "def"]);
+        var result = await _client.GetSkillFileContentsAsync(["abc+/=", "def"], TestContext.Current.CancellationToken);
 
         // Assert
         result.Data.ShouldHaveSingleItem();
@@ -292,8 +292,7 @@ public class LangfuseClientSkillsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, SkillVersionJson);
 
         // Act
-        await _client.UpdateSkillVersionLabelsAsync("my-skill", 3,
-            new UpdateSkillLabelsRequest { Labels = ["production"] });
+        await _client.UpdateSkillVersionLabelsAsync("my-skill", 3, new UpdateSkillLabelsRequest { Labels = ["production"] }, TestContext.Current.CancellationToken);
 
         // Assert
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Patch);
@@ -309,7 +308,7 @@ public class LangfuseClientSkillsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, """{ "deleted": true }""");
 
         // Act
-        var result = await _client.DeleteSkillVersionAsync("my-skill", 3);
+        var result = await _client.DeleteSkillVersionAsync("my-skill", 3, TestContext.Current.CancellationToken);
 
         // Assert
         result.Deleted.ShouldBeTrue();

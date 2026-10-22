@@ -56,7 +56,7 @@ public class LangfuseClientEvaluatorsTests
             OutputDefinition = new NumericEvaluatorOutputDefinition()
         };
 
-        var result = await _client.CreateEvaluatorAsync(request);
+        var result = await _client.CreateEvaluatorAsync(request, TestContext.Current.CancellationToken);
 
         result.ShouldBeOfType<LlmAsJudgeEvaluator>();
         result.Id.ShouldBe("ev-1");
@@ -102,7 +102,7 @@ public class LangfuseClientEvaluatorsTests
             SourceCodeLanguage = CodeEvaluatorSourceCodeLanguage.Python
         };
 
-        var result = await _client.CreateEvaluatorAsync(request);
+        var result = await _client.CreateEvaluatorAsync(request, TestContext.Current.CancellationToken);
 
         var codeEvaluator = result.ShouldBeOfType<CodeEvaluator>();
         codeEvaluator.Type.ShouldBe(EvaluatorType.Code);
@@ -130,7 +130,7 @@ public class LangfuseClientEvaluatorsTests
             Meta = new CursorMeta { Cursor = "next" }
         });
 
-        var result = await _client.GetEvaluatorsAsync();
+        var result = await _client.GetEvaluatorsAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         result.Data.Length.ShouldBe(1);
         result.Meta.Cursor.ShouldBe("next");
@@ -147,7 +147,7 @@ public class LangfuseClientEvaluatorsTests
             Meta = new CursorMeta()
         });
 
-        await _client.GetEvaluatorsAsync(10, "abc=");
+        await _client.GetEvaluatorsAsync(10, "abc=", TestContext.Current.CancellationToken);
 
         _httpHandler.LastRequest?.RequestUri?.PathAndQuery
             .ShouldBe("/api/public/v2/evaluators?limit=10&cursor=abc%3d");
@@ -158,7 +158,7 @@ public class LangfuseClientEvaluatorsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator("ev/1"));
 
-        var result = await _client.GetEvaluatorAsync("ev/1");
+        var result = await _client.GetEvaluatorAsync("ev/1", TestContext.Current.CancellationToken);
 
         result.Id.ShouldBe("ev/1");
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluators/ev%2F1");
@@ -175,7 +175,7 @@ public class LangfuseClientEvaluatorsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
 
-        await _client.UpdateEvaluatorAsync("ev-1", new UpdateEvaluatorMetadataRequest { Name = "renamed" });
+        await _client.UpdateEvaluatorAsync("ev-1", new UpdateEvaluatorMetadataRequest { Name = "renamed" }, TestContext.Current.CancellationToken);
 
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Patch);
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluators/ev-1");
@@ -187,8 +187,7 @@ public class LangfuseClientEvaluatorsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
 
-        await _client.UpdateEvaluatorAsync("ev-1",
-            new UpdateEvaluatorMetadataRequest { Name = "renamed", Description = null });
+        await _client.UpdateEvaluatorAsync("ev-1", new UpdateEvaluatorMetadataRequest { Name = "renamed", Description = null }, TestContext.Current.CancellationToken);
 
         (await _httpHandler.GetLastRequestBodyAsync()).ShouldBe("{\"name\":\"renamed\",\"description\":null}");
     }
@@ -198,7 +197,7 @@ public class LangfuseClientEvaluatorsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleEvaluator());
 
-        await _client.UpdateEvaluatorAsync("ev-1", new UpdateEvaluatorMetadataRequest { Description = "new" });
+        await _client.UpdateEvaluatorAsync("ev-1", new UpdateEvaluatorMetadataRequest { Description = "new" }, TestContext.Current.CancellationToken);
 
         (await _httpHandler.GetLastRequestBodyAsync()).ShouldBe("{\"description\":\"new\"}");
     }
@@ -215,7 +214,7 @@ public class LangfuseClientEvaluatorsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, new DeletedEvaluator { Id = "ev-1" });
 
-        var result = await _client.DeleteEvaluatorAsync("ev-1");
+        var result = await _client.DeleteEvaluatorAsync("ev-1", TestContext.Current.CancellationToken);
 
         result.Id.ShouldBe("ev-1");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);
@@ -236,7 +235,7 @@ public class LangfuseClientEvaluatorsTests
               ""type"": ""code"", ""sourceCode"": ""x"", ""sourceCodeLanguage"": ""PYTHON"" }
         ], ""meta"": {} }");
 
-        var result = await _client.GetEvaluatorVersionsAsync("ev-1", 5, "c");
+        var result = await _client.GetEvaluatorVersionsAsync("ev-1", 5, "c", TestContext.Current.CancellationToken);
 
         result.Data.Single().ShouldBeOfType<CodeEvaluatorVersion>().Version.ShouldBe(1);
         result.Meta.Cursor.ShouldBeNull();

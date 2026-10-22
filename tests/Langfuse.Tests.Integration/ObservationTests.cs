@@ -45,15 +45,15 @@ public class ObservationTests
         var traceHelper = CreateTraceHelper(client);
 
         var result = traceHelper.CreateComplexTrace();
-        await traceHelper.WaitForObservationAsync(result.SpanId);
-        await traceHelper.WaitForObservationAsync(result.GenerationId);
-        await traceHelper.WaitForObservationAsync(result.EventId);
+        await traceHelper.WaitForObservationAsync(result.SpanId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(result.EventId, cancellationToken: TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = result.TraceId,
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "traceId") == result.TraceId);
         observations.Data.ShouldContain(o =>
@@ -72,15 +72,15 @@ public class ObservationTests
         var traceHelper = CreateTraceHelper(client);
 
         var result = traceHelper.CreateComplexTrace();
-        await traceHelper.WaitForObservationAsync(result.SpanId);
-        await traceHelper.WaitForObservationAsync(result.GenerationId);
-        await traceHelper.WaitForObservationAsync(result.EventId);
+        await traceHelper.WaitForObservationAsync(result.SpanId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(result.EventId, cancellationToken: TestContext.Current.CancellationToken);
 
         var page1 = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = result.TraceId,
             Limit = 1
-        });
+        }, TestContext.Current.CancellationToken);
 
         page1.Data.Count.ShouldBe(1);
         page1.Meta.Cursor.ShouldNotBeNullOrEmpty();
@@ -90,7 +90,7 @@ public class ObservationTests
             TraceId = result.TraceId,
             Limit = 1,
             Cursor = page1.Meta.Cursor
-        });
+        }, TestContext.Current.CancellationToken);
 
         page2.Data.Count.ShouldBe(1);
         TraceTestHelper.GetString(page2.Data[0], "id").ShouldNotBe(TraceTestHelper.GetString(page1.Data[0], "id"));
@@ -106,16 +106,16 @@ public class ObservationTests
         var traceHelper = CreateTraceHelper(client);
 
         var result = traceHelper.CreateComplexTrace();
-        await traceHelper.WaitForObservationAsync(result.SpanId);
-        await traceHelper.WaitForObservationAsync(result.GenerationId);
-        await traceHelper.WaitForObservationAsync(result.EventId);
+        await traceHelper.WaitForObservationAsync(result.SpanId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(result.EventId, cancellationToken: TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = result.TraceId,
             Type = type,
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         observations.Data.ShouldNotBeEmpty();
         observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "type") == type);
@@ -129,13 +129,13 @@ public class ObservationTests
         var uniqueName = $"obs-name-{Guid.NewGuid():N}";
 
         var (_, spanId) = traceHelper.CreateTraceWithSpan(spanName: uniqueName);
-        await traceHelper.WaitForObservationAsync(spanId);
+        await traceHelper.WaitForObservationAsync(spanId, cancellationToken: TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             Name = uniqueName,
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         observations.Data.ShouldNotBeEmpty();
         observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "name") == uniqueName);
@@ -150,7 +150,7 @@ public class ObservationTests
 
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan(spanName: spanName);
 
-        var observation = await traceHelper.GetObservationV2Async(spanId, "core,basic,io");
+        var observation = await traceHelper.GetObservationV2Async(spanId, "core,basic,io", cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(observation, "id").ShouldBe(spanId);
         TraceTestHelper.GetString(observation, "traceId").ShouldBe(traceId);
@@ -174,7 +174,7 @@ public class ObservationTests
             model: "gpt-4-turbo"
         );
 
-        var observation = await traceHelper.GetObservationV2Async(generationId, "core,basic,model");
+        var observation = await traceHelper.GetObservationV2Async(generationId, "core,basic,model", cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(observation, "id").ShouldBe(generationId);
         TraceTestHelper.GetString(observation, "traceId").ShouldBe(traceId);
@@ -190,9 +190,9 @@ public class ObservationTests
         var traceHelper = CreateTraceHelper(client);
 
         var (traceId, skippedSpanId) = traceHelper.CreateTraceWithSkippedSpan();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var exists = await traceHelper.ObservationExistsAsync(skippedSpanId);
+        var exists = await traceHelper.ObservationExistsAsync(skippedSpanId, cancellationToken: TestContext.Current.CancellationToken);
 
         exists.ShouldBeFalse();
     }
@@ -204,9 +204,9 @@ public class ObservationTests
         var traceHelper = CreateTraceHelper(client);
 
         var (traceId, skippedGenerationId) = traceHelper.CreateTraceWithSkippedGeneration();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var exists = await traceHelper.ObservationExistsAsync(skippedGenerationId);
+        var exists = await traceHelper.ObservationExistsAsync(skippedGenerationId, cancellationToken: TestContext.Current.CancellationToken);
 
         exists.ShouldBeFalse();
     }
@@ -218,11 +218,11 @@ public class ObservationTests
         var traceHelper = CreateTraceHelper(client);
 
         var (traceId, activeSpanId, skippedSpanId) = traceHelper.CreateTraceWithMixedObservations();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(activeSpanId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(activeSpanId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var activeExists = await traceHelper.ObservationExistsAsync(activeSpanId);
-        var skippedExists = await traceHelper.ObservationExistsAsync(skippedSpanId);
+        var activeExists = await traceHelper.ObservationExistsAsync(activeSpanId, cancellationToken: TestContext.Current.CancellationToken);
+        var skippedExists = await traceHelper.ObservationExistsAsync(skippedSpanId, cancellationToken: TestContext.Current.CancellationToken);
 
         activeExists.ShouldBeTrue();
         skippedExists.ShouldBeFalse();
@@ -235,13 +235,13 @@ public class ObservationTests
         var traceHelper = CreateTraceHelper(client);
 
         var (traceId, skippedSpanId) = traceHelper.CreateTraceWithSkippedSpan();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         observations.Data.ShouldNotBeEmpty();
         observations.Data.ShouldNotContain(o => TraceTestHelper.GetString(o, "id") == skippedSpanId);

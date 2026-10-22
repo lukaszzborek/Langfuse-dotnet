@@ -87,7 +87,7 @@ public class LangfuseClientDashboardWidgetsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleWidget());
 
-        var result = await _client.CreateDashboardWidgetAsync(SampleRequest());
+        var result = await _client.CreateDashboardWidgetAsync(SampleRequest(), TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Id.ShouldBe("widget-1");
@@ -103,7 +103,7 @@ public class LangfuseClientDashboardWidgetsTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleWidget());
 
-        await _client.CreateDashboardWidgetAsync(SampleRequest());
+        await _client.CreateDashboardWidgetAsync(SampleRequest(), TestContext.Current.CancellationToken);
 
         var body = await _httpHandler.GetLastRequestBodyAsync();
         body.ShouldNotBeNull();
@@ -156,7 +156,7 @@ public class LangfuseClientDashboardWidgetsTests
                                                           }
                                                           """);
 
-        var result = await _client.CreateDashboardWidgetAsync(SampleRequest());
+        var result = await _client.CreateDashboardWidgetAsync(SampleRequest(), TestContext.Current.CancellationToken);
 
         result.Id.ShouldBe("cw-123");
         result.CreatedAt.ShouldBe(new DateTime(2026, 7, 1, 10, 0, 0, DateTimeKind.Utc));

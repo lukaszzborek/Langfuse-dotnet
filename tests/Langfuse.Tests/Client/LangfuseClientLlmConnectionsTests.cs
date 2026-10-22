@@ -57,7 +57,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetLlmConnectionsAsync();
+        var result = await _client.GetLlmConnectionsAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -88,7 +88,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.GetLlmConnectionsAsync(2);
+        await _client.GetLlmConnectionsAsync(2, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
@@ -110,7 +110,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.GetLlmConnectionsAsync(limit: 25);
+        await _client.GetLlmConnectionsAsync(limit: 25, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
@@ -132,7 +132,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.GetLlmConnectionsAsync(3, 100);
+        await _client.GetLlmConnectionsAsync(3, 100, TestContext.Current.CancellationToken);
 
         // Assert
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
@@ -153,7 +153,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetLlmConnectionsAsync();
+        var result = await _client.GetLlmConnectionsAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -203,7 +203,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetLlmConnectionsAsync();
+        var result = await _client.GetLlmConnectionsAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -263,7 +263,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -308,7 +308,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -354,7 +354,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.UpsertLlmConnectionAsync(request);
+        await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -396,7 +396,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.DisplaySecretKey.ShouldBe("sk-sec***789");
@@ -448,7 +448,7 @@ public class LangfuseClientLlmConnectionsTests
             _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
             // Act
-            var result = await _client.UpsertLlmConnectionAsync(request);
+            var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             result.Adapter.ShouldBe(adapter);
@@ -617,7 +617,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -654,7 +654,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -689,7 +689,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -724,7 +724,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -760,7 +760,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -797,7 +797,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -831,7 +831,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, initialResponse);
 
         // Act - First upsert (create)
-        var firstResult = await _client.UpsertLlmConnectionAsync(initialRequest);
+        var firstResult = await _client.UpsertLlmConnectionAsync(initialRequest, TestContext.Current.CancellationToken);
 
         // Arrange - Second upsert with same provider (should update)
         var updateRequest = new UpsertLlmConnectionRequest
@@ -859,7 +859,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, updatedResponse);
 
         // Act - Second upsert (update)
-        var secondResult = await _client.UpsertLlmConnectionAsync(updateRequest);
+        var secondResult = await _client.UpsertLlmConnectionAsync(updateRequest, TestContext.Current.CancellationToken);
 
         // Assert
         firstResult.Id.ShouldBe("conn-123");
@@ -899,7 +899,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -946,7 +946,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetLlmConnectionsAsync();
+        var result = await _client.GetLlmConnectionsAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -983,7 +983,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpsertLlmConnectionAsync(request);
+        var result = await _client.UpsertLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.DisplaySecretKey.ShouldNotBeNull();
@@ -1033,7 +1033,7 @@ public class LangfuseClientLlmConnectionsTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.GetLlmConnectionsAsync(2, 10);
+        var result = await _client.GetLlmConnectionsAsync(2, 10, TestContext.Current.CancellationToken);
 
         // Assert
         result.Meta.ShouldNotBeNull();
@@ -1051,7 +1051,7 @@ public class LangfuseClientLlmConnectionsTests
             new DeleteLlmConnectionResponse { Message = "LLM connection deleted" });
 
         // Act
-        var result = await _client.DeleteLlmConnectionAsync("conn-1");
+        var result = await _client.DeleteLlmConnectionAsync("conn-1", TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -1079,7 +1079,7 @@ public class LangfuseClientLlmConnectionsTests
         });
 
         // Act
-        var result = await _client.GetOrganizationLlmConnectionsAsync(2, 10);
+        var result = await _client.GetOrganizationLlmConnectionsAsync(2, 10, TestContext.Current.CancellationToken);
 
         // Assert
         result.Meta.Page.ShouldBe(2);
@@ -1113,7 +1113,7 @@ public class LangfuseClientLlmConnectionsTests
         });
 
         // Act
-        var result = await _client.UpsertOrganizationLlmConnectionAsync(request);
+        var result = await _client.UpsertOrganizationLlmConnectionAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.Id.ShouldBe("org-conn");
@@ -1139,7 +1139,7 @@ public class LangfuseClientLlmConnectionsTests
             new DeleteLlmConnectionResponse { Message = "LLM connection deleted" });
 
         // Act
-        var result = await _client.DeleteOrganizationLlmConnectionAsync("org-conn");
+        var result = await _client.DeleteOrganizationLlmConnectionAsync("org-conn", TestContext.Current.CancellationToken);
 
         // Assert
         result.Message.ShouldBe("LLM connection deleted");

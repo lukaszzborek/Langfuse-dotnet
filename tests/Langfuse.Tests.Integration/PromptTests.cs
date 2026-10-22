@@ -47,7 +47,7 @@ public class PromptTests
             Tags = ["integration-test"]
         };
 
-        var prompt = await client.CreatePromptAsync(request);
+        var prompt = await client.CreatePromptAsync(request, TestContext.Current.CancellationToken);
 
         prompt.ShouldNotBeNull();
         prompt.Name.ShouldBe(promptName);
@@ -75,7 +75,7 @@ public class PromptTests
             Labels = ["test", "chat"]
         };
 
-        var prompt = await client.CreatePromptAsync(request);
+        var prompt = await client.CreatePromptAsync(request, TestContext.Current.CancellationToken);
 
         prompt.ShouldNotBeNull();
         prompt.Name.ShouldBe(promptName);
@@ -94,9 +94,9 @@ public class PromptTests
             Name = promptName,
             Prompt = "Test prompt content",
             Labels = ["production"]
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var prompt = await client.GetPromptAsync(promptName);
+        var prompt = await client.GetPromptAsync(promptName, cancellationToken: TestContext.Current.CancellationToken);
 
         prompt.ShouldNotBeNull();
         prompt.Name.ShouldBe(promptName);
@@ -113,16 +113,16 @@ public class PromptTests
         {
             Name = promptName,
             Prompt = "Version 1 content"
-        });
+        }, TestContext.Current.CancellationToken);
 
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
             Prompt = "Version 2 content"
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var promptV1 = await client.GetPromptAsync(promptName, 1);
-        var promptV2 = await client.GetPromptAsync(promptName, 2);
+        var promptV1 = await client.GetPromptAsync(promptName, 1, cancellationToken: TestContext.Current.CancellationToken);
+        var promptV2 = await client.GetPromptAsync(promptName, 2, cancellationToken: TestContext.Current.CancellationToken);
 
         promptV1.Version.ShouldBe(1);
         promptV2.Version.ShouldBe(2);
@@ -143,16 +143,16 @@ public class PromptTests
             Name = promptName,
             Prompt = "Production content",
             Labels = ["production"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
             Prompt = "Development content",
             Labels = ["development"]
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var prodPrompt = await client.GetPromptAsync(promptName, label: "production");
+        var prodPrompt = await client.GetPromptAsync(promptName, label: "production", cancellationToken: TestContext.Current.CancellationToken);
 
         prodPrompt.Version.ShouldBe(1);
         prodPrompt.Labels.ShouldContain("production");
@@ -168,14 +168,14 @@ public class PromptTests
         {
             Name = $"{prefix}-1",
             Prompt = "Prompt 1"
-        });
+        }, TestContext.Current.CancellationToken);
         var prompt2 = await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = $"{prefix}-2",
             Prompt = "Prompt 2"
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var result = await client.GetPromptListAsync(new PromptListRequest { Page = 1, Limit = 50 });
+        var result = await client.GetPromptListAsync(new PromptListRequest { Page = 1, Limit = 50 }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -194,12 +194,12 @@ public class PromptTests
             Name = promptName,
             Prompt = "Test content",
             Labels = ["draft"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpdatePromptVersionAsync(promptName, 1, new UpdatePromptVersionRequest
         {
             NewLabels = ["production", "active"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.ShouldNotBeNull();
         updated.Labels.ShouldContain("production");
@@ -229,7 +229,7 @@ public class PromptTests
             Tags = ["tag1", "tag2", "tag3"]
         };
 
-        var prompt = await client.CreatePromptAsync(request);
+        var prompt = await client.CreatePromptAsync(request, TestContext.Current.CancellationToken);
 
         prompt.Tags.Count.ShouldBe(3);
         prompt.Tags.ShouldContain("tag1");
@@ -246,14 +246,14 @@ public class PromptTests
         {
             Name = uniqueName,
             Prompt = "Unique content"
-        });
+        }, TestContext.Current.CancellationToken);
 
         var result = await client.GetPromptListAsync(new PromptListRequest
         {
             Name = uniqueName,
             Page = 1,
             Limit = 10
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.Length.ShouldBe(1);
@@ -277,7 +277,7 @@ public class PromptTests
             Tags = ["integration-test", "comprehensive"]
         };
 
-        var prompt = await client.CreatePromptAsync(request);
+        var prompt = await client.CreatePromptAsync(request, TestContext.Current.CancellationToken);
 
         prompt.ShouldBeOfType<TextPrompt>();
         var textPrompt = (TextPrompt)prompt;
@@ -318,7 +318,7 @@ public class PromptTests
             Tags = ["chat", "integration-test"]
         };
 
-        var prompt = await client.CreatePromptAsync(request);
+        var prompt = await client.CreatePromptAsync(request, TestContext.Current.CancellationToken);
 
         prompt.ShouldBeOfType<ChatPrompt>();
         var chatPrompt = (ChatPrompt)prompt;
@@ -348,11 +348,11 @@ public class PromptTests
             Config = config,
             Labels = ["production"],
             Tags = ["validation"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
 
-        var prompt = await client.GetPromptAsync(promptName);
+        var prompt = await client.GetPromptAsync(promptName, cancellationToken: TestContext.Current.CancellationToken);
 
         prompt.ShouldBeOfType<TextPrompt>();
         var textPrompt = (TextPrompt)prompt;
@@ -380,12 +380,12 @@ public class PromptTests
             Config = config,
             Labels = ["test"],
             Tags = ["validation"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var exception = await Should.ThrowAsync<LangfuseApiException>(() => client.GetPromptAsync(promptName));
         exception.StatusCode.ShouldBe(404);
 
-        var prompt = await client.GetPromptAsync(promptName, label: "test");
+        var prompt = await client.GetPromptAsync(promptName, label: "test", cancellationToken: TestContext.Current.CancellationToken);
 
         prompt.ShouldBeOfType<TextPrompt>();
         var textPrompt = (TextPrompt)prompt;
@@ -412,12 +412,12 @@ public class PromptTests
             Config = new { temperature = 0.7 },
             Labels = ["draft"],
             Tags = ["test"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpdatePromptVersionAsync(promptName, 1, new UpdatePromptVersionRequest
         {
             NewLabels = ["production", "active"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.ShouldNotBeNull();
         updated.Name.ShouldBe(promptName);
@@ -444,13 +444,13 @@ public class PromptTests
         {
             Name = promptName,
             Prompt = "Version 1 content"
-        });
+        }, TestContext.Current.CancellationToken);
 
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
             Prompt = "Version 2 content"
-        });
+        }, TestContext.Current.CancellationToken);
 
         // Verify prompts exist
         var promptsBeforeDelete = await client.GetPromptListAsync(new PromptListRequest
@@ -458,11 +458,11 @@ public class PromptTests
             Name = promptName,
             Page = 1,
             Limit = 10
-        });
+        }, TestContext.Current.CancellationToken);
         promptsBeforeDelete.Data.Length.ShouldBeGreaterThan(0);
 
         // Delete all versions
-        await client.DeletePromptAsync(promptName);
+        await client.DeletePromptAsync(promptName, cancellationToken: TestContext.Current.CancellationToken);
 
         // Verify prompts are deleted
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
@@ -481,16 +481,16 @@ public class PromptTests
         {
             Name = promptName,
             Prompt = "Version 1 content"
-        });
+        }, TestContext.Current.CancellationToken);
 
         await client.CreatePromptAsync(new CreateTextPromptRequest
         {
             Name = promptName,
             Prompt = "Version 2 content"
-        });
+        }, TestContext.Current.CancellationToken);
 
         // Delete version 1
-        await client.DeletePromptAsync(promptName, 1);
+        await client.DeletePromptAsync(promptName, 1, cancellationToken: TestContext.Current.CancellationToken);
 
         // Version 1 should be deleted
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
@@ -498,7 +498,7 @@ public class PromptTests
         exception.StatusCode.ShouldBe(404);
 
         // Version 2 should still exist
-        var v2Prompt = await client.GetPromptAsync(promptName, 2);
+        var v2Prompt = await client.GetPromptAsync(promptName, 2, cancellationToken: TestContext.Current.CancellationToken);
         v2Prompt.ShouldNotBeNull();
         v2Prompt.Version.ShouldBe(2);
     }
@@ -515,7 +515,7 @@ public class PromptTests
             Name = promptName,
             Prompt = "Production version",
             Labels = ["production"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         // Create another version with different label
         await client.CreatePromptAsync(new CreateTextPromptRequest
@@ -523,10 +523,10 @@ public class PromptTests
             Name = promptName,
             Prompt = "Staging version",
             Labels = ["staging"]
-        });
+        }, TestContext.Current.CancellationToken);
 
         // Delete by label
-        await client.DeletePromptAsync(promptName, label: "production");
+        await client.DeletePromptAsync(promptName, label: "production", cancellationToken: TestContext.Current.CancellationToken);
 
         // Production version should be deleted
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
@@ -534,7 +534,7 @@ public class PromptTests
         exception.StatusCode.ShouldBe(404);
 
         // Staging version should still exist
-        var stagingPrompt = await client.GetPromptAsync(promptName, label: "staging");
+        var stagingPrompt = await client.GetPromptAsync(promptName, label: "staging", cancellationToken: TestContext.Current.CancellationToken);
         stagingPrompt.ShouldNotBeNull();
     }
 

@@ -45,7 +45,7 @@ public class DatasetTests
             Metadata = new { environment = "test", version = 1 }
         };
 
-        var dataset = await client.CreateDatasetAsync(request);
+        var dataset = await client.CreateDatasetAsync(request, TestContext.Current.CancellationToken);
 
         dataset.ShouldNotBeNull();
         dataset.Name.ShouldBe(datasetName);
@@ -63,9 +63,9 @@ public class DatasetTests
         {
             Name = datasetName,
             Description = "Dataset for retrieval test"
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var dataset = await client.GetDatasetAsync(datasetName);
+        var dataset = await client.GetDatasetAsync(datasetName, TestContext.Current.CancellationToken);
 
         dataset.ShouldNotBeNull();
         dataset.Name.ShouldBe(datasetName);
@@ -78,10 +78,10 @@ public class DatasetTests
         var client = CreateClient();
         var prefix = $"list-test-{Guid.NewGuid():N}";
 
-        var dataset1 = await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-1" });
-        var dataset2 = await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-2" });
+        var dataset1 = await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-1" }, TestContext.Current.CancellationToken);
+        var dataset2 = await client.CreateDatasetAsync(new CreateDatasetRequest { Name = $"{prefix}-2" }, TestContext.Current.CancellationToken);
 
-        var result = await client.GetDatasetListAsync(new DatasetListRequest { Page = 1, Limit = 50 });
+        var result = await client.GetDatasetListAsync(new DatasetListRequest { Page = 1, Limit = 50 }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -111,13 +111,13 @@ public class DatasetTests
         {
             Name = datasetName,
             Description = "Original description"
-        });
+        }, TestContext.Current.CancellationToken);
 
         var dataset2 = await client.CreateDatasetAsync(new CreateDatasetRequest
         {
             Name = datasetName,
             Description = "Updated description"
-        });
+        }, TestContext.Current.CancellationToken);
 
         dataset2.Id.ShouldBe(dataset1.Id);
         dataset2.Description.ShouldBe("Updated description");
@@ -139,7 +139,7 @@ public class DatasetTests
             Metadata = metadata
         };
 
-        var dataset = await client.CreateDatasetAsync(request);
+        var dataset = await client.CreateDatasetAsync(request, TestContext.Current.CancellationToken);
 
         dataset.Id.ShouldNotBeNullOrEmpty();
         dataset.Name.ShouldBe(datasetName);
@@ -164,9 +164,9 @@ public class DatasetTests
             Name = datasetName,
             Description = description,
             Metadata = metadata
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var dataset = await client.GetDatasetAsync(datasetName);
+        var dataset = await client.GetDatasetAsync(datasetName, TestContext.Current.CancellationToken);
 
         dataset.Id.ShouldNotBeNullOrEmpty();
         dataset.Name.ShouldBe(datasetName);

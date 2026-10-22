@@ -47,7 +47,7 @@ public class ModelTests
             Unit = ModelUsageUnit.Tokens
         };
 
-        var model = await client.CreateModelAsync(request);
+        var model = await client.CreateModelAsync(request, TestContext.Current.CancellationToken);
 
         model.ShouldNotBeNull();
         model.Id.ShouldNotBeNull();
@@ -69,9 +69,9 @@ public class ModelTests
             MatchPattern = $"(?i)^{modelName}$",
             InputPrice = 0.005,
             Unit = ModelUsageUnit.Tokens
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var model = await client.GetModelAsync(created.Id);
+        var model = await client.GetModelAsync(created.Id, TestContext.Current.CancellationToken);
 
         model.ShouldNotBeNull();
         model.Id.ShouldBe(created.Id);
@@ -91,17 +91,17 @@ public class ModelTests
             MatchPattern = $"(?i)^{prefix}-1$",
             InputPrice = 0.001,
             Unit = ModelUsageUnit.Tokens
-        });
+        }, TestContext.Current.CancellationToken);
         await client.CreateModelAsync(new CreateModelRequest
         {
             ModelName = $"{prefix}-2",
             MatchPattern = $"(?i)^{prefix}-2$",
             InputPrice = 0.001,
             Unit = ModelUsageUnit.Tokens
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var result1 = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 1 });
-        var result2 = await client.GetModelListAsync(new ModelListRequest { Page = 2, Limit = 1 });
+        var result1 = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 1 }, TestContext.Current.CancellationToken);
+        var result2 = await client.GetModelListAsync(new ModelListRequest { Page = 2, Limit = 1 }, TestContext.Current.CancellationToken);
 
         result1.ShouldNotBeNull();
         result1.Data.ShouldNotBeNull();
@@ -125,9 +125,9 @@ public class ModelTests
             MatchPattern = $"(?i)^{modelName}$",
             Unit = ModelUsageUnit.Tokens,
             InputPrice = 0.001
-        });
+        }, TestContext.Current.CancellationToken);
 
-        await client.DeleteModelAsync(created.Id);
+        await client.DeleteModelAsync(created.Id, TestContext.Current.CancellationToken);
 
         var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
             await client.GetModelAsync(created.Id));
@@ -148,7 +148,7 @@ public class ModelTests
             Unit = ModelUsageUnit.Tokens
         };
 
-        var model = await client.CreateModelAsync(request);
+        var model = await client.CreateModelAsync(request, TestContext.Current.CancellationToken);
 
         model.InputPrice.ShouldBe(0.00001);
         model.OutputPrice.ShouldBe(0.00002);
@@ -169,7 +169,7 @@ public class ModelTests
             InputPrice = 0.001
         };
 
-        var model = await client.CreateModelAsync(request);
+        var model = await client.CreateModelAsync(request, TestContext.Current.CancellationToken);
 
         model.StartDate.ShouldNotBeNull();
         model.StartDate.Value.Date.ShouldBe(startDate.Date);
@@ -191,7 +191,7 @@ public class ModelTests
     {
         var client = CreateClient();
 
-        var result = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 100 });
+        var result = await client.GetModelListAsync(new ModelListRequest { Page = 1, Limit = 100 }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -218,7 +218,7 @@ public class ModelTests
             StartDate = startDate
         };
 
-        var model = await client.CreateModelAsync(request);
+        var model = await client.CreateModelAsync(request, TestContext.Current.CancellationToken);
 
         model.Id.ShouldNotBeNullOrEmpty();
         model.ModelName.ShouldBe(modelName);
@@ -247,9 +247,9 @@ public class ModelTests
             InputPrice = inputPrice,
             OutputPrice = outputPrice,
             Unit = ModelUsageUnit.Tokens
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var model = await client.GetModelAsync(created.Id);
+        var model = await client.GetModelAsync(created.Id, TestContext.Current.CancellationToken);
 
         model.Id.ShouldBe(created.Id);
         model.ModelName.ShouldBe(modelName);

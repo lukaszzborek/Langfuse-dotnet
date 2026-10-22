@@ -53,7 +53,7 @@ public class DatasetItemTests
             Metadata = new { category = "geography", difficulty = "easy" }
         };
 
-        var item = await client.CreateDatasetItemAsync(request);
+        var item = await client.CreateDatasetItemAsync(request, TestContext.Current.CancellationToken);
 
         item.ShouldNotBeNull();
         item.Id.ShouldNotBeNull();
@@ -73,9 +73,9 @@ public class DatasetItemTests
             DatasetName = datasetName,
             Input = new { prompt = "Hello world" },
             ExpectedOutput = new { response = "Hi there" }
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var item = await client.GetDatasetItemAsync(created.Id);
+        var item = await client.GetDatasetItemAsync(created.Id, TestContext.Current.CancellationToken);
 
         item.ShouldNotBeNull();
         item.Id.ShouldBe(created.Id);
@@ -92,24 +92,24 @@ public class DatasetItemTests
         {
             DatasetName = datasetName,
             Input = new { query = "Item 1" }
-        });
+        }, TestContext.Current.CancellationToken);
         await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
         {
             DatasetName = datasetName,
             Input = new { query = "Item 2" }
-        });
+        }, TestContext.Current.CancellationToken);
         await client.CreateDatasetItemAsync(new CreateDatasetItemRequest
         {
             DatasetName = datasetName,
             Input = new { query = "Item 3" }
-        });
+        }, TestContext.Current.CancellationToken);
 
         var result = await client.GetDatasetItemListAsync(new DatasetItemListRequest
         {
             DatasetName = datasetName,
             Page = 1,
             Limit = 10
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -126,9 +126,9 @@ public class DatasetItemTests
         {
             DatasetName = datasetName,
             Input = new { query = "To be deleted" }
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var deleteResult = await client.DeleteDatasetItemAsync(created.Id);
+        var deleteResult = await client.DeleteDatasetItemAsync(created.Id, TestContext.Current.CancellationToken);
 
         deleteResult.ShouldNotBeNull();
 
@@ -150,7 +150,7 @@ public class DatasetItemTests
             Input = new { query = "Custom ID test" }
         };
 
-        var item = await client.CreateDatasetItemAsync(request);
+        var item = await client.CreateDatasetItemAsync(request, TestContext.Current.CancellationToken);
 
         item.Id.ShouldBe(customId);
     }
@@ -167,7 +167,7 @@ public class DatasetItemTests
             Status = DatasetStatus.Archived
         };
 
-        var item = await client.CreateDatasetItemAsync(request);
+        var item = await client.CreateDatasetItemAsync(request, TestContext.Current.CancellationToken);
 
         item.Status.ShouldBe(DatasetStatus.Archived);
     }
@@ -202,7 +202,7 @@ public class DatasetItemTests
             Status = DatasetStatus.Active
         };
 
-        var item = await client.CreateDatasetItemAsync(request);
+        var item = await client.CreateDatasetItemAsync(request, TestContext.Current.CancellationToken);
 
         item.Id.ShouldNotBeNullOrEmpty();
         item.DatasetName.ShouldBe(datasetName);
@@ -231,9 +231,9 @@ public class DatasetItemTests
             Input = inputData,
             ExpectedOutput = expectedOutputData,
             Metadata = metadata
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var item = await client.GetDatasetItemAsync(created.Id);
+        var item = await client.GetDatasetItemAsync(created.Id, TestContext.Current.CancellationToken);
 
         item.Id.ShouldBe(created.Id);
         item.DatasetName.ShouldBe(datasetName);

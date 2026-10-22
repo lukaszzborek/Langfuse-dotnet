@@ -434,7 +434,7 @@ public class ModelValidationTests
     [Fact]
     public void ObservationsV2Request_ParseIoAsJson_HasObsoleteAttribute()
     {
-        var property = typeof(ObservationsV2Request).GetProperty(nameof(ObservationsV2Request.ParseIoAsJson));
+        var property = typeof(ObservationsV2Request).GetProperty("ParseIoAsJson");
 
         property.ShouldNotBeNull();
         var obsoleteAttr = property.GetCustomAttributes(typeof(ObsoleteAttribute), false);

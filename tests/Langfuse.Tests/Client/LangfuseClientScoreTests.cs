@@ -52,7 +52,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpdateScoreConfigAsync(configId, request);
+        var result = await _client.UpdateScoreConfigAsync(configId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -94,7 +94,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpdateScoreConfigAsync(configId, request);
+        var result = await _client.UpdateScoreConfigAsync(configId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -144,7 +144,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpdateScoreConfigAsync(configId, request);
+        var result = await _client.UpdateScoreConfigAsync(configId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -183,7 +183,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.UpdateScoreConfigAsync(configId, request);
+        await _client.UpdateScoreConfigAsync(configId, request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -227,7 +227,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.UpdateScoreConfigAsync(configId, request);
+        var result = await _client.UpdateScoreConfigAsync(configId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -324,7 +324,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
-        var result = await _client.CreateScoreAsync(request);
+        var result = await _client.CreateScoreAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -355,7 +355,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
-        var result = await _client.CreateScoreAsync(request);
+        var result = await _client.CreateScoreAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.Message.ShouldBe("Accepted");
@@ -375,7 +375,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
-        var result = await _client.CreateScoreAsync(request);
+        var result = await _client.CreateScoreAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.Message.ShouldBe("Accepted");
@@ -425,7 +425,7 @@ public class LangfuseClientScoreTests
 
         _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
-        await _client.CreateScoreAsync(request);
+        await _client.CreateScoreAsync(request, TestContext.Current.CancellationToken);
 
         request.Id.ShouldNotBeNullOrEmpty();
         var body = await _httpHandler.GetLastRequestBodyAsync();
@@ -466,7 +466,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
-        await _client.CreateScoreAsync(request);
+        await _client.CreateScoreAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -526,7 +526,7 @@ public class LangfuseClientScoreTests
         var request = new ScoreCreateRequest
         {
             Name = "test",
-            Value = null,
+            Value = null!,
             TraceId = "trace-123"
         };
 
@@ -604,7 +604,7 @@ public class LangfuseClientScoreTests
         _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
-        var result = await _client.CreateScoresAsync(requests);
+        var result = await _client.CreateScoresAsync(requests, TestContext.Current.CancellationToken);
 
         // Assert
         result.Message.ShouldBe("Accepted");
@@ -635,7 +635,7 @@ public class LangfuseClientScoreTests
             """{"accepted":1,"rejected":1,"errors":[{"message":"invalid score"}]}""");
 
         // Act
-        var result = await _client.CreateScoresAsync(requests);
+        var result = await _client.CreateScoresAsync(requests, TestContext.Current.CancellationToken);
 
         // Assert
         result.Message.ShouldBeNull();

@@ -60,7 +60,7 @@ public class OpenTelemetryTests
             provider: "openai",
             input: "Test input text");
 
-        var observation = await traceHelper.GetObservationV2Async(embeddingId, "core,basic,model");
+        var observation = await traceHelper.GetObservationV2Async(embeddingId, "core,basic,model", cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(observation, "id").ShouldBe(embeddingId);
         TraceTestHelper.GetString(observation, "name").ShouldBe(embeddingName);
@@ -81,7 +81,7 @@ public class OpenTelemetryTests
             input: new { location = "San Francisco", unit = "celsius" },
             result: new { temperature = 18, conditions = "sunny" });
 
-        var observation = await traceHelper.GetObservationV2Async(toolCallId, "core,basic,io");
+        var observation = await traceHelper.GetObservationV2Async(toolCallId, "core,basic,io", cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(observation, "id").ShouldBe(toolCallId);
         TraceTestHelper.GetString(observation, "name").ShouldBe("get_weather");
@@ -104,7 +104,7 @@ public class OpenTelemetryTests
             input: "Research query",
             output: "Research results");
 
-        var observation = await traceHelper.GetObservationV2Async(agentSpanId, "core,basic,io");
+        var observation = await traceHelper.GetObservationV2Async(agentSpanId, "core,basic,io", cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(observation, "id").ShouldBe(agentSpanId);
         TraceTestHelper.GetString(observation, "name").ShouldBe(agentName);
@@ -125,7 +125,7 @@ public class OpenTelemetryTests
             inputTokens: 150,
             outputTokens: 75);
 
-        var observation = await traceHelper.GetObservationV2Async(generationId, "core,basic,model,usage");
+        var observation = await traceHelper.GetObservationV2Async(generationId, "core,basic,model,usage", cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(observation, "id").ShouldBe(generationId);
         TraceTestHelper.GetString(observation, "name").ShouldBe(generationName);
@@ -154,7 +154,7 @@ public class OpenTelemetryTests
             sessionId: sessionId,
             tags: tags);
 
-        var observation = await traceHelper.GetObservationV2Async(result.SpanId, "core,basic,trace_context");
+        var observation = await traceHelper.GetObservationV2Async(result.SpanId, "core,basic,trace_context", cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(observation, "userId").ShouldBe(userId);
         TraceTestHelper.GetString(observation, "sessionId").ShouldBe(sessionId);
@@ -178,15 +178,15 @@ public class OpenTelemetryTests
             sessionId: sessionId,
             tags: tags);
 
-        await traceHelper.WaitForObservationAsync(result.SpanId);
-        await traceHelper.WaitForObservationAsync(result.GenerationId);
+        await traceHelper.WaitForObservationAsync(result.SpanId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = result.TraceId,
             Fields = "core,basic,trace_context",
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         // Verify we have multiple observations linked to this trace
         observations.Data.Count.ShouldBeGreaterThanOrEqualTo(2);
@@ -250,16 +250,16 @@ public class OpenTelemetryTests
 
         // Wait for all observations
         var traceHelper = CreateTraceHelper(client);
-        await traceHelper.WaitForObservationAsync(span1Id);
-        await traceHelper.WaitForObservationAsync(span2Id);
-        await traceHelper.WaitForObservationAsync(generationId);
+        await traceHelper.WaitForObservationAsync(span1Id, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(span2Id, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(generationId, cancellationToken: TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
             Fields = "core,basic,trace_context",
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         // All observations should be linked to the trace with baggage context
         observations.Data.Count.ShouldBeGreaterThanOrEqualTo(3);
@@ -277,8 +277,8 @@ public class OpenTelemetryTests
 
         var result = traceHelper.CreateNestedHierarchy();
 
-        var spanObs = await traceHelper.GetObservationV2Async(result.SpanId);
-        var genObs = await traceHelper.GetObservationV2Async(result.GenerationId);
+        var spanObs = await traceHelper.GetObservationV2Async(result.SpanId, cancellationToken: TestContext.Current.CancellationToken);
+        var genObs = await traceHelper.GetObservationV2Async(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
 
         // Verify parent-child relationships
         TraceTestHelper.GetString(spanObs, "name").ShouldBe("parent-span");
@@ -296,8 +296,8 @@ public class OpenTelemetryTests
 
         var result = traceHelper.CreateNestedHierarchy();
 
-        var spanObs = await traceHelper.GetObservationV2Async(result.SpanId);
-        var genObs = await traceHelper.GetObservationV2Async(result.GenerationId);
+        var spanObs = await traceHelper.GetObservationV2Async(result.SpanId, cancellationToken: TestContext.Current.CancellationToken);
+        var genObs = await traceHelper.GetObservationV2Async(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
 
         TraceTestHelper.GetString(spanObs, "traceId").ShouldBe(result.TraceId);
         TraceTestHelper.GetString(genObs, "traceId").ShouldBe(result.TraceId);
@@ -312,13 +312,13 @@ public class OpenTelemetryTests
         var traceId = traceHelper.CreateSkippedTrace();
 
         // Wait a bit to ensure export would have happened
-        await Task.Delay(3000);
+        await Task.Delay(3000, TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
             Limit = 1
-        });
+        }, TestContext.Current.CancellationToken);
 
         observations.Data.ShouldBeEmpty();
     }
@@ -381,14 +381,14 @@ public class OpenTelemetryTests
         _fixture.FlushTraces();
 
         // Verify the trace was exported
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
             Fields = "core,basic,trace_context",
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         observations.Data.ShouldContain(o => TraceTestHelper.GetString(o, "traceName") == traceName);
     }
@@ -478,17 +478,17 @@ public class OpenTelemetryTests
         _fixture.FlushTraces();
 
         // Wait for all observations
-        await traceHelper.WaitForObservationAsync(embeddingId);
-        await traceHelper.WaitForObservationAsync(generationId);
-        await traceHelper.WaitForObservationAsync(spanId);
-        await traceHelper.WaitForObservationAsync(eventId);
+        await traceHelper.WaitForObservationAsync(embeddingId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(generationId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(spanId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(eventId, cancellationToken: TestContext.Current.CancellationToken);
 
         // Verify all observations exist
         var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         observations.Data.Count.ShouldBeGreaterThanOrEqualTo(4);
         observations.Data.ShouldContain(o => TraceTestHelper.GetString(o, "id") == embeddingId);
