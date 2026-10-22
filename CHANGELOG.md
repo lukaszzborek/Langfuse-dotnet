@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-22
+
 Langfuse removed the v3 ingestion and read endpoints from its OpenAPI spec. Langfuse Cloud shuts them down on 2026-11-16; self-hosted deployments lose them when upgrading to Langfuse v4 (see https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4). This release removes the client code for them. Send traces through OpenTelemetry (`AddLangfuseExporter` + `IOtelLangfuseTrace` / `OtelLangfuseTrace`) and read data with `GetObservationsV2Async`, `GetScoresV3Async`, `GetMetricsV2Async`, `GetExperimentsAsync` and `GetExperimentItemsAsync`.
 
 ### Added
@@ -21,6 +23,7 @@ Langfuse removed the v3 ingestion and read endpoints from its OpenAPI spec. Lang
 - **Breaking:** `CreateScoreAsync` now posts a one-element array to `POST /api/public/scores` and returns `CreateScoreBatchResponse` instead of `CreateScoreResponse`, because the endpoint no longer accepts a single score object. Scores are created asynchronously and the response carries no score id, so `CreateScoreAsync` and `CreateScoresAsync` set a null `ScoreCreateRequest.Id` to a new GUID before sending. When the server rejects the score (HTTP 207 with `Rejected > 0`), `CreateScoreAsync` throws `LangfuseApiException` with status code 207 and the response in `ResponseBody`.
 - **Breaking:** `LangfuseConfig.DefaultTimeout` is now applied to the API client's `HttpClient.Timeout`. Before, it was ignored and requests used the 100-second `HttpClient` default, so the effective timeout drops to 30 seconds unless you set it. A timed-out request throws `LangfuseApiException` with status code 408. `AddLangfuse` throws `ArgumentOutOfRangeException` when `DefaultTimeout` is zero or negative (except `Timeout.InfiniteTimeSpan`).
 - `GetSkillFileContentsAsync` throws `ArgumentException` for more than 50 hashes, and `CreateSkillVersionAsync` throws `ArgumentException` when `Files` is empty or a file does not set exactly one of `Content` or `Sha256Hash`.
+- `OpenTelemetry`, `OpenTelemetry.Api` and `OpenTelemetry.Exporter.OpenTelemetryProtocol` dependencies raised from 1.9.0 to 1.15.3 to fix security advisories GHSA-g94r-2vxg-569j and GHSA-4625-4j76-fww9. OpenTelemetry 1.15.3 requires Microsoft.Extensions 10, so the `Microsoft.Extensions.*` dependencies are raised from 9.0.1 to 10.0.0 on all target frameworks.
 
 ### Removed
 
@@ -205,7 +208,8 @@ Langfuse removed the v3 ingestion and read endpoints from its OpenAPI spec. Lang
 
 Initial release.
 
-[Unreleased]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.11.0...v0.12.0
