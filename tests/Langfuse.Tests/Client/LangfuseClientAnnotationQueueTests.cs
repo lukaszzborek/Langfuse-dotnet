@@ -46,7 +46,7 @@ public class LangfuseClientAnnotationQueueTests
 
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
-        var result = await _client.CreateAnnotationQueueAsync(request);
+        var result = await _client.CreateAnnotationQueueAsync(request, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Id.ShouldBe("queue-123");
@@ -87,7 +87,7 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.CreateAnnotationQueueAsync(request);
+        await _client.CreateAnnotationQueueAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -126,7 +126,7 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.CreateAnnotationQueueAsync(request);
+        var result = await _client.CreateAnnotationQueueAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -186,7 +186,7 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.CreateQueueAssignmentAsync(queueId, request);
+        var result = await _client.CreateQueueAssignmentAsync(queueId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -273,7 +273,7 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.DeleteQueueAssignmentAsync(queueId, request);
+        var result = await _client.DeleteQueueAssignmentAsync(queueId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -304,7 +304,7 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        await _client.DeleteQueueAssignmentAsync(queueId, request);
+        await _client.DeleteQueueAssignmentAsync(queueId, request, TestContext.Current.CancellationToken);
 
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
@@ -331,7 +331,7 @@ public class LangfuseClientAnnotationQueueTests
         _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
 
         // Act
-        var result = await _client.DeleteQueueAssignmentAsync(queueId, request);
+        var result = await _client.DeleteQueueAssignmentAsync(queueId, request, TestContext.Current.CancellationToken);
 
         // Assert
         result.Success.ShouldBeTrue();

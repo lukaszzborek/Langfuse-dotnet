@@ -42,7 +42,7 @@ public class EvaluationRuleTests
     {
         var client = CreateClient();
 
-        var result = await client.GetEvaluationRulesAsync();
+        var result = await client.GetEvaluationRulesAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -54,7 +54,7 @@ public class EvaluationRuleTests
     {
         var client = CreateClient();
 
-        var result = await client.GetEvaluationRulesAsync(5);
+        var result = await client.GetEvaluationRulesAsync(5, cancellationToken: TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.Length.ShouldBeLessThanOrEqualTo(5);
@@ -71,7 +71,7 @@ public class EvaluationRuleTests
             SourceCode =
                 "export function evaluate(ctx) { return { scores: [{ name: \"length\", value: String(ctx.output ?? \"\").length, dataType: \"NUMERIC\" }] }; }",
             SourceCodeLanguage = CodeEvaluatorSourceCodeLanguage.Typescript
-        });
+        }, TestContext.Current.CancellationToken);
 
         try
         {
@@ -93,7 +93,7 @@ public class EvaluationRuleTests
                 {
                     new EvaluationRuleEvaluatorAssignmentInput { EvaluatorId = evaluator.Id }
                 }
-            });
+            }, TestContext.Current.CancellationToken);
 
             try
             {
@@ -102,25 +102,24 @@ public class EvaluationRuleTests
                 rule.Filter.Length.ShouldBe(1);
                 rule.EvaluatorAssignments.Single().EvaluatorId.ShouldBe(evaluator.Id);
 
-                var updated = await client.UpdateEvaluationRuleAsync(rule.Id,
-                    new UpdateEvaluationRuleRequest { Name = "renamed" });
+                var updated = await client.UpdateEvaluationRuleAsync(rule.Id, new UpdateEvaluationRuleRequest { Name = "renamed" }, TestContext.Current.CancellationToken);
                 updated.Name.ShouldBe("renamed");
 
-                var fetched = await client.GetEvaluationRuleAsync(rule.Id);
+                var fetched = await client.GetEvaluationRuleAsync(rule.Id, TestContext.Current.CancellationToken);
                 fetched.Id.ShouldBe(rule.Id);
 
-                var evaluatorWithRules = await client.GetEvaluatorAsync(evaluator.Id);
+                var evaluatorWithRules = await client.GetEvaluatorAsync(evaluator.Id, TestContext.Current.CancellationToken);
                 evaluatorWithRules.EvaluationRuleAssignments.ShouldContain(a => a.EvaluationRuleId == rule.Id);
             }
             finally
             {
-                var deleted = await client.DeleteEvaluationRuleAsync(rule.Id);
+                var deleted = await client.DeleteEvaluationRuleAsync(rule.Id, TestContext.Current.CancellationToken);
                 deleted.Id.ShouldBe(rule.Id);
             }
         }
         finally
         {
-            await client.DeleteEvaluatorAsync(evaluator.Id);
+            await client.DeleteEvaluatorAsync(evaluator.Id, TestContext.Current.CancellationToken);
         }
     }
 

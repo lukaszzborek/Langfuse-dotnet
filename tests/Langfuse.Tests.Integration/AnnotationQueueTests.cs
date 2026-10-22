@@ -66,7 +66,7 @@ public class AnnotationQueueTests
             ScoreConfigIds = [scoreConfigId]
         };
 
-        var queue = await client.CreateAnnotationQueueAsync(request);
+        var queue = await client.CreateAnnotationQueueAsync(request, TestContext.Current.CancellationToken);
 
         queue.ShouldNotBeNull();
         queue.Id.ShouldNotBeNullOrEmpty();
@@ -87,7 +87,7 @@ public class AnnotationQueueTests
             DataType = ScoreConfigDataType.Numeric,
             MinValue = 0,
             MaxValue = 1
-        });
+        }, TestContext.Current.CancellationToken);
 
         var request = new CreateAnnotationQueueRequest
         {
@@ -96,7 +96,7 @@ public class AnnotationQueueTests
             ScoreConfigIds = new[] { scoreConfig.Id }
         };
 
-        var queue = await client.CreateAnnotationQueueAsync(request);
+        var queue = await client.CreateAnnotationQueueAsync(request, TestContext.Current.CancellationToken);
 
         queue.ShouldNotBeNull();
         queue.Id.ShouldNotBeNullOrEmpty();
@@ -117,9 +117,9 @@ public class AnnotationQueueTests
             Name = queueName,
             Description = "List test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var result = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 50 });
+        var result = await client.ListQueuesAsync(new AnnotationQueueListRequest { Page = 1, Limit = 50 }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -138,9 +138,9 @@ public class AnnotationQueueTests
             Name = queueName,
             Description = "Get test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var queue = await client.GetQueueAsync(createdQueue.Id);
+        var queue = await client.GetQueueAsync(createdQueue.Id, TestContext.Current.CancellationToken);
 
         queue.ShouldNotBeNull();
         queue.Id.ShouldBe(createdQueue.Id);
@@ -172,10 +172,10 @@ public class AnnotationQueueTests
             Name = $"item-test-{Guid.NewGuid():N}"[..30],
             Description = "Item test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var request = new CreateAnnotationQueueItemRequest
         {
@@ -183,7 +183,7 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Trace
         };
 
-        var item = await client.CreateItemAsync(queue.Id, request);
+        var item = await client.CreateItemAsync(queue.Id, request, TestContext.Current.CancellationToken);
 
         item.ShouldNotBeNull();
         item.ObjectId.ShouldBe(traceId);
@@ -203,18 +203,18 @@ public class AnnotationQueueTests
             Name = $"list-items-{Guid.NewGuid():N}"[..30],
             Description = "List items test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var items = await client.ListItemsAsync(queue.Id, new AnnotationQueueItemListRequest { Page = 1, Limit = 50 });
+        var items = await client.ListItemsAsync(queue.Id, new AnnotationQueueItemListRequest { Page = 1, Limit = 50 }, TestContext.Current.CancellationToken);
 
         items.ShouldNotBeNull();
         items.Data.ShouldNotBeNull();
@@ -235,18 +235,18 @@ public class AnnotationQueueTests
             Name = $"get-item-{Guid.NewGuid():N}"[..30],
             Description = "Get item test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var item = await client.GetItemAsync(queue.Id, createdItem.Id);
+        var item = await client.GetItemAsync(queue.Id, createdItem.Id, TestContext.Current.CancellationToken);
 
         item.ShouldNotBeNull();
         item.Id.ShouldBe(createdItem.Id);
@@ -266,22 +266,22 @@ public class AnnotationQueueTests
             Name = $"update-item-{Guid.NewGuid():N}"[..30],
             Description = "Update item test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace,
             Status = AnnotationQueueStatus.Pending
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updatedItem = await client.UpdateItemAsync(queue.Id, createdItem.Id, new UpdateAnnotationQueueItemRequest
         {
             Status = AnnotationQueueStatus.Completed
-        });
+        }, TestContext.Current.CancellationToken);
 
         updatedItem.ShouldNotBeNull();
         updatedItem.Status.ShouldBe(AnnotationQueueStatus.Completed);
@@ -300,18 +300,18 @@ public class AnnotationQueueTests
             Name = $"delete-item-{Guid.NewGuid():N}"[..30],
             Description = "Delete item test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var deleteResponse = await client.DeleteItemAsync(queue.Id, createdItem.Id);
+        var deleteResponse = await client.DeleteItemAsync(queue.Id, createdItem.Id, TestContext.Current.CancellationToken);
 
         deleteResponse.ShouldNotBeNull();
 
@@ -332,7 +332,7 @@ public class AnnotationQueueTests
             Name = $"not-found-{Guid.NewGuid():N}"[..30],
             Description = "Not found test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var nonExistentItemId = Guid.NewGuid().ToString();
 
@@ -355,11 +355,11 @@ public class AnnotationQueueTests
             Name = $"obs-item-{Guid.NewGuid():N}"[..30],
             Description = "Observation item test queue",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(spanId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(spanId, cancellationToken: TestContext.Current.CancellationToken);
 
         var request = new CreateAnnotationQueueItemRequest
         {
@@ -367,7 +367,7 @@ public class AnnotationQueueTests
             ObjectType = AnnotationObjectType.Observation
         };
 
-        var item = await client.CreateItemAsync(queue.Id, request);
+        var item = await client.CreateItemAsync(queue.Id, request, TestContext.Current.CancellationToken);
 
         item.ShouldNotBeNull();
         item.ObjectId.ShouldBe(spanId);
@@ -390,7 +390,7 @@ public class AnnotationQueueTests
             ScoreConfigIds = [scoreConfigId]
         };
 
-        var queue = await client.CreateAnnotationQueueAsync(request);
+        var queue = await client.CreateAnnotationQueueAsync(request, TestContext.Current.CancellationToken);
 
         queue.Id.ShouldNotBeNullOrEmpty();
         queue.Name.ShouldBe(queueName);
@@ -416,9 +416,9 @@ public class AnnotationQueueTests
             Name = queueName,
             Description = description,
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var queue = await client.GetQueueAsync(createdQueue.Id);
+        var queue = await client.GetQueueAsync(createdQueue.Id, TestContext.Current.CancellationToken);
 
         queue.Id.ShouldBe(createdQueue.Id);
         queue.Name.ShouldBe(queueName);
@@ -442,10 +442,10 @@ public class AnnotationQueueTests
             Name = $"item-comprehensive-{Guid.NewGuid():N}"[..30],
             Description = "Queue for item field validation",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var request = new CreateAnnotationQueueItemRequest
         {
@@ -454,7 +454,7 @@ public class AnnotationQueueTests
             Status = AnnotationQueueStatus.Pending
         };
 
-        var item = await client.CreateItemAsync(queue.Id, request);
+        var item = await client.CreateItemAsync(queue.Id, request, TestContext.Current.CancellationToken);
 
         item.Id.ShouldNotBeNullOrEmpty();
         item.QueueId.ShouldBe(queue.Id);
@@ -479,19 +479,19 @@ public class AnnotationQueueTests
             Name = $"get-item-comprehensive-{Guid.NewGuid():N}"[..30],
             Description = "Queue for get item field validation",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace,
             Status = AnnotationQueueStatus.Pending
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var item = await client.GetItemAsync(queue.Id, createdItem.Id);
+        var item = await client.GetItemAsync(queue.Id, createdItem.Id, TestContext.Current.CancellationToken);
 
         item.Id.ShouldBe(createdItem.Id);
         item.QueueId.ShouldBe(queue.Id);
@@ -516,22 +516,22 @@ public class AnnotationQueueTests
             Name = $"update-comprehensive-{Guid.NewGuid():N}"[..30],
             Description = "Queue for update item field validation",
             ScoreConfigIds = [scoreConfigId]
-        });
+        }, TestContext.Current.CancellationToken);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var createdItem = await client.CreateItemAsync(queue.Id, new CreateAnnotationQueueItemRequest
         {
             ObjectId = traceId,
             ObjectType = AnnotationObjectType.Trace,
             Status = AnnotationQueueStatus.Pending
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updatedItem = await client.UpdateItemAsync(queue.Id, createdItem.Id, new UpdateAnnotationQueueItemRequest
         {
             Status = AnnotationQueueStatus.Completed
-        });
+        }, TestContext.Current.CancellationToken);
 
         updatedItem.Id.ShouldBe(createdItem.Id);
         updatedItem.QueueId.ShouldBe(queue.Id);

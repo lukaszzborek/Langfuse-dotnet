@@ -42,7 +42,7 @@ public class LlmConnectionTests
     {
         var client = CreateClient();
 
-        var result = await client.GetLlmConnectionsAsync();
+        var result = await client.GetLlmConnectionsAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -60,14 +60,14 @@ public class LlmConnectionTests
             Provider = provider,
             Adapter = LlmAdapter.OpenAi,
             SecretKey = "sk-integration-test-secret-1234567890"
-        });
+        }, TestContext.Current.CancellationToken);
 
         created.ShouldNotBeNull();
         created.Id.ShouldNotBeNullOrEmpty();
         created.Provider.ShouldBe(provider);
         created.Adapter.ShouldBe(LlmAdapter.OpenAi);
 
-        var list = await client.GetLlmConnectionsAsync(1, 100);
+        var list = await client.GetLlmConnectionsAsync(1, 100, TestContext.Current.CancellationToken);
         list.Data.ShouldContain(c => c.Id == created.Id && c.Provider == provider);
     }
 
@@ -82,7 +82,7 @@ public class LlmConnectionTests
             Provider = NewProvider(),
             Adapter = LlmAdapter.Anthropic,
             SecretKey = secret
-        });
+        }, TestContext.Current.CancellationToken);
 
         created.DisplaySecretKey.ShouldNotBeNullOrEmpty();
         created.DisplaySecretKey.ShouldNotBe(secret);
@@ -102,7 +102,7 @@ public class LlmConnectionTests
             SecretKey = "sk-initial-secret-0000000000",
             WithDefaultModels = true,
             CustomModels = Array.Empty<string>()
-        });
+        }, TestContext.Current.CancellationToken);
 
         var updated = await client.UpsertLlmConnectionAsync(new UpsertLlmConnectionRequest
         {
@@ -111,7 +111,7 @@ public class LlmConnectionTests
             SecretKey = "sk-updated-secret-1111111111",
             WithDefaultModels = false,
             CustomModels = new[] { "custom-model-1" }
-        });
+        }, TestContext.Current.CancellationToken);
 
         updated.Id.ShouldBe(created.Id);
         updated.Provider.ShouldBe(provider);
@@ -132,7 +132,7 @@ public class LlmConnectionTests
             SecretKey = "sk-test-secret-2222222222",
             CustomModels = new[] { "model-a", "model-b" },
             WithDefaultModels = false
-        });
+        }, TestContext.Current.CancellationToken);
 
         created.CustomModels.Length.ShouldBe(2);
         created.CustomModels.ShouldContain("model-a");
@@ -151,13 +151,13 @@ public class LlmConnectionTests
             Provider = provider,
             Adapter = LlmAdapter.OpenAi,
             SecretKey = "sk-to-delete-3333333333"
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var deleted = await client.DeleteLlmConnectionAsync(created.Id);
+        var deleted = await client.DeleteLlmConnectionAsync(created.Id, TestContext.Current.CancellationToken);
         deleted.ShouldNotBeNull();
         deleted.Message.ShouldNotBeNullOrEmpty();
 
-        var list = await client.GetLlmConnectionsAsync(1, 100);
+        var list = await client.GetLlmConnectionsAsync(1, 100, TestContext.Current.CancellationToken);
         list.Data.ShouldNotContain(c => c.Id == created.Id);
     }
 
@@ -171,15 +171,15 @@ public class LlmConnectionTests
             Provider = NewProvider(),
             Adapter = LlmAdapter.OpenAi,
             SecretKey = "sk-page-aaaa"
-        });
+        }, TestContext.Current.CancellationToken);
         await client.UpsertLlmConnectionAsync(new UpsertLlmConnectionRequest
         {
             Provider = NewProvider(),
             Adapter = LlmAdapter.OpenAi,
             SecretKey = "sk-page-bbbb"
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var page = await client.GetLlmConnectionsAsync(1, 1);
+        var page = await client.GetLlmConnectionsAsync(1, 1, TestContext.Current.CancellationToken);
 
         page.Data.Length.ShouldBe(1);
         page.Meta.Limit.ShouldBe(1);

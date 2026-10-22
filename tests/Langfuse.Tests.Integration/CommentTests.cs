@@ -66,7 +66,7 @@ public class CommentTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var request = new CreateCommentRequest
         {
@@ -89,8 +89,8 @@ public class CommentTests
         var traceHelper = CreateTraceHelper(client);
 
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(spanId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(spanId, cancellationToken: TestContext.Current.CancellationToken);
 
         var request = new CreateCommentRequest
         {
@@ -114,7 +114,7 @@ public class CommentTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var createResponse = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
@@ -124,7 +124,7 @@ public class CommentTests
             Content = "Comment for retrieval test"
         });
 
-        var comment = await client.GetCommentAsync(createResponse.Id);
+        var comment = await client.GetCommentAsync(createResponse.Id, TestContext.Current.CancellationToken);
 
         comment.ShouldNotBeNull();
         comment.Id.ShouldBe(createResponse.Id);
@@ -151,7 +151,7 @@ public class CommentTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var comment1 = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
@@ -174,7 +174,7 @@ public class CommentTests
             ObjectId = traceId,
             Page = 1,
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -190,7 +190,7 @@ public class CommentTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
@@ -206,7 +206,7 @@ public class CommentTests
             ObjectId = traceId,
             Page = 1,
             Limit = 50
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -220,7 +220,7 @@ public class CommentTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var authorId = _fixture.UserId;
         var request = new CreateCommentRequest
@@ -246,7 +246,7 @@ public class CommentTests
         var beforeTest = DateTime.UtcNow.AddSeconds(-5);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var content = "Comprehensive test comment with detailed feedback about the trace";
         var authorId = _fixture.UserId;
@@ -264,7 +264,7 @@ public class CommentTests
 
         response.Id.ShouldNotBeNullOrEmpty();
 
-        var comment = await client.GetCommentAsync(response.Id);
+        var comment = await client.GetCommentAsync(response.Id, TestContext.Current.CancellationToken);
 
         comment.Id.ShouldBe(response.Id);
         comment.ProjectId.ShouldBe(_fixture.ProjectId);
@@ -284,8 +284,8 @@ public class CommentTests
         var beforeTest = DateTime.UtcNow.AddSeconds(-5);
 
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(spanId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(spanId, cancellationToken: TestContext.Current.CancellationToken);
 
         var content = "Observation comment for field validation";
 
@@ -297,7 +297,7 @@ public class CommentTests
             Content = content
         });
 
-        var comment = await client.GetCommentAsync(createResponse.Id);
+        var comment = await client.GetCommentAsync(createResponse.Id, TestContext.Current.CancellationToken);
 
         comment.Id.ShouldBe(createResponse.Id);
         comment.ProjectId.ShouldBe(_fixture.ProjectId);

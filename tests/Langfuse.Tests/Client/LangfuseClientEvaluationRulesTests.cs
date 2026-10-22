@@ -61,7 +61,7 @@ public class LangfuseClientEvaluationRulesTests
             EvaluatorAssignments = new[] { new EvaluationRuleEvaluatorAssignmentInput { EvaluatorId = "ev-1" } }
         };
 
-        var result = await _client.CreateEvaluationRuleAsync(request);
+        var result = await _client.CreateEvaluationRuleAsync(request, TestContext.Current.CancellationToken);
 
         result.Id.ShouldBe("rule-1");
         result.EvaluatorAssignments.Single().EvaluatorId.ShouldBe("ev-1");
@@ -91,7 +91,7 @@ public class LangfuseClientEvaluationRulesTests
             Meta = new CursorMeta { Cursor = "next" }
         });
 
-        var result = await _client.GetEvaluationRulesAsync(20, "cur");
+        var result = await _client.GetEvaluationRulesAsync(20, "cur", TestContext.Current.CancellationToken);
 
         result.Data.Length.ShouldBe(1);
         result.Meta.Cursor.ShouldBe("next");
@@ -109,7 +109,7 @@ public class LangfuseClientEvaluationRulesTests
             Meta = new CursorMeta()
         });
 
-        await _client.GetEvaluationRulesAsync();
+        await _client.GetEvaluationRulesAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         _httpHandler.LastRequest?.RequestUri?.PathAndQuery.ShouldBe("/api/public/v2/evaluation-rules");
     }
@@ -119,7 +119,7 @@ public class LangfuseClientEvaluationRulesTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, SampleRule("rule 1"));
 
-        var result = await _client.GetEvaluationRuleAsync("rule 1");
+        var result = await _client.GetEvaluationRuleAsync("rule 1", TestContext.Current.CancellationToken);
 
         result.Id.ShouldBe("rule 1");
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluation-rules/rule%201");
@@ -140,7 +140,7 @@ public class LangfuseClientEvaluationRulesTests
         {
             Enabled = false,
             EvaluatorAssignments = Array.Empty<EvaluationRuleEvaluatorAssignmentInput>()
-        });
+        }, TestContext.Current.CancellationToken);
 
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Patch);
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v2/evaluation-rules/rule-1");
@@ -159,7 +159,7 @@ public class LangfuseClientEvaluationRulesTests
     {
         _httpHandler.SetupResponse(HttpStatusCode.OK, new DeletedEvaluationRule { Id = "rule-1" });
 
-        var result = await _client.DeleteEvaluationRuleAsync("rule-1");
+        var result = await _client.DeleteEvaluationRuleAsync("rule-1", TestContext.Current.CancellationToken);
 
         result.Id.ShouldBe("rule-1");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Delete);

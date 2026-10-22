@@ -54,7 +54,7 @@ public class SkillTests
         var client = CreateClient();
         var skillName = $"test-skill-{Guid.NewGuid():N}";
 
-        var first = await client.CreateSkillVersionAsync(CreateRequest(skillName, "First version"));
+        var first = await client.CreateSkillVersionAsync(CreateRequest(skillName, "First version"), TestContext.Current.CancellationToken);
         first.Name.ShouldBe(skillName);
         first.Files.ShouldContain(f => f.Path == "SKILL.md");
 
@@ -68,29 +68,28 @@ public class SkillTests
                     Sha256Hash = first.Files.Single(f => f.Path == "SKILL.md").Sha256Hash
                 }
             ]
-        });
+        }, TestContext.Current.CancellationToken);
         second.Version.ShouldBeGreaterThan(first.Version);
 
-        var labeled = await client.UpdateSkillVersionLabelsAsync(skillName, second.Version,
-            new UpdateSkillLabelsRequest { Labels = ["production"] });
+        var labeled = await client.UpdateSkillVersionLabelsAsync(skillName, second.Version, new UpdateSkillLabelsRequest { Labels = ["production"] }, TestContext.Current.CancellationToken);
         labeled.Labels.ShouldContain("production");
 
-        var resolved = await client.GetSkillAsync(skillName, includeContent: true);
+        var resolved = await client.GetSkillAsync(skillName, includeContent: true, cancellationToken: TestContext.Current.CancellationToken);
         resolved.Version.ShouldBe(second.Version);
         resolved.Files.Single(f => f.Path == "SKILL.md").Content.ShouldNotBeNull().ShouldContain("First version");
 
-        var contents = await client.GetSkillFileContentsAsync([resolved.Files[0].Sha256Hash]);
+        var contents = await client.GetSkillFileContentsAsync([resolved.Files[0].Sha256Hash], TestContext.Current.CancellationToken);
         contents.Data.ShouldHaveSingleItem().Content.ShouldContain("First version");
 
-        var tagged = await client.UpdateSkillAsync(skillName, new UpdateSkillRequest { Tags = ["integration-test"] });
+        var tagged = await client.UpdateSkillAsync(skillName, new UpdateSkillRequest { Tags = ["integration-test"] }, TestContext.Current.CancellationToken);
         tagged.Tags.ShouldBe(["integration-test"]);
 
-        var list = await client.GetSkillListAsync(new SkillListRequest { Name = skillName });
+        var list = await client.GetSkillListAsync(new SkillListRequest { Name = skillName }, TestContext.Current.CancellationToken);
         var meta = list.Data.ShouldHaveSingleItem();
         meta.LatestVersion.ShouldBe(second.Version);
         meta.ProductionVersion.ShouldBe(second.Version);
 
-        var deleted = await client.DeleteSkillVersionAsync(skillName, first.Version);
+        var deleted = await client.DeleteSkillVersionAsync(skillName, first.Version, TestContext.Current.CancellationToken);
         deleted.Deleted.ShouldBeTrue();
     }
 }

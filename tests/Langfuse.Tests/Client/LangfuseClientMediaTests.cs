@@ -46,7 +46,7 @@ public class LangfuseClientMediaTests
     {
         _httpHandler.SetupJsonResponse(HttpStatusCode.OK, UploadResponseJson);
 
-        var result = await _client.GetMediaUploadUrlAsync(CreateRequest(traceId: "trace-1", observationId: "obs-1"));
+        var result = await _client.GetMediaUploadUrlAsync(CreateRequest(traceId: "trace-1", observationId: "obs-1"), TestContext.Current.CancellationToken);
 
         result.MediaId.ShouldBe("media-1");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
@@ -58,7 +58,7 @@ public class LangfuseClientMediaTests
     {
         _httpHandler.SetupJsonResponse(HttpStatusCode.OK, UploadResponseJson);
 
-        var result = await _client.GetMediaUploadUrlAsync(CreateRequest(datasetId: "ds-1", datasetItemId: "item-1"));
+        var result = await _client.GetMediaUploadUrlAsync(CreateRequest(datasetId: "ds-1", datasetItemId: "item-1"), TestContext.Current.CancellationToken);
 
         result.MediaId.ShouldBe("media-1");
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);

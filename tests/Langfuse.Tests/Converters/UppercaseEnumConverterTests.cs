@@ -24,6 +24,7 @@ public class UppercaseEnumConverterTests
 
         var result = JsonSerializer.Deserialize<TestClass>(json);
 
+        result.ShouldNotBeNull();
         result.Source.ShouldBe(ScoreSource.Annotation);
     }
 
@@ -54,6 +55,7 @@ public class UppercaseEnumConverterTests
         {
             var result = JsonSerializer.Deserialize<TestComment>(testCases[i]);
 
+            result.ShouldNotBeNull();
             result.ObjectType.ShouldBe(expectedResults[i]);
         }
     }

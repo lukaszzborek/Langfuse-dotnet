@@ -96,7 +96,7 @@ public class ModelValidationIntegrationTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var request = new ScoreCreateRequest
         {
@@ -108,9 +108,9 @@ public class ModelValidationIntegrationTests
             Environment = "production"
         };
 
-        await client.CreateScoreAsync(request);
+        await client.CreateScoreAsync(request, TestContext.Current.CancellationToken);
 
-        var fetchedScore = await traceHelper.WaitForScoreAsync(request.Id);
+        var fetchedScore = await traceHelper.WaitForScoreAsync(request.Id, cancellationToken: TestContext.Current.CancellationToken);
 
         fetchedScore.Name.ShouldBe(request.Name);
         fetchedScore.Environment.ShouldBe("production");
@@ -123,7 +123,7 @@ public class ModelValidationIntegrationTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var scoreId = Guid.NewGuid().ToString();
         await client.CreateScoreAsync(new ScoreCreateRequest
@@ -133,15 +133,15 @@ public class ModelValidationIntegrationTests
             Name = $"numeric-{Guid.NewGuid():N}"[..20],
             Value = 0.75,
             DataType = ScoreDataType.Numeric
-        });
+        }, TestContext.Current.CancellationToken);
 
-        await traceHelper.WaitForScoreAsync(scoreId);
+        await traceHelper.WaitForScoreAsync(scoreId, cancellationToken: TestContext.Current.CancellationToken);
 
         var result = await client.GetScoresV3Async(new ScoreV3ListRequest
         {
             TraceId = traceId,
             DataType = "NUMERIC"
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.Data.ShouldNotBeEmpty();
         result.Data.ShouldAllBe(s => s.DataType == ScoreV3DataType.Numeric);
@@ -154,7 +154,7 @@ public class ModelValidationIntegrationTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         // Scores created through the public API get source API
         var scoreId = Guid.NewGuid().ToString();
@@ -165,15 +165,15 @@ public class ModelValidationIntegrationTests
             Name = $"source-test-{Guid.NewGuid():N}"[..20],
             Value = 0.9,
             DataType = ScoreDataType.Numeric
-        });
+        }, TestContext.Current.CancellationToken);
 
-        await traceHelper.WaitForScoreAsync(scoreId);
+        await traceHelper.WaitForScoreAsync(scoreId, cancellationToken: TestContext.Current.CancellationToken);
 
         var result = await client.GetScoresV3Async(new ScoreV3ListRequest
         {
             TraceId = traceId,
             Source = "API"
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.Data.ShouldNotBeEmpty();
         result.Data.ShouldAllBe(s => s.Source == ScoreSource.Api);
@@ -207,7 +207,7 @@ public class ModelValidationIntegrationTests
             InputSchema = inputSchema
         };
 
-        var dataset = await client.CreateDatasetAsync(request);
+        var dataset = await client.CreateDatasetAsync(request, TestContext.Current.CancellationToken);
 
         dataset.ShouldNotBeNull();
         dataset.Name.ShouldBe(datasetName);
@@ -236,7 +236,7 @@ public class ModelValidationIntegrationTests
             ExpectedOutputSchema = expectedOutputSchema
         };
 
-        var dataset = await client.CreateDatasetAsync(request);
+        var dataset = await client.CreateDatasetAsync(request, TestContext.Current.CancellationToken);
 
         dataset.ShouldNotBeNull();
         dataset.Name.ShouldBe(datasetName);
@@ -259,7 +259,7 @@ public class ModelValidationIntegrationTests
             ExpectedOutputSchema = outputSchema
         };
 
-        var dataset = await client.CreateDatasetAsync(request);
+        var dataset = await client.CreateDatasetAsync(request, TestContext.Current.CancellationToken);
 
         dataset.ShouldNotBeNull();
         dataset.Name.ShouldBe(datasetName);
@@ -276,9 +276,9 @@ public class ModelValidationIntegrationTests
         {
             Name = datasetName,
             Description = "Dataset for property validation"
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var dataset = await client.GetDatasetAsync(datasetName);
+        var dataset = await client.GetDatasetAsync(datasetName, TestContext.Current.CancellationToken);
 
         dataset.ShouldNotBeNull();
         // Verify new properties exist (may be null but shouldn't throw)
@@ -300,7 +300,7 @@ public class ModelValidationIntegrationTests
         {
             Page = 1,
             Limit = 10
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -321,7 +321,7 @@ public class ModelValidationIntegrationTests
             Description = "Test score configuration"
         };
 
-        var config = await client.CreateScoreConfigAsync(request);
+        var config = await client.CreateScoreConfigAsync(request, TestContext.Current.CancellationToken);
 
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);
@@ -346,7 +346,7 @@ public class ModelValidationIntegrationTests
             Description = "Categorical score configuration"
         };
 
-        var config = await client.CreateScoreConfigAsync(request);
+        var config = await client.CreateScoreConfigAsync(request, TestContext.Current.CancellationToken);
 
         config.ShouldNotBeNull();
         config.Name.ShouldBe(configName);

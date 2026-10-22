@@ -31,7 +31,7 @@ public class HealthTests
         await using var provider = services.BuildServiceProvider();
         var client = provider.GetRequiredService<ILangfuseClient>();
 
-        var health = await client.GetHealthAsync();
+        var health = await client.GetHealthAsync(TestContext.Current.CancellationToken);
 
         health.ShouldNotBeNull();
         health.Status.ShouldBe("OK");

@@ -57,7 +57,7 @@ public class LoggerDebugTests
         var (client, collector, provider) = CreateClientWithFakeLogger();
         await using (provider)
         {
-            var health = await client.GetHealthAsync();
+            var health = await client.GetHealthAsync(TestContext.Current.CancellationToken);
 
             health.ShouldNotBeNull();
 
@@ -82,7 +82,7 @@ public class LoggerDebugTests
         var (client, collector, provider) = CreateClientWithFakeLogger();
         await using (provider)
         {
-            await client.GetHealthAsync();
+            await client.GetHealthAsync(TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var completionLog = logs.FirstOrDefault(l =>
@@ -101,7 +101,7 @@ public class LoggerDebugTests
         var (client, collector, provider) = CreateClientWithFakeLogger();
         await using (provider)
         {
-            var health = await client.GetHealthAsync();
+            var health = await client.GetHealthAsync(TestContext.Current.CancellationToken);
 
             health.ShouldNotBeNull();
             health.Status.ShouldBe("OK");
@@ -115,7 +115,7 @@ public class LoggerDebugTests
         var (client, collector, provider) = CreateClientWithFakeLogger(LogLevel.Information);
         await using (provider)
         {
-            await client.GetHealthAsync();
+            await client.GetHealthAsync(TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
@@ -130,7 +130,7 @@ public class LoggerDebugTests
         var (client, collector, provider) = CreateClientWithFakeLogger(LogLevel.Information);
         await using (provider)
         {
-            var health = await client.GetHealthAsync();
+            var health = await client.GetHealthAsync(TestContext.Current.CancellationToken);
 
             health.ShouldNotBeNull();
             health.Status.ShouldBe("OK");
@@ -146,7 +146,7 @@ public class LoggerDebugTests
         {
             var traceHelper = CreateTraceHelper(client);
             var traceId = traceHelper.CreateTrace();
-            await traceHelper.WaitForTraceAsync(traceId);
+            await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
             collector.Clear();
 
@@ -156,7 +156,7 @@ public class LoggerDebugTests
                 Name = $"debug-post-{Guid.NewGuid():N}"[..20],
                 Value = 0.5,
                 DataType = ScoreDataType.Numeric
-            });
+            }, TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
@@ -181,7 +181,7 @@ public class LoggerDebugTests
         {
             var traceHelper = CreateTraceHelper(client);
             var traceId = traceHelper.CreateTrace();
-            await traceHelper.WaitForTraceAsync(traceId);
+            await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
             collector.Clear();
 
@@ -191,7 +191,7 @@ public class LoggerDebugTests
                 Name = $"debug-req-{Guid.NewGuid():N}"[..20],
                 Value = 0.7,
                 DataType = ScoreDataType.Numeric
-            });
+            }, TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var startLog = logs.FirstOrDefault(l =>
@@ -212,7 +212,7 @@ public class LoggerDebugTests
         {
             var traceHelper = CreateTraceHelper(client);
             var traceId = traceHelper.CreateTrace();
-            await traceHelper.WaitForTraceAsync(traceId);
+            await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
             collector.Clear();
 
@@ -222,7 +222,7 @@ public class LoggerDebugTests
                 Name = $"info-post-{Guid.NewGuid():N}"[..20],
                 Value = 0.5,
                 DataType = ScoreDataType.Numeric
-            });
+            }, TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
@@ -243,14 +243,14 @@ public class LoggerDebugTests
             {
                 Name = configName,
                 DataType = ScoreConfigDataType.Numeric
-            });
+            }, TestContext.Current.CancellationToken);
 
             collector.Clear();
 
             await client.UpdateScoreConfigAsync(config.Id, new UpdateScoreConfigRequest
             {
                 IsArchived = true
-            });
+            }, TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
@@ -276,12 +276,12 @@ public class LoggerDebugTests
             {
                 Name = configName,
                 DataType = ScoreConfigDataType.Numeric
-            });
+            }, TestContext.Current.CancellationToken);
 
             var updated = await client.UpdateScoreConfigAsync(config.Id, new UpdateScoreConfigRequest
             {
                 IsArchived = true
-            });
+            }, TestContext.Current.CancellationToken);
 
             updated.ShouldNotBeNull();
             updated.Id.ShouldBe(config.Id);
@@ -297,7 +297,7 @@ public class LoggerDebugTests
         {
             var traceHelper = CreateTraceHelper(client);
             var traceId = traceHelper.CreateTrace();
-            await traceHelper.WaitForTraceAsync(traceId);
+            await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
             var scoreId = Guid.NewGuid().ToString();
             await client.CreateScoreAsync(new ScoreCreateRequest
@@ -307,12 +307,12 @@ public class LoggerDebugTests
                 Name = $"del-void-{Guid.NewGuid():N}"[..20],
                 Value = 0.5,
                 DataType = ScoreDataType.Numeric
-            });
-            await traceHelper.WaitForScoreAsync(scoreId);
+            }, TestContext.Current.CancellationToken);
+            await traceHelper.WaitForScoreAsync(scoreId, cancellationToken: TestContext.Current.CancellationToken);
 
             collector.Clear();
 
-            await client.DeleteScoreAsync(scoreId);
+            await client.DeleteScoreAsync(scoreId, TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
@@ -335,11 +335,11 @@ public class LoggerDebugTests
         {
             var traceHelper = CreateTraceHelper(client);
             var traceId = traceHelper.CreateTrace();
-            await traceHelper.WaitForTraceAsync(traceId);
+            await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
             collector.Clear();
 
-            var result = await client.DeleteTraceAsync(traceId);
+            var result = await client.DeleteTraceAsync(traceId, TestContext.Current.CancellationToken);
 
             result.ShouldNotBeNull();
 
@@ -364,11 +364,11 @@ public class LoggerDebugTests
         {
             var traceHelper = CreateTraceHelper(client);
             var traceId = traceHelper.CreateTrace();
-            await traceHelper.WaitForTraceAsync(traceId);
+            await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
             collector.Clear();
 
-            await client.DeleteTraceAsync(traceId);
+            await client.DeleteTraceAsync(traceId, TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var completionLog = logs.FirstOrDefault(l =>
@@ -390,15 +390,15 @@ public class LoggerDebugTests
             var traceHelper = CreateTraceHelper(client);
             var traceId1 = traceHelper.CreateTrace();
             var traceId2 = traceHelper.CreateTrace();
-            await traceHelper.WaitForTraceAsync(traceId1);
-            await traceHelper.WaitForTraceAsync(traceId2);
+            await traceHelper.WaitForTraceAsync(traceId1, cancellationToken: TestContext.Current.CancellationToken);
+            await traceHelper.WaitForTraceAsync(traceId2, cancellationToken: TestContext.Current.CancellationToken);
 
             collector.Clear();
 
             var result = await client.DeleteTraceManyAsync(new DeleteTraceManyRequest
             {
                 TraceIds = [traceId1, traceId2]
-            });
+            }, TestContext.Current.CancellationToken);
 
             result.ShouldNotBeNull();
 
@@ -469,15 +469,14 @@ public class LoggerDebugTests
             {
                 Name = promptName,
                 Prompt = "Hello {{name}}"
-            });
+            }, TestContext.Current.CancellationToken);
 
             collector.Clear();
 
-            var updated = await client.UpdatePromptVersionAsync(promptName, created.Version,
-                new UpdatePromptVersionRequest
+            var updated = await client.UpdatePromptVersionAsync(promptName, created.Version, new UpdatePromptVersionRequest
                 {
                     NewLabels = ["staging"]
-                });
+                }, TestContext.Current.CancellationToken);
 
             updated.ShouldNotBeNull();
 
@@ -505,11 +504,11 @@ public class LoggerDebugTests
             {
                 Name = promptName,
                 Prompt = "Test prompt to delete"
-            });
+            }, TestContext.Current.CancellationToken);
 
             collector.Clear();
 
-            await client.DeletePromptAsync(promptName, 1);
+            await client.DeletePromptAsync(promptName, 1, cancellationToken: TestContext.Current.CancellationToken);
 
             var logs = collector.GetSnapshot();
             var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();

@@ -43,7 +43,7 @@ public class LangfuseClientExperimentTests
             Filter = """[{"column":"name","operator":"=","value":"prompt-v2-eval"}]"""
         };
 
-        await _client.GetExperimentsAsync(request);
+        await _client.GetExperimentsAsync(request, TestContext.Current.CancellationToken);
 
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/experiments");
@@ -71,7 +71,7 @@ public class LangfuseClientExperimentTests
             FromStartTime = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 
-        await _client.GetExperimentsAsync(request);
+        await _client.GetExperimentsAsync(request, TestContext.Current.CancellationToken);
 
         var decodedQuery = Uri.UnescapeDataString(_httpHandler.LastRequest!.RequestUri!.Query);
         decodedQuery.ShouldBe("?fromStartTime=2026-01-01T00:00:00.0000000Z");
@@ -111,7 +111,7 @@ public class LangfuseClientExperimentTests
         var result = await _client.GetExperimentsAsync(new ExperimentListRequest
         {
             FromStartTime = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.Data.Length.ShouldBe(2);
 
@@ -163,7 +163,7 @@ public class LangfuseClientExperimentTests
             Filter = """[{"column":"experimentId","operator":"=","value":"exp-1"}]"""
         };
 
-        await _client.GetExperimentItemsAsync(request);
+        await _client.GetExperimentItemsAsync(request, TestContext.Current.CancellationToken);
 
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Get);
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/experiment-items");
@@ -228,7 +228,7 @@ public class LangfuseClientExperimentTests
         var result = await _client.GetExperimentItemsAsync(new ExperimentItemListRequest
         {
             FromStartTime = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-        });
+        }, TestContext.Current.CancellationToken);
 
         result.Data.Length.ShouldBe(2);
 

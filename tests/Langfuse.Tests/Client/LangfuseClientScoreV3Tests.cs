@@ -31,7 +31,7 @@ public class LangfuseClientScoreV3Tests
     {
         _httpHandler.SetupJsonResponse(HttpStatusCode.OK, EmptyResponseJson);
 
-        var result = await _client.GetScoresV3Async();
+        var result = await _client.GetScoresV3Async(cancellationToken: TestContext.Current.CancellationToken);
 
         result.Data.ShouldBeEmpty();
         result.Meta.Limit.ShouldBe(50);
@@ -68,7 +68,7 @@ public class LangfuseClientScoreV3Tests
             ToTimestamp = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 
-        await _client.GetScoresV3Async(request);
+        await _client.GetScoresV3Async(request, TestContext.Current.CancellationToken);
 
         _httpHandler.LastRequest?.RequestUri?.AbsolutePath.ShouldBe("/api/public/v3/scores");
 
@@ -98,13 +98,13 @@ public class LangfuseClientScoreV3Tests
     {
         _httpHandler.SetupJsonResponse(HttpStatusCode.OK, EmptyResponseJson);
 
-        await _client.GetScoresV3Async(new ScoreV3ListRequest { SessionId = "session-1" });
-        var query = _httpHandler.LastRequest?.RequestUri?.Query;
+        await _client.GetScoresV3Async(new ScoreV3ListRequest { SessionId = "session-1" }, TestContext.Current.CancellationToken);
+        var query = _httpHandler.LastRequest!.RequestUri!.Query;
         query.ShouldContain("sessionId=session-1");
 
         _httpHandler.SetupJsonResponse(HttpStatusCode.OK, EmptyResponseJson);
-        await _client.GetScoresV3Async(new ScoreV3ListRequest { ExperimentId = "exp-1" });
-        query = _httpHandler.LastRequest?.RequestUri?.Query;
+        await _client.GetScoresV3Async(new ScoreV3ListRequest { ExperimentId = "exp-1" }, TestContext.Current.CancellationToken);
+        query = _httpHandler.LastRequest!.RequestUri!.Query;
         query.ShouldContain("experimentId=exp-1");
     }
 
@@ -164,7 +164,7 @@ public class LangfuseClientScoreV3Tests
                    """;
         _httpHandler.SetupJsonResponse(HttpStatusCode.OK, json);
 
-        var result = await _client.GetScoresV3Async(new ScoreV3ListRequest { Fields = "details,subject,annotation" });
+        var result = await _client.GetScoresV3Async(new ScoreV3ListRequest { Fields = "details,subject,annotation" }, TestContext.Current.CancellationToken);
 
         result.Data.Length.ShouldBe(3);
 
@@ -200,7 +200,7 @@ public class LangfuseClientScoreV3Tests
         {
             Name = "quality",
             Limit = 10
-        });
+        }, TestContext.Current.CancellationToken);
 
         var query = _httpHandler.LastRequest?.RequestUri?.Query;
         query.ShouldBe("?limit=10&name=quality");
@@ -215,9 +215,9 @@ public class LangfuseClientScoreV3Tests
         {
             Name = "quality score/v1&next=1",
             TraceId = "trace+id 123"
-        });
+        }, TestContext.Current.CancellationToken);
 
-        var query = _httpHandler.LastRequest?.RequestUri?.Query;
+        var query = _httpHandler.LastRequest!.RequestUri!.Query;
         query.ShouldContain("name=quality+score%2fv1%26next%3d1");
         query.ShouldContain("traceId=trace%2bid+123");
     }

@@ -54,7 +54,7 @@ public class EvaluatorTests
     {
         var client = CreateClient();
 
-        var result = await client.GetEvaluatorsAsync();
+        var result = await client.GetEvaluatorsAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.ShouldNotBeNull();
@@ -66,7 +66,7 @@ public class EvaluatorTests
     {
         var client = CreateClient();
 
-        var result = await client.GetEvaluatorsAsync(5);
+        var result = await client.GetEvaluatorsAsync(5, cancellationToken: TestContext.Current.CancellationToken);
 
         result.ShouldNotBeNull();
         result.Data.Length.ShouldBeLessThanOrEqualTo(5);
@@ -101,27 +101,26 @@ public class EvaluatorTests
             SourceCode =
                 "export function evaluate(ctx) { return { scores: [{ name: \"length\", value: String(ctx.output ?? \"\").length, dataType: \"NUMERIC\" }] }; }",
             SourceCodeLanguage = CodeEvaluatorSourceCodeLanguage.Typescript
-        });
+        }, TestContext.Current.CancellationToken);
 
         try
         {
             var codeEvaluator = created.ShouldBeOfType<CodeEvaluator>();
             codeEvaluator.Version.ShouldBe(1);
 
-            var updated = await client.UpdateEvaluatorAsync(created.Id,
-                new UpdateEvaluatorMetadataRequest { Description = "updated" });
+            var updated = await client.UpdateEvaluatorAsync(created.Id, new UpdateEvaluatorMetadataRequest { Description = "updated" }, TestContext.Current.CancellationToken);
             updated.Description.ShouldBe("updated");
             updated.Version.ShouldBe(1);
 
-            var fetched = await client.GetEvaluatorAsync(created.Id);
+            var fetched = await client.GetEvaluatorAsync(created.Id, TestContext.Current.CancellationToken);
             fetched.Id.ShouldBe(created.Id);
 
-            var versions = await client.GetEvaluatorVersionsAsync(created.Id);
+            var versions = await client.GetEvaluatorVersionsAsync(created.Id, cancellationToken: TestContext.Current.CancellationToken);
             versions.Data.ShouldContain(v => v.Version == 1);
         }
         finally
         {
-            var deleted = await client.DeleteEvaluatorAsync(created.Id);
+            var deleted = await client.DeleteEvaluatorAsync(created.Id, TestContext.Current.CancellationToken);
             deleted.Id.ShouldBe(created.Id);
         }
     }
@@ -142,14 +141,14 @@ public class EvaluatorTests
         // request or returns an evaluator paused by a missing model configuration.
         try
         {
-            var created = await client.CreateEvaluatorAsync(request);
+            var created = await client.CreateEvaluatorAsync(request, TestContext.Current.CancellationToken);
             try
             {
                 created.Status.ShouldBe(EvaluatorStatus.Paused);
             }
             finally
             {
-                await client.DeleteEvaluatorAsync(created.Id);
+                await client.DeleteEvaluatorAsync(created.Id, TestContext.Current.CancellationToken);
             }
         }
         catch (LangfuseApiException exception)

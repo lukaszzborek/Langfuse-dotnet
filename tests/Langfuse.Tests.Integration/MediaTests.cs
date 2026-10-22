@@ -54,7 +54,7 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var fileContent = Encoding.UTF8.GetBytes("This is test file content for media upload");
         var sha256Hash = ComputeSha256Hash(fileContent);
@@ -68,7 +68,7 @@ public class MediaTests
             Field = "input"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
@@ -82,8 +82,8 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var (traceId, generationId) = traceHelper.CreateTraceWithGeneration();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(generationId, cancellationToken: TestContext.Current.CancellationToken);
 
         var fileContent = Encoding.UTF8.GetBytes("Test content for observation media");
         var sha256Hash = ComputeSha256Hash(fileContent);
@@ -98,7 +98,7 @@ public class MediaTests
             Field = "output"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
@@ -124,7 +124,7 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var pngContent = new byte[] { 0x89, 0x50, 0x4E, 0x47 }; // PNG magic bytes
         var sha256Hash = ComputeSha256Hash(pngContent);
@@ -138,7 +138,7 @@ public class MediaTests
             Field = "metadata"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
@@ -151,7 +151,7 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var fileContent = Encoding.UTF8.GetBytes("Input field media content");
         var sha256Hash = ComputeSha256Hash(fileContent);
@@ -165,7 +165,7 @@ public class MediaTests
             Field = "input"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.ShouldNotBeNull();
         response.UploadUrl.ShouldNotBeNull();
@@ -178,7 +178,7 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var fileContent = Encoding.UTF8.GetBytes("Output field media content");
         var sha256Hash = ComputeSha256Hash(fileContent);
@@ -192,7 +192,7 @@ public class MediaTests
             Field = "output"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
@@ -205,7 +205,7 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var fileContent = Encoding.UTF8.GetBytes("Metadata field media content");
         var sha256Hash = ComputeSha256Hash(fileContent);
@@ -219,7 +219,7 @@ public class MediaTests
             Field = "metadata"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.ShouldNotBeNull();
         response.MediaId.ShouldNotBeNull();
@@ -232,7 +232,7 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var traceId = traceHelper.CreateTrace();
-        await traceHelper.WaitForTraceAsync(traceId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
         var fileContent = Encoding.UTF8.GetBytes("Comprehensive test content for media upload validation");
         var sha256Hash = ComputeSha256Hash(fileContent);
@@ -246,7 +246,7 @@ public class MediaTests
             Field = "input"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.MediaId.ShouldNotBeNullOrEmpty();
         response.UploadUrl.ShouldNotBeNullOrEmpty();
@@ -261,8 +261,8 @@ public class MediaTests
         var traceHelper = CreateTraceHelper(client);
 
         var (traceId, generationId) = traceHelper.CreateTraceWithGeneration();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
+        await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
+        await traceHelper.WaitForObservationAsync(generationId, cancellationToken: TestContext.Current.CancellationToken);
 
         var fileContent = Encoding.UTF8.GetBytes("Observation media content for comprehensive validation");
         var sha256Hash = ComputeSha256Hash(fileContent);
@@ -277,7 +277,7 @@ public class MediaTests
             Field = "output"
         };
 
-        var response = await client.GetMediaUploadUrlAsync(request);
+        var response = await client.GetMediaUploadUrlAsync(request, TestContext.Current.CancellationToken);
 
         response.MediaId.ShouldNotBeNullOrEmpty();
         response.UploadUrl.ShouldNotBeNullOrEmpty();
