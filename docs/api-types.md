@@ -82,122 +82,33 @@ PromptListRequest
 ## Trace Types
 
 ```
-TraceModel
-  Id: string                 // Trace ID
-  Timestamp: DateTime        // Creation timestamp
-  Name: string?              // Trace name
-  Input: object?             // Input data
-  Output: object?            // Output data
-  SessionId: string?         // Associated session
-  Release: string?           // Application release
-  Version: string?           // Version info
-  UserId: string?            // Associated user
-  Metadata: object?          // Custom metadata
-  Tags: string[]             // Categorization tags
-  Public: bool               // Public visibility
-  Environment: string        // Environment (prod/staging/dev)
-
-TraceWithDetails : TraceModel
-  Observations: ObservationModel[]?  // Nested observations
-  Scores: object[]?                  // Associated scores
-  Cost: decimal?                     // Cost info
-  Usage: TraceUsage?                 // Token usage
-  Latency: double?                   // Execution latency (seconds)
-  TotalCost: double?                 // Total cost in USD
-
-TraceUsage
-  PromptTokens: int?         // Input tokens
-  CompletionTokens: int?     // Output tokens
-  TotalTokens: int?          // Total tokens
-```
-
-### Trace Request Types
-
-```
-TraceListRequest
-  Page: int?
-  Limit: int?
-  UserId: string?            // Filter by user
-  Name: string?              // Filter by name
-  SessionId: string?         // Filter by session
-  FromTimestamp: DateTime?    // Min timestamp
-  ToTimestamp: DateTime?      // Max timestamp
-  OrderBy: string?           // Sort field and direction
-  Tags: string[]?            // Filter by tags
-  Version: string?           // Filter by version
-  Release: string?           // Filter by release
-  Environment: string?       // Filter by environment
-
 DeleteTraceManyRequest
   TraceIds: string[]         // Trace IDs to delete
 ```
 
 ---
 
-## Observation Types
+## Observation V2 Types
 
 ```
-ObservationModel
-  Id: string                 // Observation ID
-  Name: string?              // Observation name
-  Type: string               // SPAN, GENERATION, EVENT, etc.
-  TraceId: string?           // Parent trace
-  ParentObservationId: string?  // Parent observation
-  StartTime: DateTime        // Start timestamp
-  EndTime: DateTime?         // End timestamp
-  CompletionStartTime: DateTime?  // Streaming start (TTFT)
-  Input: object?             // Input data
-  Output: object?            // Output data
-  Metadata: object?          // Custom metadata
-  Level: LangfuseLogLevel    // Log level
-  StatusMessage: string?     // Status description
-  Version: string?           // Version info
-  Model: string?             // AI model name (generations)
-  ModelParameters: object?   // Model config
-  Usage: Usage?              // Token usage
-  UsageDetails: Dictionary<string, int>   // Detailed usage
-  CostDetails: Dictionary<string, double> // Detailed costs
-  PromptId: string?          // Associated prompt ID
-  PromptName: string?        // Associated prompt name
-  PromptVersion: int?        // Prompt version
-  InputPrice: double?        // Input price per unit
-  OutputPrice: double?       // Output price per unit
-  TotalPrice: double?        // Total price per unit
-  Latency: double?           // Execution latency (seconds)
-  TimeToFirstToken: double?  // TTFT (streaming)
-  Environment: string        // Environment context
-  CreatedAt: DateTime
-  UpdatedAt: DateTime
-
-Usage
-  Input: int                 // Input tokens
-  Output: int                // Output tokens
-  Total: int                 // Total tokens
-  Unit: string?              // Unit of measurement
-  InputCost: double?         // Input cost USD
-  OutputCost: double?        // Output cost USD
-  TotalCost: double?         // Total cost USD
-
-ObservationType (enum): Span, Generation, Event, Agent, Tool, Chain,
-                         Retriever, Evaluator, Embedding, Guardrail
-```
-
-### Observation Request Types
-
-```
-ObservationListRequest
-  Page: int?
+ObservationsV2Request
+  Fields: string?            // Comma-separated field groups to return
   Limit: int?
-  Name: string?              // Filter by name
-  UserId: string?            // Filter by user
-  Type: string?              // Filter by type
+  Cursor: string?            // Cursor from the previous page
+  ExpandMetadata: string?    // Metadata keys to return untruncated
+  Name: string?, UserId: string?, Type: string?
   TraceId: string?           // Filter by trace
-  Level: LangfuseLogLevel?   // Filter by level
-  ParentObservationId: string?  // Filter by parent
-  Environment: string[]?     // Filter by environment
-  FromStartTime: DateTime?   // Min start time
-  ToStartTime: DateTime?     // Max start time
-  Version: string?           // Filter by version
+  SessionId: string?         // Filter by session
+  Level: LangfuseLogLevel?
+  ParentObservationId: string?, IsRootObservation: bool?
+  Environment: List<string>
+  FromStartTime: DateTime?, ToStartTime: DateTime?
+  Version: string?
+  Filter: string?            // JSON filter conditions
+
+ObservationsV2Response
+  Data: List<Dictionary<string, object?>>  // Observations with the requested field groups
+  Meta: ObservationsV2Meta   // Cursor: string? for the next page
 ```
 
 ---
@@ -228,29 +139,7 @@ DatasetItem
   DatasetName: string        // Parent dataset name
   CreatedAt: DateTime
   UpdatedAt: DateTime
-
-DatasetRun
-  Id: string                 // Run ID
-  Name: string               // Run name
-  Description: string?
-  Metadata: object?
-  DatasetId: string          // Associated dataset ID
-  DatasetName: string        // Associated dataset name
-  CreatedAt: DateTime
-  UpdatedAt: DateTime
-
-DatasetRunItem
-  Id: string                 // Run item ID
-  DatasetRunId: string       // Parent run ID
-  DatasetRunName: string     // Parent run name
-  DatasetItemId: string      // Associated dataset item
-  TraceId: string            // Execution trace
-  ObservationId: string?     // Specific observation
-  CreatedAt: DateTime
-  UpdatedAt: DateTime
-
-DatasetRunWithItems : DatasetRun
-  DatasetRunItems: List<DatasetRunItem>  // Execution items
+  Version: DateTime?         // When this item version became current
 
 DatasetStatus (enum): Active, Archived
 ```
@@ -275,23 +164,12 @@ CreateDatasetItemRequest
   Id: string?                // Custom item ID (upsert key)
   Status: DatasetStatus?     // Active or Archived
 
-CreateDatasetRunItemRequest
-  RunName: string            // Dataset run name (required)
-  RunDescription: string?
-  Metadata: object?
-  DatasetItemId: string      // Item ID (required)
-  ObservationId: string?     // Observation from execution
-  TraceId: string?           // Trace from execution
-
 DatasetListRequest
   Page: int?, Limit: int?
 
 DatasetItemListRequest
   DatasetName: string?, SourceTraceId: string?, SourceObservationId: string?
   Page: int?, Limit: int?, Version: DateTime?
-
-DatasetRunListRequest
-  Page: int?, Limit: int?
 ```
 
 ---
@@ -299,26 +177,9 @@ DatasetRunListRequest
 ## Score Types
 
 ```
-ScoreModel
-  Id: string                 // Score ID
-  TraceId: string?           // Associated trace
-  SessionId: string?         // Associated session
-  ObservationId: string?     // Associated observation
-  Name: string               // Score name/type
-  Value: object?             // Score value
-  StringValue: string?       // String representation
-  DataType: ScoreDataType    // Numeric, Boolean, Categorical, Correction
-  Source: ScoreSource?       // Annotation, Api, Eval
-  Comment: string?           // Optional comment
-  Timestamp: DateTime
-  AuthorUserId: string?      // Creator user ID
-  ConfigId: string?          // Score config ID
-  Metadata: object?
-  DatasetRunId: string?
-  QueueId: string?           // Annotation queue ID
-  Environment: string
-  CreatedAt: DateTime
-  UpdatedAt: DateTime
+GetScoresV3Response
+  Data: ScoreV3[]            // Scores (polymorphic on data type)
+  Meta: GetScoresV3Meta      // Cursor pagination
 
 ScoreDataType (enum): Numeric, Boolean, Categorical, Correction
 ScoreSource (enum): Annotation, Api, Eval
@@ -340,8 +201,11 @@ ConfigCategory
   Value: double              // Numeric value
   Label: string              // Human-readable label
 
-CreateScoreResponse
-  Id: string                 // Created score ID
+CreateScoreBatchResponse    // Returned by CreateScoreAsync and CreateScoresAsync
+  Message: string?           // "Accepted" when all scores were accepted (HTTP 202)
+  Accepted: int?             // Accepted count on partial acceptance (HTTP 207)
+  Rejected: int?             // Rejected count on partial acceptance (HTTP 207)
+  Errors: List<CreateScoreBatchError>  // Message per rejected score
 ```
 
 ### Score Request Types
@@ -361,15 +225,16 @@ ScoreCreateRequest
   DataType: ScoreDataType?   // Inferred if not provided
   ConfigId: string?
   QueueId: string?
+  Source: CreateScoreSource?  // Api or Annotation
+  Timestamp: DateTimeOffset?  // Defaults to receive time; same Id + Timestamp updates a score
 
-ScoreListRequest
-  Page: int?, Limit: int?
-  UserId: string?, Name: string?, TraceId: string?, ObservationId: string?
-  SessionId: string?, DatasetRunId: string?, ConfigId: string?, QueueId: string?
+ScoreV3ListRequest
+  Limit: int?, Cursor: string?, Fields: string?
+  Id: string?, Name: string?, Source: string?, DataType: string?
+  Environment: string?, ConfigId: string?, QueueId: string?, AuthorUserId: string?
+  Value: string?, ValueMin: double?, ValueMax: double?
+  TraceId: string?, SessionId: string?, ObservationId: string?, ExperimentId: string?
   FromTimestamp: DateTime?, ToTimestamp: DateTime?
-  Environment: string[]?, Source: ScoreSource?, DataType: ScoreDataType?
-  TraceTags: string[]?
-  Operator: string?, Value: double?  // Comparison filter
 
 CreateScoreConfigRequest
   Name: string               // Config name (required)
@@ -385,20 +250,53 @@ UpdateScoreConfigRequest
 
 ---
 
-## Session Types
+## Skill Types
 
 ```
-SessionModel
-  Id: string                 // Session ID
-  CreatedAt: DateTime
-  ProjectId: string
-  Traces: TraceModel[]?      // Session traces
-  Environment: string
+SkillMeta
+  Name: string, Description: string, Tags: List<string>
+  LatestVersion: int, LatestVersionCreatedAt: DateTime, LatestVersionLastUpdatedAt: DateTime
+  ProductionVersion: int?    // Version that has the production label
 
-SessionListRequest
-  Page: int?, Limit: int?
-  FromTimestamp: DateTime?, ToTimestamp: DateTime?
-  Environment: string[]?
+SkillMetaListResponse
+  Data: List<SkillMeta>, Meta: SkillListPagination  // ApiMetadata + HasNextPage
+
+SkillVersion
+  Id: string, Name: string, Description: string, Version: int
+  Frontmatter: object?       // Parsed SKILL.md frontmatter
+  Tags: List<string>         // Shared across all versions
+  Labels: List<string>       // Labels on this version (e.g. production)
+  CommitMessage: string?
+  Files: List<SkillFile>
+  ProjectId: string, CreatedBy: string, CreatedAt: DateTime, UpdatedAt: DateTime
+
+SkillFile
+  Id: string, Path: string, BlobId: string, Sha256Hash: string
+  ContentType: string, ContentLength: long
+  Content: string?           // Only set when GetSkillAsync is called with includeContent
+```
+
+### Skill Request Types
+
+```
+SkillListRequest
+  Name: string?, Search: string?, Tag: string?
+  Page: int?, Limit: int?, FromUpdatedAt: DateTimeOffset?, ToUpdatedAt: DateTimeOffset?
+
+CreateSkillVersionRequest
+  Files: List<SkillVersionFileCreateInput>
+  CommitMessage: string?
+
+SkillVersionFileCreateInput
+  Path: string               // Required
+  Content: string?           // New file text, or
+  Sha256Hash: string?        // reference to an existing file by hash
+
+UpdateSkillRequest
+  Tags: List<string>         // Replaces tags on all versions; empty list clears them
+
+UpdateSkillLabelsRequest
+  Labels: List<string>       // Replaces labels on the version and moves them from other versions
 ```
 
 ---

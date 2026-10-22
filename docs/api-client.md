@@ -3,7 +3,7 @@
 > ILangfuseClient provides full access to the Langfuse REST API.
 > All methods accept an optional `CancellationToken`.
 > See [api-types.md](api-types.md) for request/response type definitions.
-> Methods marked `[Obsolete]` call Langfuse v3 endpoints that are removed on Langfuse Cloud on 2026-11-16 and on self-hosted when upgrading to v4; the attribute message names the replacement. See https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4
+> The client targets the Langfuse v4 API. The v3 read and ingestion endpoints (traces, sessions, v1 observations and metrics, v2 scores, dataset runs) are not available. Send traces through OpenTelemetry (see [tracing.md](tracing.md)) and read data with the Observations V2, Scores V3, Metrics V2 and Experiments APIs.
 
 ## Prompts
 
@@ -27,41 +27,44 @@ var prompt = await _langfuseClient.GetPromptAsync("my-prompt", label: "productio
 GetDatasetListAsync(DatasetListRequest) → PaginatedDatasets
 GetDatasetAsync(name) → DatasetModel
 CreateDatasetAsync(CreateDatasetRequest) → DatasetModel
-GetDatasetRunAsync(datasetName, runName) → DatasetRunWithItems   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-DeleteDatasetRunAsync(datasetName, runName) → DeleteDatasetRunResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-GetDatasetRunsAsync(datasetName, DatasetRunListRequest) → PaginatedDatasetRuns   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 ```
 
 ## Dataset Items
 
 ```
-GetDatasetItemListAsync(datasetName, DatasetItemListRequest) → PaginatedDatasetItems
+GetDatasetItemListAsync(DatasetItemListRequest) → PaginatedDatasetItems
 GetDatasetItemAsync(id) → DatasetItem
 CreateDatasetItemAsync(CreateDatasetItemRequest) → DatasetItem
-UpdateDatasetItemAsync(id, CreateDatasetItemRequest) → DatasetItem
 DeleteDatasetItemAsync(id) → DeleteDatasetItemResponse
 ```
 
-## Dataset Run Items
+`DatasetItem.Version` is the time this version of the item became current. Pass a timestamp in `DatasetItemListRequest.Version` to list items as they were at that time.
+
+## Experiments
+
+Experiments replace the v3 dataset runs and dataset run items.
 
 ```
-GetDatasetRunItemListAsync(datasetName, runName, DatasetRunItemListRequest) → PaginatedDatasetRunItems   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-CreateDatasetRunItemAsync(CreateDatasetRunItemRequest) → DatasetRunItemListRequest   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+GetExperimentsAsync(ExperimentListRequest) → ExperimentsResponse
+GetExperimentItemsAsync(ExperimentItemListRequest) → ExperimentItemsResponse
 ```
 
 ## Scores
 
 ```
-GetScoreListAsync(ScoreListRequest?) → ScoreListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-GetScoreAsync(id) → ScoreModel   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-CreateScoreAsync(ScoreCreateRequest) → CreateScoreResponse
+CreateScoreAsync(ScoreCreateRequest) → CreateScoreBatchResponse
+CreateScoresAsync(IReadOnlyCollection<ScoreCreateRequest>) → CreateScoreBatchResponse
+GetScoresV3Async(ScoreV3ListRequest?) → GetScoresV3Response
 DeleteScoreAsync(id)
 ```
+
+Scores are created asynchronously. The response has no score id: `Message` is `"Accepted"` on HTTP 202, and `Accepted`/`Rejected`/`Errors` are set on partial acceptance (HTTP 207). `CreateScoreAsync` throws `LangfuseApiException` when the server rejects its score. When `ScoreCreateRequest.Id` is null, the client sets it to a new GUID before sending, so read `request.Id` afterwards to find or delete the score. To update a score, send it again with the same `Id` and `Timestamp`.
 
 Example:
 ```csharp
 await _langfuseClient.CreateScoreAsync(new ScoreCreateRequest
 {
+    Id = "score-123",
     TraceId = "trace-123",
     Name = "accuracy",
     Value = 0.95
@@ -81,25 +84,16 @@ DeleteScoreConfigAsync(id)
 ## Traces
 
 ```
-GetTraceListAsync(TraceListRequest?) → TraceListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-GetTraceAsync(id) → TraceWithDetails   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 DeleteTraceAsync(id) → DeleteTraceResponse
 DeleteTraceManyAsync(DeleteTraceManyRequest) → DeleteTraceResponse
 ```
 
 ## Observations
 
-```
-GetObservationListAsync(ObservationListRequest?) → ObservationListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-GetObservationAsync(id) → ObservationModel   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-GetObservationsV2Async(ObservationsV2Request) → ObservationsV2Response
-```
-
-## Sessions
+Read traces, spans, generations and events through Observations V2. Filter by `TraceId` or `SessionId` to read one trace or session.
 
 ```
-GetSessionListAsync(SessionListRequest?) → SessionListResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
-GetSessionAsync(id) → Session   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
+GetObservationsV2Async(ObservationsV2Request?) → ObservationsV2Response
 ```
 
 ## Comments
@@ -130,7 +124,6 @@ CreateModelAsync(CreateModelRequest) → Model
 ## Metrics
 
 ```
-GetMetricsAsync(MetricsRequest) → MetricsResponse   // [Obsolete] removed on Langfuse Cloud 2026-11-16 (v4)
 GetMetricsV2Async(MetricsV2Request) → MetricsV2Response
 ```
 
@@ -158,9 +151,32 @@ DeleteBlobStorageIntegrationAsync(id) → BlobStorageIntegrationDeletionResponse
 ## LLM Connections
 
 ```
-GetLlmConnectionListAsync() → PaginatedLlmConnections
-UpsertLlmConnectionAsync(id, UpsertLlmConnectionRequest) → LlmConnection
+GetLlmConnectionsAsync(page?, limit?) → PaginatedLlmConnections
+UpsertLlmConnectionAsync(UpsertLlmConnectionRequest) → LlmConnection
+DeleteLlmConnectionAsync(id) → DeleteLlmConnectionResponse
 ```
+
+Organization-level connections need an organization API key:
+
+```
+GetOrganizationLlmConnectionsAsync(page?, limit?) → PaginatedLlmConnections
+UpsertOrganizationLlmConnectionAsync(UpsertLlmConnectionRequest) → LlmConnection
+DeleteOrganizationLlmConnectionAsync(id) → DeleteLlmConnectionResponse
+```
+
+## Skills
+
+```
+GetSkillListAsync(SkillListRequest?) → SkillMetaListResponse
+GetSkillAsync(skillName, version?, label?, includeContent?) → SkillVersion
+CreateSkillVersionAsync(CreateSkillVersionRequest) → SkillVersion
+UpdateSkillAsync(skillName, UpdateSkillRequest) → SkillVersion
+GetSkillFileContentsAsync(sha256Hashes) → SkillFileContentsResponse
+UpdateSkillVersionLabelsAsync(skillName, version, UpdateSkillLabelsRequest) → SkillVersion
+DeleteSkillVersionAsync(skillName, version) → DeleteSkillVersionResponse
+```
+
+`GetSkillAsync` returns the `production` label when no version or label is given. Set `includeContent` to get file text in `SkillFile.Content`.
 
 ## Organization
 

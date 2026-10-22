@@ -1,19 +1,14 @@
 using System.Globalization;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Web;
 using zborek.Langfuse.Models.AnnotationQueue;
 using zborek.Langfuse.Models.Comment;
 using zborek.Langfuse.Models.Dataset;
 using zborek.Langfuse.Models.Experiment;
-using zborek.Langfuse.Models.Metrics;
 using zborek.Langfuse.Models.Model;
-using zborek.Langfuse.Models.Observation;
 using zborek.Langfuse.Models.ObservationV2;
 using zborek.Langfuse.Models.Prompt;
 using zborek.Langfuse.Models.Score;
-using zborek.Langfuse.Models.Session;
-using zborek.Langfuse.Models.Trace;
+using zborek.Langfuse.Models.Skill;
 
 namespace zborek.Langfuse.Services;
 
@@ -22,12 +17,6 @@ namespace zborek.Langfuse.Services;
 /// </summary>
 internal static class QueryStringHelper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     /// <summary>
     ///     Builds a query string from optional page and limit parameters
     /// </summary>
@@ -66,159 +55,18 @@ internal static class QueryStringHelper
     }
 
     /// <summary>
-    ///     Builds a query string from an observation list request
+    ///     Builds a query string from optional version, label and includeContent parameters
     /// </summary>
-    /// <param name="request">The observation list request</param>
-    /// <returns>Query string</returns>
-    public static string BuildQueryString(ObservationListRequest? request)
+    /// <param name="version">Optional version number</param>
+    /// <param name="label">Optional label</param>
+    /// <param name="includeContent">Optional flag to include file content</param>
+    /// <returns>Query string starting with '?', or an empty string when all are null</returns>
+    public static string BuildVersionLabelQuery(int? version, string? label, bool? includeContent = null)
     {
-        if (request == null)
-        {
-            return string.Empty;
-        }
-
         var parameters = new List<string>();
-
-        AddParameter(parameters, "page", request.Page);
-        AddParameter(parameters, "limit", request.Limit);
-        AddParameter(parameters, "name", request.Name);
-        AddParameter(parameters, "userId", request.UserId);
-        AddParameter(parameters, "type", request.Type);
-        AddParameter(parameters, "traceId", request.TraceId);
-        AddParameter(parameters, "level", request.Level?.ToString().ToUpperInvariant());
-        AddParameter(parameters, "parentObservationId", request.ParentObservationId);
-        AddParameter(parameters, "environment", request.Environment);
-        AddParameter(parameters, "fromStartTime", request.FromStartTime?.ToString("O"));
-        AddParameter(parameters, "toStartTime", request.ToStartTime?.ToString("O"));
-        AddParameter(parameters, "version", request.Version);
-
-        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
-    }
-
-    /// <summary>
-    ///     Builds a query string from a trace list request
-    /// </summary>
-    /// <param name="request">The trace list request</param>
-    /// <returns>Query string</returns>
-    public static string BuildQueryString(TraceListRequest? request)
-    {
-        if (request == null)
-        {
-            return string.Empty;
-        }
-
-        var parameters = new List<string>();
-
-        AddParameter(parameters, "page", request.Page);
-        AddParameter(parameters, "limit", request.Limit);
-        AddParameter(parameters, "userId", request.UserId);
-        AddParameter(parameters, "name", request.Name);
-        AddParameter(parameters, "fromTimestamp", request.FromTimestamp?.ToString("O"));
-        AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
-        AddParameter(parameters, "sessionId", request.SessionId);
-        AddParameter(parameters, "environment", request.Environment);
-        AddParameter(parameters, "version", request.Version);
-        AddParameter(parameters, "release", request.Release);
-        AddParameter(parameters, "orderBy", request.OrderBy);
-
-        if (request.Tags is { Length: > 0 })
-        {
-            foreach (var tag in request.Tags)
-            {
-                AddParameter(parameters, "tags", tag);
-            }
-        }
-
-        if (request.Fields is { Length: > 0 })
-        {
-            foreach (var tag in request.Fields)
-            {
-                AddParameter(parameters, "fields", tag);
-            }
-        }
-
-        // Handle JSON-based filter
-        if (request.Filter is { Conditions.Length: > 0 })
-        {
-            var filterJson = JsonSerializer.Serialize(request.Filter.Conditions, JsonOptions);
-            parameters.Add($"filter={Uri.EscapeDataString(filterJson)}");
-        }
-
-        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
-    }
-
-    /// <summary>
-    ///     Builds a query string from a session list request
-    /// </summary>
-    /// <param name="request">The session list request</param>
-    /// <returns>Query string</returns>
-    public static string BuildQueryString(SessionListRequest? request)
-    {
-        if (request == null)
-        {
-            return string.Empty;
-        }
-
-        var parameters = new List<string>();
-
-        AddParameter(parameters, "page", request.Page);
-        AddParameter(parameters, "limit", request.Limit);
-        AddParameter(parameters, "fromTimestamp", request.FromTimestamp?.ToString("O"));
-        AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
-
-        if (request.Environment != null)
-        {
-            foreach (var env in request.Environment)
-            {
-                AddParameter(parameters, "environment", env);
-            }
-        }
-
-        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
-    }
-
-    /// <summary>
-    ///     Builds a query string from a score list request
-    /// </summary>
-    /// <param name="request">The score list request</param>
-    /// <returns>Query string</returns>
-    public static string BuildQueryString(ScoreListRequest? request)
-    {
-        if (request == null)
-        {
-            return string.Empty;
-        }
-
-        var parameters = new List<string>();
-
-        AddParameter(parameters, "page", request.Page);
-        AddParameter(parameters, "limit", request.Limit);
-        AddParameter(parameters, "userId", request.UserId);
-        AddParameter(parameters, "name", request.Name);
-        AddParameter(parameters, "fromTimestamp", request.FromTimestamp?.ToString("O"));
-        AddParameter(parameters, "toTimestamp", request.ToTimestamp?.ToString("O"));
-        AddParameter(parameters, "environment", request.Environment);
-        AddParameter(parameters, "source", request.Source?.ToString().ToUpperInvariant());
-        AddParameter(parameters, "operator", request.Operator);
-        AddParameter(parameters, "value", request.Value);
-        AddParameter(parameters, "scoreIds", request.ScoreIds);
-        AddParameter(parameters, "configId", request.ConfigId);
-        AddParameter(parameters, "queueId", request.QueueId);
-        AddParameter(parameters, "dataType", request.DataType?.ToString().ToUpperInvariant());
-        AddParameter(parameters, "sessionId", request.SessionId);
-        AddParameter(parameters, "observationId", request.ObservationId);
-        AddParameter(parameters, "fields", request.Fields);
-        AddParameter(parameters, "filter", request.Filter);
-
-        // Handle traceTags array parameter
-        if (request.TraceTags != null && request.TraceTags.Length > 0)
-        {
-            foreach (var tag in request.TraceTags)
-            {
-                AddParameter(parameters, "traceTags", tag);
-            }
-        }
-
+        AddParameter(parameters, "version", version);
+        AddParameter(parameters, "label", label);
+        AddParameter(parameters, "includeContent", includeContent);
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
 
@@ -249,11 +97,11 @@ internal static class QueryStringHelper
     }
 
     /// <summary>
-    ///     Builds a query string from a dataset list request
+    ///     Builds a query string from a skill list request
     /// </summary>
-    /// <param name="request">The dataset list request</param>
+    /// <param name="request">The skill list request</param>
     /// <returns>Query string</returns>
-    public static string BuildQueryString(DatasetListRequest? request)
+    public static string BuildQueryString(SkillListRequest? request)
     {
         if (request == null)
         {
@@ -262,18 +110,35 @@ internal static class QueryStringHelper
 
         var parameters = new List<string>();
 
+        AddParameter(parameters, "name", request.Name);
+        AddParameter(parameters, "search", request.Search);
+        AddParameter(parameters, "tag", request.Tag);
         AddParameter(parameters, "page", request.Page);
         AddParameter(parameters, "limit", request.Limit);
+        AddParameter(parameters, "fromUpdatedAt", request.FromUpdatedAt?.ToString("O"));
+        AddParameter(parameters, "toUpdatedAt", request.ToUpdatedAt?.ToString("O"));
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }
 
     /// <summary>
-    ///     Builds a query string from a dataset run list request
+    ///     Builds a query string with a comma-separated list of skill file hashes
     /// </summary>
-    /// <param name="request">The dataset run list request</param>
+    /// <param name="sha256Hashes">Base64 SHA-256 hashes of the files</param>
+    /// <returns>Query string starting with '?'</returns>
+    public static string BuildSkillFileContentsQuery(IEnumerable<string> sha256Hashes)
+    {
+        var parameters = new List<string>();
+        AddParameter(parameters, "sha256Hashes", string.Join(",", sha256Hashes));
+        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
+    }
+
+    /// <summary>
+    ///     Builds a query string from a dataset list request
+    /// </summary>
+    /// <param name="request">The dataset list request</param>
     /// <returns>Query string</returns>
-    public static string BuildQueryString(DatasetRunListRequest? request)
+    public static string BuildQueryString(DatasetListRequest? request)
     {
         if (request == null)
         {
@@ -332,25 +197,6 @@ internal static class QueryStringHelper
     }
 
     /// <summary>
-    ///     Builds a query string from a metrics request
-    /// </summary>
-    /// <param name="request">The metrics request</param>
-    /// <returns>Query string</returns>
-    public static string BuildQueryString(MetricsRequest? request)
-    {
-        if (request == null)
-        {
-            return string.Empty;
-        }
-
-        var parameters = new List<string>();
-
-        AddParameter(parameters, "query", request.Query);
-
-        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
-    }
-
-    /// <summary>
     ///     Builds a query string from a dataset item list request
     /// </summary>
     /// <param name="request">The dataset item list request</param>
@@ -370,28 +216,6 @@ internal static class QueryStringHelper
         AddParameter(parameters, "page", request.Page);
         AddParameter(parameters, "limit", request.Limit);
         AddParameter(parameters, "version", request.Version?.ToString("O"));
-
-        return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
-    }
-
-    /// <summary>
-    ///     Builds a query string from a dataset run item list request
-    /// </summary>
-    /// <param name="request">The dataset run item list request</param>
-    /// <returns>Query string</returns>
-    public static string BuildQueryString(DatasetRunItemListRequest? request)
-    {
-        if (request == null)
-        {
-            return string.Empty;
-        }
-
-        var parameters = new List<string>();
-
-        AddParameter(parameters, "datasetId", request.DatasetId);
-        AddParameter(parameters, "runName", request.RunName);
-        AddParameter(parameters, "page", request.Page);
-        AddParameter(parameters, "limit", request.Limit);
 
         return parameters.Count > 0 ? "?" + string.Join("&", parameters) : string.Empty;
     }

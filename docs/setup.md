@@ -112,13 +112,7 @@ AddLangfuse(IServiceCollection, Action<LangfuseConfig>) — Register ILangfuseCl
 | Url              | string   | https://cloud.langfuse.com | Langfuse API endpoint      |
 | PublicKey        | string   | —                          | Langfuse public API key    |
 | SecretKey        | string   | —                          | Langfuse secret API key    |
-| BatchMode        | bool     | true                       | Enable batch mode          |
-| BatchWaitTime    | TimeSpan | 5s                         | Batch processing interval  |
 | DefaultTimeout   | TimeSpan | 30s                        | HTTP request timeout       |
-| DefaultPageSize  | int      | 50                         | Default pagination size    |
-| EnableRetry      | bool     | true                       | Auto-retry on failure      |
-| MaxRetryAttempts | int      | 3                          | Maximum retry attempts     |
-| RetryDelay       | TimeSpan | 1s                         | Base delay between retries |
 
 ---
 
@@ -141,7 +135,7 @@ All `ILangfuseClient` methods throw `LangfuseApiException` on non-success HTTP r
 ```csharp
 try
 {
-    var trace = await _langfuseClient.GetTraceAsync("trace-id");
+    var prompt = await _langfuseClient.GetPromptAsync("my-prompt");
 }
 catch (LangfuseApiException ex)
 {
@@ -158,6 +152,5 @@ catch (LangfuseApiException ex)
 - **Scoped services**: IOtelLangfuseTrace is scoped (one per request/operation)
 - **Activity-based**: All tracing uses System.Diagnostics.Activity as the core primitive
 - **ActivitySource name**: "Langfuse"
-- **Batch ingestion**: 3.5MB size limit with automatic splitting
-- **Background processing**: Channel<IIngestionEvent> for thread-safe event queuing
+- **Trace export**: traces go to Langfuse only through the OTLP exporter (`/api/public/otel/v1/traces`); the legacy ingestion API is not supported
 - **JSON serialization**: camelCase property names

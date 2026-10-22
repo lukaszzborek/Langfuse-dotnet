@@ -4,8 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using zborek.Langfuse;
 using zborek.Langfuse.Client;
-using zborek.Langfuse.Models.Core;
-using zborek.Langfuse.Models.Observation;
+using zborek.Langfuse.Models.ObservationV2;
 
 namespace Langfuse.Tests.Integration;
 
@@ -28,7 +27,6 @@ public class ObservationTests
             config.Url = _fixture.LangfuseBaseUrl;
             config.PublicKey = _fixture.PublicKey;
             config.SecretKey = _fixture.SecretKey;
-            config.BatchMode = false;
         });
 
         var provider = services.BuildServiceProvider();
@@ -40,318 +38,149 @@ public class ObservationTests
         return new TraceTestHelper(client, _fixture);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
-    public async Task GetObservationListAsync_ReturnsPaginatedList()
+    public async Task GetObservationsV2Async_FiltersByTraceId()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var result = traceHelper.CreateComplexTrace();
-        await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
         await traceHelper.WaitForObservationAsync(result.GenerationId);
         await traceHelper.WaitForObservationAsync(result.EventId);
 
-        var observations1 = await client.GetObservationListAsync(new ObservationListRequest
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = result.TraceId,
-            Page = 1,
-            Limit = 1
-        });
-
-        var observations2 = await client.GetObservationListAsync(new ObservationListRequest
-        {
-            TraceId = result.TraceId,
-            Page = 2,
-            Limit = 1
-        });
-
-        observations1.ShouldNotBeNull();
-        observations1.Data.ShouldNotBeNull();
-        observations1.Data.Length.ShouldBe(1);
-
-        observations2.ShouldNotBeNull();
-        observations2.Data.ShouldNotBeNull();
-        observations2.Data.Length.ShouldBe(1);
-
-        observations1.Data[0].Id.ShouldNotBe(observations2.Data[0].Id);
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetObservationListAsync_FiltersByType_Span()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var (traceId, spanId) = traceHelper.CreateTraceWithSpan();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(spanId);
-
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
-        {
-            Type = "SPAN",
-            Page = 1,
             Limit = 50
         });
 
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
-        observations.Data.ShouldAllBe(o => o.Type == "SPAN");
+        observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "traceId") == result.TraceId);
+        observations.Data.ShouldContain(o =>
+            TraceTestHelper.GetString(o, "id") == result.SpanId && TraceTestHelper.GetString(o, "type") == "SPAN");
+        observations.Data.ShouldContain(o =>
+            TraceTestHelper.GetString(o, "id") == result.GenerationId &&
+            TraceTestHelper.GetString(o, "type") == "GENERATION");
+        observations.Data.ShouldContain(o =>
+            TraceTestHelper.GetString(o, "id") == result.EventId && TraceTestHelper.GetString(o, "type") == "EVENT");
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
-    public async Task GetObservationListAsync_FiltersByType_Generation()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
-
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
-        {
-            Type = "GENERATION",
-            Page = 1,
-            Limit = 50
-        });
-
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
-        observations.Data.ShouldAllBe(o => o.Type == "GENERATION");
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetObservationListAsync_FiltersByType_Event()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var (traceId, eventId) = traceHelper.CreateTraceWithEvent();
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(eventId);
-
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
-        {
-            Type = "EVENT",
-            Page = 1,
-            Limit = 50
-        });
-
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
-        observations.Data.ShouldAllBe(o => o.Type == "EVENT");
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetObservationListAsync_FiltersByTraceId()
+    public async Task GetObservationsV2Async_PaginatesWithCursor()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
 
         var result = traceHelper.CreateComplexTrace();
-        await traceHelper.WaitForTraceAsync(result.TraceId);
         await traceHelper.WaitForObservationAsync(result.SpanId);
         await traceHelper.WaitForObservationAsync(result.GenerationId);
         await traceHelper.WaitForObservationAsync(result.EventId);
 
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
+        var page1 = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = result.TraceId,
-            Page = 1,
+            Limit = 1
+        });
+
+        page1.Data.Count.ShouldBe(1);
+        page1.Meta.Cursor.ShouldNotBeNullOrEmpty();
+
+        var page2 = await client.GetObservationsV2Async(new ObservationsV2Request
+        {
+            TraceId = result.TraceId,
+            Limit = 1,
+            Cursor = page1.Meta.Cursor
+        });
+
+        page2.Data.Count.ShouldBe(1);
+        TraceTestHelper.GetString(page2.Data[0], "id").ShouldNotBe(TraceTestHelper.GetString(page1.Data[0], "id"));
+    }
+
+    [Theory]
+    [InlineData("SPAN")]
+    [InlineData("GENERATION")]
+    [InlineData("EVENT")]
+    public async Task GetObservationsV2Async_FiltersByType(string type)
+    {
+        var client = CreateClient();
+        var traceHelper = CreateTraceHelper(client);
+
+        var result = traceHelper.CreateComplexTrace();
+        await traceHelper.WaitForObservationAsync(result.SpanId);
+        await traceHelper.WaitForObservationAsync(result.GenerationId);
+        await traceHelper.WaitForObservationAsync(result.EventId);
+
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
+        {
+            TraceId = result.TraceId,
+            Type = type,
             Limit = 50
         });
 
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
-        observations.Data.Length.ShouldBe(4);
-        observations.Data.ShouldAllBe(o => o.TraceId == result.TraceId);
-        observations.Data.ShouldContain(o => o.Id == result.SpanId && o.Type == "SPAN");
-        observations.Data.ShouldContain(o => o.Id == result.GenerationId && o.Type == "GENERATION");
-        observations.Data.ShouldContain(o => o.Id == result.EventId && o.Type == "EVENT");
+        observations.Data.ShouldNotBeEmpty();
+        observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "type") == type);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
-    public async Task GetObservationAsync_ReturnsObservation()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var (traceId, spanId) = traceHelper.CreateTraceWithSpan(spanName: "test-span-retrieval");
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(spanId);
-
-        var observation = await client.GetObservationAsync(spanId);
-
-        observation.ShouldNotBeNull();
-        observation.Id.ShouldBe(spanId);
-        observation.Name.ShouldBe("test-span-retrieval");
-        observation.Type.ShouldBe("SPAN");
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetObservationAsync_NotFound_ThrowsException()
-    {
-        var client = CreateClient();
-        var nonExistentId = Guid.NewGuid().ToString();
-
-        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
-            await client.GetObservationAsync(nonExistentId));
-
-        exception.StatusCode.ShouldBe(404);
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetObservationAsync_ReturnsGenerationWithModel()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-
-        var (traceId, generationId) = traceHelper.CreateTraceWithGeneration(
-            generationName: "llm-generation",
-            model: "gpt-4-turbo"
-        );
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
-
-        var observation = await client.GetObservationAsync(generationId);
-
-        observation.ShouldNotBeNull();
-        observation.Id.ShouldBe(generationId);
-        observation.Name.ShouldBe("llm-generation");
-        observation.Type.ShouldBe("GENERATION");
-        observation.Model.ShouldBe("gpt-4-turbo");
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetObservationListAsync_FiltersByName()
+    public async Task GetObservationsV2Async_FiltersByName()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
         var uniqueName = $"obs-name-{Guid.NewGuid():N}";
 
-        var (traceId, spanId) = traceHelper.CreateTraceWithSpan(spanName: uniqueName);
-        await traceHelper.WaitForTraceAsync(traceId);
+        var (_, spanId) = traceHelper.CreateTraceWithSpan(spanName: uniqueName);
         await traceHelper.WaitForObservationAsync(spanId);
 
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             Name = uniqueName,
-            Page = 1,
             Limit = 50
         });
 
-        observations.ShouldNotBeNull();
-        observations.Data.ShouldNotBeNull();
-        observations.Data.ShouldContain(o => o.Name == uniqueName);
+        observations.Data.ShouldNotBeEmpty();
+        observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "name") == uniqueName);
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
-    public async Task GetObservationAsync_Span_ValidatesAllResponseFields()
+    public async Task GetObservationsV2Async_Span_ReturnsCoreAndBasicFields()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
-        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
         var spanName = $"span-comprehensive-{Guid.NewGuid():N}";
 
         var (traceId, spanId) = traceHelper.CreateTraceWithSpan(spanName: spanName);
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(spanId);
 
-        var observation = await client.GetObservationAsync(spanId);
+        var observation = await traceHelper.GetObservationV2Async(spanId, "core,basic,io");
 
-        observation.Id.ShouldNotBeNullOrEmpty();
-        observation.Id.ShouldBe(spanId);
-        observation.Type.ShouldBe("SPAN");
-        observation.Name.ShouldBe(spanName);
-        observation.TraceId.ShouldNotBeNullOrEmpty();
-        observation.TraceId.ShouldBe(traceId);
-        observation.StartTime.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        observation.EndTime.ShouldNotBeNull();
-        observation.EndTime.Value.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        observation.Input.ShouldNotBeNull();
-        observation.Output.ShouldNotBeNull();
-        observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-
-        observation.Environment.ShouldNotBeNull();
-        observation.UsageDetails.ShouldNotBeNull();
-        observation.CostDetails.ShouldNotBeNull();
+        TraceTestHelper.GetString(observation, "id").ShouldBe(spanId);
+        TraceTestHelper.GetString(observation, "traceId").ShouldBe(traceId);
+        TraceTestHelper.GetString(observation, "type").ShouldBe("SPAN");
+        TraceTestHelper.GetString(observation, "name").ShouldBe(spanName);
+        TraceTestHelper.GetString(observation, "startTime").ShouldNotBeNullOrEmpty();
+        TraceTestHelper.GetString(observation, "endTime").ShouldNotBeNullOrEmpty();
+        TraceTestHelper.GetString(observation, "input").ShouldNotBeNullOrEmpty();
+        TraceTestHelper.GetString(observation, "output").ShouldNotBeNullOrEmpty();
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
-    public async Task GetObservationAsync_Generation_ValidatesAllResponseFields()
+    public async Task GetObservationsV2Async_Generation_ReturnsModel()
     {
         var client = CreateClient();
         var traceHelper = CreateTraceHelper(client);
-        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
         var generationName = $"gen-comprehensive-{Guid.NewGuid():N}";
-        var modelName = "gpt-4-turbo";
 
         var (traceId, generationId) = traceHelper.CreateTraceWithGeneration(
             generationName: generationName,
-            model: modelName
+            model: "gpt-4-turbo"
         );
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(generationId);
 
-        var observation = await client.GetObservationAsync(generationId);
+        var observation = await traceHelper.GetObservationV2Async(generationId, "core,basic,model");
 
-        observation.Id.ShouldNotBeNullOrEmpty();
-        observation.Id.ShouldBe(generationId);
-        observation.Type.ShouldBe("GENERATION");
-        observation.Name.ShouldBe(generationName);
-        observation.TraceId.ShouldNotBeNullOrEmpty();
-        observation.TraceId.ShouldBe(traceId);
-        observation.Model.ShouldBe(modelName);
-        observation.StartTime.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        observation.Input.ShouldNotBeNull();
-        observation.Output.ShouldNotBeNull();
-        observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-
-        observation.Environment.ShouldNotBeNull();
-        observation.UsageDetails.ShouldNotBeNull();
-        observation.CostDetails.ShouldNotBeNull();
-    }
-
-    [Trait("Legacy", "true")]
-    [Fact]
-    public async Task GetObservationAsync_Event_ValidatesAllResponseFields()
-    {
-        var client = CreateClient();
-        var traceHelper = CreateTraceHelper(client);
-        var beforeTest = DateTime.UtcNow.AddSeconds(-5);
-        var eventName = $"event-comprehensive-{Guid.NewGuid():N}";
-
-        var (traceId, eventId) = traceHelper.CreateTraceWithEvent(eventName: eventName);
-        await traceHelper.WaitForTraceAsync(traceId);
-        await traceHelper.WaitForObservationAsync(eventId);
-
-        var observation = await client.GetObservationAsync(eventId);
-
-        observation.Id.ShouldNotBeNullOrEmpty();
-        observation.Id.ShouldBe(eventId);
-        observation.Type.ShouldBe("EVENT");
-        observation.Name.ShouldBe(eventName);
-        observation.TraceId.ShouldNotBeNullOrEmpty();
-        observation.TraceId.ShouldBe(traceId);
-        observation.StartTime.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        observation.Input.ShouldNotBeNull();
-        observation.Output.ShouldNotBeNull();
-        observation.CreatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
-        observation.UpdatedAt.ShouldBe(beforeTest, TimeSpan.FromMinutes(1));
+        TraceTestHelper.GetString(observation, "id").ShouldBe(generationId);
+        TraceTestHelper.GetString(observation, "traceId").ShouldBe(traceId);
+        TraceTestHelper.GetString(observation, "type").ShouldBe("GENERATION");
+        TraceTestHelper.GetString(observation, "name").ShouldBe(generationName);
+        TraceTestHelper.GetString(observation, "model").ShouldBe("gpt-4-turbo");
     }
 
     [Fact]
@@ -399,7 +228,6 @@ public class ObservationTests
         skippedExists.ShouldBeFalse();
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task SkippedSpan_TraceStillExistsWithoutSkippedObservation()
     {
@@ -409,18 +237,13 @@ public class ObservationTests
         var (traceId, skippedSpanId) = traceHelper.CreateTraceWithSkippedSpan();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var trace = await client.GetTraceAsync(traceId);
-
-        trace.ShouldNotBeNull();
-        trace.Id.ShouldBe(traceId);
-
-        var observations = await client.GetObservationListAsync(new ObservationListRequest
+        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
         {
             TraceId = traceId,
-            Page = 1,
             Limit = 50
         });
 
-        observations.Data.ShouldNotContain(o => o.Id == skippedSpanId);
+        observations.Data.ShouldNotBeEmpty();
+        observations.Data.ShouldNotContain(o => TraceTestHelper.GetString(o, "id") == skippedSpanId);
     }
 }

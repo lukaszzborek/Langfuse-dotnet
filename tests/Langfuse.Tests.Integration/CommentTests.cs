@@ -28,7 +28,6 @@ public class CommentTests
             config.Url = _fixture.LangfuseBaseUrl;
             config.PublicKey = _fixture.PublicKey;
             config.SecretKey = _fixture.SecretKey;
-            config.BatchMode = false;
         });
 
         var provider = services.BuildServiceProvider();
@@ -38,6 +37,26 @@ public class CommentTests
     private TraceTestHelper CreateTraceHelper(ILangfuseClient client)
     {
         return new TraceTestHelper(client, _fixture);
+    }
+
+    // The comment endpoint checks a different table than observations v2, which WaitForTraceAsync polls,
+    // so the referenced object can still be missing for a moment and the server answers 404.
+    private static async Task<CreateCommentResponse> CreateCommentWhenReadyAsync(ILangfuseClient client,
+        CreateCommentRequest request)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(30);
+
+        while (true)
+        {
+            try
+            {
+                return await client.CreateCommentAsync(request);
+            }
+            catch (LangfuseApiException ex) when (ex.StatusCode == 404 && DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(500);
+            }
+        }
     }
 
     [Fact]
@@ -57,7 +76,7 @@ public class CommentTests
             Content = "This is a test comment on a trace"
         };
 
-        var response = await client.CreateCommentAsync(request);
+        var response = await CreateCommentWhenReadyAsync(client,request);
 
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
@@ -81,7 +100,7 @@ public class CommentTests
             Content = "This is a test comment on an observation"
         };
 
-        var response = await client.CreateCommentAsync(request);
+        var response = await CreateCommentWhenReadyAsync(client,request);
 
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
@@ -97,7 +116,7 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var createResponse = await client.CreateCommentAsync(new CreateCommentRequest
+        var createResponse = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
@@ -134,14 +153,14 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        var comment1 = await client.CreateCommentAsync(new CreateCommentRequest
+        var comment1 = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
             ObjectId = traceId,
             Content = "First comment"
         });
-        var comment2 = await client.CreateCommentAsync(new CreateCommentRequest
+        var comment2 = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
@@ -173,7 +192,7 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId);
 
-        await client.CreateCommentAsync(new CreateCommentRequest
+        await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
@@ -213,7 +232,7 @@ public class CommentTests
             AuthorUserId = authorId
         };
 
-        var response = await client.CreateCommentAsync(request);
+        var response = await CreateCommentWhenReadyAsync(client,request);
 
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
@@ -241,7 +260,7 @@ public class CommentTests
             AuthorUserId = authorId
         };
 
-        var response = await client.CreateCommentAsync(request);
+        var response = await CreateCommentWhenReadyAsync(client,request);
 
         response.Id.ShouldNotBeNullOrEmpty();
 
@@ -270,7 +289,7 @@ public class CommentTests
 
         var content = "Observation comment for field validation";
 
-        var createResponse = await client.CreateCommentAsync(new CreateCommentRequest
+        var createResponse = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Observation,

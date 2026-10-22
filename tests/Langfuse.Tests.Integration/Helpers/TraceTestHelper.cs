@@ -38,7 +38,7 @@ public class TraceTestHelper
         {
             var response = await _client.GetObservationsV2Async(
                 new ObservationsV2Request { TraceId = traceId, Limit = 1 }, cancellationToken);
-            if (response.Data.Count > 0 && await LegacyTraceExistsAsync(traceId, cancellationToken))
+            if (response.Data.Count > 0)
             {
                 return;
             }
@@ -60,8 +60,7 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            if (await ObservationExistsOnceAsync(observationId, cancellationToken) &&
-                await LegacyObservationExistsAsync(observationId, cancellationToken))
+            if (await ObservationExistsOnceAsync(observationId, cancellationToken))
             {
                 return;
             }
@@ -73,10 +72,9 @@ public class TraceTestHelper
     }
 
     /// <summary>
-    ///     Waits for a score to become available in the legacy scores API (handles eventual consistency).
-    ///     Legacy only: the endpoint returns 404 on v4 events_only mode, so callers must be tagged [Trait("Legacy", "true")].
+    ///     Waits for a score to become available in the v3 scores API (handles eventual consistency)
     /// </summary>
-    public async Task<ScoreModel> WaitForScoreAsync(string scoreId, TimeSpan? timeout = null,
+    public async Task<ScoreV3> WaitForScoreAsync(string scoreId, TimeSpan? timeout = null,
         CancellationToken cancellationToken = default)
     {
         timeout ??= TimeSpan.FromSeconds(30);
@@ -84,17 +82,12 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            try
+            // Without field groups the v3 API returns only core fields, so subject, comment and metadata would be null.
+            var response = await _client.GetScoresV3Async(
+                new ScoreV3ListRequest { Id = scoreId, Fields = "details,subject,annotation" }, cancellationToken);
+            if (response.Data.Length > 0)
             {
-                var score = await _client.GetScoreAsync(scoreId, cancellationToken);
-                if (score != null && !string.IsNullOrEmpty(score.Name))
-                {
-                    return score;
-                }
-            }
-            catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-            {
-                // Not found yet, wait and retry
+                return response.Data[0];
             }
 
             await Task.Delay(500, cancellationToken);
@@ -130,98 +123,70 @@ public class TraceTestHelper
     }
 
     /// <summary>
-    ///     Waits for a session to become available in the API (handles eventual consistency)
+    ///     Waits for an observation and returns it from the v2 observations API (handles eventual consistency)
     /// </summary>
-    public async Task WaitForSessionAsync(string sessionId, int expectedTraceCount = 1, TimeSpan? timeout = null,
-        CancellationToken cancellationToken = default)
+    /// <param name="observationId">Observation ID</param>
+    /// <param name="fields">Comma-separated field groups to include, e.g. "core,basic,model,usage"</param>
+    /// <param name="timeout">Maximum time to wait</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    public async Task<Dictionary<string, object?>> GetObservationV2Async(string observationId,
+        string? fields = null, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
     {
         timeout ??= TimeSpan.FromSeconds(30);
         var stopwatch = Stopwatch.StartNew();
 
         while (stopwatch.Elapsed < timeout)
         {
-            var response = await _client.GetObservationsV2Async(
-                new ObservationsV2Request { SessionId = sessionId, Limit = 1 }, cancellationToken);
-            if (response.Data.Count > 0 && await LegacySessionHasTracesAsync(sessionId, expectedTraceCount, cancellationToken))
+            var response = await _client.GetObservationsV2Async(new ObservationsV2Request
             {
-                return;
+                Filter = IdFilter(observationId),
+                Fields = fields,
+                Limit = 1
+            }, cancellationToken);
+
+            if (response.Data.Count > 0)
+            {
+                return response.Data[0];
             }
 
             await Task.Delay(500, cancellationToken);
         }
 
-        throw new TimeoutException($"Session {sessionId} did not become available within {timeout}");
+        throw new TimeoutException($"Observation {observationId} did not become available within {timeout}");
     }
 
     /// <summary>
-    ///     In dual mode the traces table is written separately from observations and can lag behind.
-    ///     Legacy read endpoints (GET /traces/{id}, GET /sessions/{id}) query the traces table, so wait for it too.
-    ///     In events_only mode those endpoints do not exist, so only the observations check applies.
+    ///     Reads a non-null JSON field (object, array, number) from a v2 observation
     /// </summary>
-    private async Task<bool> LegacyTraceExistsAsync(string traceId, CancellationToken cancellationToken)
+    public static JsonElement? GetElement(Dictionary<string, object?> observation, string key)
     {
-        if (LangfuseTestFixture.V4Mode != "dual")
-        {
-            return true;
-        }
-
-        try
-        {
-#pragma warning disable CS0618
-            await _client.GetTraceAsync(traceId, cancellationToken);
-#pragma warning restore CS0618
-            return true;
-        }
-        catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-        {
-            return false;
-        }
+        return observation.TryGetValue(key, out var value) &&
+               value is JsonElement { ValueKind: not JsonValueKind.Null } element
+            ? element
+            : null;
     }
 
     /// <summary>
-    ///     In dual mode the legacy observations table is written separately from the v2 observations table and can lag
-    ///     behind. Legacy read endpoints (GET /observations/{id}, GET /observations) query that table, so wait for it too.
-    ///     In events_only mode those endpoints do not exist, so only the v2 check applies.
+    ///     Reads a string field from a v2 observation (values are deserialized as <see cref="JsonElement" />)
     /// </summary>
-    private async Task<bool> LegacyObservationExistsAsync(string observationId, CancellationToken cancellationToken)
+    public static string? GetString(Dictionary<string, object?> observation, string key)
     {
-        if (LangfuseTestFixture.V4Mode != "dual")
+        if (!observation.TryGetValue(key, out var value) || value == null)
         {
-            return true;
+            return null;
         }
 
-        try
+        if (value is not JsonElement element)
         {
-#pragma warning disable CS0618
-            await _client.GetObservationAsync(observationId, cancellationToken: cancellationToken);
-#pragma warning restore CS0618
-            return true;
-        }
-        catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-        {
-            return false;
-        }
-    }
-
-    private async Task<bool> LegacySessionHasTracesAsync(string sessionId, int expectedTraceCount,
-        CancellationToken cancellationToken)
-    {
-        if (LangfuseTestFixture.V4Mode != "dual")
-        {
-            return true;
+            return value.ToString();
         }
 
-        try
+        return element.ValueKind switch
         {
-#pragma warning disable CS0618
-            var session = await _client.GetSessionAsync(sessionId, cancellationToken);
-#pragma warning restore CS0618
-            return session.Traces?.Length >= expectedTraceCount;
-        }
-        catch (LangfuseApiException ex) when (ex.StatusCode == 404)
-        {
-            return false;
-        }
+            JsonValueKind.String => element.GetString(),
+            JsonValueKind.Null => null,
+            _ => element.GetRawText()
+        };
     }
 
     /// <summary>
@@ -842,14 +807,19 @@ public class TraceTestHelper
     {
         var response = await _client.GetObservationsV2Async(new ObservationsV2Request
         {
-            Filter = JsonSerializer.Serialize(new[]
-            {
-                new { type = "string", column = "id", @operator = "=", value = observationId }
-            }),
+            Filter = IdFilter(observationId),
             Limit = 1
         }, cancellationToken);
 
         return response.Data.Count > 0;
+    }
+
+    private static string IdFilter(string observationId)
+    {
+        return JsonSerializer.Serialize(new[]
+        {
+            new { type = "string", column = "id", @operator = "=", value = observationId }
+        });
     }
 }
 

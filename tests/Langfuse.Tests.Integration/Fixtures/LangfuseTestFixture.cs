@@ -68,7 +68,7 @@ public class LangfuseTestFixture : IAsyncLifetime
 
     /// <summary>
     ///     Langfuse v4 write mode the containers run in: "dual" (default) or "events_only".
-    ///     Set via LANGFUSE_TEST_V4_MODE. Tests tagged [Trait("Legacy", "true")] require "dual".
+    ///     Set via LANGFUSE_TEST_V4_MODE. All tests must pass in both modes.
     /// </summary>
     public static string V4Mode { get; } =
         Environment.GetEnvironmentVariable("LANGFUSE_TEST_V4_MODE") is "events_only" ? "events_only" : "dual";
@@ -313,8 +313,8 @@ public class LangfuseTestFixture : IAsyncLifetime
             // Telemetry
             ["TELEMETRY_ENABLED"] = "false",
 
-            // Langfuse v4 defaults to events_only mode where legacy read APIs (GET /traces/{id}, /observations/{id}, ...)
-            // return 404. Dual mode keeps legacy tables populated so both legacy and v2 APIs can be tested.
+            // Langfuse v4 write mode. Dual mode also populates the legacy tables, which self-hosted servers keep
+            // while migrating; both modes must work with the v2 read APIs the tests use.
             // Controlled by LANGFUSE_TEST_V4_MODE env var: "dual" (default) or "events_only".
             ["LANGFUSE_MIGRATION_V4_WRITE_MODE"] = V4Mode,
             ["LANGFUSE_MIGRATION_V4_NATIVE_OTEL_BEHAVIOUR"] = V4Mode == "dual" ? "dual_write" : "direct",

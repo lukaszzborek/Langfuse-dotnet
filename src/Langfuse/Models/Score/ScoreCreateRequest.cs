@@ -9,7 +9,7 @@ namespace zborek.Langfuse.Models.Score;
 public class ScoreCreateRequest
 {
     /// <summary>
-    ///     Optional custom ID for the score. If not provided, a unique ID will be generated automatically.
+    ///     Optional custom ID for the score. If not provided, the client sets it to a new GUID before sending.
     /// </summary>
     [JsonPropertyName("id")]
     public string? Id { get; set; }
@@ -96,4 +96,12 @@ public class ScoreCreateRequest
     /// </summary>
     [JsonPropertyName("source")]
     public CreateScoreSource? Source { get; set; }
+
+    /// <summary>
+    ///     Timestamp of the score. Defaults to the time the request is received. To update an existing score, send it
+    ///     again with the same <see cref="Id" /> and timestamp.
+    /// </summary>
+    /// <remarks>Uses <see cref="DateTimeOffset" /> because the API requires a timezone offset.</remarks>
+    [JsonPropertyName("timestamp")]
+    public DateTimeOffset? Timestamp { get; set; }
 }

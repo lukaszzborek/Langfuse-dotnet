@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Langfuse removed the v3 ingestion and read endpoints from its OpenAPI spec. Langfuse Cloud shuts them down on 2026-11-16; self-hosted deployments lose them when upgrading to Langfuse v4 (see https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4). This release removes the client code for them. Send traces through OpenTelemetry (`AddLangfuseExporter` + `IOtelLangfuseTrace` / `OtelLangfuseTrace`) and read data with `GetObservationsV2Async`, `GetScoresV3Async`, `GetMetricsV2Async`, `GetExperimentsAsync` and `GetExperimentItemsAsync`.
+
+### Added
+
+- Skills API (`/api/public/skills`, stable): `GetSkillListAsync`, `GetSkillAsync` (by version or label, defaults to `production`; `includeContent` returns file text in `SkillFile.Content`), `CreateSkillVersionAsync`, `UpdateSkillAsync` (shared tags), `GetSkillFileContentsAsync` (by SHA-256 hash), `UpdateSkillVersionLabelsAsync`, `DeleteSkillVersionAsync`, with models in `zborek.Langfuse.Models.Skill`.
+- Organization-level LLM connections (`/api/public/organizations/llm-connections`, organization-scoped API key): `GetOrganizationLlmConnectionsAsync`, `UpsertOrganizationLlmConnectionAsync`, `DeleteOrganizationLlmConnectionAsync`.
+- `ScoreCreateRequest.Timestamp` (`DateTimeOffset?`). Defaults to the time the request is received; sending a score again with the same `Id` and `Timestamp` updates it.
+- `DatasetItem.Version`: when this version of the item became current.
+
+### Changed
+
+- **Breaking:** `CreateScoreAsync` now posts a one-element array to `POST /api/public/scores` and returns `CreateScoreBatchResponse` instead of `CreateScoreResponse`, because the endpoint no longer accepts a single score object. Scores are created asynchronously and the response carries no score id, so `CreateScoreAsync` and `CreateScoresAsync` set a null `ScoreCreateRequest.Id` to a new GUID before sending. When the server rejects the score (HTTP 207 with `Rejected > 0`), `CreateScoreAsync` throws `LangfuseApiException` with status code 207 and the response in `ResponseBody`.
+- **Breaking:** `LangfuseConfig.DefaultTimeout` is now applied to the API client's `HttpClient.Timeout`. Before, it was ignored and requests used the 100-second `HttpClient` default, so the effective timeout drops to 30 seconds unless you set it. A timed-out request throws `LangfuseApiException` with status code 408. `AddLangfuse` throws `ArgumentOutOfRangeException` when `DefaultTimeout` is zero or negative (except `Timeout.InfiniteTimeSpan`).
+- `GetSkillFileContentsAsync` throws `ArgumentException` for more than 50 hashes, and `CreateSkillVersionAsync` throws `ArgumentException` when `Files` is empty or a file does not set exactly one of `Content` or `Sha256Hash`.
+
+### Removed
+
+- **Breaking:** `LangfuseConfig.DefaultPageSize`, `EnableRetry`, `MaxRetryAttempts` and `RetryDelay`. The client never read them.
+
+- **Breaking:** legacy ingestion: `ILangfuseClient.IngestAsync` (both overloads), `LangfuseTrace` and its scoped/non-scoped creation methods, `LangfuseBackgroundService`, the ingestion event types (`IIngestionEvent`, `CreateTraceEvent`, `CreateSpanEvent`, `CreateGenerationEvent`, `CreateEvent`, `CreateScoreEvent`, `UpdateSpanEvent`, `UpdateGenerationEvent` and their `*Body` types, `IngestionRequest`, `IngestionResponse`, `IngestionSuccessResponse`, `IngestionErrorResponse`), `ScopedMethodAttribute` / `NonScopedMethodAttribute`, and `LangfuseConfig.BatchMode` / `LangfuseConfig.BatchWaitTime`. `AddLangfuse` no longer registers `LangfuseTrace` or the background service.
+- **Breaking:** the Roslyn analyzers (`LANG001`, `LANG002`) are no longer shipped in the package; they only checked `LangfuseTrace` usage.
+- **Breaking:** trace reads `GetTraceListAsync`, `GetTraceAsync` (`DeleteTraceAsync` and `DeleteTraceManyAsync` remain) and the types `TraceListRequest`, `TraceListResponse`, `TraceModel`, `TraceWithDetails`, `TraceUsage`, `TraceFilter`, `TraceFilterCondition` (and its subclasses), `TraceFilterType`.
+- **Breaking:** sessions API `GetSessionListAsync`, `GetSessionAsync` and `SessionModel`, `SessionListRequest`, `SessionListResponse`.
+- **Breaking:** v1 observations `GetObservationListAsync`, `GetObservationAsync` and `ObservationModel`, `ObservationOtelMetadata`, `ObservationListRequest`, `ObservationListResponse`, `ObservationType`, `Usage`.
+- **Breaking:** v1 metrics `GetMetricsAsync` and `MetricsRequest`, `MetricsResponse`, `Metric`, `MetricsDimension`, `MetricsFilter`.
+- **Breaking:** v2 score reads `GetScoreListAsync`, `GetScoreAsync` and `ScoreModel`, `ScoreListRequest`, `ScoreListResponse`, `CreateScoreResponse`.
+- **Breaking:** dataset runs and run items `GetDatasetRunAsync`, `DeleteDatasetRunAsync`, `GetDatasetRunsAsync`, `CreateDataSetRunAsync`, `GetDatasetRunListAsync` and `DatasetRun`, `DatasetRunItem`, `DatasetRunWithItems`, `PaginatedDatasetRuns`, `DatasetRunListRequest`, `DeleteDatasetRunResponse`, `CreateDatasetRunItemRequest`, `DatasetRunItemListRequest`, `PaginatedDatasetRunItems`. Use experiments instead.
+- `Deprecation` model (only returned by the removed endpoints).
+- Package dependency on `Microsoft.Extensions.Hosting.Abstractions` (only the removed background service used it).
+- `Langfuse.Example.WebApi` example; `Langfuse.Example.OpenTelemetry` covers the same OpenAI scenario.
+
 ## [0.14.0] - 2026-10-12
 
 ### Added

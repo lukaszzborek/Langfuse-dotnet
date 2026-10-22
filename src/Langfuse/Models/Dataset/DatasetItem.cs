@@ -77,6 +77,13 @@ public class DatasetItem
     public DateTime UpdatedAt { get; set; }
 
     /// <summary>
+    ///     When this version of the dataset item became current. Listing dataset items with a version at or after this
+    ///     timestamp returns this item version, until the item is changed again.
+    /// </summary>
+    [JsonPropertyName("version")]
+    public DateTime? Version { get; set; }
+
+    /// <summary>
     ///     Resolved Langfuse media references found in input, expectedOutput, and metadata. Required in the current API
     ///     spec, but kept nullable so responses from older Langfuse servers that omit the field still deserialize.
     /// </summary>

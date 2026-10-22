@@ -44,4 +44,46 @@ internal partial class LangfuseClient
         var endpoint = $"/api/public/llm-connections/{Uri.EscapeDataString(id)}";
         return await DeleteAsync<DeleteLlmConnectionResponse>(endpoint, "Delete LLM Connection", cancellationToken);
     }
+
+    /// <inheritdoc />
+    public async Task<PaginatedLlmConnections> GetOrganizationLlmConnectionsAsync(
+        int? page = null,
+        int? limit = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = QueryStringHelper.BuildPageLimitQuery(page, limit);
+        var endpoint = $"/api/public/organizations/llm-connections{query}";
+
+        return await GetAsync<PaginatedLlmConnections>(endpoint, "Get Organization LLM Connections",
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<LlmConnection> UpsertOrganizationLlmConnectionAsync(
+        UpsertLlmConnectionRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        return await PutAsync<LlmConnection>("/api/public/organizations/llm-connections", request,
+            "Create/Update Organization LLM Connection", cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<DeleteLlmConnectionResponse> DeleteOrganizationLlmConnectionAsync(
+        string id,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            throw new ArgumentException("LLM connection ID cannot be null or empty", nameof(id));
+        }
+
+        var endpoint = $"/api/public/organizations/llm-connections/{Uri.EscapeDataString(id)}";
+        return await DeleteAsync<DeleteLlmConnectionResponse>(endpoint, "Delete Organization LLM Connection",
+            cancellationToken);
+    }
 }

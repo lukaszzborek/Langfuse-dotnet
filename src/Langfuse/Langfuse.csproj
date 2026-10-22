@@ -43,7 +43,6 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.1" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.1" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
         <PackageReference Include="OpenTelemetry" Version="1.9.0" />
@@ -73,22 +72,13 @@
         <Compile Update="Client\ILangfuseClient.DatasetItem.cs">
             <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
-        <Compile Update="Client\ILangfuseClient.DatasetRunItem.cs">
-            <DependentUpon>ILangfuseClient.cs</DependentUpon>
-        </Compile>
         <Compile Update="Client\ILangfuseClient.Health.cs">
             <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
         <Compile Update="Client\ILangfuseClient.Media.cs">
             <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
-        <Compile Update="Client\ILangfuseClient.Metrics.cs">
-            <DependentUpon>ILangfuseClient.cs</DependentUpon>
-        </Compile>
         <Compile Update="Client\ILangfuseClient.Model.cs">
-            <DependentUpon>ILangfuseClient.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Client\ILangfuseClient.Observation.cs">
             <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
         <Compile Update="Client\ILangfuseClient.Organization.cs">
@@ -109,9 +99,6 @@
         <Compile Update="Client\ILangfuseClient.ScoreConfig.cs">
             <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
-        <Compile Update="Client\ILangfuseClient.Session.cs">
-            <DependentUpon>ILangfuseClient.cs</DependentUpon>
-        </Compile>
         <Compile Update="Client\LangfuseClient.Comment.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
@@ -121,22 +108,13 @@
         <Compile Update="Client\LangfuseClient.DatasetItem.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
-        <Compile Update="Client\LangfuseClient.DatasetRunItem.cs">
-            <DependentUpon>LangfuseClient.cs</DependentUpon>
-        </Compile>
         <Compile Update="Client\LangfuseClient.Health.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
         <Compile Update="Client\LangfuseClient.Media.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
-        <Compile Update="Client\LangfuseClient.Metrics.cs">
-            <DependentUpon>LangfuseClient.cs</DependentUpon>
-        </Compile>
         <Compile Update="Client\LangfuseClient.Model.cs">
-            <DependentUpon>LangfuseClient.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Client\LangfuseClient.Observation.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
         <Compile Update="Client\LangfuseClient.Organization.cs">
@@ -157,9 +135,6 @@
         <Compile Update="Client\LangfuseClient.ScoreConfig.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
-        <Compile Update="Client\LangfuseClient.Session.cs">
-            <DependentUpon>LangfuseClient.cs</DependentUpon>
-        </Compile>
         <Compile Update="Client\ILangfuseClient.Trace.cs">
             <DependentUpon>ILangfuseClient.cs</DependentUpon>
         </Compile>
@@ -169,13 +144,12 @@
         <Compile Update="Client\LangfuseClient.LlmConnections.cs">
             <DependentUpon>LangfuseClient.cs</DependentUpon>
         </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="..\Langfuse.Analyzers\bin\$(Configuration)\netstandard2.1\*.dll"
-              Pack="true"
-              PackagePath="analyzers/dotnet/cs"
-              Visible="false" />
+        <Compile Update="Client\ILangfuseClient.Skills.cs">
+            <DependentUpon>ILangfuseClient.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Client\LangfuseClient.Skills.cs">
+            <DependentUpon>LangfuseClient.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>

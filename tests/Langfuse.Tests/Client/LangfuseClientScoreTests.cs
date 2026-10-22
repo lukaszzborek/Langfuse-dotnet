@@ -2,13 +2,10 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Shouldly;
 using zborek.Langfuse.Client;
-using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.Score;
 
@@ -23,11 +20,9 @@ public class LangfuseClientScoreTests
     {
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
-        var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
-        _client = new LangfuseClient(httpClient, channel, config, logger);
+        _client = new LangfuseClient(httpClient, logger);
     }
 
     [Fact]
@@ -316,179 +311,7 @@ public class LangfuseClientScoreTests
     }
 
     [Fact]
-    public async Task GetScoreListAsync_WithSessionId_IncludesInQueryString()
-    {
-        // Arrange
-        var request = new ScoreListRequest
-        {
-            SessionId = "session-123",
-            Page = 1,
-            Limit = 10
-        };
-
-        var expectedResponse = new ScoreListResponse
-        {
-            Data = Array.Empty<ScoreModel>(),
-            Meta = new ApiMetadata
-            {
-                Page = 1,
-                Limit = 10,
-                TotalItems = 0,
-                TotalPages = 0
-            }
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
-
-        // Act
-        await _client.GetScoreListAsync(request);
-
-        // Assert
-        var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        requestUri.ShouldNotBeNull();
-        requestUri.ShouldContain("sessionId=session-123");
-    }
-
-    [Fact]
-    public async Task GetScoreListAsync_SessionIdUrlEncoded()
-    {
-        // Arrange
-        var request = new ScoreListRequest
-        {
-            SessionId = "session with spaces"
-        };
-
-        var expectedResponse = new ScoreListResponse
-        {
-            Data = Array.Empty<ScoreModel>(),
-            Meta = new ApiMetadata
-            {
-                Page = 1,
-                Limit = 50,
-                TotalItems = 0,
-                TotalPages = 0
-            }
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
-
-        // Act
-        await _client.GetScoreListAsync(request);
-
-        // Assert
-        var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        requestUri.ShouldNotBeNull();
-        requestUri.ShouldContain("sessionId=session+with+spaces");
-    }
-
-    [Fact]
-    public async Task GetScoreListAsync_WithSessionIdAndOtherParameters()
-    {
-        // Arrange
-        var request = new ScoreListRequest
-        {
-            SessionId = "session-456",
-            UserId = "user-789",
-            Name = "score-name",
-            Page = 2,
-            Limit = 20
-        };
-
-        var expectedResponse = new ScoreListResponse
-        {
-            Data = Array.Empty<ScoreModel>(),
-            Meta = new ApiMetadata
-            {
-                Page = 2,
-                Limit = 20,
-                TotalItems = 0,
-                TotalPages = 0
-            }
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
-
-        // Act
-        await _client.GetScoreListAsync(request);
-
-        // Assert
-        var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        requestUri.ShouldNotBeNull();
-        requestUri.ShouldContain("sessionId=session-456");
-        requestUri.ShouldContain("userId=user-789");
-        requestUri.ShouldContain("name=score-name");
-        requestUri.ShouldContain("page=2");
-        requestUri.ShouldContain("limit=20");
-    }
-
-    [Fact]
-    public async Task GetScoreListAsync_NullSessionId_NotIncludedInQueryString()
-    {
-        // Arrange
-        var request = new ScoreListRequest
-        {
-            SessionId = null,
-            Page = 1
-        };
-
-        var expectedResponse = new ScoreListResponse
-        {
-            Data = Array.Empty<ScoreModel>(),
-            Meta = new ApiMetadata
-            {
-                Page = 1,
-                Limit = 50,
-                TotalItems = 0,
-                TotalPages = 0
-            }
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
-
-        // Act
-        await _client.GetScoreListAsync(request);
-
-        // Assert
-        var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        requestUri.ShouldNotBeNull();
-        requestUri.ShouldNotContain("sessionId");
-    }
-
-    [Fact]
-    public async Task GetScoreListAsync_EmptySessionId_NotIncludedInQueryString()
-    {
-        // Arrange
-        var request = new ScoreListRequest
-        {
-            SessionId = string.Empty,
-            Page = 1
-        };
-
-        var expectedResponse = new ScoreListResponse
-        {
-            Data = Array.Empty<ScoreModel>(),
-            Meta = new ApiMetadata
-            {
-                Page = 1,
-                Limit = 50,
-                TotalItems = 0,
-                TotalPages = 0
-            }
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
-
-        // Act
-        await _client.GetScoreListAsync(request);
-
-        // Assert
-        var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
-        requestUri.ShouldNotBeNull();
-        requestUri.ShouldNotContain("sessionId");
-    }
-
-    [Fact]
-    public async Task CreateScoreAsync_Success()
+    public async Task CreateScoreAsync_Success_SendsSingleItemArray()
     {
         // Arrange
         var request = new ScoreCreateRequest
@@ -498,25 +321,24 @@ public class LangfuseClientScoreTests
             TraceId = "trace-123"
         };
 
-        var expectedResponse = new CreateScoreResponse
-        {
-            Id = "score-456"
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+        _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
         var result = await _client.CreateScoreAsync(request);
 
         // Assert
         result.ShouldNotBeNull();
-        result.Id.ShouldBe("score-456");
+        result.Message.ShouldBe("Accepted");
 
         // Verify correct endpoint and method
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
         var requestUri = _httpHandler.LastRequest?.RequestUri?.ToString();
         requestUri.ShouldNotBeNull();
         requestUri.ShouldContain("/api/public/scores");
+        var body = await _httpHandler.GetLastRequestBodyAsync();
+        body.ShouldNotBeNull();
+        body.ShouldStartWith("[");
+        body.ShouldContain("trace-123");
     }
 
     [Fact]
@@ -530,19 +352,13 @@ public class LangfuseClientScoreTests
             ObservationId = "observation-789"
         };
 
-        var expectedResponse = new CreateScoreResponse
-        {
-            Id = "score-new"
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+        _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
         var result = await _client.CreateScoreAsync(request);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe("score-new");
+        result.Message.ShouldBe("Accepted");
     }
 
     [Fact]
@@ -556,19 +372,81 @@ public class LangfuseClientScoreTests
             SessionId = "session-123"
         };
 
-        var expectedResponse = new CreateScoreResponse
-        {
-            Id = "score-session"
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+        _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
         var result = await _client.CreateScoreAsync(request);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe("score-session");
+        result.Message.ShouldBe("Accepted");
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_Rejected_ThrowsLangfuseApiException()
+    {
+        // Arrange
+        var request = new ScoreCreateRequest
+        {
+            Name = "quality",
+            Value = 0.95,
+            TraceId = "trace-123"
+        };
+
+        _httpHandler.SetupResponse((HttpStatusCode)207,
+            """{"accepted":0,"rejected":1,"errors":[{"message":"invalid score"}]}""");
+
+        // Act
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await _client.CreateScoreAsync(request));
+
+        // Assert
+        exception.StatusCode.ShouldBe(207);
+        exception.Message.ShouldContain("invalid score");
+        exception.ResponseBody.ShouldNotBeNull().ShouldContain("invalid score");
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_RejectedWithoutErrors_ThrowsLangfuseApiException()
+    {
+        var request = new ScoreCreateRequest { Name = "quality", Value = 0.95, TraceId = "trace-123" };
+
+        _httpHandler.SetupResponse((HttpStatusCode)207, """{"accepted":0,"rejected":1,"errors":null}""");
+
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await _client.CreateScoreAsync(request));
+
+        exception.StatusCode.ShouldBe(207);
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_WithoutId_AssignsId()
+    {
+        var request = new ScoreCreateRequest { Name = "quality", Value = 0.95, TraceId = "trace-123" };
+
+        _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
+
+        await _client.CreateScoreAsync(request);
+
+        request.Id.ShouldNotBeNullOrEmpty();
+        var body = await _httpHandler.GetLastRequestBodyAsync();
+        body.ShouldNotBeNull().ShouldContain(request.Id);
+    }
+
+    [Fact]
+    public async Task CreateScoreAsync_HttpClientTimeout_ThrowsRequestTimeout()
+    {
+        var httpClient = new HttpClient(new HangingHttpMessageHandler())
+        {
+            BaseAddress = new Uri("https://api.test.com/"),
+            Timeout = TimeSpan.FromMilliseconds(50)
+        };
+        var client = new LangfuseClient(httpClient, Substitute.For<ILogger<LangfuseClient>>());
+        var request = new ScoreCreateRequest { Name = "quality", Value = 0.95, TraceId = "trace-123" };
+
+        var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
+            await client.CreateScoreAsync(request));
+
+        exception.StatusCode.ShouldBe((int)HttpStatusCode.RequestTimeout);
     }
 
     [Fact]
@@ -581,15 +459,11 @@ public class LangfuseClientScoreTests
             Value = 0.75,
             TraceId = "trace-abc",
             Comment = "Test comment",
-            DataType = ScoreDataType.Numeric
+            DataType = ScoreDataType.Numeric,
+            Timestamp = new DateTimeOffset(2024, 6, 15, 10, 0, 0, TimeSpan.Zero)
         };
 
-        var expectedResponse = new CreateScoreResponse
-        {
-            Id = "score-serialized"
-        };
-
-        _httpHandler.SetupResponse(HttpStatusCode.OK, expectedResponse);
+        _httpHandler.SetupResponse(HttpStatusCode.Accepted, """{"message":"Accepted"}""");
 
         // Act
         await _client.CreateScoreAsync(request);
@@ -597,6 +471,7 @@ public class LangfuseClientScoreTests
         // Assert
         var requestBody = await _httpHandler.GetLastRequestBodyAsync();
         requestBody.ShouldNotBeNull();
+        requestBody.ShouldContain("\"timestamp\":\"2024-06-15T10:00:00+00:00\"");
         requestBody.ShouldContain("\"name\"");
         requestBody.ShouldContain("\"test-score\"");
         requestBody.ShouldContain("\"value\"");
@@ -734,7 +609,8 @@ public class LangfuseClientScoreTests
         // Assert
         result.Message.ShouldBe("Accepted");
         result.Accepted.ShouldBeNull();
-        result.Errors.ShouldBeEmpty();
+        result.Errors.ShouldBeNull();
+        requests.ShouldAllBe(r => !string.IsNullOrEmpty(r.Id));
 
         _httpHandler.LastRequest?.Method.ShouldBe(HttpMethod.Post);
         _httpHandler.LastRequest?.RequestUri?.ToString().ShouldContain("/api/public/scores");
@@ -786,24 +662,6 @@ public class LangfuseClientScoreTests
 
         await Should.ThrowAsync<ArgumentException>(async () =>
             await _client.CreateScoresAsync(requests));
-    }
-
-    [Fact]
-    public void CreateScoreResponse_Deserialization()
-    {
-        // Arrange
-        var json = "{\"id\":\"score-xyz-123\"}";
-
-        // Act
-        var response = JsonSerializer.Deserialize<CreateScoreResponse>(json,
-            new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-
-        // Assert
-        response.ShouldNotBeNull();
-        response.Id.ShouldBe("score-xyz-123");
     }
 
     [Fact]
@@ -864,29 +722,6 @@ public class LangfuseClientScoreTests
         json.ShouldNotContain("\"minValue\"");
         json.ShouldNotContain("\"maxValue\"");
         json.ShouldNotContain("\"categories\"");
-    }
-
-    [Fact]
-    public void ScoreListRequest_Serialization_WithSessionId()
-    {
-        // Arrange
-        var request = new ScoreListRequest
-        {
-            SessionId = "session-xyz",
-            Page = 1,
-            Limit = 25
-        };
-
-        // Act
-        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
-
-        // Assert
-        json.ShouldContain("\"sessionId\":\"session-xyz\"");
-        json.ShouldContain("\"page\":1");
-        json.ShouldContain("\"limit\":25");
     }
 
     private class TestHttpMessageHandler : HttpMessageHandler
@@ -960,6 +795,16 @@ public class LangfuseClientScoreTests
             {
                 Content = new StringContent("{}", Encoding.UTF8, "application/json")
             });
+        }
+    }
+
+    private class HangingHttpMessageHandler : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
     }
 }

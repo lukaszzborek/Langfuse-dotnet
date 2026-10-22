@@ -21,18 +21,7 @@ internal partial class LangfuseClient
             throw new ArgumentException("Prompt name cannot be null or empty", nameof(promptName));
         }
 
-        var queryParams = new List<string>();
-        if (version.HasValue)
-        {
-            queryParams.Add($"version={version.Value}");
-        }
-
-        if (!string.IsNullOrEmpty(label))
-        {
-            queryParams.Add($"label={Uri.EscapeDataString(label)}");
-        }
-
-        var query = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : "";
+        var query = QueryStringHelper.BuildVersionLabelQuery(version, label);
         var endpoint = $"/api/public/v2/prompts/{Uri.EscapeDataString(promptName)}{query}";
         return await GetAsync<PromptModel>(endpoint, "Get Prompt", cancellationToken);
     }
@@ -75,18 +64,7 @@ internal partial class LangfuseClient
             throw new ArgumentException("Prompt name cannot be null or empty", nameof(promptName));
         }
 
-        var queryParams = new List<string>();
-        if (version.HasValue)
-        {
-            queryParams.Add($"version={version.Value}");
-        }
-
-        if (!string.IsNullOrEmpty(label))
-        {
-            queryParams.Add($"label={Uri.EscapeDataString(label)}");
-        }
-
-        var query = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : "";
+        var query = QueryStringHelper.BuildVersionLabelQuery(version, label);
         var endpoint = $"/api/public/v2/prompts/{Uri.EscapeDataString(promptName)}{query}";
         await DeleteAsync(endpoint, "Delete Prompt", cancellationToken);
     }

@@ -21,6 +21,7 @@ public class DatasetItemMediaReferenceTests
             ""datasetName"": ""my-dataset"",
             ""createdAt"": ""2026-01-01T00:00:00Z"",
             ""updatedAt"": ""2026-01-02T00:00:00Z"",
+            ""version"": ""2026-01-02T00:00:00Z"",
             ""mediaReferences"": [
                 {
                     ""field"": ""input"",
@@ -53,6 +54,7 @@ public class DatasetItemMediaReferenceTests
 
         item.ShouldNotBeNull();
         item.Id.ShouldBe("item-1");
+        item.Version.ShouldBe(new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc));
         item.MediaReferences.ShouldNotBeNull();
         item.MediaReferences.Length.ShouldBe(2);
 
@@ -128,6 +130,7 @@ public class DatasetItemMediaReferenceTests
 
         item.ShouldNotBeNull();
         item.MediaReferences.ShouldBeNull();
+        item.Version.ShouldBeNull();
     }
 
     [Fact]

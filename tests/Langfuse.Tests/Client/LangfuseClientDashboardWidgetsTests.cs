@@ -1,13 +1,10 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Shouldly;
 using zborek.Langfuse.Client;
-using zborek.Langfuse.Config;
 using zborek.Langfuse.Models.Core;
 using zborek.Langfuse.Models.DashboardWidget;
 
@@ -22,11 +19,9 @@ public class LangfuseClientDashboardWidgetsTests
     {
         _httpHandler = new TestHttpMessageHandler();
         var httpClient = new HttpClient(_httpHandler) { BaseAddress = new Uri("https://api.test.com/") };
-        var channel = Channel.CreateUnbounded<IIngestionEvent>();
-        IOptions<LangfuseConfig> config = Options.Create(new LangfuseConfig());
         var logger = Substitute.For<ILogger<LangfuseClient>>();
 
-        _client = new LangfuseClient(httpClient, channel, config, logger);
+        _client = new LangfuseClient(httpClient, logger);
     }
 
     private static DashboardWidget SampleWidget(string id = "widget-1")

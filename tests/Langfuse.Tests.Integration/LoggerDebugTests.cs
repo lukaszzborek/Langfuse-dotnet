@@ -37,7 +37,6 @@ public class LoggerDebugTests
             config.Url = _fixture.LangfuseBaseUrl;
             config.PublicKey = _fixture.PublicKey;
             config.SecretKey = _fixture.SecretKey;
-            config.BatchMode = false;
         });
 
         var provider = services.BuildServiceProvider();
@@ -300,17 +299,20 @@ public class LoggerDebugTests
             var traceId = traceHelper.CreateTrace();
             await traceHelper.WaitForTraceAsync(traceId);
 
-            var score = await client.CreateScoreAsync(new ScoreCreateRequest
+            var scoreId = Guid.NewGuid().ToString();
+            await client.CreateScoreAsync(new ScoreCreateRequest
             {
+                Id = scoreId,
                 TraceId = traceId,
                 Name = $"del-void-{Guid.NewGuid():N}"[..20],
                 Value = 0.5,
                 DataType = ScoreDataType.Numeric
             });
+            await traceHelper.WaitForScoreAsync(scoreId);
 
             collector.Clear();
 
-            await client.DeleteScoreAsync(score.Id);
+            await client.DeleteScoreAsync(scoreId);
 
             var logs = collector.GetSnapshot();
             var debugLogs = logs.Where(l => l.Level == LogLevel.Debug).ToList();
@@ -413,17 +415,16 @@ public class LoggerDebugTests
         }
     }
 
-    [Trait("Legacy", "true")]
     [Fact]
     public async Task GetAsync_NotFound_WithDebugEnabled_LogsStartingBeforeError()
     {
         var (client, collector, provider) = CreateClientWithFakeLogger();
         await using (provider)
         {
-            var nonExistentId = Guid.NewGuid().ToString();
+            var nonExistentName = $"missing-dataset-{Guid.NewGuid():N}";
 
             var exception = await Should.ThrowAsync<LangfuseApiException>(async () =>
-                await client.GetScoreAsync(nonExistentId));
+                await client.GetDatasetAsync(nonExistentName));
 
             exception.StatusCode.ShouldBe(404);
 
@@ -432,7 +433,7 @@ public class LoggerDebugTests
 
             debugLogs.ShouldContain(l =>
                 l.Message.Contains("Starting") &&
-                l.Message.Contains("Get Score"));
+                l.Message.Contains("Get Dataset"));
         }
     }
 

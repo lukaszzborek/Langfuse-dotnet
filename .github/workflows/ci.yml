@@ -45,8 +45,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
-    - name: Run tests (Langfuse v4 events_only mode, legacy API tests excluded)
-      run: dotnet test --configuration Release --filter-not-trait "Legacy=true"
+    - name: Run tests (Langfuse v4 events_only mode)
+      run: dotnet test --configuration Release
 
   create_nuget:
     runs-on: ubuntu-latest
@@ -61,7 +61,6 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    - run: dotnet build -c Release ./src/Langfuse.Analyzers 
     - run: dotnet build -c Release ./src/Langfuse 
     - run: dotnet pack --no-build --configuration Release --output ${{ env.NuGetDirectory }} ./src/Langfuse/Langfuse.csproj
 
