@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-09
+
+Langfuse v4.77.0 no longer infers token usage from observation content. Send usage on every generation (`gen_ai.usage.*` attributes or `SetUsageDetails`); otherwise Langfuse shows no tokens and no cost for it.
+
+### Added
+
+- IAM role authentication for S3 blob storage exports: `BlobStorageIntegrationAuthType` (`AccessKeys`, `RoleArn`), `CreateBlobStorageIntegrationRequest.AuthType` and `RoleArn`, and `BlobStorageIntegrationResponse.AuthType`, `RoleArn`, `ExternalId` and `CrossAccountRoleArn`. `BlobStorageIntegrationResponse.AuthType` defaults to `AccessKeys` when an older server does not send it.
+- `BlobStorageExportFieldGroup.Score_Metadata` and `Score_Provenance`, which add optional columns to the scores export.
+- `ObservationsV2Meta.Comment`, set when an empty page still has a cursor.
+
+### Changed
+
+- `GetObservationsV2Async` docs: a page can hold fewer items than the limit, or none, while `Meta.Cursor` is set. Keep paging until the cursor is null.
+- `Model`, `CreateModelRequest` and `ModelTokenizerId` docs mark `TokenizerId` and `TokenizerConfig` as legacy fields that Langfuse no longer uses.
+
 ## [0.15.0] - 2026-10-22
 
 Langfuse removed the v3 ingestion and read endpoints from its OpenAPI spec. Langfuse Cloud shuts them down on 2026-11-16; self-hosted deployments lose them when upgrading to Langfuse v4 (see https://langfuse.com/self-hosting/upgrade/upgrade-guides/upgrade-v3-to-v4). This release removes the client code for them. Send traces through OpenTelemetry (`AddLangfuseExporter` + `IOtelLangfuseTrace` / `OtelLangfuseTrace`) and read data with `GetObservationsV2Async`, `GetScoresV3Async`, `GetMetricsV2Async`, `GetExperimentsAsync` and `GetExperimentItemsAsync`.
@@ -208,7 +223,8 @@ Langfuse removed the v3 ingestion and read endpoints from its OpenAPI spec. Lang
 
 Initial release.
 
-[Unreleased]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/lukaszzborek/Langfuse-dotnet/compare/v0.12.0...v0.13.0
