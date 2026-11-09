@@ -76,24 +76,27 @@ public class ObservationTests
         await traceHelper.WaitForObservationAsync(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
         await traceHelper.WaitForObservationAsync(result.EventId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var page1 = await client.GetObservationsV2Async(new ObservationsV2Request
+        var ids = new HashSet<string?>();
+        string? cursor = null;
+        for (var i = 0; i < 20; i++)
         {
-            TraceId = result.TraceId,
-            Limit = 1
-        }, TestContext.Current.CancellationToken);
+            var page = await client.GetObservationsV2Async(new ObservationsV2Request
+            {
+                TraceId = result.TraceId,
+                Limit = 1,
+                Cursor = cursor
+            }, TestContext.Current.CancellationToken);
 
-        page1.Data.Count.ShouldBe(1);
-        page1.Meta.Cursor.ShouldNotBeNullOrEmpty();
+            page.Data.Count.ShouldBeLessThanOrEqualTo(1);
+            foreach (var item in page.Data)
+                ids.Add(TraceTestHelper.GetString(item, "id"));
 
-        var page2 = await client.GetObservationsV2Async(new ObservationsV2Request
-        {
-            TraceId = result.TraceId,
-            Limit = 1,
-            Cursor = page1.Meta.Cursor
-        }, TestContext.Current.CancellationToken);
+            cursor = page.Meta.Cursor;
+            if (string.IsNullOrEmpty(cursor))
+                break;
+        }
 
-        page2.Data.Count.ShouldBe(1);
-        TraceTestHelper.GetString(page2.Data[0], "id").ShouldNotBe(TraceTestHelper.GetString(page1.Data[0], "id"));
+        ids.Count.ShouldBeGreaterThanOrEqualTo(2);
     }
 
     [Theory]

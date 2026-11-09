@@ -43,7 +43,8 @@ public partial interface ILangfuseClient
     /// <exception cref="LangfuseApiException">Thrown when the project is not found or deletion fails</exception>
     /// <remarks>
     ///     This action is irreversible and will permanently delete all project data including traces, scores, and
-    ///     configurations
+    ///     configurations. Deletion is processed asynchronously. Deleting the AI Gateway ingestion project turns off the
+    ///     AI Gateway for the organization until another ingestion project is selected.
     /// </remarks>
     Task<ProjectDeletionResponse> DeleteProjectAsync(string projectId, CancellationToken cancellationToken = default);
 

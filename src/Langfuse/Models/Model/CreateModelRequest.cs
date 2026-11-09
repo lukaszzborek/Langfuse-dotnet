@@ -56,14 +56,13 @@ public class CreateModelRequest
     public required ModelUsageUnit Unit { get; set; }
 
     /// <summary>
-    ///     Optional tokenizer applied to observations which match this model (<see cref="ModelTokenizerId.Openai" /> or
-    ///     <see cref="ModelTokenizerId.Claude" />).
+    ///     Legacy tokenizer identifier kept for API compatibility. Ingestion no longer uses it to infer observation usage.
     /// </summary>
     [JsonPropertyName("tokenizerId")]
     public ModelTokenizerId? TokenizerId { get; set; }
 
     /// <summary>
-    ///     Optional configuration settings for the tokenizer, including overhead tokens and model-specific parameters.
+    ///     Legacy tokenizer configuration kept for API compatibility. Ingestion no longer uses it to infer observation usage.
     /// </summary>
     [JsonPropertyName("tokenizerConfig")]
     public TokenizerConfig? TokenizerConfig { get; set; }

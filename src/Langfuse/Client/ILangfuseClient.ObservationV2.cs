@@ -15,6 +15,8 @@ public partial interface ILangfuseClient
     /// <returns>
     ///     Response containing observations with field-group-based filtering and cursor-based pagination.
     ///     Use the cursor in meta to retrieve the next page of results.
+    ///     A page may hold fewer items than the limit, or none, while a cursor is present.
+    ///     Continue until the cursor is absent.
     /// </returns>
     /// <exception cref="LangfuseApiException">Thrown when an API error occurs</exception>
     /// <remarks>
@@ -35,6 +37,10 @@ public partial interface ILangfuseClient
     ///         <item>trace_context - tags, release, traceName</item>
     ///     </list>
     ///     <para>If not specified, core and basic field groups are returned.</para>
+    ///     <para>
+    ///         Requests without an <see cref="ObservationsV2Request.FromStartTime" /> lower bound may search only
+    ///         from January 1, 2020.
+    ///     </para>
     /// </remarks>
     Task<ObservationsV2Response> GetObservationsV2Async(ObservationsV2Request? request = null,
         CancellationToken cancellationToken = default);

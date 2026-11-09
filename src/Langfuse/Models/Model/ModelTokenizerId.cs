@@ -4,7 +4,7 @@ using zborek.Langfuse.Converters;
 namespace zborek.Langfuse.Models.Model;
 
 /// <summary>
-///     Tokenizer supported by Langfuse for model usage inference.
+///     Legacy tokenizer identifier kept for API compatibility. Ingestion no longer uses it to infer observation usage.
 /// </summary>
 [JsonConverter(typeof(LowercaseEnumConverter<ModelTokenizerId>))]
 public enum ModelTokenizerId
