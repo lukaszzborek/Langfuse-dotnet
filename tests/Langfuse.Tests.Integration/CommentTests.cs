@@ -76,7 +76,7 @@ public class CommentTests
             Content = "This is a test comment on a trace"
         };
 
-        var response = await CreateCommentWhenReadyAsync(client,request);
+        var response = await CreateCommentWhenReadyAsync(client, request);
 
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
@@ -100,7 +100,7 @@ public class CommentTests
             Content = "This is a test comment on an observation"
         };
 
-        var response = await CreateCommentWhenReadyAsync(client,request);
+        var response = await CreateCommentWhenReadyAsync(client, request);
 
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
@@ -116,7 +116,7 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var createResponse = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
+        var createResponse = await CreateCommentWhenReadyAsync(client, new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
@@ -153,14 +153,14 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var comment1 = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
+        var comment1 = await CreateCommentWhenReadyAsync(client, new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
             ObjectId = traceId,
             Content = "First comment"
         });
-        var comment2 = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
+        var comment2 = await CreateCommentWhenReadyAsync(client, new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
@@ -192,7 +192,7 @@ public class CommentTests
         var traceId = traceHelper.CreateTrace();
         await traceHelper.WaitForTraceAsync(traceId, cancellationToken: TestContext.Current.CancellationToken);
 
-        await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
+        await CreateCommentWhenReadyAsync(client, new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Trace,
@@ -232,7 +232,7 @@ public class CommentTests
             AuthorUserId = authorId
         };
 
-        var response = await CreateCommentWhenReadyAsync(client,request);
+        var response = await CreateCommentWhenReadyAsync(client, request);
 
         response.ShouldNotBeNull();
         response.Id.ShouldNotBeNull();
@@ -260,7 +260,7 @@ public class CommentTests
             AuthorUserId = authorId
         };
 
-        var response = await CreateCommentWhenReadyAsync(client,request);
+        var response = await CreateCommentWhenReadyAsync(client, request);
 
         response.Id.ShouldNotBeNullOrEmpty();
 
@@ -289,7 +289,7 @@ public class CommentTests
 
         var content = "Observation comment for field validation";
 
-        var createResponse = await CreateCommentWhenReadyAsync(client,new CreateCommentRequest
+        var createResponse = await CreateCommentWhenReadyAsync(client, new CreateCommentRequest
         {
             ProjectId = _fixture.ProjectId,
             ObjectType = CommentObjectType.Observation,

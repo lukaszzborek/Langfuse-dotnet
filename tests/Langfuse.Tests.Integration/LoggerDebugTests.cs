@@ -474,9 +474,9 @@ public class LoggerDebugTests
             collector.Clear();
 
             var updated = await client.UpdatePromptVersionAsync(promptName, created.Version, new UpdatePromptVersionRequest
-                {
-                    NewLabels = ["staging"]
-                }, TestContext.Current.CancellationToken);
+            {
+                NewLabels = ["staging"]
+            }, TestContext.Current.CancellationToken);
 
             updated.ShouldNotBeNull();
 
