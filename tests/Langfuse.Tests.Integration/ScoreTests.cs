@@ -276,9 +276,10 @@ public class ScoreTests
 
         await client.DeleteScoreAsync(scoreId, Token);
 
+        // Deletion is processed asynchronously by the worker; allow extra time under full-suite load
         var stopwatch = Stopwatch.StartNew();
         var deleted = false;
-        while (stopwatch.Elapsed < TimeSpan.FromSeconds(30))
+        while (stopwatch.Elapsed < TimeSpan.FromSeconds(90))
         {
             var result = await client.GetScoresV3Async(new ScoreV3ListRequest { Id = scoreId }, Token);
             if (result.Data.Length == 0)
