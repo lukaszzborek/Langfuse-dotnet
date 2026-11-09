@@ -44,6 +44,32 @@ public class BlobStorageIntegrationResponse
     public required string Region { get; init; }
 
     /// <summary>
+    ///     Authentication method. Defaults to AccessKeys when the server does not send it (older servers only support
+    ///     access keys).
+    /// </summary>
+    [JsonPropertyName("authType")]
+    public BlobStorageIntegrationAuthType AuthType { get; init; } = BlobStorageIntegrationAuthType.AccessKeys;
+
+    /// <summary>
+    ///     ARN of the IAM role Langfuse assumes. May stay set while AuthType is AccessKeys.
+    /// </summary>
+    [JsonPropertyName("roleArn")]
+    public string? RoleArn { get; init; }
+
+    /// <summary>
+    ///     External ID to require in the role trust policy via sts:ExternalId. Null until the integration first uses
+    ///     RoleArn.
+    /// </summary>
+    [JsonPropertyName("externalId")]
+    public string? ExternalId { get; init; }
+
+    /// <summary>
+    ///     Langfuse role that your role must trust. Null when IAM role authentication is not available.
+    /// </summary>
+    [JsonPropertyName("crossAccountRoleArn")]
+    public string? CrossAccountRoleArn { get; init; }
+
+    /// <summary>
     ///     Access key ID for authentication
     /// </summary>
     [JsonPropertyName("accessKeyId")]
@@ -105,6 +131,7 @@ public class BlobStorageIntegrationResponse
 
     /// <summary>
     ///     Field groups included in each exported row. Always null when ExportSource is LEGACY_TRACES_OBSERVATIONS.
+    ///     An empty list means all observation groups and no score groups.
     /// </summary>
     [JsonPropertyName("exportFieldGroups")]
     public IReadOnlyList<BlobStorageExportFieldGroup>? ExportFieldGroups { get; init; }

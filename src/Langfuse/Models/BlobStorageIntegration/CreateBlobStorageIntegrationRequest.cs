@@ -38,10 +38,25 @@ public class CreateBlobStorageIntegrationRequest
     public required string Region { get; init; }
 
     /// <summary>
-    ///     Access key ID for authentication
+    ///     Access key ID for authentication. Not used for GOOGLE_CLOUD_STORAGE or when AuthType is RoleArn.
     /// </summary>
     [JsonPropertyName("accessKeyId")]
     public string? AccessKeyId { get; init; }
+
+    /// <summary>
+    ///     Authentication method. RoleArn needs type S3, a concrete region (not "auto") and RoleArn; access key and secret
+    ///     must be omitted, and endpoint and ForcePathStyle are ignored. When omitted, the server picks the method. The
+    ///     first save with RoleArn stores the integration disabled: add the trust policy with the returned ExternalId, then
+    ///     update with Enabled = true.
+    /// </summary>
+    [JsonPropertyName("authType")]
+    public BlobStorageIntegrationAuthType? AuthType { get; init; }
+
+    /// <summary>
+    ///     ARN of the IAM role Langfuse assumes when AuthType is RoleArn. Kept on update when omitted.
+    /// </summary>
+    [JsonPropertyName("roleArn")]
+    public string? RoleArn { get; init; }
 
     /// <summary>
     ///     Secret access key for authentication (will be encrypted when stored)
@@ -108,8 +123,9 @@ public class CreateBlobStorageIntegrationRequest
 
     /// <summary>
     ///     Field groups to include in each exported row. Must include Core if provided. Requires ExportSource to be set in the
-    ///     same request. Must be omitted for the LEGACY_TRACES_OBSERVATIONS source.
-    /// </summary>
+    ///     same request. Must be omitted for the LEGACY_TRACES_OBSERVATIONS source. When omitted on create, all observation
+    ///     groups are selected and no score groups. Score groups add columns to the scores export.
+    ///</summary>
     [JsonPropertyName("exportFieldGroups")]
     public IReadOnlyList<BlobStorageExportFieldGroup>? ExportFieldGroups { get; init; }
 }
