@@ -26,6 +26,32 @@ public class TraceTestHelper
     }
 
     /// <summary>
+    ///     Reads every v2 observation matching the trace or filter, following the cursor until it is absent
+    ///     (a page may be empty while a cursor is still present)
+    /// </summary>
+    public async Task<List<Dictionary<string, object?>>> GetAllObservationsV2Async(string? traceId = null,
+        string? filter = null, CancellationToken cancellationToken = default)
+    {
+        var all = new List<Dictionary<string, object?>>();
+        string? cursor = null;
+        do
+        {
+            var page = await _client.GetObservationsV2Async(new ObservationsV2Request
+            {
+                TraceId = traceId,
+                Filter = filter,
+                Limit = 50,
+                Cursor = cursor
+            }, cancellationToken);
+
+            all.AddRange(page.Data);
+            cursor = page.Meta.Cursor;
+        } while (!string.IsNullOrEmpty(cursor));
+
+        return all;
+    }
+
+    /// <summary>
     ///     Waits for a trace to become available in the API (handles eventual consistency)
     /// </summary>
     public async Task WaitForTraceAsync(string traceId, TimeSpan? timeout = null,
@@ -36,9 +62,8 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            var response = await _client.GetObservationsV2Async(
-                new ObservationsV2Request { TraceId = traceId, Limit = 1 }, cancellationToken);
-            if (response.Data.Count > 0)
+            var observations = await GetAllObservationsV2Async(traceId, cancellationToken: cancellationToken);
+            if (observations.Count > 0)
             {
                 return;
             }
@@ -137,17 +162,24 @@ public class TraceTestHelper
 
         while (stopwatch.Elapsed < timeout)
         {
-            var response = await _client.GetObservationsV2Async(new ObservationsV2Request
+            string? cursor = null;
+            do
             {
-                Filter = IdFilter(observationId),
-                Fields = fields,
-                Limit = 1
-            }, cancellationToken);
+                var response = await _client.GetObservationsV2Async(new ObservationsV2Request
+                {
+                    Filter = IdFilter(observationId),
+                    Fields = fields,
+                    Limit = 1,
+                    Cursor = cursor
+                }, cancellationToken);
 
-            if (response.Data.Count > 0)
-            {
-                return response.Data[0];
-            }
+                if (response.Data.Count > 0)
+                {
+                    return response.Data[0];
+                }
+
+                cursor = response.Meta.Cursor;
+            } while (!string.IsNullOrEmpty(cursor));
 
             await Task.Delay(500, cancellationToken);
         }
@@ -805,13 +837,10 @@ public class TraceTestHelper
 
     private async Task<bool> ObservationExistsOnceAsync(string observationId, CancellationToken cancellationToken)
     {
-        var response = await _client.GetObservationsV2Async(new ObservationsV2Request
-        {
-            Filter = IdFilter(observationId),
-            Limit = 1
-        }, cancellationToken);
+        var observations = await GetAllObservationsV2Async(filter: IdFilter(observationId),
+            cancellationToken: cancellationToken);
 
-        return response.Data.Count > 0;
+        return observations.Count > 0;
     }
 
     private static string IdFilter(string observationId)

@@ -5,7 +5,8 @@ namespace zborek.Langfuse.Models.BlobStorageIntegration;
 
 /// <summary>
 ///     Field group included in each exported row for OBSERVATIONS_V2 and
-///     LEGACY_TRACES_AND_ENRICHED_OBSERVATIONS exports.
+///     LEGACY_TRACES_AND_ENRICHED_OBSERVATIONS exports. Observation groups select observation columns, score groups
+///     add optional score columns, and score groups are never selected by default.
 /// </summary>
 [JsonConverter(typeof(LowercaseEnumConverter<BlobStorageExportFieldGroup>))]
 public enum BlobStorageExportFieldGroup
@@ -41,5 +42,14 @@ public enum BlobStorageExportFieldGroup
     Tools,
 
     /// <summary>Trace context fields.</summary>
-    Trace_Context
+    Trace_Context,
+
+    /// <summary>Adds the score metadata column to the scores export.</summary>
+    Score_Metadata,
+
+    /// <summary>
+    ///     Adds author_user_id, config_id, queue_id, evaluator_id, evaluation_rule_id and execution_trace_id to the scores
+    ///     export.
+    /// </summary>
+    Score_Provenance
 }

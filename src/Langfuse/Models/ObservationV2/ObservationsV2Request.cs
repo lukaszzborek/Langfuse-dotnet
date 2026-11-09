@@ -18,7 +18,8 @@ public class ObservationsV2Request
     public string? Fields { get; set; }
 
     /// <summary>
-    ///     Number of items to return per page. Maximum 1000, default 50.
+    ///     Maximum number of items per page. A page may hold fewer items, including zero,
+    ///     while meta.cursor is present. Maximum 1000, default 50.
     /// </summary>
     [JsonPropertyName("limit")]
     public int? Limit { get; set; }

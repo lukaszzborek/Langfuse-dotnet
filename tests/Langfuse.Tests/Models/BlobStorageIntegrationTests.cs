@@ -373,6 +373,116 @@ public class BlobStorageIntegrationTests
         JsonSerializer.Serialize(BlobStorageExportFieldGroup.Core).ShouldBe("\"core\"");
         JsonSerializer.Serialize(BlobStorageExportFieldGroup.Io).ShouldBe("\"io\"");
         JsonSerializer.Serialize(BlobStorageExportFieldGroup.Trace_Context).ShouldBe("\"trace_context\"");
+        JsonSerializer.Serialize(BlobStorageExportFieldGroup.Score_Metadata).ShouldBe("\"score_metadata\"");
+        JsonSerializer.Serialize(BlobStorageExportFieldGroup.Score_Provenance).ShouldBe("\"score_provenance\"");
+    }
+
+    [Fact]
+    public void Should_Serialize_BlobStorageIntegrationAuthType_To_SnakeCaseUpper()
+    {
+        JsonSerializer.Serialize(BlobStorageIntegrationAuthType.AccessKeys).ShouldBe("\"ACCESS_KEYS\"");
+        JsonSerializer.Serialize(BlobStorageIntegrationAuthType.RoleArn).ShouldBe("\"ROLE_ARN\"");
+    }
+
+    [Fact]
+    public void Should_Deserialize_BlobStorageIntegrationAuthType_From_SnakeCaseUpper()
+    {
+        JsonSerializer.Deserialize<BlobStorageIntegrationAuthType>("\"ACCESS_KEYS\"")
+            .ShouldBe(BlobStorageIntegrationAuthType.AccessKeys);
+        JsonSerializer.Deserialize<BlobStorageIntegrationAuthType>("\"ROLE_ARN\"")
+            .ShouldBe(BlobStorageIntegrationAuthType.RoleArn);
+    }
+
+    [Fact]
+    public void Should_Serialize_CreateRequest_With_RoleArn_Auth()
+    {
+        var request = new CreateBlobStorageIntegrationRequest
+        {
+            ProjectId = "p1",
+            Type = BlobStorageIntegrationType.S3,
+            BucketName = "b",
+            Region = "us-east-1",
+            ExportFrequency = BlobStorageExportFrequency.Daily,
+            Enabled = false,
+            ForcePathStyle = false,
+            FileType = BlobStorageIntegrationFileType.Json,
+            ExportMode = BlobStorageExportMode.FullHistory,
+            AuthType = BlobStorageIntegrationAuthType.RoleArn,
+            RoleArn = "arn:aws:iam::123456789012:role/langfuse"
+        };
+
+        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        });
+
+        json.ShouldContain("\"authType\":\"ROLE_ARN\"");
+        json.ShouldContain("\"roleArn\":\"arn:aws:iam::123456789012:role/langfuse\"");
+        json.ShouldNotContain("accessKeyId");
+    }
+
+    [Fact]
+    public void Should_Deserialize_Response_With_RoleArn_Fields()
+    {
+        var json = @"{
+            ""id"": ""int-1"",
+            ""projectId"": ""proj-1"",
+            ""type"": ""S3"",
+            ""bucketName"": ""bucket"",
+            ""region"": ""us-east-1"",
+            ""authType"": ""ROLE_ARN"",
+            ""roleArn"": ""arn:aws:iam::1:role/r"",
+            ""externalId"": ""ext-1"",
+            ""crossAccountRoleArn"": ""arn:aws:iam::2:role/langfuse"",
+            ""prefix"": """",
+            ""exportFrequency"": ""daily"",
+            ""enabled"": false,
+            ""forcePathStyle"": false,
+            ""fileType"": ""JSON"",
+            ""exportMode"": ""FULL_HISTORY"",
+            ""compressed"": true,
+            ""exportSource"": ""OBSERVATIONS_V2"",
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<BlobStorageIntegrationResponse>(json);
+
+        response.ShouldNotBeNull();
+        response.AuthType.ShouldBe(BlobStorageIntegrationAuthType.RoleArn);
+        response.RoleArn.ShouldBe("arn:aws:iam::1:role/r");
+        response.ExternalId.ShouldBe("ext-1");
+        response.CrossAccountRoleArn.ShouldBe("arn:aws:iam::2:role/langfuse");
+    }
+
+    [Fact]
+    public void Should_Default_AuthType_To_AccessKeys_When_Missing_In_Response()
+    {
+        var json = @"{
+            ""id"": ""int-1"",
+            ""projectId"": ""proj-1"",
+            ""type"": ""S3"",
+            ""bucketName"": ""bucket"",
+            ""region"": ""us-east-1"",
+            ""prefix"": """",
+            ""exportFrequency"": ""daily"",
+            ""enabled"": true,
+            ""forcePathStyle"": false,
+            ""fileType"": ""JSON"",
+            ""exportMode"": ""FULL_HISTORY"",
+            ""compressed"": true,
+            ""exportSource"": ""OBSERVATIONS_V2"",
+            ""createdAt"": ""2024-01-01T00:00:00Z"",
+            ""updatedAt"": ""2024-01-01T00:00:00Z""
+        }";
+
+        var response = JsonSerializer.Deserialize<BlobStorageIntegrationResponse>(json);
+
+        response.ShouldNotBeNull();
+        response.AuthType.ShouldBe(BlobStorageIntegrationAuthType.AccessKeys);
+        response.RoleArn.ShouldBeNull();
+        response.ExternalId.ShouldBeNull();
+        response.CrossAccountRoleArn.ShouldBeNull();
     }
 
     [Fact]
@@ -384,6 +494,10 @@ public class BlobStorageIntegrationTests
             .ShouldBe(BlobStorageExportFieldGroup.Io);
         JsonSerializer.Deserialize<BlobStorageExportFieldGroup>("\"trace_context\"")
             .ShouldBe(BlobStorageExportFieldGroup.Trace_Context);
+        JsonSerializer.Deserialize<BlobStorageExportFieldGroup>("\"score_metadata\"")
+            .ShouldBe(BlobStorageExportFieldGroup.Score_Metadata);
+        JsonSerializer.Deserialize<BlobStorageExportFieldGroup>("\"score_provenance\"")
+            .ShouldBe(BlobStorageExportFieldGroup.Score_Provenance);
     }
 
     [Fact]

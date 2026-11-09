@@ -3,9 +3,7 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Model;
 
 /// <summary>
-///     Represents a model definition in Langfuse - configuration for how to track usage, pricing, and tokenization for AI
-///     models.
-///     Models enable automatic cost calculation and usage tracking when traces reference specific AI model names.
+///     Model definition used for calculating USD cost from usage submitted with observations.
 /// </summary>
 public class Model
 {
@@ -58,13 +56,13 @@ public class Model
     public double? TotalPrice { get; set; }
 
     /// <summary>
-    ///     ID of the tokenizer to use for counting tokens. Links to specific tokenization logic for accurate usage tracking.
+    ///     Legacy tokenizer identifier kept for API compatibility. Ingestion no longer uses it to infer observation usage.
     /// </summary>
     [JsonPropertyName("tokenizerId")]
     public string? TokenizerId { get; set; }
 
     /// <summary>
-    ///     Configuration settings for the tokenizer, including overhead tokens and model-specific parameters.
+    ///     Legacy tokenizer configuration kept for API compatibility. Ingestion no longer uses it to infer observation usage.
     /// </summary>
     [JsonPropertyName("tokenizerConfig")]
     public TokenizerConfig TokenizerConfig { get; set; } = new();

@@ -441,5 +441,29 @@ public class ModelValidationTests
         obsoleteAttr.ShouldNotBeEmpty();
     }
 
+    [Fact]
+    public void ObservationsV2Response_Should_Deserialize_Empty_Page_With_Cursor_And_Comment()
+    {
+        const string json = "{\"data\":[],\"meta\":{\"cursor\":\"abc\",\"comment\":\"empty page\"}}";
+
+        var response = JsonSerializer.Deserialize<ObservationsV2Response>(json, JsonOptions);
+
+        response.ShouldNotBeNull();
+        response.Data.ShouldBeEmpty();
+        response.Meta.Cursor.ShouldBe("abc");
+        response.Meta.Comment.ShouldBe("empty page");
+    }
+
+    [Fact]
+    public void ObservationsV2Response_Should_Deserialize_Meta_Without_Comment()
+    {
+        const string json = "{\"data\":[],\"meta\":{\"cursor\":\"abc\"}}";
+
+        var response = JsonSerializer.Deserialize<ObservationsV2Response>(json, JsonOptions);
+
+        response.ShouldNotBeNull();
+        response.Meta.Comment.ShouldBeNull();
+    }
+
     #endregion
 }
