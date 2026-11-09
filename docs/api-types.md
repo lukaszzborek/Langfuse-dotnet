@@ -108,7 +108,8 @@ ObservationsV2Request
 
 ObservationsV2Response
   Data: List<Dictionary<string, object?>>  // Observations with the requested field groups
-  Meta: ObservationsV2Meta   // Cursor: string? for the next page
+  Meta: ObservationsV2Meta   // Cursor: string? for the next page, Comment: string? set on an empty page that has a cursor
+                             // A page can be empty while Cursor is set: keep paging until Cursor is null
 ```
 
 ---
@@ -508,6 +509,10 @@ BlobStorageIntegrationResponse
   FileType: BlobStorageIntegrationFileType   // JSONL, Parquet, etc.
   ExportMode: BlobStorageExportMode
   ExportStartDate: DateTime?
+  AuthType: BlobStorageIntegrationAuthType   // AccessKeys or RoleArn
+  RoleArn: string?           // IAM role Langfuse assumes
+  ExternalId: string?        // Required in the role trust policy (sts:ExternalId)
+  CrossAccountRoleArn: string?
   NextSyncAt: DateTime?
   LastSyncAt: DateTime?
   CreatedAt: DateTime
@@ -520,6 +525,8 @@ CreateBlobStorageIntegrationRequest
   Region: string             // (required)
   AccessKeyId: string?
   SecretAccessKey: string?
+  AuthType: BlobStorageIntegrationAuthType?    // AccessKeys or RoleArn
+  RoleArn: string?           // Required when AuthType is RoleArn
   Endpoint: string?
   Prefix: string?
   ExportFrequency: BlobStorageExportFrequency  // (required)

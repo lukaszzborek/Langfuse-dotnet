@@ -60,8 +60,8 @@ public class TraceTests
 
         while (stopwatch.Elapsed < timeout)
         {
-            var observations = await client.GetObservationsV2Async(new ObservationsV2Request { TraceId = traceId, Limit = 1 }, TestContext.Current.CancellationToken);
-            if (observations.Data.Count == 0)
+            var observations = await traceHelper.GetAllObservationsV2Async(traceId, cancellationToken: TestContext.Current.CancellationToken);
+            if (observations.Count == 0)
             {
                 deleted = true;
                 break;

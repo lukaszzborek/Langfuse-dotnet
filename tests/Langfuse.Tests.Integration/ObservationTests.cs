@@ -49,19 +49,16 @@ public class ObservationTests
         await traceHelper.WaitForObservationAsync(result.GenerationId, cancellationToken: TestContext.Current.CancellationToken);
         await traceHelper.WaitForObservationAsync(result.EventId, cancellationToken: TestContext.Current.CancellationToken);
 
-        var observations = await client.GetObservationsV2Async(new ObservationsV2Request
-        {
-            TraceId = result.TraceId,
-            Limit = 50
-        }, TestContext.Current.CancellationToken);
+        var observations = await traceHelper.GetAllObservationsV2Async(result.TraceId,
+            cancellationToken: TestContext.Current.CancellationToken);
 
-        observations.Data.ShouldAllBe(o => TraceTestHelper.GetString(o, "traceId") == result.TraceId);
-        observations.Data.ShouldContain(o =>
+        observations.ShouldAllBe(o => TraceTestHelper.GetString(o, "traceId") == result.TraceId);
+        observations.ShouldContain(o =>
             TraceTestHelper.GetString(o, "id") == result.SpanId && TraceTestHelper.GetString(o, "type") == "SPAN");
-        observations.Data.ShouldContain(o =>
+        observations.ShouldContain(o =>
             TraceTestHelper.GetString(o, "id") == result.GenerationId &&
             TraceTestHelper.GetString(o, "type") == "GENERATION");
-        observations.Data.ShouldContain(o =>
+        observations.ShouldContain(o =>
             TraceTestHelper.GetString(o, "id") == result.EventId && TraceTestHelper.GetString(o, "type") == "EVENT");
     }
 

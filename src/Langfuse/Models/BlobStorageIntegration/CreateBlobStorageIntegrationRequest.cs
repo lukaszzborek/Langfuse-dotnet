@@ -125,7 +125,7 @@ public class CreateBlobStorageIntegrationRequest
     ///     Field groups to include in each exported row. Must include Core if provided. Requires ExportSource to be set in the
     ///     same request. Must be omitted for the LEGACY_TRACES_OBSERVATIONS source. When omitted on create, all observation
     ///     groups are selected and no score groups. Score groups add columns to the scores export.
-    ///</summary>
+    /// </summary>
     [JsonPropertyName("exportFieldGroups")]
     public IReadOnlyList<BlobStorageExportFieldGroup>? ExportFieldGroups { get; init; }
 }

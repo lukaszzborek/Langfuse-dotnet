@@ -3,9 +3,7 @@ using System.Text.Json.Serialization;
 namespace zborek.Langfuse.Models.Model;
 
 /// <summary>
-///     Represents a model definition in Langfuse - configuration for how to track usage, pricing, and tokenization for AI
-///     models.
-///     Models enable automatic cost calculation and usage tracking when traces reference specific AI model names.
+///     Model definition used for calculating USD cost from usage submitted with observations.
 /// </summary>
 public class Model
 {
