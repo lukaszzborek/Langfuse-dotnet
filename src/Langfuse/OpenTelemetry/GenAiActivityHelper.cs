@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using zborek.Langfuse.OpenTelemetry.Models;
@@ -35,7 +36,7 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeGeneration);
 
-        activity.SetTag(GenAiAttributes.OperationName, "chat");
+        activity.SetTag(GenAiAttributes.OperationName, GenAiOperationNames.Chat);
         activity.SetTag(GenAiAttributes.ProviderName, config.Provider);
         activity.SetTag(GenAiAttributes.RequestModel, config.Model);
 
@@ -85,6 +86,21 @@ public static class GenAiActivityHelper
                 JsonSerializer.Serialize(config.StopSequences, JsonOptions));
         }
 
+        if (config.Stream.HasValue)
+        {
+            activity.SetTag(GenAiAttributes.RequestStream, config.Stream.Value);
+        }
+
+        if (!string.IsNullOrEmpty(config.ReasoningLevel))
+        {
+            activity.SetTag(GenAiAttributes.RequestReasoningLevel, config.ReasoningLevel);
+        }
+
+        if (!string.IsNullOrEmpty(config.PreviousResponseId))
+        {
+            activity.SetTag(GenAiAttributes.RequestPreviousResponseId, config.PreviousResponseId);
+        }
+
         if (!string.IsNullOrEmpty(config.OutputType))
         {
             activity.SetTag(GenAiAttributes.OutputType, config.OutputType);
@@ -119,12 +135,7 @@ public static class GenAiActivityHelper
 
         if (!string.IsNullOrEmpty(config.PromptName))
         {
-            activity.SetTag(LangfuseAttributes.ObservationPromptName, config.PromptName);
-        }
-
-        if (config.PromptVersion.HasValue)
-        {
-            activity.SetTag(LangfuseAttributes.ObservationPromptVersion, config.PromptVersion.Value);
+            SetPromptReference(activity, config.PromptName, config.PromptVersion);
         }
 
         if (config.Level.HasValue)
@@ -160,7 +171,7 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeGeneration);
 
-        activity.SetTag(GenAiAttributes.OperationName, "text_completion");
+        activity.SetTag(GenAiAttributes.OperationName, GenAiOperationNames.TextCompletion);
         activity.SetTag(GenAiAttributes.ProviderName, config.Provider);
         activity.SetTag(GenAiAttributes.RequestModel, config.Model);
 
@@ -210,7 +221,7 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeEmbedding);
 
-        activity.SetTag(GenAiAttributes.OperationName, "embeddings");
+        activity.SetTag(GenAiAttributes.OperationName, GenAiOperationNames.Embeddings);
         activity.SetTag(GenAiAttributes.ProviderName, config.Provider);
         activity.SetTag(GenAiAttributes.RequestModel, config.Model);
 
@@ -258,7 +269,7 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeTool);
 
-        activity.SetTag(GenAiAttributes.OperationName, "execute_tool");
+        activity.SetTag(GenAiAttributes.OperationName, GenAiOperationNames.ExecuteTool);
         activity.SetTag(GenAiAttributes.ToolName, toolName);
         activity.SetTag(GenAiAttributes.ToolType, toolType);
 
@@ -336,7 +347,7 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeAgent);
 
-        activity.SetTag(GenAiAttributes.OperationName, "create_agent");
+        activity.SetTag(GenAiAttributes.OperationName, GenAiOperationNames.CreateAgent);
         activity.SetTag(GenAiAttributes.AgentId, config.Id);
         activity.SetTag(GenAiAttributes.AgentName, config.Name);
 
@@ -366,7 +377,7 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeAgent);
 
-        activity.SetTag(GenAiAttributes.OperationName, "invoke_agent");
+        activity.SetTag(GenAiAttributes.OperationName, GenAiOperationNames.InvokeAgent);
         activity.SetTag(GenAiAttributes.AgentId, agentId);
 
         if (!string.IsNullOrEmpty(agentName))
@@ -374,6 +385,88 @@ public static class GenAiActivityHelper
             activity.SetTag(GenAiAttributes.AgentName, agentName);
         }
 
+        return activity;
+    }
+
+    /// <summary>
+    ///     Creates and configures an activity for a retrieval operation (RAG, vector search).
+    ///     Langfuse shows it as a retriever observation.
+    /// </summary>
+    public static Activity? CreateRetrievalActivity(
+        ActivitySource activitySource,
+        string operationName,
+        string? queryText = null,
+        string? dataSourceId = null)
+    {
+        var activity = activitySource.StartActivity(operationName);
+
+        if (activity == null)
+        {
+            return null;
+        }
+
+        activity.SetTag(LangfuseAttributes.ObservationType, LangfuseAttributes.ObservationTypeRetriever);
+        activity.SetTag(GenAiAttributes.OperationName, GenAiOperationNames.Retrieval);
+
+        if (!string.IsNullOrEmpty(queryText))
+        {
+            activity.SetTag(GenAiAttributes.RetrievalQueryText, queryText);
+        }
+
+        if (!string.IsNullOrEmpty(dataSourceId))
+        {
+            activity.SetTag(GenAiAttributes.DataSourceId, dataSourceId);
+        }
+
+        return activity;
+    }
+
+    /// <summary>
+    ///     Creates and configures an activity for a memory operation.
+    ///     Langfuse shows <c>search_memory</c> as a retriever observation and other operations as spans.
+    /// </summary>
+    /// <param name="activitySource">The activity source.</param>
+    /// <param name="operationName">The span name.</param>
+    /// <param name="memoryOperation">A memory operation from <see cref="GenAiOperationNames" /> (e.g., "search_memory").</param>
+    /// <param name="memoryStoreId">Optional memory store identifier.</param>
+    public static Activity? CreateMemoryActivity(
+        ActivitySource activitySource,
+        string operationName,
+        string memoryOperation,
+        string? memoryStoreId = null)
+    {
+        var activity = activitySource.StartActivity(operationName);
+
+        if (activity == null)
+        {
+            return null;
+        }
+
+        activity.SetTag(LangfuseAttributes.ObservationType,
+            memoryOperation == GenAiOperationNames.SearchMemory
+                ? LangfuseAttributes.ObservationTypeRetriever
+                : LangfuseAttributes.ObservationTypeSpan);
+        activity.SetTag(GenAiAttributes.OperationName, memoryOperation);
+
+        if (!string.IsNullOrEmpty(memoryStoreId))
+        {
+            activity.SetTag(GenAiAttributes.MemoryStoreId, memoryStoreId);
+        }
+
+        return activity;
+    }
+
+    /// <summary>
+    ///     Creates an activity with the given Langfuse observation type
+    ///     (e.g., <see cref="LangfuseAttributes.ObservationTypeChain" />).
+    /// </summary>
+    public static Activity? CreateObservationActivity(
+        ActivitySource activitySource,
+        string operationName,
+        string observationType)
+    {
+        var activity = activitySource.StartActivity(operationName);
+        activity?.SetTag(LangfuseAttributes.ObservationType, observationType);
         return activity;
     }
 
@@ -487,10 +580,56 @@ public static class GenAiActivityHelper
         }
 
         activity.SetTag(LangfuseAttributes.ObservationPromptName, promptName);
+        activity.SetTag(GenAiAttributes.PromptName, promptName);
 
         if (version.HasValue)
         {
             activity.SetTag(LangfuseAttributes.ObservationPromptVersion, version.Value);
+            // The OTel spec types the version as a string; Langfuse links prompts by the integer above.
+            activity.SetTag(GenAiAttributes.PromptVersion, version.Value.ToString(CultureInfo.InvariantCulture));
+        }
+    }
+
+    /// <summary>
+    ///     Sets prompt template variables on an activity as <c>gen_ai.prompt.variable.&lt;name&gt;</c>.
+    /// </summary>
+    public static void SetPromptVariables(Activity? activity, IEnumerable<KeyValuePair<string, string>> variables)
+    {
+        if (activity == null)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<string, string> kvp in variables)
+        {
+            activity.SetTag($"{GenAiAttributes.PromptVariablePrefix}{kvp.Key}", kvp.Value);
+        }
+    }
+
+    /// <summary>
+    ///     Sets the top-level (main) agent of the process on an activity.
+    /// </summary>
+    public static void SetMainAgent(Activity? activity, string? id = null, string? name = null,
+        string? description = null)
+    {
+        if (activity == null)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(id))
+        {
+            activity.SetTag(GenAiAttributes.MainAgentId, id);
+        }
+
+        if (!string.IsNullOrEmpty(name))
+        {
+            activity.SetTag(GenAiAttributes.MainAgentName, name);
+        }
+
+        if (!string.IsNullOrEmpty(description))
+        {
+            activity.SetTag(GenAiAttributes.MainAgentDescription, description);
         }
     }
 
@@ -600,9 +739,26 @@ public static class GenAiActivityHelper
             activity.SetTag(GenAiAttributes.UsageCacheReadInputTokens, response.CacheReadInputTokens.Value);
         }
 
-        if (response.CacheCreationInputTokens.HasValue)
+        SetTagIfValue(activity, GenAiAttributes.UsageCacheWriteInputTokens, response.CacheWriteInputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageReasoningOutputTokens, response.ReasoningOutputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageTextInputTokens, response.TextInputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageTextOutputTokens, response.TextOutputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageTextCacheReadInputTokens, response.TextCacheReadInputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageAudioInputTokens, response.AudioInputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageAudioOutputTokens, response.AudioOutputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageAudioCacheReadInputTokens, response.AudioCacheReadInputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageImageInputTokens, response.ImageInputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageImageOutputTokens, response.ImageOutputTokens);
+        SetTagIfValue(activity, GenAiAttributes.UsageImageCacheReadInputTokens, response.ImageCacheReadInputTokens);
+
+        if (!string.IsNullOrEmpty(response.Status))
         {
-            activity.SetTag(GenAiAttributes.UsageCacheCreationInputTokens, response.CacheCreationInputTokens.Value);
+            activity.SetTag(GenAiAttributes.ResponseStatus, response.Status);
+        }
+
+        if (response.TimeToFirstChunk.HasValue)
+        {
+            activity.SetTag(GenAiAttributes.ResponseTimeToFirstChunk, response.TimeToFirstChunk.Value.TotalSeconds);
         }
 
         if (response.UsageDetails != null && response.UsageDetails.Count > 0)
@@ -632,6 +788,11 @@ public static class GenAiActivityHelper
 
             activity.SetTag(LangfuseAttributes.ObservationCostDetails,
                 JsonSerializer.Serialize(costDetails, JsonOptions));
+        }
+
+        if (response.TotalCost.HasValue)
+        {
+            activity.SetTag(GenAiAttributes.UsageCost, (double)response.TotalCost.Value);
         }
 
         if (response.CompletionStartTime.HasValue)
@@ -962,7 +1123,7 @@ public static class GenAiActivityHelper
     /// <summary>
     ///     Sets the top_k parameter on an activity.
     /// </summary>
-    public static void SetTopK(Activity? activity, double topK)
+    public static void SetTopK(Activity? activity, int topK)
     {
         activity?.SetTag(GenAiAttributes.RequestTopK, topK);
     }
@@ -1195,9 +1356,35 @@ public static class GenAiActivityHelper
     /// <summary>
     ///     Sets the number of input tokens written to a provider-managed cache.
     /// </summary>
+    public static void SetCacheWriteInputTokens(Activity? activity, int cacheWriteInputTokens)
+    {
+        activity?.SetTag(GenAiAttributes.UsageCacheWriteInputTokens, cacheWriteInputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the number of input tokens written to a provider-managed cache.
+    /// </summary>
+    [Obsolete("Renamed in the GenAI semantic conventions. Use SetCacheWriteInputTokens.")]
     public static void SetCacheCreationInputTokens(Activity? activity, int cacheCreationInputTokens)
     {
-        activity?.SetTag(GenAiAttributes.UsageCacheCreationInputTokens, cacheCreationInputTokens);
+        SetCacheWriteInputTokens(activity, cacheCreationInputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the number of output tokens used for reasoning.
+    /// </summary>
+    public static void SetReasoningOutputTokens(Activity? activity, int reasoningOutputTokens)
+    {
+        activity?.SetTag(GenAiAttributes.UsageReasoningOutputTokens, reasoningOutputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the total cost as <c>gen_ai.usage.cost</c>. Langfuse stores it as the "total" cost.
+    /// </summary>
+    public static void SetTotalCost(Activity? activity, decimal totalCost)
+    {
+        // OTLP has no decimal type; an unsupported type would be exported as a string.
+        activity?.SetTag(GenAiAttributes.UsageCost, (double)totalCost);
     }
 
     /// <summary>
@@ -1212,5 +1399,18 @@ public static class GenAiActivityHelper
 
         activity.SetTag(LangfuseAttributes.ObservationCostDetails,
             JsonSerializer.Serialize(costDetails, JsonOptions));
+    }
+
+    internal static string Serialize(object value)
+    {
+        return value as string ?? JsonSerializer.Serialize(value, JsonOptions);
+    }
+
+    private static void SetTagIfValue(Activity activity, string key, int? value)
+    {
+        if (value.HasValue)
+        {
+            activity.SetTag(key, value.Value);
+        }
     }
 }

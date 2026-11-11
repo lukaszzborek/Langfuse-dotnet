@@ -162,6 +162,45 @@ public sealed class NullOtelLangfuseTrace : IOtelLangfuseTrace
     }
 
     /// <inheritdoc />
+    public OtelRetriever CreateRetriever(
+        string name,
+        string? query = null,
+        string? dataSourceId = null,
+        Action<OtelRetriever>? configure = null)
+    {
+        return new OtelRetriever(null);
+    }
+
+    /// <inheritdoc />
+    public OtelMemory CreateMemoryOperation(
+        string name,
+        string memoryOperation,
+        string? memoryStoreId = null,
+        object? input = null,
+        Action<OtelMemory>? configure = null)
+    {
+        return new OtelMemory(null);
+    }
+
+    /// <inheritdoc />
+    public OtelEvaluator CreateEvaluator(string name, object? input = null, Action<OtelEvaluator>? configure = null)
+    {
+        return new OtelEvaluator(null);
+    }
+
+    /// <inheritdoc />
+    public OtelSpan CreateChain(string name, object? input = null, Action<OtelSpan>? configure = null)
+    {
+        return new OtelSpan(null);
+    }
+
+    /// <inheritdoc />
+    public OtelSpan CreateGuardrail(string name, object? input = null, Action<OtelSpan>? configure = null)
+    {
+        return new OtelSpan(null);
+    }
+
+    /// <inheritdoc />
     public void Dispose()
     {
     }

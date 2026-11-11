@@ -159,4 +159,24 @@ public static class LangfuseAttributes
     ///     Value for span observation type.
     /// </summary>
     public const string ObservationTypeSpan = "span";
+
+    /// <summary>
+    ///     Value for chain observation type (a link between steps, e.g., a prompt template feeding an LLM).
+    /// </summary>
+    public const string ObservationTypeChain = "chain";
+
+    /// <summary>
+    ///     Value for retriever observation type (data retrieval, e.g., a vector store or database lookup).
+    /// </summary>
+    public const string ObservationTypeRetriever = "retriever";
+
+    /// <summary>
+    ///     Value for guardrail observation type (protection against jailbreaks, harmful content, etc.).
+    /// </summary>
+    public const string ObservationTypeGuardrail = "guardrail";
+
+    /// <summary>
+    ///     Value for evaluator observation type (assessing the relevance or quality of LLM output).
+    /// </summary>
+    public const string ObservationTypeEvaluator = "evaluator";
 }

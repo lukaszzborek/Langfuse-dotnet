@@ -2,7 +2,7 @@ namespace zborek.Langfuse.OpenTelemetry;
 
 /// <summary>
 ///     OpenTelemetry semantic convention attribute names for Gen AI operations.
-///     Based on: https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/
+///     Based on: https://github.com/open-telemetry/semantic-conventions-genai
 /// </summary>
 public static class GenAiAttributes
 {
@@ -75,6 +75,21 @@ public static class GenAiAttributes
     /// </summary>
     public const string RequestEncodingFormats = "gen_ai.request.encoding_formats";
 
+    /// <summary>
+    ///     Whether the request was made in streaming mode.
+    /// </summary>
+    public const string RequestStream = "gen_ai.request.stream";
+
+    /// <summary>
+    ///     The reasoning or thinking effort level requested (e.g., "low", "medium", "high").
+    /// </summary>
+    public const string RequestReasoningLevel = "gen_ai.request.reasoning.level";
+
+    /// <summary>
+    ///     The identifier of a previous response used to provide context for this request.
+    /// </summary>
+    public const string RequestPreviousResponseId = "gen_ai.request.previous_response.id";
+
     // Response attributes
 
     /// <summary>
@@ -91,6 +106,16 @@ public static class GenAiAttributes
     ///     Reasons why the model stopped generating (e.g., "stop", "length", "tool_calls").
     /// </summary>
     public const string ResponseFinishReasons = "gen_ai.response.finish_reasons";
+
+    /// <summary>
+    ///     The lifecycle status of the response (e.g., "queued", "in_progress", "completed", "failed", "cancelled").
+    /// </summary>
+    public const string ResponseStatus = "gen_ai.response.status";
+
+    /// <summary>
+    ///     Seconds from the start of the operation to the first chunk of a streamed response.
+    /// </summary>
+    public const string ResponseTimeToFirstChunk = "gen_ai.response.time_to_first_chunk";
 
     // Usage attributes
 
@@ -112,7 +137,68 @@ public static class GenAiAttributes
     /// <summary>
     ///     The number of input tokens written to a provider-managed cache.
     /// </summary>
+    public const string UsageCacheWriteInputTokens = "gen_ai.usage.cache_write.input_tokens";
+
+    /// <summary>
+    ///     The number of input tokens written to a provider-managed cache.
+    /// </summary>
+    [Obsolete("Renamed in the GenAI semantic conventions. Use UsageCacheWriteInputTokens.")]
     public const string UsageCacheCreationInputTokens = "gen_ai.usage.cache_creation.input_tokens";
+
+    /// <summary>
+    ///     The number of output tokens used for reasoning (chain-of-thought, extended thinking).
+    /// </summary>
+    public const string UsageReasoningOutputTokens = "gen_ai.usage.reasoning.output_tokens";
+
+    /// <summary>
+    ///     The number of text input tokens.
+    /// </summary>
+    public const string UsageTextInputTokens = "gen_ai.usage.text.input_tokens";
+
+    /// <summary>
+    ///     The number of text output tokens.
+    /// </summary>
+    public const string UsageTextOutputTokens = "gen_ai.usage.text.output_tokens";
+
+    /// <summary>
+    ///     The number of text input tokens served from a provider-managed cache.
+    /// </summary>
+    public const string UsageTextCacheReadInputTokens = "gen_ai.usage.text.cache_read.input_tokens";
+
+    /// <summary>
+    ///     The number of audio input tokens.
+    /// </summary>
+    public const string UsageAudioInputTokens = "gen_ai.usage.audio.input_tokens";
+
+    /// <summary>
+    ///     The number of audio output tokens.
+    /// </summary>
+    public const string UsageAudioOutputTokens = "gen_ai.usage.audio.output_tokens";
+
+    /// <summary>
+    ///     The number of audio input tokens served from a provider-managed cache.
+    /// </summary>
+    public const string UsageAudioCacheReadInputTokens = "gen_ai.usage.audio.cache_read.input_tokens";
+
+    /// <summary>
+    ///     The number of image input tokens.
+    /// </summary>
+    public const string UsageImageInputTokens = "gen_ai.usage.image.input_tokens";
+
+    /// <summary>
+    ///     The number of image output tokens.
+    /// </summary>
+    public const string UsageImageOutputTokens = "gen_ai.usage.image.output_tokens";
+
+    /// <summary>
+    ///     The number of image input tokens served from a provider-managed cache.
+    /// </summary>
+    public const string UsageImageCacheReadInputTokens = "gen_ai.usage.image.cache_read.input_tokens";
+
+    /// <summary>
+    ///     The total cost of the operation. Not part of the OTel spec; Langfuse maps it to the "total" cost.
+    /// </summary>
+    public const string UsageCost = "gen_ai.usage.cost";
 
     // Content attributes (Official OTel semantic conventions)
 
@@ -138,6 +224,26 @@ public static class GenAiAttributes
     /// </summary>
     public const string OutputType = "gen_ai.output.type";
 
+    /// <summary>
+    ///     Absolute URI of the input messages stored externally (instead of inline content).
+    /// </summary>
+    public const string InputMessagesRef = "gen_ai.input.messages_ref";
+
+    /// <summary>
+    ///     Absolute URI of the output messages stored externally (instead of inline content).
+    /// </summary>
+    public const string OutputMessagesRef = "gen_ai.output.messages_ref";
+
+    /// <summary>
+    ///     Absolute URI of the system instructions stored externally (instead of inline content).
+    /// </summary>
+    public const string SystemInstructionsRef = "gen_ai.system_instructions_ref";
+
+    /// <summary>
+    ///     Absolute URI of the tool definitions stored externally (instead of inline content).
+    /// </summary>
+    public const string ToolDefinitionsRef = "gen_ai.tool.definitions_ref";
+
     // Content attributes (Langfuse compatibility)
 
     /// <summary>
@@ -160,6 +266,11 @@ public static class GenAiAttributes
     ///     Identifier for a conversation/session/thread.
     /// </summary>
     public const string ConversationId = "gen_ai.conversation.id";
+
+    /// <summary>
+    ///     Whether the conversation context used for the operation is a compacted view of a prior conversation.
+    /// </summary>
+    public const string ConversationCompacted = "gen_ai.conversation.compacted";
 
     // Tool attributes
 
@@ -198,6 +309,40 @@ public static class GenAiAttributes
     /// </summary>
     public const string ToolCallResult = "gen_ai.tool.call.result";
 
+    // Transfer (agent handoff) attributes
+
+    /// <summary>
+    ///     The name of the agent targeted by a transfer tool call.
+    /// </summary>
+    public const string TransferTargetName = "gen_ai.transfer.target.name";
+
+    /// <summary>
+    ///     How control passes to the transfer target ("return_to_caller" or "pass_control").
+    /// </summary>
+    public const string TransferMode = "gen_ai.transfer.mode";
+
+    // Skill attributes
+
+    /// <summary>
+    ///     The name of the Agent Skill.
+    /// </summary>
+    public const string SkillName = "gen_ai.skill.name";
+
+    /// <summary>
+    ///     The description of the Agent Skill.
+    /// </summary>
+    public const string SkillDescription = "gen_ai.skill.description";
+
+    /// <summary>
+    ///     The source URI the skill was loaded from.
+    /// </summary>
+    public const string SkillSourceUri = "gen_ai.skill.source.uri";
+
+    /// <summary>
+    ///     The skill-relative name of the resource (script, reference, or asset) being accessed.
+    /// </summary>
+    public const string SkillResourceName = "gen_ai.skill.resource.name";
+
     // Embeddings attributes
 
     /// <summary>
@@ -232,12 +377,37 @@ public static class GenAiAttributes
     /// </summary>
     public const string DataSourceId = "gen_ai.data_source.id";
 
+    /// <summary>
+    ///     Identifier of the top-level agent in the process.
+    /// </summary>
+    public const string MainAgentId = "gen_ai.main_agent.id";
+
+    /// <summary>
+    ///     Human-readable name of the top-level agent in the process.
+    /// </summary>
+    public const string MainAgentName = "gen_ai.main_agent.name";
+
+    /// <summary>
+    ///     Description of the top-level agent in the process.
+    /// </summary>
+    public const string MainAgentDescription = "gen_ai.main_agent.description";
+
     // Prompt attributes
 
     /// <summary>
     ///     The name of the prompt template used.
     /// </summary>
     public const string PromptName = "gen_ai.prompt.name";
+
+    /// <summary>
+    ///     The version of the prompt template used.
+    /// </summary>
+    public const string PromptVersion = "gen_ai.prompt.version";
+
+    /// <summary>
+    ///     Prefix for prompt template variables; the full key is the prefix plus the variable name.
+    /// </summary>
+    public const string PromptVariablePrefix = "gen_ai.prompt.variable.";
 
     // Retrieval attributes
 
@@ -251,11 +421,44 @@ public static class GenAiAttributes
     /// </summary>
     public const string RetrievalQueryText = "gen_ai.retrieval.query.text";
 
+    /// <summary>
+    ///     The maximum number of documents the retriever was asked to return.
+    /// </summary>
+    public const string RetrievalTopK = "gen_ai.retrieval.top_k";
+
+    // Memory attributes
+
+    /// <summary>
+    ///     The unique identifier of the memory store.
+    /// </summary>
+    public const string MemoryStoreId = "gen_ai.memory.store.id";
+
+    /// <summary>
+    ///     The unique identifier of the memory record.
+    /// </summary>
+    public const string MemoryRecordId = "gen_ai.memory.record.id";
+
+    /// <summary>
+    ///     The number of memory records relevant to the operation.
+    /// </summary>
+    public const string MemoryRecordCount = "gen_ai.memory.record.count";
+
+    /// <summary>
+    ///     The search query used to retrieve memories.
+    /// </summary>
+    public const string MemoryQueryText = "gen_ai.memory.query.text";
+
+    /// <summary>
+    ///     The memory records stored or retrieved (JSON).
+    /// </summary>
+    public const string MemoryRecords = "gen_ai.memory.records";
+
     // Token attributes
 
     /// <summary>
     ///     The type of token being counted (e.g., "input", "output").
     /// </summary>
+    [Obsolete("Removed from the GenAI semantic conventions together with the gen_ai.client.token.usage metric.")]
     public const string TokenType = "gen_ai.token.type";
 
     // Evaluation attributes

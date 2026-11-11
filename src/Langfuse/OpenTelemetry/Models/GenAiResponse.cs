@@ -38,7 +38,77 @@ public class GenAiResponse
     /// <summary>
     ///     The number of input tokens written to a provider-managed cache.
     /// </summary>
-    public int? CacheCreationInputTokens { get; init; }
+    public int? CacheWriteInputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of input tokens written to a provider-managed cache.
+    /// </summary>
+    [Obsolete("Renamed in the GenAI semantic conventions. Use CacheWriteInputTokens.")]
+    public int? CacheCreationInputTokens
+    {
+        get => CacheWriteInputTokens;
+        init => CacheWriteInputTokens = value;
+    }
+
+    /// <summary>
+    ///     The number of output tokens used for reasoning (chain-of-thought, extended thinking).
+    /// </summary>
+    public int? ReasoningOutputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of text input tokens.
+    /// </summary>
+    public int? TextInputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of text output tokens.
+    /// </summary>
+    public int? TextOutputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of text input tokens served from a provider-managed cache.
+    /// </summary>
+    public int? TextCacheReadInputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of audio input tokens.
+    /// </summary>
+    public int? AudioInputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of audio output tokens.
+    /// </summary>
+    public int? AudioOutputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of audio input tokens served from a provider-managed cache.
+    /// </summary>
+    public int? AudioCacheReadInputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of image input tokens.
+    /// </summary>
+    public int? ImageInputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of image output tokens.
+    /// </summary>
+    public int? ImageOutputTokens { get; init; }
+
+    /// <summary>
+    ///     The number of image input tokens served from a provider-managed cache.
+    /// </summary>
+    public int? ImageCacheReadInputTokens { get; init; }
+
+    /// <summary>
+    ///     The lifecycle status of the response (e.g., "queued", "in_progress", "completed", "failed", "cancelled").
+    /// </summary>
+    public string? Status { get; init; }
+
+    /// <summary>
+    ///     Time from the start of the operation to the first chunk of a streamed response.
+    /// </summary>
+    public TimeSpan? TimeToFirstChunk { get; init; }
 
     /// <summary>
     ///     The cost for processing the input tokens.
