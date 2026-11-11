@@ -95,7 +95,152 @@ public class GenAiActivityHelperTests : IDisposable
         using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
 
         activity.ShouldNotBeNull();
-        activity.GetTagItem(GenAiAttributes.RequestTopK).ShouldBe(50.0);
+        activity.GetTagItem(GenAiAttributes.RequestTopK).ShouldBe(50);
+    }
+
+    [Fact]
+    public void CreateChatCompletionActivity_SetsStreamReasoningLevelAndPreviousResponse()
+    {
+        var config = new GenAiChatCompletionConfig
+        {
+            Model = "gpt-5",
+            Provider = "openai",
+            Stream = true,
+            ReasoningLevel = "high",
+            PreviousResponseId = "resp_1"
+        };
+
+        using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestStream).ShouldBe(true);
+        activity.GetTagItem(GenAiAttributes.RequestReasoningLevel).ShouldBe("high");
+        activity.GetTagItem(GenAiAttributes.RequestPreviousResponseId).ShouldBe("resp_1");
+    }
+
+    [Fact]
+    public void CreateChatCompletionActivity_SetsPromptOnLangfuseAndGenAiKeys()
+    {
+        var config = new GenAiChatCompletionConfig
+        {
+            Model = "gpt-4",
+            Provider = "openai",
+            PromptName = "summary",
+            PromptVersion = 3
+        };
+
+        using var activity = GenAiActivityHelper.CreateChatCompletionActivity(_activitySource, "test-chat", config);
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationPromptName).ShouldBe("summary");
+        activity.GetTagItem(LangfuseAttributes.ObservationPromptVersion).ShouldBe(3);
+        activity.GetTagItem(GenAiAttributes.PromptName).ShouldBe("summary");
+        activity.GetTagItem(GenAiAttributes.PromptVersion).ShouldBe("3");
+    }
+
+    [Fact]
+    public void RecordResponse_SetsNewUsageStatusAndCostAttributes()
+    {
+        using var activity = _activitySource.StartActivity("test");
+        var response = new GenAiResponse
+        {
+            CacheWriteInputTokens = 10,
+            ReasoningOutputTokens = 20,
+            TextInputTokens = 30,
+            TextOutputTokens = 40,
+            TextCacheReadInputTokens = 5,
+            AudioInputTokens = 1,
+            AudioOutputTokens = 2,
+            AudioCacheReadInputTokens = 3,
+            ImageInputTokens = 4,
+            ImageOutputTokens = 6,
+            ImageCacheReadInputTokens = 7,
+            Status = "completed",
+            TimeToFirstChunk = TimeSpan.FromMilliseconds(500),
+            TotalCost = 0.25m
+        };
+
+        GenAiActivityHelper.RecordResponse(activity, response);
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.UsageCacheWriteInputTokens).ShouldBe(10);
+        activity.GetTagItem(GenAiAttributes.UsageReasoningOutputTokens).ShouldBe(20);
+        activity.GetTagItem(GenAiAttributes.UsageTextInputTokens).ShouldBe(30);
+        activity.GetTagItem(GenAiAttributes.UsageTextOutputTokens).ShouldBe(40);
+        activity.GetTagItem(GenAiAttributes.UsageTextCacheReadInputTokens).ShouldBe(5);
+        activity.GetTagItem(GenAiAttributes.UsageAudioInputTokens).ShouldBe(1);
+        activity.GetTagItem(GenAiAttributes.UsageAudioOutputTokens).ShouldBe(2);
+        activity.GetTagItem(GenAiAttributes.UsageAudioCacheReadInputTokens).ShouldBe(3);
+        activity.GetTagItem(GenAiAttributes.UsageImageInputTokens).ShouldBe(4);
+        activity.GetTagItem(GenAiAttributes.UsageImageOutputTokens).ShouldBe(6);
+        activity.GetTagItem(GenAiAttributes.UsageImageCacheReadInputTokens).ShouldBe(7);
+        activity.GetTagItem(GenAiAttributes.ResponseStatus).ShouldBe("completed");
+        activity.GetTagItem(GenAiAttributes.ResponseTimeToFirstChunk).ShouldBe(0.5);
+        activity.GetTagItem(GenAiAttributes.UsageCost).ShouldBe(0.25);
+        activity.GetTagItem("gen_ai.usage.cache_creation.input_tokens").ShouldBeNull();
+    }
+
+#pragma warning disable CS0618 // Verifies the obsolete property still maps to the new attribute.
+    [Fact]
+    public void RecordResponse_ObsoleteCacheCreationProperty_WritesCacheWriteAttribute()
+    {
+        using var activity = _activitySource.StartActivity("test");
+
+        GenAiActivityHelper.RecordResponse(activity, new GenAiResponse { CacheCreationInputTokens = 12 });
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.UsageCacheWriteInputTokens).ShouldBe(12);
+    }
+#pragma warning restore CS0618
+
+    [Fact]
+    public void CreateRetrievalActivity_SetsRetrieverTypeAndAttributes()
+    {
+        using var activity = GenAiActivityHelper.CreateRetrievalActivity(_activitySource, "search", "what is otel",
+            "kb-1");
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeRetriever);
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe(GenAiOperationNames.Retrieval);
+        activity.GetTagItem(GenAiAttributes.RetrievalQueryText).ShouldBe("what is otel");
+        activity.GetTagItem(GenAiAttributes.DataSourceId).ShouldBe("kb-1");
+    }
+
+    [Theory]
+    [InlineData(GenAiOperationNames.SearchMemory, LangfuseAttributes.ObservationTypeRetriever)]
+    [InlineData(GenAiOperationNames.CreateMemory, LangfuseAttributes.ObservationTypeSpan)]
+    public void CreateMemoryActivity_MapsOperationToObservationType(string operation, string expectedType)
+    {
+        using var activity = GenAiActivityHelper.CreateMemoryActivity(_activitySource, "memory", operation, "store-1");
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(expectedType);
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe(operation);
+        activity.GetTagItem(GenAiAttributes.MemoryStoreId).ShouldBe("store-1");
+    }
+
+    [Fact]
+    public void SetPromptVariables_SetsPrefixedTags()
+    {
+        using var activity = _activitySource.StartActivity("test");
+
+        GenAiActivityHelper.SetPromptVariables(activity, new Dictionary<string, string> { ["city"] = "Paris" });
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem("gen_ai.prompt.variable.city").ShouldBe("Paris");
+    }
+
+    [Fact]
+    public void SetMainAgent_SetsOnlyProvidedValues()
+    {
+        using var activity = _activitySource.StartActivity("test");
+
+        GenAiActivityHelper.SetMainAgent(activity, "agent-1", "Planner");
+
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.MainAgentId).ShouldBe("agent-1");
+        activity.GetTagItem(GenAiAttributes.MainAgentName).ShouldBe("Planner");
+        activity.GetTagItem(GenAiAttributes.MainAgentDescription).ShouldBeNull();
     }
 
     [Fact]

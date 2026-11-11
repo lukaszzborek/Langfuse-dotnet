@@ -751,4 +751,165 @@ public class OtelObservationTests : IDisposable
 
         span.IsSkipped.ShouldBeTrue();
     }
+
+    [Fact]
+    public void OtelGeneration_NewRequestAndResponseSetters_SetTags()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var generation = trace.CreateGeneration("test-generation", "gpt-5", "openai");
+
+        generation.SetStream(true);
+        generation.SetReasoningLevel("medium");
+        generation.SetPreviousResponseId("resp_0");
+        generation.SetResponseStatus("in_progress");
+        generation.SetTimeToFirstChunk(TimeSpan.FromSeconds(1.5));
+        generation.SetConversationCompacted(true);
+        generation.SetReasoningOutputTokens(42);
+        generation.SetCacheWriteInputTokens(8);
+        generation.SetTotalCost(1.25m);
+        generation.SetPromptVariables(new Dictionary<string, string> { ["name"] = "Ada" });
+        generation.SetInputMessagesRef("s3://bucket/in.json");
+        generation.SetOutputMessagesRef("s3://bucket/out.json");
+        generation.SetSystemInstructionsRef("s3://bucket/sys.json");
+        generation.SetToolDefinitionsRef("s3://bucket/tools.json");
+
+        var activity = generation.Activity;
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.RequestStream).ShouldBe(true);
+        activity.GetTagItem(GenAiAttributes.RequestReasoningLevel).ShouldBe("medium");
+        activity.GetTagItem(GenAiAttributes.RequestPreviousResponseId).ShouldBe("resp_0");
+        activity.GetTagItem(GenAiAttributes.ResponseStatus).ShouldBe("in_progress");
+        activity.GetTagItem(GenAiAttributes.ResponseTimeToFirstChunk).ShouldBe(1.5);
+        activity.GetTagItem(GenAiAttributes.ConversationCompacted).ShouldBe(true);
+        activity.GetTagItem(GenAiAttributes.UsageReasoningOutputTokens).ShouldBe(42);
+        activity.GetTagItem(GenAiAttributes.UsageCacheWriteInputTokens).ShouldBe(8);
+        activity.GetTagItem(GenAiAttributes.UsageCost).ShouldBe(1.25);
+        activity.GetTagItem("gen_ai.prompt.variable.name").ShouldBe("Ada");
+        activity.GetTagItem(GenAiAttributes.InputMessagesRef).ShouldBe("s3://bucket/in.json");
+        activity.GetTagItem(GenAiAttributes.OutputMessagesRef).ShouldBe("s3://bucket/out.json");
+        activity.GetTagItem(GenAiAttributes.SystemInstructionsRef).ShouldBe("s3://bucket/sys.json");
+        activity.GetTagItem(GenAiAttributes.ToolDefinitionsRef).ShouldBe("s3://bucket/tools.json");
+    }
+
+    [Fact]
+    public void OtelToolCall_SetTransferAndSkill_SetsTags()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var toolCall = trace.CreateToolCall("handoff", "transfer_to_billing");
+
+        toolCall.SetTransfer("billing-agent", "pass_control");
+        toolCall.SetSkill("pdf", "Reads PDFs", "file:///skills/pdf", "scripts/extract.py");
+
+        var activity = toolCall.Activity;
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.TransferTargetName).ShouldBe("billing-agent");
+        activity.GetTagItem(GenAiAttributes.TransferMode).ShouldBe("pass_control");
+        activity.GetTagItem(GenAiAttributes.SkillName).ShouldBe("pdf");
+        activity.GetTagItem(GenAiAttributes.SkillDescription).ShouldBe("Reads PDFs");
+        activity.GetTagItem(GenAiAttributes.SkillSourceUri).ShouldBe("file:///skills/pdf");
+        activity.GetTagItem(GenAiAttributes.SkillResourceName).ShouldBe("scripts/extract.py");
+    }
+
+    [Fact]
+    public void SetMainAgent_OnAnyObservation_SetsTags()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var span = trace.CreateSpan("step");
+
+        span.SetMainAgent("agent-1", "Orchestrator", "Top-level agent");
+
+        var activity = span.Activity;
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(GenAiAttributes.MainAgentId).ShouldBe("agent-1");
+        activity.GetTagItem(GenAiAttributes.MainAgentName).ShouldBe("Orchestrator");
+        activity.GetTagItem(GenAiAttributes.MainAgentDescription).ShouldBe("Top-level agent");
+    }
+
+    [Fact]
+    public void CreateRetriever_SetsTypeQueryAndDocuments()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var retriever = trace.CreateRetriever("vector-search", "what is otel", "kb-1");
+
+        retriever.SetTopK(5);
+        retriever.SetDocuments(new[] { new { id = "doc-1", score = 0.9 } });
+
+        var activity = retriever.Activity;
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeRetriever);
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe(GenAiOperationNames.Retrieval);
+        activity.GetTagItem(GenAiAttributes.RetrievalQueryText).ShouldBe("what is otel");
+        activity.GetTagItem(LangfuseAttributes.ObservationInput).ShouldBe("what is otel");
+        activity.GetTagItem(GenAiAttributes.DataSourceId).ShouldBe("kb-1");
+        activity.GetTagItem(GenAiAttributes.RetrievalTopK).ShouldBe(5);
+        var documents = activity.GetTagItem(GenAiAttributes.RetrievalDocuments) as string;
+        documents.ShouldNotBeNull();
+        documents.ShouldContain("doc-1");
+        activity.GetTagItem(LangfuseAttributes.ObservationOutput).ShouldBe(documents);
+    }
+
+    [Fact]
+    public void CreateMemoryOperation_SetsTypeAndMemoryAttributes()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var memory = trace.CreateMemoryOperation("recall", GenAiOperationNames.SearchMemory, "store-1");
+
+        memory.SetQuery("user preferences");
+        memory.SetRecordCount(2);
+        memory.SetRecordId("rec-1");
+        memory.SetRecords(new[] { "likes tea", "lives in Paris" });
+
+        var activity = memory.Activity;
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeRetriever);
+        activity.GetTagItem(GenAiAttributes.OperationName).ShouldBe(GenAiOperationNames.SearchMemory);
+        activity.GetTagItem(GenAiAttributes.MemoryStoreId).ShouldBe("store-1");
+        activity.GetTagItem(GenAiAttributes.MemoryQueryText).ShouldBe("user preferences");
+        activity.GetTagItem(GenAiAttributes.MemoryRecordCount).ShouldBe(2);
+        activity.GetTagItem(GenAiAttributes.MemoryRecordId).ShouldBe("rec-1");
+        (activity.GetTagItem(GenAiAttributes.MemoryRecords) as string).ShouldNotBeNull().ShouldContain("likes tea");
+    }
+
+    [Fact]
+    public void CreateEvaluator_SetsTypeAndEvaluation()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var evaluator = trace.CreateEvaluator("relevance-check", new { answer = "42" });
+
+        evaluator.SetEvaluation("relevance", 0.8, "relevant", "Answers the question");
+
+        var activity = evaluator.Activity;
+        activity.ShouldNotBeNull();
+        activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeEvaluator);
+        activity.GetTagItem(GenAiAttributes.EvaluationName).ShouldBe("relevance");
+        activity.GetTagItem(GenAiAttributes.EvaluationScoreValue).ShouldBe(0.8);
+        activity.GetTagItem(LangfuseAttributes.ObservationInput).ShouldNotBeNull();
+    }
+
+    [Fact]
+    public void CreateChainAndGuardrail_SetObservationTypes()
+    {
+        using var trace = new OtelLangfuseTrace("test-trace");
+        using var chain = trace.CreateChain("pipeline", "start");
+        using var guardrail = trace.CreateGuardrail("jailbreak-check");
+
+        chain.Activity.ShouldNotBeNull();
+        chain.Activity.GetTagItem(LangfuseAttributes.ObservationType).ShouldBe(LangfuseAttributes.ObservationTypeChain);
+        chain.Activity.GetTagItem(LangfuseAttributes.ObservationInput).ShouldBe("start");
+        guardrail.Activity.ShouldNotBeNull();
+        guardrail.Activity.GetTagItem(LangfuseAttributes.ObservationType)
+            .ShouldBe(LangfuseAttributes.ObservationTypeGuardrail);
+    }
+
+    [Fact]
+    public void NewObservationTypes_WithoutActiveTrace_HaveNoActivity()
+    {
+        var trace = NullOtelLangfuseTrace.Instance;
+
+        trace.CreateRetriever("r").HasActivity.ShouldBeFalse();
+        trace.CreateMemoryOperation("m", GenAiOperationNames.CreateMemory).HasActivity.ShouldBeFalse();
+        trace.CreateEvaluator("e").HasActivity.ShouldBeFalse();
+        trace.CreateChain("c").HasActivity.ShouldBeFalse();
+        trace.CreateGuardrail("g").HasActivity.ShouldBeFalse();
+    }
 }

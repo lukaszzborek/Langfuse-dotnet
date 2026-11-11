@@ -28,7 +28,7 @@ public class GenAiChatCompletionConfig
     /// <summary>
     ///     Limits the number of highest probability tokens to consider.
     /// </summary>
-    public double? TopK { get; init; }
+    public int? TopK { get; init; }
 
     /// <summary>
     ///     Maximum number of tokens to generate in the completion.
@@ -59,6 +59,21 @@ public class GenAiChatCompletionConfig
     ///     Sequences where the model will stop generating further tokens.
     /// </summary>
     public string[]? StopSequences { get; init; }
+
+    /// <summary>
+    ///     Whether the request is made in streaming mode.
+    /// </summary>
+    public bool? Stream { get; init; }
+
+    /// <summary>
+    ///     The requested reasoning or thinking effort level (e.g., "low", "medium", "high").
+    /// </summary>
+    public string? ReasoningLevel { get; init; }
+
+    /// <summary>
+    ///     The identifier of a previous response used to provide context for this request.
+    /// </summary>
+    public string? PreviousResponseId { get; init; }
 
     /// <summary>
     ///     The expected output type format (e.g., "json", "text").

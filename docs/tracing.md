@@ -84,6 +84,11 @@ CreateGeneration(name, model, provider, input?, configure?) → OtelGeneration
 CreateEmbedding(name, model, provider, input?, configure?) → OtelEmbedding
 CreateToolCall(name, toolName, toolDescription?, provider, input?, configure?) → OtelToolCall
 CreateAgent(name, agentId, description?, input?, configure?) → OtelAgent
+CreateRetriever(name, query?, dataSourceId?, configure?) → OtelRetriever
+CreateMemoryOperation(name, memoryOperation, memoryStoreId?, input?, configure?) → OtelMemory
+CreateEvaluator(name, input?, configure?) → OtelEvaluator
+CreateChain(name, input?, configure?) → OtelSpan       // Langfuse type "chain"
+CreateGuardrail(name, input?, configure?) → OtelSpan   // Langfuse type "guardrail"
 CreateEvent(name, input?, output?) → OtelEvent
 ```
 
@@ -144,6 +149,7 @@ SetMetadata(string key, object value)
 SetLevel(LangfuseObservationLevel)  // DEBUG, INFO, WARNING, ERROR
 SetTag(string key, object? value)
 SetStatusMessage(string)
+SetMainAgent(id?, name?, description?)  // top-level agent of the process
 Skip()          // don't export this observation
 EndObservation() // explicitly end
 Dispose()       // ends the observation
@@ -213,8 +219,24 @@ SetServerPort(int)
 SetUsageDetails(Dictionary<string, long>)
 SetCostDetails(Dictionary<string, decimal>)
 SetCacheReadInputTokens(int)
-SetCacheCreationInputTokens(int)
+SetCacheWriteInputTokens(int)
+SetReasoningOutputTokens(int)
+SetTotalCost(decimal)           // gen_ai.usage.cost, Langfuse "total" cost
+SetStream(bool)
+SetReasoningLevel(string)       // "low", "medium", "high"
+SetPreviousResponseId(string)
+SetResponseStatus(string)       // "queued", "in_progress", "completed", "failed", "cancelled"
+SetTimeToFirstChunk(TimeSpan)
+SetConversationCompacted(bool)
+SetPromptVariables(IEnumerable<KeyValuePair<string, string>>)
+SetInputMessagesRef(string)     // URI of externally stored content
+SetOutputMessagesRef(string)
+SetSystemInstructionsRef(string)
+SetToolDefinitionsRef(string)
 ```
+
+`SetCacheCreationInputTokens(int)` is obsolete. The GenAI semantic conventions renamed
+`gen_ai.usage.cache_creation.input_tokens` to `gen_ai.usage.cache_write.input_tokens`.
 
 ### OtelToolCall — function/tool invocations
 
@@ -233,6 +255,8 @@ Methods:
 ```
 SetArguments(object)
 SetResult(object)
+SetTransfer(targetAgentName, mode?)                        // agent handoff; mode: "return_to_caller", "pass_control"
+SetSkill(skillName, description?, sourceUri?, resourceName?) // Agent Skill loaded, read, or run by the tool
 ```
 
 ### OtelEmbedding — vector embeddings
@@ -270,6 +294,65 @@ agent.SetOutput(synthesizedResult);
 Methods:
 ```
 SetDataSource(string)
+```
+
+### OtelRetriever — RAG and vector search
+
+```csharp
+using var retriever = trace.CreateRetriever("vector-search",
+    query: "How do I reset my password?",
+    dataSourceId: "help-center-index");
+
+retriever.SetTopK(5);
+var docs = await SearchAsync(query, 5);
+retriever.SetDocuments(docs); // also set as the observation output
+```
+
+Methods:
+```
+SetQuery(string)
+SetTopK(int)
+SetDataSource(string)
+SetDocuments(object)
+```
+
+### OtelMemory — agent memory operations
+
+```csharp
+using var memory = trace.CreateMemoryOperation("recall-preferences",
+    GenAiOperationNames.SearchMemory,
+    memoryStoreId: "user-preferences");
+
+memory.SetQuery("favorite drinks");
+memory.SetRecords(records);
+memory.SetRecordCount(records.Count);
+```
+
+`search_memory` is shown in Langfuse as a retriever; other memory operations are spans.
+
+Methods:
+```
+SetQuery(string)
+SetRecordId(string)
+SetRecordCount(int)
+SetRecords(object)
+```
+
+### OtelEvaluator — output quality checks
+
+```csharp
+using var evaluator = trace.CreateEvaluator("relevance-check", input: answer);
+evaluator.SetEvaluation("relevance", 0.85, label: "relevant", explanation: "Answers the question");
+```
+
+### Chain and guardrail
+
+`CreateChain` and `CreateGuardrail` return an `OtelSpan` with the Langfuse observation type set to `chain` or
+`guardrail`.
+
+```csharp
+using var guardrail = trace.CreateGuardrail("jailbreak-check", input: userMessage);
+guardrail.SetOutput(new { allowed = true });
 ```
 
 ### OtelEvent — discrete point-in-time events
@@ -313,7 +396,15 @@ new GenAiResponse
     InputTokens = 50,
     OutputTokens = 100,
     FinishReasons = ["stop"],
-    Completion = "result text"
+    Completion = "result text",
+    // Optional usage breakdown
+    CacheReadInputTokens = 20,
+    CacheWriteInputTokens = 10,
+    ReasoningOutputTokens = 40,
+    TextInputTokens = 45, ImageInputTokens = 5,   // also Audio*, *CacheReadInputTokens per modality
+    Status = "completed",
+    TimeToFirstChunk = TimeSpan.FromMilliseconds(350),
+    TotalCost = 0.0021m
 }
 ```
 

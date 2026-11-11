@@ -91,6 +91,14 @@ public abstract class OtelObservation : IDisposable
     }
 
     /// <summary>
+    ///     Sets the top-level (main) agent of the process that this observation runs under.
+    /// </summary>
+    public void SetMainAgent(string? id = null, string? name = null, string? description = null)
+    {
+        GenAiActivityHelper.SetMainAgent(Activity, id, name, description);
+    }
+
+    /// <summary>
     ///     Set a custom tag to the underlying activity.
     /// </summary>
     public void SetTag(string key, object? value)

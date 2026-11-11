@@ -514,6 +514,105 @@ public class OtelLangfuseTrace : IOtelLangfuseTrace
         return agent;
     }
 
+    /// <inheritdoc />
+    public OtelRetriever CreateRetriever(
+        string name,
+        string? query = null,
+        string? dataSourceId = null,
+        Action<OtelRetriever>? configure = null)
+    {
+        if (!HasActiveTrace)
+        {
+            return new OtelRetriever(null);
+        }
+
+        var activity = GenAiActivityHelper.CreateRetrievalActivity(_activitySource, name, query, dataSourceId);
+        var retriever = new OtelRetriever(activity);
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            retriever.SetInput(query);
+        }
+
+        configure?.Invoke(retriever);
+        return retriever;
+    }
+
+    /// <inheritdoc />
+    public OtelMemory CreateMemoryOperation(
+        string name,
+        string memoryOperation,
+        string? memoryStoreId = null,
+        object? input = null,
+        Action<OtelMemory>? configure = null)
+    {
+        if (!HasActiveTrace)
+        {
+            return new OtelMemory(null);
+        }
+
+        var activity = GenAiActivityHelper.CreateMemoryActivity(_activitySource, name, memoryOperation, memoryStoreId);
+        var memory = new OtelMemory(activity);
+
+        if (input != null)
+        {
+            memory.SetInput(input);
+        }
+
+        configure?.Invoke(memory);
+        return memory;
+    }
+
+    /// <inheritdoc />
+    public OtelEvaluator CreateEvaluator(string name, object? input = null, Action<OtelEvaluator>? configure = null)
+    {
+        if (!HasActiveTrace)
+        {
+            return new OtelEvaluator(null);
+        }
+
+        var evaluator = new OtelEvaluator(GenAiActivityHelper.CreateObservationActivity(
+            _activitySource, name, LangfuseAttributes.ObservationTypeEvaluator));
+
+        if (input != null)
+        {
+            evaluator.SetInput(input);
+        }
+
+        configure?.Invoke(evaluator);
+        return evaluator;
+    }
+
+    /// <inheritdoc />
+    public OtelSpan CreateChain(string name, object? input = null, Action<OtelSpan>? configure = null)
+    {
+        return CreateTypedSpan(name, LangfuseAttributes.ObservationTypeChain, input, configure);
+    }
+
+    /// <inheritdoc />
+    public OtelSpan CreateGuardrail(string name, object? input = null, Action<OtelSpan>? configure = null)
+    {
+        return CreateTypedSpan(name, LangfuseAttributes.ObservationTypeGuardrail, input, configure);
+    }
+
+    private OtelSpan CreateTypedSpan(string name, string observationType, object? input, Action<OtelSpan>? configure)
+    {
+        if (!HasActiveTrace)
+        {
+            return new OtelSpan(null);
+        }
+
+        var span = new OtelSpan(GenAiActivityHelper.CreateObservationActivity(_activitySource, name, observationType));
+
+        if (input != null)
+        {
+            span.SetInput(input);
+        }
+
+        configure?.Invoke(span);
+        return span;
+    }
+
     /// <summary>
     ///     Creates a detached trace that is NOT managed by this instance.
     ///     Useful for parallel operations or background tasks.

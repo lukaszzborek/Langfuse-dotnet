@@ -223,9 +223,122 @@ public class OtelGeneration : OtelObservation
     /// <summary>
     ///     Sets the number of input tokens written to a provider-managed cache.
     /// </summary>
+    public void SetCacheWriteInputTokens(int cacheWriteInputTokens)
+    {
+        GenAiActivityHelper.SetCacheWriteInputTokens(Activity, cacheWriteInputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the number of input tokens written to a provider-managed cache.
+    /// </summary>
+    [Obsolete("Renamed in the GenAI semantic conventions. Use SetCacheWriteInputTokens.")]
     public void SetCacheCreationInputTokens(int cacheCreationInputTokens)
     {
-        GenAiActivityHelper.SetCacheCreationInputTokens(Activity, cacheCreationInputTokens);
+        SetCacheWriteInputTokens(cacheCreationInputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the number of output tokens used for reasoning.
+    /// </summary>
+    public void SetReasoningOutputTokens(int reasoningOutputTokens)
+    {
+        GenAiActivityHelper.SetReasoningOutputTokens(Activity, reasoningOutputTokens);
+    }
+
+    /// <summary>
+    ///     Sets the total cost of this generation. Langfuse stores it as the "total" cost.
+    /// </summary>
+    public void SetTotalCost(decimal totalCost)
+    {
+        GenAiActivityHelper.SetTotalCost(Activity, totalCost);
+    }
+
+    /// <summary>
+    ///     Sets whether this generation request was made in streaming mode.
+    /// </summary>
+    public void SetStream(bool stream)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestStream, stream);
+    }
+
+    /// <summary>
+    ///     Sets the requested reasoning or thinking effort level (e.g., "low", "medium", "high").
+    /// </summary>
+    public void SetReasoningLevel(string reasoningLevel)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestReasoningLevel, reasoningLevel);
+    }
+
+    /// <summary>
+    ///     Sets the identifier of a previous response used to provide context for this request.
+    /// </summary>
+    public void SetPreviousResponseId(string previousResponseId)
+    {
+        Activity?.SetTag(GenAiAttributes.RequestPreviousResponseId, previousResponseId);
+    }
+
+    /// <summary>
+    ///     Sets the lifecycle status of the response (e.g., "queued", "in_progress", "completed", "failed", "cancelled").
+    /// </summary>
+    public void SetResponseStatus(string status)
+    {
+        Activity?.SetTag(GenAiAttributes.ResponseStatus, status);
+    }
+
+    /// <summary>
+    ///     Sets the time from the start of the operation to the first chunk of a streamed response.
+    /// </summary>
+    public void SetTimeToFirstChunk(TimeSpan timeToFirstChunk)
+    {
+        Activity?.SetTag(GenAiAttributes.ResponseTimeToFirstChunk, timeToFirstChunk.TotalSeconds);
+    }
+
+    /// <summary>
+    ///     Marks whether the conversation context is a compacted view of a prior conversation.
+    /// </summary>
+    public void SetConversationCompacted(bool compacted)
+    {
+        Activity?.SetTag(GenAiAttributes.ConversationCompacted, compacted);
+    }
+
+    /// <summary>
+    ///     Sets the prompt template variables used for this generation.
+    /// </summary>
+    public void SetPromptVariables(IEnumerable<KeyValuePair<string, string>> variables)
+    {
+        GenAiActivityHelper.SetPromptVariables(Activity, variables);
+    }
+
+    /// <summary>
+    ///     Sets the URI of input messages stored externally (instead of inline content).
+    /// </summary>
+    public void SetInputMessagesRef(string uri)
+    {
+        Activity?.SetTag(GenAiAttributes.InputMessagesRef, uri);
+    }
+
+    /// <summary>
+    ///     Sets the URI of output messages stored externally (instead of inline content).
+    /// </summary>
+    public void SetOutputMessagesRef(string uri)
+    {
+        Activity?.SetTag(GenAiAttributes.OutputMessagesRef, uri);
+    }
+
+    /// <summary>
+    ///     Sets the URI of system instructions stored externally (instead of inline content).
+    /// </summary>
+    public void SetSystemInstructionsRef(string uri)
+    {
+        Activity?.SetTag(GenAiAttributes.SystemInstructionsRef, uri);
+    }
+
+    /// <summary>
+    ///     Sets the URI of tool definitions stored externally (instead of inline content).
+    /// </summary>
+    public void SetToolDefinitionsRef(string uri)
+    {
+        Activity?.SetTag(GenAiAttributes.ToolDefinitionsRef, uri);
     }
 
     /// <summary>

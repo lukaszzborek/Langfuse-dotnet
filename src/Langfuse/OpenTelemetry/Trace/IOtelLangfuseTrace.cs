@@ -192,4 +192,56 @@ public interface IOtelLangfuseTrace : IDisposable
         string? description = null,
         object? input = null,
         Action<OtelAgent>? configure = null);
+
+    /// <summary>
+    ///     Creates a retriever observation (RAG, vector store, or database lookup).
+    /// </summary>
+    /// <param name="name">The observation name.</param>
+    /// <param name="query">Optional query text. It is also set as the observation input.</param>
+    /// <param name="dataSourceId">Optional data source (knowledge base, index) identifier.</param>
+    /// <param name="configure">Optional action to configure the retriever.</param>
+    OtelRetriever CreateRetriever(
+        string name,
+        string? query = null,
+        string? dataSourceId = null,
+        Action<OtelRetriever>? configure = null);
+
+    /// <summary>
+    ///     Creates a memory operation observation.
+    /// </summary>
+    /// <param name="name">The observation name.</param>
+    /// <param name="memoryOperation">A memory operation from <see cref="GenAiOperationNames" /> (e.g., "search_memory").</param>
+    /// <param name="memoryStoreId">Optional memory store identifier.</param>
+    /// <param name="input">Optional input data.</param>
+    /// <param name="configure">Optional action to configure the memory operation.</param>
+    OtelMemory CreateMemoryOperation(
+        string name,
+        string memoryOperation,
+        string? memoryStoreId = null,
+        object? input = null,
+        Action<OtelMemory>? configure = null);
+
+    /// <summary>
+    ///     Creates an evaluator observation (assessing the relevance or quality of LLM output).
+    /// </summary>
+    /// <param name="name">The observation name.</param>
+    /// <param name="input">Optional input data.</param>
+    /// <param name="configure">Optional action to configure the evaluator.</param>
+    OtelEvaluator CreateEvaluator(string name, object? input = null, Action<OtelEvaluator>? configure = null);
+
+    /// <summary>
+    ///     Creates a chain observation (a link between steps, e.g., a prompt template feeding an LLM).
+    /// </summary>
+    /// <param name="name">The observation name.</param>
+    /// <param name="input">Optional input data.</param>
+    /// <param name="configure">Optional action to configure the chain.</param>
+    OtelSpan CreateChain(string name, object? input = null, Action<OtelSpan>? configure = null);
+
+    /// <summary>
+    ///     Creates a guardrail observation (protection against jailbreaks, harmful content, etc.).
+    /// </summary>
+    /// <param name="name">The observation name.</param>
+    /// <param name="input">Optional input data.</param>
+    /// <param name="configure">Optional action to configure the guardrail.</param>
+    OtelSpan CreateGuardrail(string name, object? input = null, Action<OtelSpan>? configure = null);
 }

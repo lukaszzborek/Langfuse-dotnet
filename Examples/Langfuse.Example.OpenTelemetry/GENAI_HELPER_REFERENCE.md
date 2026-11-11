@@ -52,12 +52,15 @@ GenAiActivityHelper.CreateChatCompletionActivity(
 - `Temperature`: Sampling temperature (0.0-2.0)
 - `MaxTokens`: Maximum tokens to generate
 - `TopP`: Nucleus sampling parameter
-- `TopK`: Top-k sampling parameter
+- `TopK`: Top-k sampling parameter (integer)
 - `FrequencyPenalty`: Frequency penalty (-2.0 to 2.0)
 - `PresencePenalty`: Presence penalty (-2.0 to 2.0)
 - `ChoiceCount`: Number of completions to generate
 - `Seed`: Seed for deterministic generation
 - `ConversationId`: Unique conversation identifier
+- `Stream`: Whether the request is made in streaming mode
+- `ReasoningLevel`: Requested reasoning effort (e.g., "low", "medium", "high")
+- `PreviousResponseId`: Previous response used as context
 
 ### Text Completion
 

@@ -26,4 +26,52 @@ public class OtelToolCall : OtelObservation
     {
         GenAiActivityHelper.RecordToolCallResult(Activity, result);
     }
+
+    /// <summary>
+    ///     Marks this tool call as a transfer (handoff) of work to another agent.
+    /// </summary>
+    /// <param name="targetAgentName">The name of the agent that receives the work.</param>
+    /// <param name="mode">"return_to_caller" or "pass_control".</param>
+    public void SetTransfer(string targetAgentName, string? mode = null)
+    {
+        Activity?.SetTag(GenAiAttributes.TransferTargetName, targetAgentName);
+
+        if (!string.IsNullOrEmpty(mode))
+        {
+            Activity?.SetTag(GenAiAttributes.TransferMode, mode);
+        }
+    }
+
+    /// <summary>
+    ///     Sets the Agent Skill that this tool call loads, reads, or runs.
+    /// </summary>
+    /// <param name="skillName">The skill name.</param>
+    /// <param name="description">Optional skill description.</param>
+    /// <param name="sourceUri">Optional URI the skill was loaded from.</param>
+    /// <param name="resourceName">Optional skill-relative resource name (script, reference, or asset).</param>
+    public void SetSkill(string skillName, string? description = null, string? sourceUri = null,
+        string? resourceName = null)
+    {
+        if (Activity == null)
+        {
+            return;
+        }
+
+        Activity.SetTag(GenAiAttributes.SkillName, skillName);
+
+        if (!string.IsNullOrEmpty(description))
+        {
+            Activity.SetTag(GenAiAttributes.SkillDescription, description);
+        }
+
+        if (!string.IsNullOrEmpty(sourceUri))
+        {
+            Activity.SetTag(GenAiAttributes.SkillSourceUri, sourceUri);
+        }
+
+        if (!string.IsNullOrEmpty(resourceName))
+        {
+            Activity.SetTag(GenAiAttributes.SkillResourceName, resourceName);
+        }
+    }
 }
